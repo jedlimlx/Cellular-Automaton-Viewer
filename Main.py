@@ -107,7 +107,7 @@ def zoom_out() -> None:
 
 
 def random_soup_settings() -> None:
-    settings = SoupSettings(canvas.density * 100, canvas.symmetry)
+    settings = SoupSettings(int(canvas.density * 100), canvas.symmetry)
     new_density, symmetry = settings.get_results()
 
     if new_density != -1: canvas.density = new_density / 100  # Map from % to float
