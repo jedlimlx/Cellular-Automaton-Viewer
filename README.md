@@ -1,36 +1,36 @@
 # Cellular-Automaton-Viewer
 Instructions
 =================================
-To Start the Program, Run RunMain.bat or Main.py
+To Start the Program, Run RunMain.bat or Main.py<br>
 
-Patterns are stored as rles.
+Patterns are stored as rles.<br>
 
-After you select the Pattern / Area with the Selection Tool
-To Copy, Press Ctrl+C
-To Cut, Press Ctrl+X
-To Delete, Press Del
-To Paste, in the area, Press Ctrl+V
-To Generate Random Soup, Press the Button with a Soup
-To Generate Multi-State Random Soup, Press the Button with a Soup and a 2 on it
-To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, Oscillators and Spaceships)
-To Record the Patterns in the Area Selected, Press the Record Button and it will turn black.
-Press it again to stop the recording and save the gif.
+After you select the Pattern / Area with the Selection Tool<br>
+To Copy, Press Ctrl+C<br>
+To Cut, Press Ctrl+X<br>
+To Delete, Press Del<br>
+To Paste, in the area, Press Ctrl+V<br>
+To Generate Random Soup, Press the Button with a Soup<br>
+To Generate Multi-State Random Soup, Press the Button with a Soup and a 2 on it<br>
+To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, Oscillators and Spaceships)<br>
+To Record the Patterns in the Area Selected, Press the Record Button and it will turn black.<br>
+Press it again to stop the recording and save the gif.<br>
 
-In the file menu, you can save, open, and create a new pattern.
-In the edit menu, you can copy, cut, delete and paste a pattern.
-In the control menu, you can adjust random soup and simulation settings and step forward 1 generation.
-In the zoom menu, you can zoom in and out and set the zoom.
+In the file menu, you can save, open, and create a new pattern.<br>
+In the edit menu, you can copy, cut, delete and paste a pattern.<br>
+In the control menu, you can adjust random soup and simulation settings and step forward 1 generation.<br>
+In the zoom menu, you can zoom in and out and set the zoom.<br>
 
 Rule Format
 =================================
-Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py
+Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py<br>
 
-If you do not know how to code Python, use the .ca_rule format.
-I have added a script to parse the .ca_rule format. It is transFunc.py in the root folder.
-To change the rule, edit Rules/sample.ca_rule.
-In future, the format will be supported natively.
+If you do not know how to code Python, use the .ca_rule format.<br>
+I have added a script to parse the .ca_rule format. It is transFunc.py in the root folder.<br>
+To change the rule, edit Rules/sample.ca_rule.<br>
+In future, the format will be supported natively.<br>
 
-The format is the following:
+The format is the following:<br>
 
 ```
 Name: Hello World (Can be Anything you like)
@@ -70,11 +70,11 @@ Colour Palette: -> RGB (To Tell Program to Auto Generate Put None Below Colour P
 Algorithm
 =================================
 
-Cells are stored in a sparse matrix represented by a dictionary.
-For example, {(1, 2): 2, (2, 2): 1, (3,2 ): 2}
+Cells are stored in a sparse matrix represented by a dictionary.<br>
+For example, {(1, 2): 2, (2, 2): 1, (3,2 ): 2}<br>
 
-Obtaining Neighbours -> O(no. of neighbours)
-Updating Coordinates -> O(1)
+Obtaining Neighbours -> O(no. of neighbours)<br>
+Updating Coordinates -> O(1)<br>
 
 Steps
 -----
@@ -92,9 +92,9 @@ For every cell in cells_to_check<br>
 
 Troubleshooting
 ================================
-When you run the simulation, it the cells do not change, it could be because there is an error in your transition function or because there is an error in the program.
-Check the console for error output.
-If you suspect a bug, please report it.
+When you run the simulation, it the cells do not change, it could be because there is an error in your transition function or because there is an error in the program.<br>
+Check the console for error output.<br>
+If you suspect a bug, please report it.<br>
 
 Sample Recording
 ================================
