@@ -80,15 +80,15 @@ Steps
 -----
 Initialise an empty set cells_to_check
 Loop through the set cells_changed, which contains cells that changed in the previous generation
-For every cell in cells_changed
-	Add the cell itself into cells_to_check as well as it's neighbours
-	
-Loop through the set cells_to_check
-For every cell in cells_to_check
-&nbsp;&nbsp;&nbsp;&nbsp;Check if the next state of the cell depends on its neighbours (For example, it won't if it's generations)
-&nbsp;&nbsp;&nbsp;&nbsp;If it depends on neighbours
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get neighbours of the cell and pass to transition function
-&nbsp;&nbsp;&nbsp;&nbsp;Update Cells in the dictionary
+For every cell in cells_changed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Add the cell itself into cells_to_check as well as it's neighbours<br>
+
+Loop through the set cells_to_check<br>
+For every cell in cells_to_check<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Check if the next state of the cell depends on its neighbours (For example, it won't if it's generations)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If it depends on neighbours<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get neighbours of the cell and pass to transition function<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Update Cells in the dictionary<br>
 
 Troubleshooting
 ================================
