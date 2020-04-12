@@ -1,21 +1,23 @@
 import copy
 import logging
 import random
+import sys
 import threading
 import traceback
-import sys
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
 
 import CACompute.CACompute as compute
 import CACompute_DP.CACompute as compute_dp
+import numpy as np
 import pyperclip
 from PIL import Image
 from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand
 
+from Identity import identify
 from transFunc import get_neighbourhood, n_states, rule_name, colour_palette
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
@@ -89,14 +91,17 @@ class CACanvas(QWidget):
         # Is the Simulation Running?
         self.running: bool = False
 
+        # Is the Recording Running?
+        self.recording: bool = False
+
         # Current Mode -> Painting or Selecting
         self.mode: str = "painting"
 
         # Density Parameter for Thing
-        self.density = 0.5
+        self.density: float = 0.5
 
         # Should DP be Used?
-        self.use_DP = False
+        self.use_DP: bool = False
 
         # Dynamic Programming Optimization
         self.DP_neighbourhood = []
@@ -109,6 +114,15 @@ class CACanvas(QWidget):
 
         # Soup Symmetry
         self.symmetry = "C1"
+
+        # Frames
+        self.frames: List = []
+
+        # Initialising Recording Pattern Bounds
+        self.recording_lower_x: int = 0
+        self.recording_lower_y: int = 0
+        self.recording_upper_x: int = 0
+        self.recording_upper_y: int = 0
 
         # Rubber Band -> Selection Rectangle
         self.rubber_band = QRubberBand(QRubberBand.Rectangle, self)
@@ -230,6 +244,21 @@ class CACanvas(QWidget):
         btn_multi_random.clicked.connect(lambda: self.random_soup(True))
 
         grid_selection.addWidget(btn_multi_random, 0, 1)
+
+        # Button to Identify Pattern
+        btn_identify = QPushButton()
+        btn_identify.setText("?")
+        btn_identify.setToolTip("Identify Pattern")
+        btn_identify.clicked.connect(self.identify_selection)
+
+        grid_selection.addWidget(btn_identify, 0, 2)
+
+        # Button to Record Images
+        self.btn_record = QPushButton()
+        self.btn_record.setIcon(QIcon("Icons/RecordLogo.png"))
+        self.btn_record.clicked.connect(self.record_pattern)
+
+        grid_selection.addWidget(self.btn_record, 0, 3)
 
         grid.addWidget(self.selection_tools, 2, 0)
 
@@ -490,14 +519,14 @@ class CACanvas(QWidget):
         copy_grid = copy.deepcopy(self.dict_grid)  # Create a deepcopy as dictionaries are mutable
         if self.use_DP:
             self.lower_x, self.upper_x, self.lower_y, self.upper_y, self.cells_changed, self.dict_grid = \
-                compute_dp.compute(get_neighbourhood(self.generations), self.DP_neighbourhood, self.cells_changed,
-                                self.lower_x, self.upper_x, self.lower_y, self.upper_y,
-                                copy_grid, self.dict_grid, self.generations)  # Compute New Grid Cells
-        else:
-            self.lower_x, self.upper_x, self.lower_y, self.upper_y, self.cells_changed, self.dict_grid = \
-                compute.compute(get_neighbourhood(self.generations), self.cells_changed,
+                compute_dp.compute(get_neighbourhood(self.generations),
+                                   self.DP_neighbourhood, self.cells_changed,
                                    self.lower_x, self.upper_x, self.lower_y, self.upper_y,
                                    copy_grid, self.dict_grid, self.generations)  # Compute New Grid Cells
+        else:
+            self.cells_changed, self.dict_grid = \
+                compute.compute(get_neighbourhood(self.generations), self.cells_changed,
+                                copy_grid, self.dict_grid, self.generations)  # Compute New Grid Cells
 
         computation_time_taken: float = time() - start_time
 
@@ -520,6 +549,11 @@ class CACanvas(QWidget):
                                     self.colour_palette[0][2]))
                 painter.setPen(pen)
                 painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
+
+                if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
+                        self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
+                    self.img[cell[0] - self.recording_lower_y][cell[1] - self.recording_lower_x] = \
+                        self.colour_palette[0]
             else:
                 pen.setColor(QColor(self.colour_palette[self.dict_grid[cell]][0],
                                     self.colour_palette[self.dict_grid[cell]][1],
@@ -527,7 +561,20 @@ class CACanvas(QWidget):
                 painter.setPen(pen)
                 painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
 
+                if cell[1] < self.lower_x: self.lower_x = cell[1]
+                elif cell[1] > self.upper_x: self.upper_x = cell[1]
+
+                if cell[0] < self.lower_y: self.lower_y = cell[0]
+                elif cell[0] > self.upper_y: self.upper_y = cell[0]
+
+                if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
+                        self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
+                    self.img[cell[0] - self.recording_lower_y][cell[1] - self.recording_lower_x] = \
+                        self.colour_palette[self.dict_grid[cell]]
+
         painter.end()
+
+        if self.recording: self.frames.append(self.img.copy())  # Add to Frames
 
         # Update Everything
         self.scroll_area.update()
@@ -708,6 +755,46 @@ class CACanvas(QWidget):
         except FileNotFoundError:
             pass
 
+    def record_pattern(self) -> None:
+        try:
+            if self.recording:
+                self.btn_record.setIcon(QIcon("Icons/RecordLogo.png"))
+
+                self.recording = False  # Stop Recording
+                file_name, _ = QFileDialog.getSaveFileName(caption="Save *.gif File",
+                                                           filter="GIF Files (*.gif)")
+
+                img_frames: List = [Image.fromarray(x) for x in self.frames]
+                img_frames[0].save(file_name, format='GIF', append_images=img_frames[1:],
+                                   save_all=True, loop=0)
+            else:
+                self.btn_record.setIcon(QIcon("Icons/RecordIcon2.png"))
+
+                # Start Recording
+                self.recording = True
+
+                # Getting Bounds for Recording
+                self.recording_lower_x, self.recording_upper_x, \
+                self.recording_lower_y, self.recording_upper_y = self.selection_bounds()
+
+                self.img = np.zeros((self.recording_upper_y - self.recording_lower_y + 1,
+                                     self.recording_upper_x - self.recording_lower_x + 1, 3),
+                                    dtype=np.uint8)
+
+                for key in self.dict_grid:
+                    if self.recording_lower_x <= key[1] <= self.recording_upper_x and \
+                            self.recording_lower_y <= key[0] <= self.recording_upper_y:
+                        self.img[key[0] - self.recording_lower_y][key[1] - self.recording_lower_x] = \
+                            np.array(self.colour_palette[self.dict_grid[key]])
+
+                self.frames.append(self.img.copy())
+
+        except FileNotFoundError:
+            pass
+
+        except Exception:
+            print(traceback.format_exc())
+
     def copy_selection(self) -> None:
         if self.mode == "selecting":
             lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
@@ -771,6 +858,18 @@ class CACanvas(QWidget):
         except Exception:
             logging.log(logging.ERROR, f"Error Parsing RLE\n{rle}", exc_info=True)
             QMessageBox.warning(self, "RLE Parsing Error", traceback.format_exc(),
+                                QMessageBox.Ok, QMessageBox.Ok)
+
+    def identify_selection(self):
+        # Getting Bounds
+        lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
+
+        dict_grid: Dict[Tuple[int, int], int] = {}  # Checking what cells are in the selection
+        for key in self.dict_grid:
+            if lower_x <= key[1] <= upper_x and lower_y <= key[0] <= upper_y:
+                dict_grid[key] = self.dict_grid[key]
+
+        QMessageBox.information(self, "Identification Complete", identify(dict_grid, self.generations),
                                 QMessageBox.Ok, QMessageBox.Ok)
 
     def open_pattern(self) -> None:

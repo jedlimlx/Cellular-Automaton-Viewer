@@ -27,6 +27,7 @@ cpdef pycompute(vector[pair[int, int]] neighbourhood, bool first,
 
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from libcpp.map cimport map
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
 from transFunc import transition_func, depend_on_neighbours, alternating_period
@@ -34,10 +35,11 @@ from transFunc import transition_func, depend_on_neighbours, alternating_period
 cdef extern from "compute.cpp":
     pass
 
+cdef unordered_map[pair[int, int], int] depends_cache
+cdef map[pair[vector[int], int], int] transition_func_cache
 cdef int alternating_period2 = alternating_period
 cpdef compute(vector[pair[int, int]] neighbourhood,
               unordered_set[pair[int, int]] cells_changed,
-              int lower_x, int upper_x, int lower_y, int upper_y,
               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
               int generations):
 
@@ -69,13 +71,26 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
         neighbours.clear()
         ans = -1
 
-        if copy_grid.find(coordinates) == copy_grid.end(): ans = depend_on_neighbours(0, generations)
-        else: ans = depend_on_neighbours(copy_grid[coordinates], generations)
+        if copy_grid.find(coordinates) == copy_grid.end():
+            if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \
+                    depends_cache.end():
+                ans = depend_on_neighbours(0, generations % alternating_period2)
+                depends_cache[pair[int, int] (0, generations % alternating_period2)] = ans
+            else:
+                ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]
+        else:
+            if depends_cache.find(pair[int, int] (copy_grid[coordinates],
+                                                  generations % alternating_period2)) == \
+                    depends_cache.end():
+                ans = depend_on_neighbours(copy_grid[coordinates], generations % alternating_period2)
+                depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)] = ans
+            else:
+                ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)]
 
         if ans == -1:
-            for k in neighbourhood:
-                coordinates2 = pair[int, int] (coordinates.first + k.first,
-                                               coordinates.second + k.second)
+            for neighbour in neighbourhood:
+                coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                               coordinates.second + neighbour.second)
                 if copy_grid.find(coordinates2) != copy_grid.end():
                     neighbours.push_back(copy_grid[coordinates2])
                 else:
@@ -83,7 +98,17 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
 
         if copy_grid.find(coordinates) != copy_grid.end():
             neighbours.push_back(copy_grid[coordinates])
-            if ans == -1: ans = transition_func(neighbours, generations)
+            if transition_func_cache.find(
+                    pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
+                    transition_func_cache.end():
+                if ans == -1:
+                    ans = transition_func(neighbours, generations % alternating_period2)
+                    transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
+            else:
+                if ans == -1: ans = transition_func_cache[
+                    pair[vector[int], int] (neighbours, generations % alternating_period2)]
+
             if ans == 0:
                 dict_grid.erase(coordinates)
                 cells_changed.insert(coordinates)
@@ -92,19 +117,19 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
                 cells_changed.insert(coordinates)
         else:
             neighbours.push_back(0)
-            if ans == -1: ans = transition_func(neighbours, generations)
+            if transition_func_cache.find(
+                    pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
+                    transition_func_cache.end():
+                if ans == -1:
+                    ans = transition_func(neighbours, generations % alternating_period2)
+                    transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
+            else:
+                if ans == -1: ans = transition_func_cache[
+                    pair[vector[int], int] (neighbours, generations % alternating_period2)]
+
             if ans != 0:
                 dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
                 cells_changed.insert(coordinates)
-                if coordinates.second < lower_x:
-                    lower_x = coordinates.second
-                elif coordinates.second > upper_x:
-                    upper_x = coordinates.second
 
-                if coordinates.first < lower_y:
-                    lower_y = coordinates.first
-                elif coordinates.first > upper_y:
-                    upper_y = coordinates.first
-
-
-    return lower_x, upper_x, lower_y, upper_y, cells_changed, dict_grid
+    return cells_changed, dict_grid

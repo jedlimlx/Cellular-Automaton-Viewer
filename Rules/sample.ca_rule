@@ -1,0 +1,19 @@
+Name: DiagonalLife
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,1,0,0
+0,1,0,1,0
+1,0,0,0,1
+0,1,0,1,0
+0,0,1,0,0
+
+State Weights: 0,1
+
+Rulespace: Outer Totalistic
+
+Rulestring: b3s2,3
+
+Colour Palette:
+None

@@ -43,7 +43,7 @@ Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '-' below
 0,1,0,1,0
 0,1,1,1,0
 0,0,0,0,0
-\######### (As many as you like, Recommended is Same Length)
+######### (As many as you like, Recommended is Same Length)
 0,0,1,0,0
 0,1,1,1,0
 1,1,0,1,1

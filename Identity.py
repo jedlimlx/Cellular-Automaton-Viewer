@@ -29,22 +29,22 @@ def identify(dict_grid: Dict[Tuple[int, int], int], generations: int) -> str:
     start_grid = copy.deepcopy(dict_grid)
 
     copy_grid = copy.deepcopy(dict_grid)
-    lower_x, upper_x, lower_y, upper_y = 0, 0, 0, 0
     period: int = 1
 
     # Compute New Grid Cells
-    lower_x, upper_x, lower_y, upper_y, cells_changed, dict_grid = \
-        compute.compute(get_neighbourhood(generations), dict_grid.keys(),
-                        lower_x, upper_x, lower_y, upper_y, copy_grid, dict_grid, generations)
+    cells_changed, dict_grid = compute.compute(get_neighbourhood(generations),
+                                               dict_grid.keys(), copy_grid, dict_grid, generations)
+
+    generations += 1
 
     while not compare(start_grid, dict_grid):
         copy_grid = copy.deepcopy(dict_grid)
 
         # Compute New Grid Cells
-        lower_x, upper_x, lower_y, upper_y, cells_changed, dict_grid = \
-            compute.compute(get_neighbourhood(generations), cells_changed,
-                            lower_x, upper_x, lower_y, upper_y, copy_grid, dict_grid, generations)
+        cells_changed, dict_grid = compute.compute(get_neighbourhood(generations), cells_changed,
+                                                   copy_grid, dict_grid, generations)
         period += 1
+        generations += 1
 
         if period % 500 == 0: print(period)
         if period > 5000:

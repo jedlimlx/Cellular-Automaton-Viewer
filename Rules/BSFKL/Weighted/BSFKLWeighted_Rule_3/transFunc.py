@@ -1,9 +1,9 @@
 # BSFKL
-birth = {4, 5, 8, 15, 16, 21}
-survival = {8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}
-forcing = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 21, 22, 23, 24}
-killing = {10, 13, 17, 19, 20, 23, 24}
-living = {0, 1, 2, 3, 4, 5, 6, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24}
+birth = {6, 7, 9, 15, 16, 21, 24, 26, 28}
+survival = {6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19}
+forcing = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23, 24}
+killing = {20, 23, 24, 26}
+living = {0, 1, 2, 3, 4, 5, 6, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 27, 28}
 
 # Information about the Rule (Must be filled)
 n_states = 3  # Number of States
@@ -16,14 +16,16 @@ rule_name = "BSFKLWeighted_Rule_3"  # Rule Name
 def get_neighbourhood(generation):  # Note (y, x) not (x, y)
     return [(1, -1), (1, 1), (-1, 1), (-1, -1),
             (1, 0), (0, 1), (-1, 0), (0, -1),
-            (2, 0), (0, 2), (-2, 0), (0, -2)]
+            (1, -2), (1, 2), (-1, 2), (-1, -2),
+            (2, -1), (2, 1), (-2, 1), (-2, -1)]
 
 
 # Transition Function of Rule, Last Element of Neighbours is the Central Cell
 def transition_func(neighbours, generation):
     weights = [3, 3, 3, 3,
-               -1, -1, -1, -1,
-               2, 2, 2, 2]
+               4, 4, 4, 4,
+               -1, 1, -1, 1,
+               1, -1, 1, -1]
 
     n_living, n_destructive = 0, 0
     for i in range(len(neighbours) - 1):
