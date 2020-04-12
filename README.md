@@ -31,6 +31,8 @@ To change the rule, edit Rules/sample.ca_rule.
 In future, the format will be supported natively.
 
 The format is the following:
+
+```
 Name: Hello World (Can be Anything you like)
 
 Neighbourhood Range: 2 (Can be Any Number, >3 gets slow)
@@ -63,6 +65,7 @@ b3s2,3 or 2,3/3 (Outer Totalistic)
 Colour Palette: -> RGB (To Tell Program to Auto Generate Put None Below Colour Palette)
 1 (0, 0, 0)
 2 (255, 255, 255)
+```
 
 Troubleshooting
 ================================
