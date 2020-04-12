@@ -67,6 +67,31 @@ Colour Palette: -> RGB (To Tell Program to Auto Generate Put None Below Colour P
 2 (255, 255, 255)
 ```
 
+Algorithm
+=================================
+
+Cells are stored in a sparse matrix represented by a dictionary.
+For example, {(1, 2): 2, (2, 2): 1, (3,2 ): 2}
+
+Obtaining Neighbours -> O(no. of neighbours)
+Updating Coordinates -> O(1)
+
+Steps
+-----
+Initialise an empty set cells_to_check
+Loop through the set cells_changed, which contains cells that changed in the previous generation
+For every cell in cells_changed
+	Add the cell itself into cells_to_check as well as it's neighbours
+	
+Loop through the set cells_to_check
+For every cell in cells_to_check
+	Check if the next state of the cell depends on its neighbours (For example, it won't if it's generations)
+	If it depends on neighbours
+		Get neighbours of the cell and pass to transition function
+	
+	Update Cells in the dictionary
+
+
 Troubleshooting
 ================================
 When you run the simulation, it the cells do not change, it could be because there is an error in your transition function or because there is an error in the program.
