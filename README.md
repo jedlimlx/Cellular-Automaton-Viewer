@@ -78,8 +78,8 @@ Updating Coordinates -> O(1)
 
 Steps
 -----
-Initialise an empty set cells_to_check
-Loop through the set cells_changed, which contains cells that changed in the previous generation
+Initialise an empty set cells_to_check<br>
+Loop through the set cells_changed (contains cells that changed in the previous generation)<br>
 For every cell in cells_changed<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Add the cell itself into cells_to_check as well as it's neighbours<br>
 
