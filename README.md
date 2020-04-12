@@ -85,10 +85,10 @@ For every cell in cells_changed
 	
 Loop through the set cells_to_check
 For every cell in cells_to_check
-    Check if the next state of the cell depends on its neighbours (For example, it won't if it's generations)
-    If it depends on neighbours
-        Get neighbours of the cell and pass to transition function
-    Update Cells in the dictionary
+&nbsp;&nbsp;&nbsp;&nbsp;Check if the next state of the cell depends on its neighbours (For example, it won't if it's generations)
+&nbsp;&nbsp;&nbsp;&nbsp;If it depends on neighbours
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get neighbours of the cell and pass to transition function
+&nbsp;&nbsp;&nbsp;&nbsp;Update Cells in the dictionary
 
 Troubleshooting
 ================================
