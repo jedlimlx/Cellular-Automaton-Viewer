@@ -26,10 +26,6 @@ Rule Format
 Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py<br>
 
 If you do not know how to code Python, use the .ca_rule format.<br>
-I have added a script to parse the .ca_rule format. It is transFunc.py in the root folder.<br>
-To change the rule, edit Rules/sample.ca_rule.<br>
-In future, the format will be supported natively.<br>
-
 The format is the following:<br>
 
 ```
@@ -63,8 +59,8 @@ b3s2,3 or 2,3/3 (Outer Totalistic)
 (Must Add Commas because of Extended Neighbourhood, Don't Leave Spaces)
 
 Colour Palette: -> RGB (To Tell Program to Auto Generate Put None Below Colour Palette)
-1 (0, 0, 0)
-2 (255, 255, 255)
+(0, 0, 0)
+(255, 255, 255)
 ```
 
 Algorithm
