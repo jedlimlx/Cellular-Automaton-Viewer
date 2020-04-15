@@ -100,7 +100,7 @@ class SettingZoom(QDialog):
 
 
 class SimulationSettings(QDialog):
-    def __init__(self, speed: int, use_DP: bool):
+    def __init__(self, speed: int):
         super().__init__()
 
         grid = QGridLayout()
@@ -120,12 +120,6 @@ class SimulationSettings(QDialog):
         self.slider.valueChanged.connect(self.change_label)
         grid.addWidget(self.slider)
 
-        # Checkbox for using DP
-        self.checkbox = QCheckBox()
-        self.checkbox.setText("Use DP")
-        self.checkbox.setChecked(use_DP)
-        grid.addWidget(self.checkbox)
-
         # Okay and Cancel Button
         btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
 
@@ -138,8 +132,8 @@ class SimulationSettings(QDialog):
     def change_label(self):
         self.label.setText(f"Max Speed (gen/s): {self.slider.value()}")
 
-    def get_results(self) -> Tuple[int, Any]:
+    def get_results(self) -> int:
         if self.exec_() == QDialog.Accepted:
-            return self.slider.value(), self.checkbox.isChecked()
+            return self.slider.value()
         else:
-            return -1, None
+            return -1
