@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 from transFunc import get_neighbourhood
 
 import CACompute.CACompute as compute
+import CAComputeParse.CACompute as parser
 
 oscillate_in_bounds = False  # Check for Guns
 offset_x, offset_y = 0, 0
@@ -39,7 +40,7 @@ def compare(first: Dict, second: Dict, lower_x: int, upper_x: int, lower_y: int,
         return False
 
 
-def identify(dict_grid: Dict[Tuple[int, int], int], generations: int) -> str:
+def identify(dict_grid: Dict[Tuple[int, int], int], generations: int, use_parse: int) -> str:
     global offset_x, offset_y, oscillate_in_bounds
     start_grid = copy.deepcopy(dict_grid)  # Starting Grid
 
@@ -55,18 +56,24 @@ def identify(dict_grid: Dict[Tuple[int, int], int], generations: int) -> str:
     copy_grid = copy.deepcopy(dict_grid)
     period: int = 1
 
-    # Compute New Grid Cells
-    cells_changed, dict_grid = compute.compute(get_neighbourhood(generations),
-                                               dict_grid.keys(), copy_grid, dict_grid, generations)
+    if use_parse:  # Check if using parser
+        cells_changed, dict_grid = parser.compute(dict_grid.keys(), copy_grid, dict_grid, generations)
+    else:
+        # Compute New Grid Cells
+        cells_changed, dict_grid = compute.compute(get_neighbourhood(generations),
+                                                   dict_grid.keys(), copy_grid, dict_grid, generations)
 
     generations += 1
 
     while not compare(start_grid, dict_grid, lower_x, upper_x, lower_y, upper_y):
         copy_grid = copy.deepcopy(dict_grid)
 
-        # Compute New Grid Cells
-        cells_changed, dict_grid = compute.compute(get_neighbourhood(generations), cells_changed,
-                                                   copy_grid, dict_grid, generations)
+        if use_parse:  # Check if using parser
+            cells_changed, dict_grid = parser.compute(cells_changed, copy_grid, dict_grid, generations)
+        else:
+            # Compute New Grid Cells
+            cells_changed, dict_grid = compute.compute(get_neighbourhood(generations), cells_changed,
+                                                       copy_grid, dict_grid, generations)
         period += 1
         generations += 1
 

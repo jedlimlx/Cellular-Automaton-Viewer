@@ -15,6 +15,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
     global canvas, cell_size
 
     # Disconnect Actions
+    # new_pattern_action.triggered.disconnect(lambda: change_zoom(cell_size, restore_pattern=False))
     open_pattern_action.triggered.disconnect(canvas.open_pattern)
     save_pattern_action.triggered.disconnect(canvas.save_pattern)
     open_rule_action.triggered.disconnect(canvas.load_new_rule)
@@ -27,10 +28,9 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
     random_soup_settings_action.triggered.disconnect(random_soup_settings)
 
     # Get Soup Settings
-    density: int = canvas.density
+    density: float = canvas.density
     symmetry: str = canvas.symmetry
     max_speed: int = canvas.max_speed
-    use_DP: bool = canvas.use_DP
 
     if restore_pattern:
         # Destroy Canvas
@@ -56,12 +56,11 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
         canvas.density = density
         canvas.symmetry = symmetry
         canvas.max_speed = max_speed
-        canvas.use_DP = use_DP
 
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
+        canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
         canvas.load_from_dict(dictionary)
-
     else:
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -74,12 +73,13 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
         canvas.density = density
         canvas.symmetry = symmetry
         canvas.max_speed = max_speed
-        canvas.use_DP = use_DP
 
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
+        canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
 
     # Reconnect Canvas Actions to Menu Bar
+    # new_pattern_action.triggered.connect(lambda: change_zoom(cell_size, restore_pattern=False))
     open_pattern_action.triggered.connect(canvas.open_pattern)
     save_pattern_action.triggered.connect(canvas.save_pattern)
     open_rule_action.triggered.connect(canvas.load_new_rule)
@@ -115,11 +115,10 @@ def random_soup_settings() -> None:
 
 
 def simulation_settings() -> None:
-    settings = SimulationSettings(canvas.max_speed, canvas.use_DP)
-    max_speed, use_DP = settings.get_results()
+    settings = SimulationSettings(canvas.max_speed)
+    max_speed = settings.get_results()
 
     if max_speed != -1: canvas.max_speed = max_speed
-    if use_DP is not None: canvas.use_DP = use_DP
 
 
 def set_zoom() -> None:
@@ -152,6 +151,7 @@ cell_size = 5
 canvas = CACanvas(cell_size)
 canvas.zoom_in.connect(zoom_in)
 canvas.zoom_out.connect(zoom_out)
+canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
 grid.addWidget(canvas, 1, 0)
 
 # Menu Bar

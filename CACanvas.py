@@ -1,3 +1,4 @@
+import json
 import copy
 import logging
 import random
@@ -8,8 +9,9 @@ from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
 
+import RuleParser
 import CACompute.CACompute as compute
-import CACompute_DP.CACompute as compute_dp
+import CAComputeParse.CACompute as parser
 import numpy as np
 import pyperclip
 from PIL import Image
@@ -22,47 +24,65 @@ from transFunc import get_neighbourhood, n_states, rule_name, colour_palette
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 
+settings = json.load(open("settings.json", "r"))
+use_parse: bool = settings["UseParse"]
+
+if use_parse:
+    RuleParser.load("rule.ca_rule")
+    num_states = RuleParser.n_states
+    ca_rule_name = RuleParser.rule_name
+    colours = RuleParser.colour_palette
+else:
+    num_states = n_states
+    ca_rule_name = rule_name
+    colours = colour_palette
+
 
 class CACanvas(QWidget):
+    global use_parse
     zoom_in = pyqtSignal()
     zoom_out = pyqtSignal()
+    reset = pyqtSignal()
 
     def __init__(self, cell_size: int):
         super().__init__()
 
         # Initialising the Colours Used for the Different States
-        if colour_palette is None:
-            if n_states > 2:
+        if colours is None:
+            if num_states > 2:
                 self.colour_palette: List[Tuple[int, int, int]] = [(0, 0, 0)] + \
-                                                                  [(255, 255 // (n_states - 2) * x, 0)
-                                                                   for x in range(n_states - 1)]
+                                                                  [(255, 255 // (num_states - 2) * x, 0)
+                                                                   for x in range(num_states - 1)]
             else:
                 self.colour_palette: List[Tuple[int, int, int]] = [(0, 0, 0), (255, 255, 255)]
         else:
-            try:
-                assert isinstance(colour_palette, list)
-                for i in colour_palette:
-                    assert isinstance(i, tuple)
-                    assert len(i) == 3
-                    for j in i:
+            try:  # Check that the Format is Valid
+                assert isinstance(colours, list)
+                for i in range(len(colours)):
+                    if isinstance(colours[i], list):
+                        colours[i] = tuple(colours[i])
+
+                    assert isinstance(colours[i], tuple)
+                    assert len(colours[i]) == 3
+                    for j in colours[i]:
                         assert isinstance(j, int)
 
             except AssertionError:
                 QMessageBox.warning(self, "Invalid Data in Colour Palette",  # Display Error Message
                                     "There is invalid data in the specified colour Palette. "
-                                    "The colours should be in a tuple of 3 ints, RGB.",
+                                    "The colours should be in a tuple / list of 3 ints, RGB.",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 self.load_new_rule()
                 sys.exit()  # Close the Program
 
-            if len(colour_palette) != n_states:
+            if len(colours) != num_states:
                 QMessageBox.warning(self, "Error with Colour Palette",  # Display Error Message
                                     "Colour Palette with invalid length",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 self.load_new_rule()
                 sys.exit()  # Close the Program
 
-            self.colour_palette = colour_palette
+            self.colour_palette = colours
 
         self.current_state: int = 1
 
@@ -100,9 +120,7 @@ class CACanvas(QWidget):
         # Density Parameter for Thing
         self.density: float = 0.5
 
-        # Should DP be Used?
-        self.use_DP: bool = False
-
+        """
         # Dynamic Programming Optimization
         self.DP_neighbourhood = []
         neighbourhood = get_neighbourhood(0)
@@ -111,6 +129,7 @@ class CACanvas(QWidget):
                 self.DP_neighbourhood.append((i[0] + j[0], i[1] + j[1]))
 
         self.DP_neighbourhood = list(set(self.DP_neighbourhood))  # Eliminate Duplicates
+        """
 
         # Soup Symmetry
         self.symmetry = "C1"
@@ -126,6 +145,9 @@ class CACanvas(QWidget):
 
         # Rubber Band -> Selection Rectangle
         self.rubber_band = QRubberBand(QRubberBand.Rectangle, self)
+
+        # Load Rule
+        parser.load("rule.ca_rule")
 
         # Grid to Place Widgets
         grid = QGridLayout()
@@ -328,7 +350,7 @@ class CACanvas(QWidget):
                         for y in range(lower_y, upper_y):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
                             else:
                                 self.add_cell(0, x, y)
 
@@ -337,10 +359,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 3, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -351,10 +373,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -365,10 +387,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
                             else:
                                 self.add_cell(0, x, y)
@@ -379,10 +401,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               x, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -393,10 +415,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               x, upper_y + lower_y - y - 2)
                             else:
                                 self.add_cell(0, x, y)
@@ -407,18 +429,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 3, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               x, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 3, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -431,18 +453,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               x, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -455,18 +477,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               x, upper_y + lower_y - y - 2)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, n_states - 1) if multi_state else 1,
+                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
                                               upper_x + lower_x - x - 2, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -517,16 +539,14 @@ class CACanvas(QWidget):
     def update_cells(self) -> None:
         start_time: float = time()  # Get Time the Computation Started
         copy_grid = copy.deepcopy(self.dict_grid)  # Create a deepcopy as dictionaries are mutable
-        if self.use_DP:
-            self.lower_x, self.upper_x, self.lower_y, self.upper_y, self.cells_changed, self.dict_grid = \
-                compute_dp.compute(get_neighbourhood(self.generations),
-                                   self.DP_neighbourhood, self.cells_changed,
-                                   self.lower_x, self.upper_x, self.lower_y, self.upper_y,
-                                   copy_grid, self.dict_grid, self.generations)  # Compute New Grid Cells
+        if use_parse:
+            # Compute New Grid Cells
+            self.cells_changed, self.dict_grid = \
+                parser.compute(self.cells_changed, copy_grid, self.dict_grid, self.generations)
         else:
             self.cells_changed, self.dict_grid = \
-                compute.compute(get_neighbourhood(self.generations), self.cells_changed,
-                                copy_grid, self.dict_grid, self.generations)  # Compute New Grid Cells
+                compute.compute(get_neighbourhood(self.generations), self.cells_changed, copy_grid,
+                                self.dict_grid, self.generations)
 
         computation_time_taken: float = time() - start_time
 
@@ -561,11 +581,16 @@ class CACanvas(QWidget):
                 painter.setPen(pen)
                 painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
 
-                if cell[1] < self.lower_x: self.lower_x = cell[1]
-                elif cell[1] > self.upper_x: self.upper_x = cell[1]
+                # Updating Bounds (Not needed above as the top one is converting cells to 0)
+                if cell[1] < self.lower_x:
+                    self.lower_x = cell[1]
+                elif cell[1] > self.upper_x:
+                    self.upper_x = cell[1]
 
-                if cell[0] < self.lower_y: self.lower_y = cell[0]
-                elif cell[0] > self.upper_y: self.upper_y = cell[0]
+                if cell[0] < self.lower_y:
+                    self.lower_y = cell[0]
+                elif cell[0] > self.upper_y:
+                    self.upper_y = cell[0]
 
                 if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
                         self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
@@ -608,7 +633,7 @@ class CACanvas(QWidget):
 
     def to_rle(self, lower_x: int, lower_y: int, upper_x: int, upper_y: int) -> str:
         # RLE Header
-        header: str = f"x = {upper_x - lower_x}, y = {upper_y - lower_y}, rule = {rule_name}\n"
+        header: str = f"x = {upper_x - lower_x}, y = {upper_y - lower_y}, rule = {ca_rule_name}\n"
 
         # If converting entire pattern into RLE
         if lower_x == self.lower_x and upper_x == self.upper_x and \
@@ -736,21 +761,57 @@ class CACanvas(QWidget):
             pass
 
     def load_new_rule(self) -> None:
+        global use_parse, num_states, colours, ca_rule_name
+
         # Start File Dialog
-        filename, _ = QFileDialog.getOpenFileName(caption="Select .py file", filter="Python Files (*.py)")
+        filename, file_format = QFileDialog.getOpenFileName(caption="Select rule file",
+                                                            filter="Python Files (*.py);;CA Rule Files (*.ca_rule)")
 
         # Open New Rule File
         try:
             new_rule_file = open(filename, "r")
-            # Open Rule File
-            rule_file = open("transFunc.py", "w")
-            rule_file.write(new_rule_file.read())
-            rule_file.close()
-            new_rule_file.close()
 
-            # Open Dialog Box
-            QMessageBox.information(self, "Restart Application", "Restart Application to Update the Rule",
-                                    QMessageBox.Ok, QMessageBox.Ok)
+            if file_format == "Python Files (*.py)":
+                # Open Rule File
+                rule_file = open("transFunc.py", "w")
+                rule_file.write(new_rule_file.read())
+                rule_file.close()
+                new_rule_file.close()
+
+                # Update Settings
+                use_parse = False
+                settings = json.load(open("settings.json", "r"))
+                settings["UseParse"] = False
+                json.dump(settings, open("settings.json", "w"))
+
+                # Open Dialog Box
+                QMessageBox.information(self, "Restart Application", "Restart Application to Update the Rule",
+                                        QMessageBox.Ok, QMessageBox.Ok)
+
+            elif file_format == "CA Rule Files (*.ca_rule)":
+                # Open Rule File
+                rule_file = open("rule.ca_rule", "w")
+                rule_file.write(new_rule_file.read())
+                rule_file.close()
+                new_rule_file.close()
+
+                # Reload File
+                parser.load("rule.ca_rule")
+                RuleParser.load("rule.ca_rule")
+
+                # Reload Variables
+                num_states = RuleParser.n_states
+                ca_rule_name = RuleParser.rule_name
+                colours = RuleParser.colour_palette
+
+                # Update Settings
+                use_parse = True
+                settings = json.load(open("settings.json", "r"))
+                settings["UseParse"] = True
+                json.dump(settings, open("settings.json", "w"))
+
+                # Reset Canvas
+                self.reset.emit()
 
         except FileNotFoundError:
             pass
@@ -869,7 +930,7 @@ class CACanvas(QWidget):
             if lower_x <= key[1] <= upper_x and lower_y <= key[0] <= upper_y:
                 dict_grid[key] = self.dict_grid[key]
 
-        QMessageBox.information(self, "Identification Complete", identify(dict_grid, self.generations),
+        QMessageBox.information(self, "Identification Complete", identify(dict_grid, self.generations, use_parse),
                                 QMessageBox.Ok, QMessageBox.Ok)
 
     def open_pattern(self) -> None:
@@ -897,6 +958,7 @@ class CACanvas(QWidget):
             logging.log(logging.INFO, "Cancelled Operation")
 
         except Exception:
+            print(self.colour_palette)
             logging.log(logging.INFO, "Error Parsing RLE", exc_info=True)
             QMessageBox.warning(self, "RLE Parsing Error", traceback.format_exc(),
                                 QMessageBox.Ok, QMessageBox.Ok)
