@@ -1,19 +1,17 @@
-Name: DiagonalLife
+Name: Life
 
-Neighbourhood Range: 2
+Neighbourhood Range: 1
 
 Neighbourhood:
-0,0,1,0,0
-0,1,0,1,0
-1,0,0,0,1
-0,1,0,1,0
-0,0,1,0,0
+1,1,1
+1,0,1
+1,1,1
 
 State Weights: 0,1
 
 Rulespace: Outer Totalistic
 
-Rulestring: b3s2,3
+Rulestring: 2,3/3
 
 Colour Palette:
 None
