@@ -1,25 +1,16 @@
-rule_string = "10,15,25,36,48,51,56,61,69,71,78/6,30,38,60,69,79,80/1-15"
-birth = set([int(x) for x in rule_string.split("/")[1].split(",")])
-survival = set([int(x) for x in rule_string.split("/")[0].split(",")])
-
-num, alt = 1, 1
-activity = set()
-inactivity = {0}
-for i in rule_string.split("/")[-1].split("-"):
-    for j in range(num, int(i) + num):
-        if alt > 0:
-            activity.add(j)
-        else:
-            inactivity.add(j)
-        num += 1
-
-    alt *= -1
+# BSFKL
+birth = {6, 28, 34, 39, 40, 45, 65, 67, 80}
+survival = {30, 35, 46, 50, 67, 68, 70, 80}
+forcing = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 42, 25, 30, 45, 46, 50}
+killing = {7, 10, 14, 20, 32, 35, 50, 66, 67}
+living = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+          33, 34, 35, 40, 45, 46, 60, 70}
 
 # Information about the Rule (Must be filled)
-n_states = sum([int(x) for x in rule_string.split("/")[-1].split("-")]) + 1  # Number of States
-alternating_period = 2  # For alternating rules / neighbourhoods
+n_states = 3  # Number of States
+alternating_period = 1  # For alternating rules / neighbourhoods
 colour_palette = None  # Colours of the different states
-rule_name = "AlternatingGenerations_Rule_2"  # Rule Name
+rule_name = "BSFKLWeighted_Rule_6"  # Rule Name
 
 
 # Neighbourhood of the Rule (Relative Distance from Central Cell)
@@ -33,42 +24,39 @@ def get_neighbourhood(generation):  # Note (y, x) not (x, y)
 
 # Transition Function of Rule, Last Element of Neighbours is the Central Cell
 def transition_func(neighbours, generation):
-    n = 0
-    if generation % 2:
-        weights = [-1, 2, 4, 2, -1,
-                   2, 3, 7, 3, 2,
-                   4, 7, 9, 7, 4,
-                   2, 3, 7, 3, 2,
-                   -1, 2, 4, 2, -1]
-    else:
-        weights = [-1, 2, 2, 2, -1,
-                   2, 6, 4, 6, 2,
-                   2, 4, 9, 4, 2,
-                   2, 6, 4, 6, 2,
-                   -1, 2, 2, 2, -1]
+    weights = [1, 2, 3, 2, 1,
+               2, 4, 6, 4, 2,
+               3, 6, 9, 6, 3,
+               2, 4, 6, 4, 2,
+               1, 2, 3, 2, 1]
 
+    n_living, n_destructive = 0, 0
     for i in range(len(neighbours) - 1):
-        if neighbours[i] in activity: n += weights[i]
+        if neighbours[i] == 1:
+            n_living += weights[i]
+        elif neighbours[i] == 2:
+            n_destructive += weights[i]
 
-    if neighbours[-1] in activity:
-        if n in survival:
-            return neighbours[-1]
-        return (neighbours[-1] + 1) % n_states
+    if neighbours[-1] == 1:
+        if n_destructive in killing:
+            return 0
+        elif n_living in survival:
+            return 1
+        return 2
 
-    elif neighbours[-1] == 0:
-        if n in birth:
+    elif neighbours[-1] == 2:
+        if n_living in living:
+            return 0
+        return 2
+
+    else:
+        if n_destructive in forcing and n_living in birth:
             return 1
         return 0
-
-    else:
-        return (neighbours[-1] + 1) % n_states
 
 
 # Does the next state of the cell depend on its neighbours?
 # If yes, return next state
 # If no, return -1
 def depend_on_neighbours(state, generation):
-    if state in activity or state == 0:
-        return -1
-    else:
-        return (state + 1) % n_states
+    return -1

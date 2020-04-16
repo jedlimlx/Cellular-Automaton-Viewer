@@ -1,19 +1,19 @@
-Name: HelloWorld
+Name: Frogs
 
 Neighbourhood Range: 2
 
 Neighbourhood:
-1,2,3,2,1
-2,4,6,4,2
-3,6,9,6,3
-2,4,6,4,2
-1,2,3,2,1
+0,0,0,0,0
+0,1,1,1,0
+0,1,0,1,0
+0,1,1,1,0
+0,0,0,0,0
 
-State Weights: 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+State Weights: 0,1,0
 
 Rulespace: Extended Generations
 
-Rulestring: 8,10,15,25,36,48,51,56,61,69,71,78/6,38,60,69,79,80/1-10
+Rulestring: 1,2/3,4/1-1
 
 Colour Palette:
 None

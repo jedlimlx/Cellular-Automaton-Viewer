@@ -146,8 +146,9 @@ class CACanvas(QWidget):
         # Rubber Band -> Selection Rectangle
         self.rubber_band = QRubberBand(QRubberBand.Rectangle, self)
 
-        # Load Rule
-        parser.load("rule.ca_rule")
+        if use_parse:
+            # Load Rule
+            parser.load("rule.ca_rule")
 
         # Grid to Place Widgets
         grid = QGridLayout()
@@ -354,7 +355,11 @@ class CACanvas(QWidget):
                             else:
                                 self.add_cell(0, x, y)
 
-                elif self.symmetry == "C2_1":
+                else:
+                    upper_x = upper_x - (upper_x - lower_x) % 2 + 1
+                    upper_y = upper_y - (upper_y - lower_y) % 2 + 1
+
+                if self.symmetry == "C2_1":  # Ensure Odd by Odd
                     for x in range(lower_x, (lower_x + upper_x) // 2):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
@@ -382,7 +387,7 @@ class CACanvas(QWidget):
                                 self.add_cell(0, x, y)
                                 self.add_cell(0, upper_x + lower_x - x - 2, upper_y + lower_y - y - 3)
 
-                elif self.symmetry == "C2_4":
+                elif self.symmetry == "C2_4":  # Ensure Even by Even
                     for x in range(lower_x, (lower_x + upper_x) // 2):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
@@ -816,6 +821,24 @@ class CACanvas(QWidget):
         except FileNotFoundError:
             pass
 
+    def reload_rule(self):
+        global use_parse, num_states, colours, ca_rule_name
+
+        # Reload File
+        parser.load("rule.ca_rule")
+        RuleParser.load("rule.ca_rule")
+
+        # Reload Variables
+        num_states = RuleParser.n_states
+        ca_rule_name = RuleParser.rule_name
+        colours = RuleParser.colour_palette
+
+        # Update Settings
+        use_parse = True
+        settings = json.load(open("settings.json", "r"))
+        settings["UseParse"] = True
+        json.dump(settings, open("settings.json", "w"))
+
     def record_pattern(self) -> None:
         try:
             if self.recording:
@@ -916,6 +939,13 @@ class CACanvas(QWidget):
             QMessageBox.warning(self, "RLE Error", "No Area has been selected yet",
                                 QMessageBox.Ok, QMessageBox.Ok)
 
+        except IndexError:
+            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded does not "
+                                               "match the number of states in the rle. "
+                                               "There could also be an unidentified character in the rle. "
+                                               "Please load the correct rule.",
+                                QMessageBox.Ok, QMessageBox.Ok)
+
         except Exception:
             logging.log(logging.ERROR, f"Error Parsing RLE\n{rle}", exc_info=True)
             QMessageBox.warning(self, "RLE Parsing Error", traceback.format_exc(),
@@ -957,8 +987,14 @@ class CACanvas(QWidget):
         except FileNotFoundError:
             logging.log(logging.INFO, "Cancelled Operation")
 
+        except IndexError:
+            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded does not "
+                                               "match the number of states in the rle. "
+                                               "There could also be an unidentified character in the rle. "
+                                               "Please load the correct rule.",
+                                QMessageBox.Ok, QMessageBox.Ok)
+
         except Exception:
-            print(self.colour_palette)
             logging.log(logging.INFO, "Error Parsing RLE", exc_info=True)
             QMessageBox.warning(self, "RLE Parsing Error", traceback.format_exc(),
                                 QMessageBox.Ok, QMessageBox.Ok)

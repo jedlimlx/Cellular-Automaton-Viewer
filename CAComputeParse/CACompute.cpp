@@ -6130,7 +6130,7 @@ static PyObject *__pyx_f_9CACompute_load(PyObject *__pyx_v_filename, CYTHON_UNUS
  *                 survival.push_back(set_temp)
  * 
  *                 extended.clear()             # <<<<<<<<<<<<<<
- *                 for x in re.split(b"[bsd]", individual_rule_string)[2].split(b"-"):
+ *                 for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
  *                     extended.push_back(int(x))
  */
         __pyx_v_extended.clear();
@@ -6138,7 +6138,7 @@ static PyObject *__pyx_f_9CACompute_load(PyObject *__pyx_v_filename, CYTHON_UNUS
         /* "CACompute.pyx":243
  * 
  *                 extended.clear()
- *                 for x in re.split(b"[bsd]", individual_rule_string)[2].split(b"-"):             # <<<<<<<<<<<<<<
+ *                 for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):             # <<<<<<<<<<<<<<
  *                     extended.push_back(int(x))
  * 
  */
@@ -6196,7 +6196,7 @@ static PyObject *__pyx_f_9CACompute_load(PyObject *__pyx_v_filename, CYTHON_UNUS
           __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
         }
         __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __pyx_t_14 = __Pyx_GetItemInt(__pyx_t_2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 243, __pyx_L1_error)
+        __pyx_t_14 = __Pyx_GetItemInt(__pyx_t_2, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 243, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_14);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_split); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
@@ -6262,7 +6262,7 @@ static PyObject *__pyx_f_9CACompute_load(PyObject *__pyx_v_filename, CYTHON_UNUS
 
           /* "CACompute.pyx":244
  *                 extended.clear()
- *                 for x in re.split(b"[bsd]", individual_rule_string)[2].split(b"-"):
+ *                 for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
  *                     extended.push_back(int(x))             # <<<<<<<<<<<<<<
  * 
  *             num, alt = 1, 1
@@ -6281,7 +6281,7 @@ static PyObject *__pyx_f_9CACompute_load(PyObject *__pyx_v_filename, CYTHON_UNUS
           /* "CACompute.pyx":243
  * 
  *                 extended.clear()
- *                 for x in re.split(b"[bsd]", individual_rule_string)[2].split(b"-"):             # <<<<<<<<<<<<<<
+ *                 for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):             # <<<<<<<<<<<<<<
  *                     extended.push_back(int(x))
  * 
  */

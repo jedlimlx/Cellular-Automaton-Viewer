@@ -240,7 +240,7 @@ cpdef load(filename):
                 survival.push_back(set_temp)
 
                 extended.clear()
-                for x in re.split(b"[bsd]", individual_rule_string)[2].split(b"-"):
+                for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
                     extended.push_back(int(x))
 
             num, alt = 1, 1

@@ -3682,7 +3682,7 @@ static PyObject *__pyx_pf_9CACompute_load(CYTHON_UNUSED PyObject *__pyx_self, Py
 </pre><pre class="cython line score-0">&#xA0;<span class="">241</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">242</span>:                 <span class="n">extended</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></pre>
 <pre class='cython code score-0 '>        __pyx_v_extended.clear();
-</pre><pre class="cython line score-109" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">243</span>:                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;[bsd]&quot;</span><span class="p">,</span> <span class="n">individual_rule_string</span><span class="p">)[</span><span class="mf">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;-&quot;</span><span class="p">):</span></pre>
+</pre><pre class="cython line score-109" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">243</span>:                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;[bsd]&quot;</span><span class="p">,</span> <span class="n">individual_rule_string</span><span class="p">)[</span><span class="mf">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;-&quot;</span><span class="p">):</span></pre>
 <pre class='cython code score-109 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_re);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 243, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
         __pyx_t_14 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_split);<span class='error_goto'> if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 243, __pyx_L1_error)</span>
@@ -3737,7 +3737,7 @@ static PyObject *__pyx_pf_9CACompute_load(CYTHON_UNUSED PyObject *__pyx_self, Py
           <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_13); __pyx_t_13 = 0;
         }
         <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_14); __pyx_t_14 = 0;
-        __pyx_t_14 = <span class='pyx_c_api'>__Pyx_GetItemInt</span>(__pyx_t_2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 243, __pyx_L1_error)</span>
+        __pyx_t_14 = <span class='pyx_c_api'>__Pyx_GetItemInt</span>(__pyx_t_2, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 243, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_14);
         <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_t_2 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_14, __pyx_n_s_split);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)</span>

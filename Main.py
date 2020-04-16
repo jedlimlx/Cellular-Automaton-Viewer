@@ -1,11 +1,11 @@
-import logging, sys
+import logging
+import sys
 
 from PyQt5.Qt import QIcon, QAction
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar
 
 from CACanvas import CACanvas
-from Dialogs import SoupSettings, SettingZoom, SimulationSettings
-
+from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
@@ -15,7 +15,6 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
     global canvas, cell_size
 
     # Disconnect Actions
-    # new_pattern_action.triggered.disconnect(lambda: change_zoom(cell_size, restore_pattern=False))
     open_pattern_action.triggered.disconnect(canvas.open_pattern)
     save_pattern_action.triggered.disconnect(canvas.save_pattern)
     open_rule_action.triggered.disconnect(canvas.load_new_rule)
@@ -79,7 +78,6 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
 
     # Reconnect Canvas Actions to Menu Bar
-    # new_pattern_action.triggered.connect(lambda: change_zoom(cell_size, restore_pattern=False))
     open_pattern_action.triggered.connect(canvas.open_pattern)
     save_pattern_action.triggered.connect(canvas.save_pattern)
     open_rule_action.triggered.connect(canvas.load_new_rule)
@@ -131,6 +129,17 @@ def set_zoom() -> None:
     if result != -1: change_zoom(result)  # Changing Zoom to Result
 
 
+def new_random_rule() -> None:
+    rule_dialog = RandomRuleDialog()
+    rule_dialog.reset.connect(reload_rule)
+    rule_dialog.exec_()
+
+
+def reload_rule() -> None:
+    canvas.reload_rule()
+    change_zoom(cell_size, restore_pattern=False)
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 
@@ -177,6 +186,10 @@ file_menu.addSeparator()
 open_rule_action = QAction("Open Rule")
 open_rule_action.triggered.connect(canvas.load_new_rule)
 file_menu.addAction(open_rule_action)
+
+new_rule_action = QAction("New Rule")
+new_rule_action.triggered.connect(new_random_rule)
+file_menu.addAction(new_rule_action)
 
 edit_menu = menu.addMenu("Edit")
 
