@@ -21,6 +21,11 @@ In the edit menu, you can copy, cut, delete and paste a pattern.<br>
 In the control menu, you can adjust random soup and simulation settings and step forward 1 generation.<br>
 In the zoom menu, you can zoom in and out and set the zoom.<br>
 
+Note
+----
+When you load a pattern, it does not necessarily mean that the corresponding rule is loaded. <br>
+You have to load the rule first.
+
 Rule Format
 =================================
 Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py<br>
