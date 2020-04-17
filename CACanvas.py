@@ -780,6 +780,8 @@ class CACanvas(QWidget):
             new_rule_file = open(filename, "r")
 
             if file_format == "Python Files (*.py)":
+                logging.log(logging.INFO, new_rule_file.read())
+
                 # Open Rule File
                 rule_file = open("transFunc.py", "w")
                 rule_file.write(new_rule_file.read())
@@ -797,6 +799,8 @@ class CACanvas(QWidget):
                                         QMessageBox.Ok, QMessageBox.Ok)
 
             elif file_format == "CA Rule Files (*.ca_rule)":
+                logging.log(logging.INFO, new_rule_file.read())
+
                 # Open Rule File
                 rule_file = open("rule.ca_rule", "w")
                 rule_file.write(new_rule_file.read())
