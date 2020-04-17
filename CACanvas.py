@@ -294,6 +294,9 @@ class CACanvas(QWidget):
         simulationThread.start()
 
     def add_cell(self, state: int, x: int, y: int) -> None:
+        if state > num_states - 1:
+            raise IndexError
+
         # Add Cells to cells_changed
         self.cells_changed.add((y, x))
 
@@ -919,6 +922,7 @@ class CACanvas(QWidget):
 
     def paste_clipboard(self) -> None:
         rle: str = pyperclip.paste()
+        pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
         try:
             # Mapping coordinates based on ScrollArea
             x_offset: int = self.scroll_area.horizontalScrollBar().value()
@@ -943,7 +947,8 @@ class CACanvas(QWidget):
             QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded does not "
                                                "match the number of states in the rle. "
                                                "There could also be an unidentified character in the rle. "
-                                               "Please load the correct rule.",
+                                               f"The current rule is {ca_rule_name} with {num_states}. "
+                                               f"Pattern's rule is {pattern_rule_name}.",
                                 QMessageBox.Ok, QMessageBox.Ok)
 
         except Exception:
@@ -964,6 +969,7 @@ class CACanvas(QWidget):
                                 QMessageBox.Ok, QMessageBox.Ok)
 
     def open_pattern(self) -> None:
+        pattern_rule_name = "???"
         try:
             logging.log(logging.INFO, "Opening Pattern...")
 
@@ -971,8 +977,13 @@ class CACanvas(QWidget):
             filename, _ = QFileDialog.getOpenFileName(caption="Select .rle file", filter="RLE Files (*.rle)")
             file = open(filename, "r")
 
+            rle: str = file.read()
+
+            # Get Pattern's Name
+            pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
+
             # Add the cells to the canvas
-            grid: Dict[Tuple[int, int], int] = self.from_rle(file.read())
+            grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             for key in grid:
                 self.add_cell(grid[key], key[1] + 20, key[0] + 20)
 
@@ -988,10 +999,11 @@ class CACanvas(QWidget):
             logging.log(logging.INFO, "Cancelled Operation")
 
         except IndexError:
-            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded does not "
-                                               "match the number of states in the rle. "
+            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded is lower than "
+                                               "the number of states in the rle. "
                                                "There could also be an unidentified character in the rle. "
-                                               "Please load the correct rule.",
+                                               f"The current rule is {ca_rule_name} with {num_states} states. "
+                                               f"Pattern's rule is {pattern_rule_name}.",
                                 QMessageBox.Ok, QMessageBox.Ok)
 
         except Exception:
