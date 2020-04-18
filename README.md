@@ -26,9 +26,6 @@ Note
 When you load a pattern, it does not necessarily mean that the corresponding rule is loaded. <br>
 You have to load the rule first.
 
-Please restart the application when the application asks you to do so. <br>
-If not the rule will not update and there will be weird errors.
-
 Rule Format
 =================================
 Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py<br>
