@@ -1,11 +1,13 @@
-import random, traceback
+import random
+import traceback
+import json
 from functools import partial
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 from PyQt5.Qt import QIcon, pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QGridLayout, QSlider, QDialog, QDialogButtonBox, \
-    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit
+    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit, QTabWidget, QMessageBox
 
 
 class Table(QWidget):
@@ -24,7 +26,7 @@ class Table(QWidget):
         table_grid = QGridLayout()
         table_btns.setLayout(table_grid)
 
-        btns = []  # List to Store Buttons
+        self.btns: List[QPushButton] = []  # List to Store Buttons
         self.num = [["0" for x in range(width)] for y in range(height)]  # List to Store Values
         for i in range(width + 1):
             for j in range(height + 1):
@@ -47,15 +49,26 @@ class Table(QWidget):
                 btn.setText("0")
                 table_grid.addWidget(btn, j, i)
 
-                btns.append(btn)
+                self.btns.append(btn)
 
         grid.addWidget(table_btns)
 
     def func(self, i, j):
         current_text: str = self.sender().text()
-        new_text = str((int(current_text) + 11) % 21 - 10)
+        if current_text == "0":
+            new_text = "?"
+        elif current_text == "?":
+            new_text = "1"
+        else:
+            new_text = str((int(current_text) + 11) % 21 - 10)
         self.num[i][j] = new_text
         self.sender().setText(new_text)
+
+    def load_values(self, num):
+        self.num = num[:]
+        for i in range(len(self.num)):
+            for j in range(len(self.num[i])):
+                self.btns[i * len(self.num) + j].setText(self.num[i][j])
 
 
 class SoupSettings(QDialog):
@@ -198,15 +211,32 @@ class RandomRuleDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.grid = QGridLayout()
-        self.setLayout(self.grid)
+        layout = QGridLayout()
+        self.setLayout(layout)
         self.setWindowTitle("New Rule")
         self.setWindowIcon(QIcon("Icons/PulsarIcon.png"))
+
+        tabs = QTabWidget()
+        layout.addWidget(tabs)
+
+        main_tab = QWidget()  # Tab for Rule Settings
+        random_tab = QWidget()  # Tab for Random Settings
+
+        tabs.addTab(main_tab, "Rule Settings")
+        tabs.addTab(random_tab, "Random Settings")
+
+        self.grid = QGridLayout()
+        main_tab.setLayout(self.grid)
 
         label_rulename = QLabel("Rule Name:")
         self.grid.addWidget(label_rulename, 0, 0)
 
+        # Get Rule Name from Settings.json
+        try: rule_name = json.load(open("settings.json", "r"))["Rule Name"]
+        except KeyError: rule_name = ""
+
         self.rulename = QLineEdit()
+        self.rulename.setText(rule_name)
         self.grid.addWidget(self.rulename, 1, 0)
 
         above_widget = QWidget()
@@ -217,9 +247,16 @@ class RandomRuleDialog(QDialog):
         label_rulespace = QLabel("Rulespace:")
         above_grid.addWidget(label_rulespace, 0, 0)
 
+        try: rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Weights
+        except KeyError: rulespace = None
+
         self.rulespaces = ["Outer Totalistic", "Extended Generations", "BSFKL"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
         self.combo_box_rulespace.addItems(self.rulespaces)
+
+        # Load Prev Rulespace
+        if rulespace is not None: self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
+
         self.combo_box_rulespace.currentTextChanged.connect(self.change_rulespace)
         above_grid.addWidget(self.combo_box_rulespace, 0, 1)
 
@@ -228,15 +265,31 @@ class RandomRuleDialog(QDialog):
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
+        try: weights = json.load(open("settings.json", "r"))["Neighbourhood Weights"]  # Get Previous Selected Weights
+        except KeyError: weights = None
+        if weights is not None: self.neighbourhood_table.load_values(weights)
+
         above_grid.addWidget(self.neighbourhood_table, 1, 1)
 
         self.grid.addWidget(above_widget, 2, 0)
 
+        try: weights = json.load(open("settings.json", "r"))["State Weights"]  # Get Previous Selected Weights
+        except KeyError: weights = None
+
         self.n_states: int = 2
-        self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
-                                   [str(x) for x in range(self.n_states)], ["Weights"])
+        if weights is not None: self.n_states = len(weights[0])
+
+        if self.n_states <= 5:
+            self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
+                                       [str(x) for x in range(self.n_states)], ["Weights"])
+        else:
+            self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
+                                       [str(x) for x in range(self.n_states)], ["Weights"],
+                                       button_width=40, button_height=30)
+        if weights is not None: self.state_weights.load_values(weights)
+
         self.grid.addWidget(self.state_weights, 3, 0)
-        self.state_weights.hide()
+        if rulespace != "Extended Generations": self.state_weights.hide()
 
         self.state_btns = QWidget()
         grid_state_btns = QGridLayout()
@@ -251,19 +304,47 @@ class RandomRuleDialog(QDialog):
         grid_state_btns.addWidget(self.remove_state_btn, 0, 2)
 
         self.grid.addWidget(self.state_btns, 4, 0)
-        self.state_btns.hide()
+        if rulespace != "Extended Generations": self.state_btns.hide()
 
         label_rulestring = QLabel("Rulestring:")
         self.grid.addWidget(label_rulestring, 5, 0)
 
+        # Get Rule Name from Settings.json
+        try: rulestring = json.load(open("settings.json", "r"))["Rule String"]
+        except KeyError: rulestring = ""
+
         self.rulestring = QLineEdit()
+        self.rulestring.setText(rulestring)
         self.grid.addWidget(self.rulestring, 6, 0)
 
         btn_write = QPushButton("Create Rule")
         btn_write.clicked.connect(self.write_to_rule)
         self.grid.addWidget(btn_write, 7, 0)
 
+        self.random_range_line_edits: Dict[str, QLineEdit] = {}
+        label_text = ["Rulestring Upper Bound", "Rulestring Lower Bound",
+                      "State Weights Upper Bound", "State Weights Lower Bound",
+                      "Neighbourhood Weights Upper Bound", "Neighbourhood Weights Lower Bound"]
+
+        random_grid = QGridLayout()
+        random_tab.setLayout(random_grid)
+
+        # Get Rule Name from Settings.json
+        try: text = json.load(open("settings.json", "r"))["Random Bounds"]
+        except KeyError: text = None
+
+        for index, val in enumerate(label_text):  # Adding Random Bounds Entries
+            label = QLabel(val + ":")
+            random_grid.addWidget(label, index, 0)
+
+            self.random_range_line_edits[val] = QLineEdit()
+            if text is not None: self.random_range_line_edits[val].setText(text[val])  # Reload Previous Values
+            random_grid.addWidget(self.random_range_line_edits[val], index, 1)
+
     def add_state(self):
+        num = self.state_weights.num[:]  # Make a Deepcopy
+        num[0].append("0")
+
         self.state_weights.setParent(None)
         self.state_weights.destroy()
 
@@ -272,12 +353,17 @@ class RandomRuleDialog(QDialog):
             self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
                                        [str(x) for x in range(self.n_states)], ["Weights"],
                                        button_height=30, button_width=40)
+            self.state_weights.load_values(num)  # Reload Values
         else:
             self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
                                        [str(x) for x in range(self.n_states)], ["Weights"])
+            self.state_weights.load_values(num)
         self.grid.addWidget(self.state_weights, 3, 0)
 
     def remove_state(self):
+        num = self.state_weights.num[:]  # Make a Deepcopy
+        num[0].pop()
+
         self.state_weights.setParent(None)
         self.state_weights.destroy()
 
@@ -285,10 +371,12 @@ class RandomRuleDialog(QDialog):
         if self.n_states > 5:
             self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
                                        [str(x) for x in range(self.n_states)], ["Weights"],
-                                       button_height=30, button_width=40)
+                                       button_height=30, button_width=40)  # Reload Values
+            self.state_weights.load_values(num)
         else:
             self.state_weights = Table(self.n_states, 1, "State Weights",  # Select State Weights
                                        [str(x) for x in range(self.n_states)], ["Weights"])
+            self.state_weights.load_values(num)
         self.grid.addWidget(self.state_weights, 3, 0)
 
     def change_rulespace(self):
@@ -300,78 +388,162 @@ class RandomRuleDialog(QDialog):
             self.state_btns.hide()
 
     def write_to_rule(self):
-        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Outer Totalistic":
-            file = open("rule.ca_rule", "w")
-            file.write(f"Name: {self.rulename.text()}\n\n")
-            file.write("Neighbourhood Range: 2\n\n")
-            file.write("Neighbourhood:\n")
+        prev_rule = open("rule.ca_rule", "r").read()
+        settings = json.load(open("settings.json", "r"))
+
+        file = open("rule.ca_rule", "w")
+        file.write(f"Name: {self.rulename.text()}\n\n")
+        file.write("Neighbourhood Range: 2\n\n")
+        file.write("Neighbourhood:\n")
+        try:
             for i in range(len(self.neighbourhood_table.num)):
                 string = ""
-                for j in range(len(self.neighbourhood_table.num)):
+                for j in range(len(self.neighbourhood_table.num[i])):
                     if j != len(self.neighbourhood_table.num) - 1:
-                        string += str(self.neighbourhood_table.num[i][j]) + ","
+                        if self.neighbourhood_table.num[i][j] == "?":  # Should RNG be used?
+                            string += str(random.randint(
+                                int(self.random_range_line_edits["Neighbourhood Weights Lower Bound"].text()),
+                                int(self.random_range_line_edits["Neighbourhood Weights Upper Bound"].text()))) + ","
+                        else:
+                            string += str(self.neighbourhood_table.num[i][j]) + ","
                     else:
-                        string += str(self.neighbourhood_table.num[i][j])
+                        if self.neighbourhood_table.num[i][j] == "?":  # Should RNG be used?
+                            string += str(random.randint(
+                                int(self.random_range_line_edits["Neighbourhood Weights Lower Bound"].text()),
+                                int(self.random_range_line_edits["Neighbourhood Weights Upper Bound"].text())))
+                        else:
+                            string += str(self.neighbourhood_table.num[i][j])
 
                 file.write(string + "\n")
 
-            file.write("\nState Weights: 0,1\n\n")
-            file.write("Rulespace: Outer Totalistic\n\n")
-            file.write(f"Rulestring: {self.rulestring.text()}\n\n")
-            file.write("Colour Palette:\nNone\n")
-            file.close()
+        except ValueError as e:  # Error Handling, Inform User of Error
+            if "empty range for randrange()" in str(e):
+                QMessageBox.warning(self, "Random State Weights Error",
+                                    "The lower bound is larger than the upper bound!",
+                                    QMessageBox.Ok, QMessageBox.Ok)
 
-        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL":
-            file = open("rule.ca_rule", "w")
-            file.write(f"Name: {self.rulename.text()}\n\n")
-            file.write("Neighbourhood Range: 2\n\n")
-            file.write("Neighbourhood:\n")
-            for i in range(len(self.neighbourhood_table.num)):
-                string = ""
-                for j in range(len(self.neighbourhood_table.num)):
-                    if j != len(self.neighbourhood_table.num) - 1:
-                        string += str(self.neighbourhood_table.num[i][j]) + ","
-                    else:
-                        string += str(self.neighbourhood_table.num[i][j])
+                file.close()
 
-                file.write(string + "\n")
+                open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                self.reset.emit()
+                self.close()
+                return -1
+            else:
+                QMessageBox.warning(self, "Random State Weights Error",
+                                    "The bounds are not valid integers!",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                file.close()
 
-            file.write("\nState Weights: 0,1,1\n\n")
-            file.write("Rulespace: BSFKL\n\n")
-            file.write(f"Rulestring: {self.rulestring.text()}\n\n")
-            file.write("Colour Palette:\nNone\n")
-            file.close()
+                open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                self.reset.emit()
+                self.close()
+                return -1
 
-            self.reset.emit()
-            self.close()
-
-        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations":
-            file = open("rule.ca_rule", "w")
-            file.write(f"Name: {self.rulename.text()}\n\n")
-            file.write("Neighbourhood Range: 2\n\n")
-            file.write("Neighbourhood:\n")
-            for i in range(len(self.neighbourhood_table.num[0])):
-                string = ""
-                for j in range(len(self.neighbourhood_table.num)):
-                    if j != len(self.neighbourhood_table.num) - 1:
-                        string += str(self.neighbourhood_table.num[i][j]) + ","
-                    else:
-                        string += str(self.neighbourhood_table.num[i][j])
-
-                file.write(string + "\n")
-
+        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations":
             state_weights = ""  # Appending State Weights to String
-            for i in range(len(self.state_weights.num[0])):
-                if i != len(self.state_weights.num[0]) - 1:
-                    state_weights += str(self.state_weights.num[0][i]) + ","
+            try:
+                settings["State Weights"] = self.state_weights.num
+                for i in range(len(self.state_weights.num[0])):
+                    if i != len(self.state_weights.num[0]) - 1:
+                        if self.state_weights.num[0][i] == "?":  # Should RNG be used?
+                            state_weights += str(random.randint(
+                                int(self.random_range_line_edits["State Weights Lower Bound"].text()),
+                                int(self.random_range_line_edits["State Weights Upper Bound"].text()))) + ","
+                        else:
+                            state_weights += str(self.state_weights.num[0][i]) + ","
+                    else:
+                        if self.state_weights.num[0][i] == "?":  # Should RNG be used?
+                            state_weights += str(random.randint(
+                                int(self.random_range_line_edits["State Weights Lower Bound"].text()),
+                                int(self.random_range_line_edits["State Weights Upper Bound"].text())))
+                        else:
+                            state_weights += str(self.state_weights.num[0][i])
+
+            except ValueError as e:  # Error Handling, Inform User of Error
+                if "empty range for randrange()" in str(e):
+                    QMessageBox.warning(self, "Random State Weights Error",
+                                        "The lower bound is larger than the upper bound!",
+                                        QMessageBox.Ok, QMessageBox.Ok)
+
+                    file.close()
+
+                    open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                    self.reset.emit()
+                    self.close()
+                    return -1
                 else:
-                    state_weights += str(self.state_weights.num[0][i])
+                    QMessageBox.warning(self, "Random State Weights Error",
+                                        "The bounds are not valid integers!",
+                                        QMessageBox.Ok, QMessageBox.Ok)
+                    file.close()
+
+                    open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                    self.reset.emit()
+                    self.close()
+                    return -1
 
             file.write(f"\nState Weights: {state_weights}\n\n")
-            file.write("Rulespace: Extended Generations\n\n")
-            file.write(f"Rulestring: {self.rulestring.text()}\n\n")
-            file.write("Colour Palette:\nNone\n")
-            file.close()
 
+        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Outer Totalistic":
+            file.write("\nState Weights: 0,1\n\n")
+
+        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL":
+            file.write("\nState Weights: 0,1,1\n\n")
+
+        file.write(f"Rulespace: {self.rulespaces[self.combo_box_rulespace.currentIndex()]}\n\n")
+
+        # Adding Random States to Rulestring
+        lst = [x for x in self.rulestring.text()]
+        rulestring = ""
+
+        try:
+            for i in range(len(lst)):
+                if lst[i] == "?":
+                    rulestring += str(random.randint(
+                        int(self.random_range_line_edits["Rulestring Lower Bound"].text()),
+                        int(self.random_range_line_edits["Rulestring Upper Bound"].text())))
+                else:
+                    rulestring += lst[i]
+
+        except ValueError as e:  # Error Handling, Inform User of Error
+            if "empty range for randrange()" in str(e):
+                QMessageBox.warning(self, "Random State Weights Error",
+                                    "The lower bound is larger than the upper bound!",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+
+                file.close()
+
+                open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                self.reset.emit()
+                self.close()
+                return -1
+            else:
+                QMessageBox.warning(self, "Random State Weights Error",
+                                    "The bounds are not valid integers!",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                file.close()
+
+                open("rule.ca_rule", "w").write(prev_rule)  # Place Previous Rule Back in the File
+                self.reset.emit()
+                self.close()
+                return -1
+
+        file.write(f"Rulestring: {rulestring}\n\n")
+        file.write("Colour Palette:\nNone\n")
+        file.close()
+
+        settings["Rule Space"] = self.rulespaces[self.combo_box_rulespace.currentIndex()]
+        settings["Rule String"] = self.rulestring.text()
+        settings["Neighbourhood Weights"] = self.neighbourhood_table.num
+        settings["Rule Name"] = self.rulename.text()
+
+        text: Dict[str, str] = {}
+        for key in self.random_range_line_edits:
+            text[key] = self.random_range_line_edits[key].text()
+
+        settings["Random Bounds"] = text
+
+        json.dump(settings, open("settings.json", "w"), indent=4)
         self.reset.emit()
         self.close()
+

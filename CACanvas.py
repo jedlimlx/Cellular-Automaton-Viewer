@@ -5,11 +5,13 @@ import random
 import sys
 import threading
 import traceback
+import importlib
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
 
 import RuleParser
+import transFunc
 import CACompute.CACompute as compute
 import CAComputeParse.CACompute as parser
 import numpy as np
@@ -20,7 +22,6 @@ from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand
 
 from Identity import identify
-from transFunc import get_neighbourhood, n_states, rule_name, colour_palette
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 
@@ -33,9 +34,9 @@ if use_parse:
     ca_rule_name = RuleParser.rule_name
     colours = RuleParser.colour_palette
 else:
-    num_states = n_states
-    ca_rule_name = rule_name
-    colours = colour_palette
+    num_states = transFunc.n_states
+    ca_rule_name = transFunc.rule_name
+    colours = transFunc.colour_palette
 
 
 class CACanvas(QWidget):
@@ -553,7 +554,7 @@ class CACanvas(QWidget):
                 parser.compute(self.cells_changed, copy_grid, self.dict_grid, self.generations)
         else:
             self.cells_changed, self.dict_grid = \
-                compute.compute(get_neighbourhood(self.generations), self.cells_changed, copy_grid,
+                compute.compute(transFunc.get_neighbourhood(self.generations), self.cells_changed, copy_grid,
                                 self.dict_grid, self.generations)
 
         computation_time_taken: float = time() - start_time
@@ -793,11 +794,17 @@ class CACanvas(QWidget):
                 use_parse = False
                 settings = json.load(open("settings.json", "r"))
                 settings["UseParse"] = False
-                json.dump(settings, open("settings.json", "w"))
+                json.dump(settings, open("settings.json", "w"), indent=4)
 
-                # Open Dialog Box
-                QMessageBox.information(self, "Restart Application", "Restart Application to Update the Rule",
-                                        QMessageBox.Ok, QMessageBox.Ok)
+                # Reload Rule
+                importlib.reload(transFunc)
+                num_states = transFunc.n_states
+                ca_rule_name = transFunc.rule_name
+                colours = transFunc.colour_palette
+                compute.reload()
+
+                # Reset Canvas
+                self.reset.emit()
 
             elif file_format == "CA Rule Files (*.ca_rule)":
                 rule = new_rule_file.read()
@@ -822,7 +829,7 @@ class CACanvas(QWidget):
                 use_parse = True
                 settings = json.load(open("settings.json", "r"))
                 settings["UseParse"] = True
-                json.dump(settings, open("settings.json", "w"))
+                json.dump(settings, open("settings.json", "w"), indent=4)
 
                 # Reset Canvas
                 self.reset.emit()
@@ -846,7 +853,7 @@ class CACanvas(QWidget):
         use_parse = True
         settings = json.load(open("settings.json", "r"))
         settings["UseParse"] = True
-        json.dump(settings, open("settings.json", "w"))
+        json.dump(settings, open("settings.json", "w"), indent=4)
 
     def record_pattern(self) -> None:
         try:
@@ -991,7 +998,7 @@ class CACanvas(QWidget):
             # Add the cells to the canvas
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             for key in grid:
-                self.add_cell(grid[key], key[1] + 20, key[0] + 20)
+                self.add_cell(grid[key], key[1] + 100, key[0] + 100)
 
             # Close File
             file.close()
@@ -1009,8 +1016,10 @@ class CACanvas(QWidget):
                                                "the number of states in the rle. "
                                                "There could also be an unidentified character in the rle. "
                                                f"The current rule is {ca_rule_name} with {num_states} states. "
-                                               f"Pattern's rule is {pattern_rule_name}.",
+                                               f"Pattern's rule is {pattern_rule_name}. "
+                                               f"Please load the correct rule first.",
                                 QMessageBox.Ok, QMessageBox.Ok)
+            self.load_new_rule()
 
         except Exception:
             logging.log(logging.INFO, "Error Parsing RLE", exc_info=True)

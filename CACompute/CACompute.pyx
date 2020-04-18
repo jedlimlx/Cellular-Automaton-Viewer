@@ -25,19 +25,29 @@ cpdef pycompute(vector[pair[int, int]] neighbourhood, bool first,
 
 """
 
+import importlib
+import transFunc
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
-from transFunc import transition_func, depend_on_neighbours, alternating_period
 
 cdef extern from "compute.cpp":
     pass
 
+
 cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache
-cdef int alternating_period2 = alternating_period
+cdef int alternating_period2 = transFunc.alternating_period
+
+cpdef void reload():
+    global depends_cache, transition_func_cache, alternating_period2
+    importlib.reload(transFunc)
+    depends_cache.clear()
+    transition_func_cache.clear()
+    alternating_period2 = transFunc.alternating_period
+
 cpdef compute(vector[pair[int, int]] neighbourhood,
               unordered_set[pair[int, int]] cells_changed,
               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
@@ -74,7 +84,7 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
         if copy_grid.find(coordinates) == copy_grid.end():
             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \
                     depends_cache.end():
-                ans = depend_on_neighbours(0, generations % alternating_period2)
+                ans = transFunc.depend_on_neighbours(0, generations % alternating_period2)
                 depends_cache[pair[int, int] (0, generations % alternating_period2)] = ans
             else:
                 ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]
@@ -82,7 +92,7 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
             if depends_cache.find(pair[int, int] (copy_grid[coordinates],
                                                   generations % alternating_period2)) == \
                     depends_cache.end():
-                ans = depend_on_neighbours(copy_grid[coordinates], generations % alternating_period2)
+                ans = transFunc.depend_on_neighbours(copy_grid[coordinates], generations % alternating_period2)
                 depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)] = ans
             else:
                 ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)]
@@ -102,7 +112,7 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
                     transition_func_cache.end():
                 if ans == -1:
-                    ans = transition_func(neighbours, generations % alternating_period2)
+                    ans = transFunc.transition_func(neighbours, generations % alternating_period2)
                     transition_func_cache[
                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
             else:
@@ -121,7 +131,7 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
                     transition_func_cache.end():
                 if ans == -1:
-                    ans = transition_func(neighbours, generations % alternating_period2)
+                    ans = transFunc.transition_func(neighbours, generations % alternating_period2)
                     transition_func_cache[
                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
             else:

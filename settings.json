@@ -1,1 +1,67 @@
-{"UseParse": false}
+{
+    "UseParse": true,
+    "Neighbourhood Weights": [
+        [
+            "1",
+            "2",
+            "3",
+            "2",
+            "1"
+        ],
+        [
+            "2",
+            "4",
+            "6",
+            "4",
+            "2"
+        ],
+        [
+            "3",
+            "6",
+            "9",
+            "6",
+            "3"
+        ],
+        [
+            "2",
+            "4",
+            "6",
+            "4",
+            "2"
+        ],
+        [
+            "1",
+            "2",
+            "3",
+            "2",
+            "1"
+        ]
+    ],
+    "Rule Name": "CustomRule",
+    "State Weights": [
+        [
+            "0",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    ],
+    "Rule String": "?,?,?,?,?,15,25,36,48,51,56,61,69,71,78/6,38,60,69,79,80/1-10",
+    "Rule Space": "Extended Generations",
+    "Random Bounds": {
+        "Rulestring Upper Bound": "50",
+        "Rulestring Lower Bound": "10",
+        "State Weights Upper Bound": "2",
+        "State Weights Lower Bound": "-2",
+        "Neighbourhood Weights Upper Bound": "2",
+        "Neighbourhood Weights Lower Bound": "-2"
+    }
+}
