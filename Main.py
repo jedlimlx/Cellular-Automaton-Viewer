@@ -11,7 +11,7 @@ logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
 
 
-def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
+def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None) -> None:
     global canvas, cell_size
 
     # Disconnect Actions
@@ -22,6 +22,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
     cut_action.triggered.disconnect(canvas.cut_selection)
     delete_action.triggered.disconnect(canvas.delete_selection)
     paste_action.triggered.disconnect(canvas.paste_clipboard)
+    start_simulation_action.triggered.disconnect(canvas.toggle_simulation)
     forward_one_action.triggered.disconnect(canvas.update_cells)
     simulation_settings_action.triggered.disconnect(simulation_settings)
     random_soup_settings_action.triggered.disconnect(random_soup_settings)
@@ -59,7 +60,13 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
-        canvas.load_from_dict(dictionary)
+        canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
+        canvas.change_title.connect(set_title)
+
+        if overwrite is None:
+            canvas.load_from_dict(dictionary)
+        else:
+            canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
     else:
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -76,6 +83,9 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
+        canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
+        canvas.change_title.connect(set_title)
+        if overwrite is not None: canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
 
     # Reconnect Canvas Actions to Menu Bar
     open_pattern_action.triggered.connect(canvas.open_pattern)
@@ -85,6 +95,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True) -> None:
     cut_action.triggered.connect(canvas.cut_selection)
     delete_action.triggered.connect(canvas.delete_selection)
     paste_action.triggered.connect(canvas.paste_clipboard)
+    start_simulation_action.triggered.connect(canvas.toggle_simulation)
     forward_one_action.triggered.connect(canvas.update_cells)
     simulation_settings_action.triggered.connect(simulation_settings)
     random_soup_settings_action.triggered.connect(random_soup_settings)
@@ -140,6 +151,10 @@ def reload_rule() -> None:
     change_zoom(cell_size, restore_pattern=False)
 
 
+def set_title(title: str) -> None:
+    window.setWindowTitle(title)
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 
@@ -160,7 +175,9 @@ cell_size = 5
 canvas = CACanvas(cell_size)
 canvas.zoom_in.connect(zoom_in)
 canvas.zoom_out.connect(zoom_out)
+canvas.change_title.connect(set_title)
 canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
+canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
 grid.addWidget(canvas, 1, 0)
 
 # Menu Bar
@@ -183,13 +200,13 @@ file_menu.addAction(save_pattern_action)
 
 file_menu.addSeparator()
 
-open_rule_action = QAction("Open Rule")
-open_rule_action.triggered.connect(canvas.load_new_rule)
-file_menu.addAction(open_rule_action)
-
 new_rule_action = QAction("New Rule")
 new_rule_action.triggered.connect(new_random_rule)
 file_menu.addAction(new_rule_action)
+
+open_rule_action = QAction("Open Rule")
+open_rule_action.triggered.connect(canvas.load_new_rule)
+file_menu.addAction(open_rule_action)
 
 edit_menu = menu.addMenu("Edit")
 
@@ -216,7 +233,13 @@ paste_action.triggered.connect(canvas.paste_clipboard)
 edit_menu.addAction(paste_action)
 
 control_menu = menu.addMenu("Control")
+start_simulation_action = QAction("Start Simulation")
+start_simulation_action.setShortcut("Return")
+start_simulation_action.triggered.connect(canvas.toggle_simulation)
+control_menu.addAction(start_simulation_action)
+
 forward_one_action = QAction("Step Forward 1 Generation")
+forward_one_action.setShortcut("Space")
 forward_one_action.triggered.connect(canvas.update_cells)
 control_menu.addAction(forward_one_action)
 

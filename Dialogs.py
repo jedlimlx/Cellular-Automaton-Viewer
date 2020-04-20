@@ -1,5 +1,6 @@
 import random
 import traceback
+import copy
 import json
 from functools import partial
 from typing import Tuple, List, Dict
@@ -396,23 +397,37 @@ class RandomRuleDialog(QDialog):
         file.write("Neighbourhood Range: 2\n\n")
         file.write("Neighbourhood:\n")
         try:
+            neighbourhood = copy.deepcopy(self.neighbourhood_table.num)
             for i in range(len(self.neighbourhood_table.num)):
                 string = ""
                 for j in range(len(self.neighbourhood_table.num[i])):
                     if j != len(self.neighbourhood_table.num) - 1:
-                        if self.neighbourhood_table.num[i][j] == "?":  # Should RNG be used?
-                            string += str(random.randint(
-                                int(self.random_range_line_edits["Neighbourhood Weights Lower Bound"].text()),
-                                int(self.random_range_line_edits["Neighbourhood Weights Upper Bound"].text()))) + ","
-                        else:
-                            string += str(self.neighbourhood_table.num[i][j]) + ","
-                    else:
-                        if self.neighbourhood_table.num[i][j] == "?":  # Should RNG be used?
-                            string += str(random.randint(
+                        if neighbourhood[i][j] == "?":  # Should RNG be used?
+                            random_weight = str(random.randint(
                                 int(self.random_range_line_edits["Neighbourhood Weights Lower Bound"].text()),
                                 int(self.random_range_line_edits["Neighbourhood Weights Upper Bound"].text())))
+                            neighbourhood[i][j] = random_weight
+                            if self.isotropic_check_box.isChecked():
+                                neighbourhood[i][-j - 1] = random_weight
+                                neighbourhood[-i - 1][j] = random_weight
+                                neighbourhood[-i - 1][-j - 1] = random_weight
+                            string += str(neighbourhood[i][j]) + ","
+
                         else:
-                            string += str(self.neighbourhood_table.num[i][j])
+                            string += str(neighbourhood[i][j]) + ","
+                    else:
+                        if neighbourhood[i][j] == "?":  # Should RNG be used?
+                            random_weight = str(random.randint(
+                                int(self.random_range_line_edits["Neighbourhood Weights Lower Bound"].text()),
+                                int(self.random_range_line_edits["Neighbourhood Weights Upper Bound"].text())))
+                            neighbourhood[i][j] = random_weight
+                            if self.isotropic_check_box.isChecked():
+                                neighbourhood[i][-j - 1] = random_weight
+                                neighbourhood[-i - 1][j] = random_weight
+                                neighbourhood[-i - 1][-j - 1] = random_weight
+                            string += str(neighbourhood[i][j])
+                        else:
+                            string += str(neighbourhood[i][j])
 
                 file.write(string + "\n")
 

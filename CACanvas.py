@@ -6,6 +6,7 @@ import sys
 import threading
 import traceback
 import importlib
+import os
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
@@ -44,6 +45,8 @@ class CACanvas(QWidget):
     zoom_in = pyqtSignal()
     zoom_out = pyqtSignal()
     reset = pyqtSignal()
+    reset_and_load = pyqtSignal(dict)
+    change_title = pyqtSignal(str)
 
     def __init__(self, cell_size: int):
         super().__init__()
@@ -269,20 +272,57 @@ class CACanvas(QWidget):
 
         grid_selection.addWidget(btn_multi_random, 0, 1)
 
+        # Button to Flip Pattern Horizontally
+        btn_flip_horizontal = QPushButton()
+        btn_flip_horizontal.setIcon(QIcon("Icons/FlipHorizontal.png"))
+        btn_flip_horizontal.setToolTip("Flip Pattern Horizontally")
+        btn_flip_horizontal.setIconSize(QSize(20, 20))
+        btn_flip_horizontal.clicked.connect(self.flip_horizontal)
+
+        grid_selection.addWidget(btn_flip_horizontal, 0, 2)
+
+        # Button to Flip Pattern Horizontally
+        btn_flip_vertical = QPushButton()
+        btn_flip_vertical.setIcon(QIcon("Icons/FlipVertical.png"))
+        btn_flip_vertical.setToolTip("Flip Pattern Vertically")
+        btn_flip_vertical.setIconSize(QSize(20, 20))
+        btn_flip_vertical.clicked.connect(self.flip_vertical)
+
+        grid_selection.addWidget(btn_flip_vertical, 0, 3)
+
+        # Button to Rotate Pattern Clockwise
+        btn_rotate_clockwise = QPushButton()
+        btn_rotate_clockwise.setIcon(QIcon("Icons/RotateCW.png"))
+        btn_rotate_clockwise.setToolTip("Rotate Pattern Clockwise")
+        btn_rotate_clockwise.setIconSize(QSize(20, 20))
+        btn_rotate_clockwise.clicked.connect(self.rotate_clockwise)
+
+        grid_selection.addWidget(btn_rotate_clockwise, 0, 4)
+
+        # Button to Rotate Pattern Counter-Clockwise
+        btn_rotate_counterclockwise = QPushButton()
+        btn_rotate_counterclockwise.setIcon(QIcon("Icons/RotateCCW.png"))
+        btn_rotate_counterclockwise.setToolTip("Rotate Pattern Counter-Clockwise")
+        btn_rotate_counterclockwise.setIconSize(QSize(20, 20))
+        btn_rotate_counterclockwise.clicked.connect(self.rotate_counter_clockwise)
+
+        grid_selection.addWidget(btn_rotate_counterclockwise, 0, 5)
+
         # Button to Identify Pattern
         btn_identify = QPushButton()
         btn_identify.setText("?")
         btn_identify.setToolTip("Identify Pattern")
         btn_identify.clicked.connect(self.identify_selection)
 
-        grid_selection.addWidget(btn_identify, 0, 2)
+        grid_selection.addWidget(btn_identify, 0, 6)
 
         # Button to Record Images
         self.btn_record = QPushButton()
         self.btn_record.setIcon(QIcon("Icons/RecordLogo.png"))
         self.btn_record.clicked.connect(self.record_pattern)
+        self.btn_record.setIconSize(QSize(20, 20))
 
-        grid_selection.addWidget(self.btn_record, 0, 3)
+        grid_selection.addWidget(self.btn_record, 0, 7)
 
         grid.addWidget(self.selection_tools, 2, 0)
 
@@ -629,11 +669,11 @@ class CACanvas(QWidget):
                                   f"Speed: {gen_per_s} gen/s.")
         self.status_label.update()
 
-    def load_from_dict(self, dictionary: Dict[Tuple[int, int], int]) -> None:
+    def load_from_dict(self, dictionary: Dict[Tuple[int, int], int], offset_x=0, offset_y=0) -> None:
         self.label.pixmap().fill(color=QColor(0, 0, 0))  # Clear the Pixmap
 
         for key in dictionary:
-            self.add_cell(dictionary[key], key[1], key[0])
+            self.add_cell(dictionary[key], key[1] + offset_y, key[0] + offset_x)
 
         # Update Everything
         self.scroll_area.update()
@@ -742,9 +782,11 @@ class CACanvas(QWidget):
         return dict_grid
 
     def selection_bounds(self) -> Tuple[int, int, int, int]:
+        lst = [14, 12, 10, 9, 8, 7, 7, 8, 9, 10, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # Necessary Offsets
+
         # Mapping coordinates based on ScrollArea
-        x_offset: int = self.scroll_area.horizontalScrollBar().value()
-        y_offset: int = self.scroll_area.verticalScrollBar().value()
+        x_offset: int = self.scroll_area.horizontalScrollBar().value() - lst[self.cell_size - 1]
+        y_offset: int = self.scroll_area.verticalScrollBar().value() - lst[self.cell_size - 1]
 
         # Get Lower and Upper Bounds of the Selection
         lower_x, upper_x = sorted([(self.origin.x() + x_offset) // self.cell_size,
@@ -769,6 +811,67 @@ class CACanvas(QWidget):
         except FileNotFoundError:
             pass
 
+    def load_rule_from_file(self, filename: str, file_format: str) -> None:
+        global use_parse, num_states, colours, ca_rule_name
+        new_rule_file = open(filename, "r")
+        if file_format == ".py":
+            rule = new_rule_file.read()
+            logging.log(logging.INFO, rule)
+
+            # Open Rule File
+            rule_file = open("transFunc.py", "w")
+            rule_file.write(rule)
+            rule_file.close()
+            new_rule_file.close()
+
+            # Update Settings
+            use_parse = False
+            settings = json.load(open("settings.json", "r"))
+            settings["UseParse"] = False
+            json.dump(settings, open("settings.json", "w"), indent=4)
+
+            # Reload Rule
+            importlib.reload(transFunc)
+            num_states = transFunc.n_states
+            ca_rule_name = transFunc.rule_name
+            colours = transFunc.colour_palette
+            compute.reload()
+
+            # Write to Recorded Rules
+            recorded_rule_file = open("RecordedRules/" + ca_rule_name + ".py", "w+")
+            recorded_rule_file.write(rule)
+            recorded_rule_file.close()
+
+        elif file_format == ".ca_rule":
+            rule = new_rule_file.read()
+            logging.log(logging.INFO, rule)
+
+            # Open Rule File
+            rule_file = open("rule.ca_rule", "w")
+            rule_file.write(rule)
+            rule_file.close()
+            new_rule_file.close()
+
+            # Reload File
+            parser.load("rule.ca_rule")
+            RuleParser.load("rule.ca_rule")
+
+            # Reload Variables
+            num_states = RuleParser.n_states
+            ca_rule_name = RuleParser.rule_name
+            colours = RuleParser.colour_palette
+
+            # Write to Recorded Rules
+            recorded_rule_file = open("RecordedRules/" + ca_rule_name + ".ca_rule", "w+")
+            recorded_rule_file.write(rule)
+            recorded_rule_file.close()
+
+            # Update Settings
+            use_parse = True
+            settings = json.load(open("settings.json", "r"))
+            settings["UseParse"] = True
+            json.dump(settings, open("settings.json", "w"), indent=4)
+
     def load_new_rule(self) -> None:
         global use_parse, num_states, colours, ca_rule_name
 
@@ -778,64 +881,17 @@ class CACanvas(QWidget):
 
         # Open New Rule File
         try:
-            new_rule_file = open(filename, "r")
+            self.load_rule_from_file(filename, ".py" if file_format == "Python Files (*.py)" else ".ca_rule")
+            self.reset.emit()  # Reset Canvas
 
-            if file_format == "Python Files (*.py)":
-                rule = new_rule_file.read()
-                logging.log(logging.INFO, rule)
-
-                # Open Rule File
-                rule_file = open("transFunc.py", "w")
-                rule_file.write(rule)
-                rule_file.close()
-                new_rule_file.close()
-
-                # Update Settings
-                use_parse = False
-                settings = json.load(open("settings.json", "r"))
-                settings["UseParse"] = False
-                json.dump(settings, open("settings.json", "w"), indent=4)
-
-                # Reload Rule
-                importlib.reload(transFunc)
-                num_states = transFunc.n_states
-                ca_rule_name = transFunc.rule_name
-                colours = transFunc.colour_palette
-                compute.reload()
-
-                # Reset Canvas
-                self.reset.emit()
-
-            elif file_format == "CA Rule Files (*.ca_rule)":
-                rule = new_rule_file.read()
-                logging.log(logging.INFO, rule)
-
-                # Open Rule File
-                rule_file = open("rule.ca_rule", "w")
-                rule_file.write(rule)
-                rule_file.close()
-                new_rule_file.close()
-
-                # Reload File
-                parser.load("rule.ca_rule")
-                RuleParser.load("rule.ca_rule")
-
-                # Reload Variables
-                num_states = RuleParser.n_states
-                ca_rule_name = RuleParser.rule_name
-                colours = RuleParser.colour_palette
-
-                # Update Settings
-                use_parse = True
-                settings = json.load(open("settings.json", "r"))
-                settings["UseParse"] = True
-                json.dump(settings, open("settings.json", "w"), indent=4)
-
-                # Reset Canvas
-                self.reset.emit()
+            self.change_title.emit(f"Cellular Automaton Viewer [{ca_rule_name}, No Pattern, "
+                                   f"Number of States: {num_states}]")
 
         except FileNotFoundError:
             pass
+
+        except Exception:
+            print(traceback.format_exc())
 
     def reload_rule(self):
         global use_parse, num_states, colours, ca_rule_name
@@ -894,6 +950,106 @@ class CACanvas(QWidget):
 
         except Exception:
             print(traceback.format_exc())
+
+    def flip_horizontal(self) -> None:
+        if self.mode == "selecting":
+            lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
+
+            grid: Dict[Tuple[int, int], int] = {}
+
+            # Remove all cells in the box
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in self.dict_grid: grid[(y, x)] = self.dict_grid[(y, x)]
+                    self.add_cell(0, x, y)
+
+            # Flipping Horizontally
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in grid:
+                        self.add_cell(grid[(y, x)], upper_x - x + lower_x, y)
+                    else:
+                        self.add_cell(0, upper_x - x + lower_x, y)
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
+
+    def flip_vertical(self) -> None:
+        if self.mode == "selecting":
+            lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
+
+            grid: Dict[Tuple[int, int], int] = {}
+
+            # Remove all cells in the box
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in self.dict_grid: grid[(y, x)] = self.dict_grid[(y, x)]
+                    self.add_cell(0, x, y)
+
+            # Flipping Vertically
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in grid:
+                        self.add_cell(grid[(y, x)], x, upper_y - y + lower_y)
+                    else:
+                        self.add_cell(0, x, upper_y - y + lower_y)
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
+
+    def rotate_clockwise(self):
+        if self.mode == "selecting":
+            lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
+
+            grid: Dict[Tuple[int, int], int] = {}
+
+            # Remove all cells in the box
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in self.dict_grid: grid[(y, x)] = self.dict_grid[(y, x)]
+                    self.add_cell(0, x, y)
+
+            # Flipping Vertically
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in grid:
+                        self.add_cell(grid[(y, x)], upper_x - y + lower_y, x - lower_x + lower_y)
+                    else:
+                        self.add_cell(0, upper_x - y + lower_y, x - lower_x + lower_y)
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
+
+    def rotate_counter_clockwise(self):
+        if self.mode == "selecting":
+            lower_x, upper_x, lower_y, upper_y = self.selection_bounds()
+
+            grid: Dict[Tuple[int, int], int] = {}
+
+            # Remove all cells in the box
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in self.dict_grid: grid[(y, x)] = self.dict_grid[(y, x)]
+                    self.add_cell(0, x, y)
+
+            # Rotate Counter Clockwise
+            for x in range(lower_x, upper_x):
+                for y in range(lower_y, upper_y):
+                    if (y, x) in grid:
+                        self.add_cell(grid[(y, x)], y - lower_y + lower_x, upper_y - x + lower_x)
+                    else:
+                        self.add_cell(0, y - lower_y + lower_x, upper_y - x + lower_x)
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
 
     def copy_selection(self) -> None:
         if self.mode == "selecting":
@@ -957,11 +1113,12 @@ class CACanvas(QWidget):
                                 QMessageBox.Ok, QMessageBox.Ok)
 
         except IndexError:
-            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded does not "
-                                               "match the number of states in the rle. "
+            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded is lower than "
+                                               "the number of states in the rle. "
                                                "There could also be an unidentified character in the rle. "
-                                               f"The current rule is {ca_rule_name} with {num_states}. "
-                                               f"Pattern's rule is {pattern_rule_name}.",
+                                               f"The current rule is {ca_rule_name} with {num_states} states. "
+                                               f"Pattern's rule is {pattern_rule_name}. "
+                                               f"Please load the correct rule first.",
                                 QMessageBox.Ok, QMessageBox.Ok)
 
         except Exception:
@@ -978,7 +1135,8 @@ class CACanvas(QWidget):
             if lower_x <= key[1] <= upper_x and lower_y <= key[0] <= upper_y:
                 dict_grid[key] = self.dict_grid[key]
 
-        QMessageBox.information(self, "Identification Complete", identify(dict_grid, self.generations, use_parse),
+        QMessageBox.information(self, "Identification Complete",
+                                identify(dict_grid, self.generations, use_parse),
                                 QMessageBox.Ok, QMessageBox.Ok)
 
     def open_pattern(self) -> None:
@@ -987,18 +1145,27 @@ class CACanvas(QWidget):
             logging.log(logging.INFO, "Opening Pattern...")
 
             # Open File Dialog
-            filename, _ = QFileDialog.getOpenFileName(caption="Select .rle file", filter="RLE Files (*.rle)")
+            filename, _ = QFileDialog.getOpenFileName(caption="Select .rle file",
+                                                      filter="RLE Files (*.rle)")
             file = open(filename, "r")
 
             rle: str = file.read()
 
             # Get Pattern's Name
-            pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
-
-            # Add the cells to the canvas
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
-            for key in grid:
-                self.add_cell(grid[key], key[1] + 100, key[0] + 100)
+            loaded_rule: bool = False
+            pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
+            if pattern_rule_name != ca_rule_name:
+                for i in os.listdir("RecordedRules"):
+                    if i.split(".")[0] == pattern_rule_name:
+                        self.load_rule_from_file("RecordedRules/" + i, "." + i.split(".")[1])
+                        self.reset_and_load.emit(grid)
+                        loaded_rule = True
+
+            if not loaded_rule:
+                # Add the cells to the canvas
+                for key in grid:
+                    self.add_cell(grid[key], key[1] + 100, key[0] + 100)
 
             # Close File
             file.close()
@@ -1008,10 +1175,16 @@ class CACanvas(QWidget):
             self.label.update()
             self.update()
 
+            # Change Title
+            pattern_name = filename.split("/")[-1]
+            self.change_title.emit(f"Cellular Automaton Viewer [{ca_rule_name}, {pattern_name}, "
+                                   f"Number of States: {num_states}]")
+
         except FileNotFoundError:
             logging.log(logging.INFO, "Cancelled Operation")
 
         except IndexError:
+            print(traceback.format_exc())
             QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded is lower than "
                                                "the number of states in the rle. "
                                                "There could also be an unidentified character in the rle. "
@@ -1050,20 +1223,30 @@ class CACanvas(QWidget):
             x: int = event.pos().x()
             y: int = event.pos().y()
 
+            # Mapping coordinates based on ScrollArea
+            x_offset: int = self.scroll_area.horizontalScrollBar().value()
+            y_offset: int = self.scroll_area.verticalScrollBar().value()
+
             # Align to Cells
-            self.rubber_band.setGeometry(QRect(self.origin,
-                                               QPoint(x - x % self.cell_size,
-                                                      y - y % self.cell_size)))
+            self.rubber_band.setGeometry(QRect(self.offset_origin,
+                                               QPoint(x - x % self.cell_size - x_offset % self.cell_size,
+                                                      y - y % self.cell_size - y_offset % self.cell_size)))
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if self.mode == "selecting":
             x: int = event.pos().x()
             y: int = event.pos().y()
 
+            # Mapping coordinates based on ScrollArea
+            x_offset: int = self.scroll_area.horizontalScrollBar().value()
+            y_offset: int = self.scroll_area.verticalScrollBar().value()
+
             # Align to Cells
             self.origin = QPoint(x - x % self.cell_size,
                                  y - y % self.cell_size)
-            self.rubber_band.setGeometry(QRect(self.origin, QSize()))
+            self.offset_origin = QPoint(x - x % self.cell_size - x_offset % self.cell_size,
+                                        y - y % self.cell_size - y_offset % self.cell_size)
+            self.rubber_band.setGeometry(QRect(self.offset_origin, QSize()))
             self.rubber_band.show()
 
             logging.log(logging.INFO, f"Start selecting at {(x // self.cell_size, y // self.cell_size)}")

@@ -1,19 +1,19 @@
-Name: CustomRule
+Name: WeightedGenerations_Rule_9
 
 Neighbourhood Range: 2
 
 Neighbourhood:
--2,2,3,2,-2
+1,2,3,2,1
 2,4,6,4,2
 3,6,9,6,3
 2,4,6,4,2
--2,2,3,2,-2
+1,2,3,2,1
 
 State Weights: 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 Rulespace: Extended Generations
 
-Rulestring: 16,34,17,38,42,14,15,36,48,51,56,61,69,71,78,80/6,33,38,60,69,79,80/1-13
+Rulestring: 15,38,48,35,13,32,15,36,48,51,56,61,69,71,78,80/6,23,38,60,69,79,80/1-13
 
 Colour Palette:
 None
