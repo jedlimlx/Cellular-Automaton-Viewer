@@ -4,35 +4,35 @@
         [
             "?",
             "2",
-            "3",
+            "2",
             "2",
             "?"
         ],
         [
             "2",
-            "4",
+            "5",
             "6",
-            "4",
+            "5",
             "2"
         ],
         [
-            "3",
+            "2",
             "6",
             "9",
             "6",
-            "3"
+            "2"
         ],
         [
             "2",
-            "4",
+            "5",
             "6",
-            "4",
+            "5",
             "2"
         ],
         [
             "?",
             "2",
-            "3",
+            "2",
             "2",
             "?"
         ]
@@ -66,5 +66,6 @@
         "State Weights Lower Bound": "-1",
         "Neighbourhood Weights Upper Bound": "2",
         "Neighbourhood Weights Lower Bound": "-2"
-    }
+    },
+    "Isotropic": true
 }

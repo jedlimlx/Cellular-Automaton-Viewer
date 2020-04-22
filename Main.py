@@ -4,6 +4,7 @@ import sys
 from PyQt5.Qt import QIcon, QAction
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar
 
+import CACanvas as cacanvas
 from CACanvas import CACanvas
 from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog
 
@@ -116,11 +117,18 @@ def zoom_out() -> None:
 
 
 def random_soup_settings() -> None:
-    settings = SoupSettings(int(canvas.density * 100), canvas.symmetry)
-    new_density, symmetry = settings.get_results()
+    settings = SoupSettings(int(canvas.density * 100), canvas.symmetry,
+                            cacanvas.num_states, [False] * cacanvas.num_states)
+
+    new_density, symmetry, checkbox_states = settings.get_results()
+
+    include_states = []
+    for index, val in enumerate(checkbox_states):
+        if val: include_states.append(index)
 
     if new_density != -1: canvas.density = new_density / 100  # Map from % to float
     if symmetry != "#": canvas.symmetry = symmetry
+    if len(include_states) != 0: canvas.include_states = include_states[:]
 
 
 def simulation_settings() -> None:

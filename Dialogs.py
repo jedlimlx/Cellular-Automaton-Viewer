@@ -73,7 +73,7 @@ class Table(QWidget):
 
 
 class SoupSettings(QDialog):
-    def __init__(self, density: int, symmetry: str):
+    def __init__(self, density: int, symmetry: str, num_states: int, checkbox_states: List[bool]):
         super().__init__()
 
         grid = QGridLayout()
@@ -107,6 +107,25 @@ class SoupSettings(QDialog):
         self.combo.setCurrentIndex(self.symmetries.index(symmetry))
         grid.addWidget(self.combo)
 
+        # Checkboxes to Select included States
+        checkbox_widget = QWidget()
+        grid_checkbox = QGridLayout()
+        checkbox_widget.setLayout(grid_checkbox)
+
+        try:
+            self.checkbox_states: List[QCheckBox] = []
+            for i in range(num_states):
+                checkbox = QCheckBox(text=str(i))
+                checkbox.setChecked(checkbox_states[i])
+                grid_checkbox.addWidget(checkbox, 0, i)
+
+                self.checkbox_states.append(checkbox)
+
+            grid.addWidget(checkbox_widget)
+
+        except Exception as e:
+            print(traceback.format_exc())
+
         # Okay and Cancel Button
         btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
 
@@ -119,11 +138,12 @@ class SoupSettings(QDialog):
     def change_label(self):
         self.density_label.setText(f"Density: {self.slider.value()}%")
 
-    def get_results(self) -> Tuple[int, str]:
+    def get_results(self):
         if self.exec_() == QDialog.Accepted:
-            return self.slider.value(), self.symmetries[self.combo.currentIndex()]
+            return self.slider.value(), self.symmetries[self.combo.currentIndex()], \
+                   [x.isChecked() for x in self.checkbox_states]
         else:
-            return -1, "#"
+            return -1, "#", []
 
 
 class SettingZoom(QDialog):
@@ -206,6 +226,43 @@ class SimulationSettings(QDialog):
             return -1
 
 
+class IdentityDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        grid = QGridLayout()
+        self.setLayout(grid)
+        self.setWindowTitle("Identity")
+        self.setWindowIcon(QIcon("Icons/PulsarIcon.png"))
+
+        # Symmetry Label
+        symmetry_label = QLabel("Select Pattern Type: ")
+        grid.addWidget(symmetry_label)
+
+        # Combo Box for Selecting Pattern Types
+        self.pattern_types: List[str] = ["Still Life / Oscillator / Spaceship",
+                                         "Gun", "Replicator", "Could be anything"]
+
+        self.combo = QComboBox()
+        self.combo.addItems(self.pattern_types)
+        grid.addWidget(self.combo)
+
+        # Okay and Cancel Button
+        btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        button_box = QDialogButtonBox(btns)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        grid.addWidget(button_box)
+
+    def get_results(self):
+        if self.exec_() == QDialog.Accepted:
+            return self.pattern_types[self.combo.currentIndex()]
+        else:
+            return ""
+
+
 class RandomRuleDialog(QDialog):
     reset = pyqtSignal()
 
@@ -262,6 +319,12 @@ class RandomRuleDialog(QDialog):
         above_grid.addWidget(self.combo_box_rulespace, 0, 1)
 
         self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the rule isotropic?
+
+        # Get Rule Name from Settings.json
+        try: isotropic = json.load(open("settings.json", "r"))["Isotropic"]
+        except KeyError: isotropic = True
+
+        self.isotropic_check_box.setChecked(isotropic)
         above_grid.addWidget(self.isotropic_check_box, 1, 0)
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
@@ -392,7 +455,7 @@ class RandomRuleDialog(QDialog):
         prev_rule = open("rule.ca_rule", "r").read()
         settings = json.load(open("settings.json", "r"))
 
-        file = open("rule.ca_rule", "w")
+        file = open("rule.ca_rule", "w")  # Write to Rule File
         file.write(f"Name: {self.rulename.text()}\n\n")
         file.write("Neighbourhood Range: 2\n\n")
         file.write("Neighbourhood:\n")
@@ -547,6 +610,7 @@ class RandomRuleDialog(QDialog):
         file.write("Colour Palette:\nNone\n")
         file.close()
 
+        settings["Isotropic"] = self.isotropic_check_box.isChecked()
         settings["Rule Space"] = self.rulespaces[self.combo_box_rulespace.currentIndex()]
         settings["Rule String"] = self.rulestring.text()
         settings["Neighbourhood Weights"] = self.neighbourhood_table.num

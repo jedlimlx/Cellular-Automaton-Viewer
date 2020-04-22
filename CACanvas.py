@@ -22,7 +22,7 @@ from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand
 
-from Identity import identify
+from Identity import identify, reload
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 
@@ -121,8 +121,11 @@ class CACanvas(QWidget):
         # Current Mode -> Painting or Selecting
         self.mode: str = "painting"
 
-        # Density Parameter for Thing
+        # Density Parameter for Random Soup Generation
         self.density: float = 0.5
+
+        # States to Include in Random Soup
+        self.include_states: List[int] = [1]
 
         """
         # Dynamic Programming Optimization
@@ -259,18 +262,9 @@ class CACanvas(QWidget):
         btn_random.setIcon(QIcon("Icons/RandomSoupIcon.png"))
         btn_random.setToolTip("Generate Random Soup")
         btn_random.setIconSize(QSize(20, 20))
-        btn_random.clicked.connect(lambda: self.random_soup(False))
+        btn_random.clicked.connect(self.random_soup)
 
         grid_selection.addWidget(btn_random, 0, 0)
-
-        # Button to Generate Random Multi State Soup
-        btn_multi_random = QPushButton()
-        btn_multi_random.setIcon(QIcon("Icons/RandomSoupIcon2.png"))
-        btn_multi_random.setToolTip("Generate Random Multi-State Soup")
-        btn_multi_random.setIconSize(QSize(20, 20))
-        btn_multi_random.clicked.connect(lambda: self.random_soup(True))
-
-        grid_selection.addWidget(btn_multi_random, 0, 1)
 
         # Button to Flip Pattern Horizontally
         btn_flip_horizontal = QPushButton()
@@ -279,7 +273,7 @@ class CACanvas(QWidget):
         btn_flip_horizontal.setIconSize(QSize(20, 20))
         btn_flip_horizontal.clicked.connect(self.flip_horizontal)
 
-        grid_selection.addWidget(btn_flip_horizontal, 0, 2)
+        grid_selection.addWidget(btn_flip_horizontal, 0, 1)
 
         # Button to Flip Pattern Horizontally
         btn_flip_vertical = QPushButton()
@@ -288,7 +282,7 @@ class CACanvas(QWidget):
         btn_flip_vertical.setIconSize(QSize(20, 20))
         btn_flip_vertical.clicked.connect(self.flip_vertical)
 
-        grid_selection.addWidget(btn_flip_vertical, 0, 3)
+        grid_selection.addWidget(btn_flip_vertical, 0, 2)
 
         # Button to Rotate Pattern Clockwise
         btn_rotate_clockwise = QPushButton()
@@ -297,7 +291,7 @@ class CACanvas(QWidget):
         btn_rotate_clockwise.setIconSize(QSize(20, 20))
         btn_rotate_clockwise.clicked.connect(self.rotate_clockwise)
 
-        grid_selection.addWidget(btn_rotate_clockwise, 0, 4)
+        grid_selection.addWidget(btn_rotate_clockwise, 0, 3)
 
         # Button to Rotate Pattern Counter-Clockwise
         btn_rotate_counterclockwise = QPushButton()
@@ -306,7 +300,7 @@ class CACanvas(QWidget):
         btn_rotate_counterclockwise.setIconSize(QSize(20, 20))
         btn_rotate_counterclockwise.clicked.connect(self.rotate_counter_clockwise)
 
-        grid_selection.addWidget(btn_rotate_counterclockwise, 0, 5)
+        grid_selection.addWidget(btn_rotate_counterclockwise, 0, 4)
 
         # Button to Identify Pattern
         btn_identify = QPushButton()
@@ -314,7 +308,7 @@ class CACanvas(QWidget):
         btn_identify.setToolTip("Identify Pattern")
         btn_identify.clicked.connect(self.identify_selection)
 
-        grid_selection.addWidget(btn_identify, 0, 6)
+        grid_selection.addWidget(btn_identify, 0, 5)
 
         # Button to Record Images
         self.btn_record = QPushButton()
@@ -322,7 +316,7 @@ class CACanvas(QWidget):
         self.btn_record.clicked.connect(self.record_pattern)
         self.btn_record.setIconSize(QSize(20, 20))
 
-        grid_selection.addWidget(self.btn_record, 0, 7)
+        grid_selection.addWidget(self.btn_record, 0, 6)
 
         grid.addWidget(self.selection_tools, 2, 0)
 
@@ -382,10 +376,10 @@ class CACanvas(QWidget):
         self.state_btns.hide()
         self.selection_tools.show()
 
-    def random_soup(self, multi_state: bool) -> None:
+    def random_soup(self) -> None:
         try:
             if self.mode == "selecting":
-                logging.log(logging.INFO, f"Generating {'Multi-state' if multi_state else 'Single-state'} " +
+                logging.log(logging.INFO, f"Generating {self.include_states} " +
                             f"Soup of density {self.density} and symmetry {self.symmetry}")
 
                 # Getting Bounds
@@ -395,7 +389,7 @@ class CACanvas(QWidget):
                         for y in range(lower_y, upper_y):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
                             else:
                                 self.add_cell(0, x, y)
 
@@ -408,10 +402,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 3, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -422,10 +416,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -436,10 +430,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
                             else:
                                 self.add_cell(0, x, y)
@@ -450,10 +444,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               x, upper_y + lower_y - y - 3)
                             else:
                                 self.add_cell(0, x, y)
@@ -464,10 +458,10 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               x, upper_y + lower_y - y - 2)
                             else:
                                 self.add_cell(0, x, y)
@@ -478,18 +472,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 3, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               x, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 3, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -502,18 +496,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               x, upper_y + lower_y - y - 3)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -526,18 +520,18 @@ class CACanvas(QWidget):
                         for y in range(lower_y, (lower_y + upper_y) // 2):
                             if random.uniform(0, 1) < self.density:  # Should the Cell be Filled?
                                 # Check if the fill is multi-state
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1, x, y)
+                                self.add_cell(random.choice(self.include_states), x, y)
 
                                 # Add Cells on the Bottom Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
 
                                 # Add Cells on the Bottom Left
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               x, upper_y + lower_y - y - 2)
 
                                 # Add Cells on the Top Right
-                                self.add_cell(random.randint(1, num_states - 1) if multi_state else 1,
+                                self.add_cell(random.choice(self.include_states),
                                               upper_x + lower_x - x - 2, y)
                             else:
                                 self.add_cell(0, x, y)
@@ -554,6 +548,7 @@ class CACanvas(QWidget):
             QMessageBox.warning(self, "Error Generating Random Soup",
                                 "Error Generating Random Soup\nNo Area Selected Yet",
                                 QMessageBox.Ok, QMessageBox.Ok)
+
 
     def toggle_simulation(self) -> None:
         self.running = not self.running
@@ -836,6 +831,7 @@ class CACanvas(QWidget):
             ca_rule_name = transFunc.rule_name
             colours = transFunc.colour_palette
             compute.reload()
+            reload(False)
 
             # Write to Recorded Rules
             recorded_rule_file = open("RecordedRules/" + ca_rule_name + ".py", "w+")
@@ -855,6 +851,7 @@ class CACanvas(QWidget):
             # Reload File
             parser.load("rule.ca_rule")
             RuleParser.load("rule.ca_rule")
+            reload(True)
 
             # Reload Variables
             num_states = RuleParser.n_states
@@ -1135,9 +1132,12 @@ class CACanvas(QWidget):
             if lower_x <= key[1] <= upper_x and lower_y <= key[0] <= upper_y:
                 dict_grid[key] = self.dict_grid[key]
 
-        QMessageBox.information(self, "Identification Complete",
-                                identify(dict_grid, self.generations, use_parse),
-                                QMessageBox.Ok, QMessageBox.Ok)
+        try:
+            QMessageBox.information(self, "Identification Complete",
+                                    identify(dict_grid, self.generations, use_parse),
+                                    QMessageBox.Ok, QMessageBox.Ok)
+        except Exception:
+            print(traceback.format_exc())
 
     def open_pattern(self) -> None:
         pattern_rule_name = "???"
