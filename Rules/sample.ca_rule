@@ -9,7 +9,9 @@ Neighbourhood:
 
 State Weights: 0,1
 
-Rulespace: Outer Totalistic
+Rulespace: Single State
+
+B/S Conditions: Outer Totalistic
 
 Rulestring: 2,3/3
 

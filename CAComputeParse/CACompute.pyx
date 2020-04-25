@@ -11,21 +11,28 @@ from libcpp.unordered_set cimport unordered_set
 
 cdef vector[vector[int]] colour_palette
 cdef string rule_name
-cdef string rule_space
+cdef string rule_space, bsconditions
 cdef int n_states
 cdef vector[vector[int]] state_weights
-cdef vector[vector[pair[int, int]]] neighbourhood
+cdef vector[vector[pair[int, int]]] neighbourhood, original_neighbourhood
 cdef vector[vector[int]] neighbourhood_weights
-cdef int alternating_period
-cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, activity_list
+cdef int alternating_period, birth_state
+cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
+    regen_birth, regen_survival, activity_list, other_birth, other_survival
+
+cdef extern from "compute.cpp":
+    pass
 
 cpdef load(filename):
     global colour_palette, rule_name, rule_space, n_states, state_weights, neighbourhood, neighbourhood_weights,\
-        alternating_period, birth, survival, forcing, killing, living, activity_list
+        alternating_period, birth, survival, forcing, killing, living, \
+        regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
+        original_neighbourhood
 
     colour_palette.clear()
     rule_name = b""
     rule_space = b""
+    bsconditions = b""
     n_states = 0
     state_weights.clear()
     neighbourhood.clear()
@@ -37,12 +44,18 @@ cpdef load(filename):
     killing.clear()
     living.clear()
     activity_list.clear()
+    regen_birth.clear()
+    regen_survival.clear()
+    other_birth.clear()
+    other_survival.clear()
 
     cdef string rule
 
     cdef int neighbourhood_count = 0
     cdef vector[vector[int]] current_neighbourhood_weights
     cdef vector[vector[vector[int]]] unflattened_neighbourhood_weights
+    cdef unordered_set[pair[int, int]] set_neighbourhood
+    cdef pair[int, int] neighbour, neighbour2
     cdef bool parsing_neighbourhood = False
 
     cdef int colour_palette_count = 0
@@ -115,6 +128,8 @@ cpdef load(filename):
             n_states = state_weights[0].size()
         elif section.find(b"Rulespace:") != -1:
             rule_space = section.replace(b"Rulespace: ", b"")
+        elif section.find(b"B/S Conditions:") != -1:
+            bsconditions = section.replace(b"B/S Conditions: ", b"")
         elif section.find(b"Rulestring:") != -1:
             rule_string = section.replace(b"Rulestring: ", b"").split(b"|")
 
@@ -129,6 +144,21 @@ cpdef load(filename):
 
         neighbourhood.push_back(pair_temp)
 
+    original_neighbourhood = neighbourhood
+    neighbourhood.clear()
+    if bsconditions == b"BokaBB":
+        for i in range(alternating_period):
+            set_neighbourhood.clear()
+            for neighbour in original_neighbourhood[i]:
+                for neighbour2 in original_neighbourhood[i]:
+                    set_neighbourhood.insert(pair[int, int] (neighbour.first + neighbour2.first,
+                                                             neighbour.second + neighbour2.second))
+                set_neighbourhood.insert(neighbour)
+
+            pair_temp.clear()
+            pair_temp.insert(pair_temp.end(), set_neighbourhood.begin(), set_neighbourhood.end())
+            neighbourhood.push_back(pair_temp)
+
     for weights in unflattened_neighbourhood_weights:
         temp.clear()
         for k in weights:
@@ -138,28 +168,71 @@ cpdef load(filename):
 
         neighbourhood_weights.push_back(temp)
 
-    if rule_space == b"Outer Totalistic":
-        for individual_rule_string in rule_string:
-            if individual_rule_string.find(b"/") != -1:
-                set_temp.clear()
-                for x in individual_rule_string.split(b"/")[1].split(b","):
-                    set_temp.insert(int(x))
-                birth.push_back(set_temp)
+    if rule_space == b"Single State":
+        if bsconditions == b"Outer Totalistic":
+            for individual_rule_string in rule_string:
+                if individual_rule_string.find(b"/") != -1:
+                    set_temp.clear()
+                    for x in individual_rule_string.split(b"/")[1].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
 
-                set_temp.clear()
-                for x in individual_rule_string.split(b"/")[0].split(b","):
-                    set_temp.insert(int(x))
-                survival.push_back(set_temp)
-            else:
-                set_temp.clear()
-                for x in re.split(b"[bs]", individual_rule_string)[1].split(b","):
-                    set_temp.insert(int(x))
-                birth.push_back(set_temp)
+                    set_temp.clear()
+                    for x in individual_rule_string.split(b"/")[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+                else:
+                    set_temp.clear()
+                    for x in re.split(b"[bs]", individual_rule_string)[1].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
 
-                set_temp.clear()
-                for x in re.split(b"[bs]", individual_rule_string)[2].split(b","):
-                    set_temp.insert(int(x))
-                survival.push_back(set_temp)
+                    set_temp.clear()
+                    for x in re.split(b"[bs]", individual_rule_string)[2].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+        elif bsconditions == b"BokaBB":
+            for individual_rule_string in rule_string:
+                if individual_rule_string.find(b"/") != -1:
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[1])[0].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[0])[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[1]).split(b","):
+                        set_temp.insert(int(x))
+                    other_birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[0]).split(b","):
+                        set_temp.insert(int(x))
+                    other_survival.push_back(set_temp)
+                else:
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", re.split(b"[bs]", individual_rule_string)[1])[0].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", re.split(b"[bs]", individual_rule_string)[2])[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bs]", individual_rule_string)[1]).split(b","):
+                        set_temp.insert(int(x))
+                    other_birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bs]", individual_rule_string)[2]).split(b","):
+                        set_temp.insert(int(x))
+                    other_survival.push_back(set_temp)
     elif rule_space == b"BSFKL":
         for individual_rule_string in rule_string:
             if individual_rule_string.find(b"/") != -1:
@@ -214,34 +287,84 @@ cpdef load(filename):
                 living.push_back(set_temp)
     elif rule_space == b"Extended Generations":
         for individual_rule_string in rule_string:
-            if individual_rule_string.find(b"/") != -1:
-                set_temp.clear()
-                for x in individual_rule_string.split(b"/")[1].split(b","):
-                    set_temp.insert(int(x))
-                birth.push_back(set_temp)
+            if bsconditions == b"Outer Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    set_temp.clear()
+                    for x in individual_rule_string.split(b"/")[1].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
 
-                set_temp.clear()
-                for x in individual_rule_string.split(b"/")[0].split(b","):
-                    set_temp.insert(int(x))
-                survival.push_back(set_temp)
+                    set_temp.clear()
+                    for x in individual_rule_string.split(b"/")[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
 
-                extended.clear()
-                for x in individual_rule_string.split(b"/")[2].split(b"-"):
-                    extended.push_back(int(x))
-            else:
-                set_temp.clear()
-                for x in re.split(b"[bsd]", individual_rule_string)[1].split(b","):
-                    set_temp.insert(int(x))
-                birth.push_back(set_temp)
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+                else:
+                    set_temp.clear()
+                    for x in re.split(b"[bsd]", individual_rule_string)[1].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
 
-                set_temp.clear()
-                for x in re.split(b"[bsd]", individual_rule_string)[2].split(b","):
-                    set_temp.insert(int(x))
-                survival.push_back(set_temp)
+                    set_temp.clear()
+                    for x in re.split(b"[bsd]", individual_rule_string)[2].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
 
-                extended.clear()
-                for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
-                    extended.push_back(int(x))
+                    extended.clear()
+                    for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
+            elif bsconditions == b"BokaBB":
+                if individual_rule_string.find(b"/") != -1:
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[1])[0].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[0])[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[1]).split(b","):
+                        set_temp.insert(int(x))
+                    other_birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[0]).split(b","):
+                        set_temp.insert(int(x))
+                    other_survival.push_back(set_temp)
+
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+                else:
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsd]", individual_rule_string)[1])[0].split(b","):
+                        set_temp.insert(int(x))
+                    birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsd]", individual_rule_string)[2])[0].split(b","):
+                        set_temp.insert(int(x))
+                    survival.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsd]", individual_rule_string)[1]).split(b","):
+                        set_temp.insert(int(x))
+                    other_birth.push_back(set_temp)
+
+                    set_temp.clear()
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsd]", individual_rule_string)[2]).split(b","):
+                        set_temp.insert(int(x))
+                    other_survival.push_back(set_temp)
+
+                    extended.clear()
+                    for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
 
             num, alt = 1, 1
             set_temp.clear()
@@ -253,6 +376,52 @@ cpdef load(filename):
                 alt *= -1
 
             activity_list.push_back(set_temp)
+    elif rule_space == b"Regenerating Generations":
+        for individual_rule_string in rule_string:
+            if individual_rule_string.find(b"/") != -1:
+                birth_state = int(individual_rule_string.split(b"/")[1])
+
+                set_temp.clear()
+                for x in individual_rule_string.split(b"/")[2].split(b","):
+                    set_temp.insert(int(x))
+                birth.push_back(set_temp)
+
+                set_temp.clear()
+                for x in individual_rule_string.split(b"/")[3].split(b","):
+                    set_temp.insert(int(x))
+                survival.push_back(set_temp)
+
+                set_temp.clear()
+                for x in individual_rule_string.split(b"/")[4].split(b","):
+                    set_temp.insert(int(x))
+                regen_birth.push_back(set_temp)
+
+                set_temp.clear()
+                for x in individual_rule_string.split(b"/")[5].split(b","):
+                    set_temp.insert(int(x))
+                regen_survival.push_back(set_temp)
+            else:
+                birth_state = int(re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[2])
+
+                set_temp.clear()
+                for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[3].split(b","):
+                    set_temp.insert(int(x))
+                birth.push_back(set_temp)
+
+                set_temp.clear()
+                for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[4].split(b","):
+                    set_temp.insert(int(x))
+                survival.push_back(set_temp)
+
+                set_temp.clear()
+                for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[5].split(b","):
+                    set_temp.insert(int(x))
+                regen_birth.push_back(set_temp)
+
+                set_temp.clear()
+                for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[6].split(b","):
+                    set_temp.insert(int(x))
+                regen_survival.push_back(set_temp)
 
 cpdef vector[pair[int, int]] get_neighbourhood(int generations):
     return neighbourhood[generations % alternating_period]
@@ -267,7 +436,8 @@ cpdef string get_rule_name():
     return rule_name
 
 cdef int transition_func(vector[int] neighbours, int generations):
-    cdef int n_living = 0, n_destructive = 0, n = 0
+    cdef int n_living = 0, n_destructive = 0, n = 0, n_birth = 0, n_survival = 0, index, found_index
+    cdef pair[int, int] neighbour, neighbour2
     if rule_space == b"BSFKL":
         for i in range(neighbours.size() - 1):
             if neighbours[i] == 1:
@@ -298,44 +468,137 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 1
             return 0
     elif rule_space == b"Extended Generations":
+        if bsconditions == b"Outer Totalistic":
+            for i in range(neighbours.size() - 1):
+                n += neighbourhood_weights[generations % alternating_period][i] * \
+                     state_weights[generations % alternating_period][neighbours[i]]
+
+            if activity_list[generations % alternating_period].find(neighbours[neighbours.size() - 1]) != \
+                    activity_list[generations % alternating_period].end():
+                if survival[generations % alternating_period].find(n) != \
+                        survival[generations % alternating_period].end():
+                    return neighbours[neighbours.size() - 1]
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
+
+            elif neighbours[neighbours.size() - 1] == 0:
+                if birth[generations % alternating_period].find(n) != \
+                        birth[generations % alternating_period].end():
+                    return 1
+                return 0
+
+            else:
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
+        elif bsconditions == b"BokaBB":
+            n_birth = 0
+            n_survival = 0
+            for neighbour in original_neighbourhood[generations % alternating_period]:
+                n = 0
+                for neighbour2 in original_neighbourhood[generations % alternating_period]:
+                    found_index = -1
+                    for index in range(get_neighbourhood(generations).size()):
+                        if get_neighbourhood(generations)[index].first == neighbour.first + neighbour2.first and \
+                            get_neighbourhood(generations)[index].second == neighbour.second + neighbour2.second:
+                            found_index = index
+                            break
+
+                    n += state_weights[generations % alternating_period][neighbours[found_index]]
+
+                if other_birth[generations % alternating_period].find(n) != \
+                        other_birth[generations % alternating_period].end():
+                    n_birth += 1
+                if other_survival[generations % alternating_period].find(n) != \
+                        other_survival[generations % alternating_period].end():
+                    n_survival += 1
+
+            if activity_list[generations % alternating_period].find(neighbours[neighbours.size() - 1]) != \
+                    activity_list[generations % alternating_period].end():
+                if survival[generations % alternating_period].find(n_survival) != \
+                    survival[generations % alternating_period].end():
+                    return 1
+                return 2
+
+            elif neighbours[neighbours.size() - 1] == 0:
+                if birth[generations % alternating_period].find(n_birth) != \
+                    birth[generations % alternating_period].end():
+                    return 1
+                return 0
+            else:
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
+    elif rule_space == b"Single State":
+        if bsconditions == b"Outer Totalistic":
+            for i in range(neighbours.size() - 1):
+                n += neighbourhood_weights[generations % alternating_period][i] * \
+                     state_weights[generations % alternating_period][neighbours[i]]
+
+            if neighbours[neighbours.size() - 1] == 1:
+                if survival[generations % alternating_period].find(n) != \
+                        survival[generations % alternating_period].end():
+                    return 1
+                return 0
+            else:
+                if birth[generations % alternating_period].find(n) != \
+                        birth[generations % alternating_period].end():
+                    return 1
+                return 0
+        elif bsconditions == b"BokaBB":
+            n_birth = 0
+            n_survival = 0
+            for neighbour in original_neighbourhood[generations % alternating_period]:
+                n = 0
+                for neighbour2 in original_neighbourhood[generations % alternating_period]:
+                    found_index = -1
+                    for index in range(get_neighbourhood(generations).size()):
+                        if get_neighbourhood(generations)[index].first == neighbour.first + neighbour2.first and \
+                            get_neighbourhood(generations)[index].second == neighbour.second + neighbour2.second:
+                            found_index = index
+                            break
+
+                    if neighbours[found_index] == 1: n += 1
+
+                if other_birth[generations % alternating_period].find(n) != \
+                        other_birth[generations % alternating_period].end():
+                    n_birth += 1
+                if other_survival[generations % alternating_period].find(n) != \
+                        other_survival[generations % alternating_period].end():
+                    n_survival += 1
+
+            if neighbours[neighbours.size() - 1] == 1:
+                if survival[generations % alternating_period].find(n_survival) != \
+                    survival[generations % alternating_period].end():
+                    return 1
+                return 0
+
+            elif neighbours[neighbours.size() - 1] == 0:
+                if birth[generations % alternating_period].find(n_birth) != \
+                    birth[generations % alternating_period].end():
+                    return 1
+                return 0
+    elif rule_space == b"Regenerating Generations":
         for i in range(neighbours.size() - 1):
             n += neighbourhood_weights[generations % alternating_period][i] * \
                  state_weights[generations % alternating_period][neighbours[i]]
 
-        if activity_list[generations % alternating_period].find(neighbours[neighbours.size() - 1]) != \
-                activity_list[generations % alternating_period].end():
+        if neighbours[neighbours.size() - 1] == 0:
+            if birth[generations % alternating_period].find(n) != \
+                    birth[generations % alternating_period].end():
+                return birth_state
+            return 0
+        elif neighbours[neighbours.size() - 1] == 1:
             if survival[generations % alternating_period].find(n) != \
                     survival[generations % alternating_period].end():
+                return 1
+            return 2
+        else:
+            if regen_birth[generations % alternating_period].find(n) != \
+                    regen_birth[generations % alternating_period].end():
+                return neighbours[neighbours.size() - 1] - 1
+            elif regen_survival[generations % alternating_period].find(n) != \
+                    regen_survival[generations % alternating_period].end():
                 return neighbours[neighbours.size() - 1]
             return (neighbours[neighbours.size() - 1] + 1) % n_states
 
-        elif neighbours[neighbours.size() - 1] == 0:
-            if birth[generations % alternating_period].find(n) != \
-                    birth[generations % alternating_period].end():
-                return 1
-            return 0
-
-        else:
-            return (neighbours[neighbours.size() - 1] + 1) % n_states
-    elif rule_space == b"Outer Totalistic":
-        for i in range(neighbours.size() - 1):
-            n += neighbourhood_weights[generations % alternating_period][i] * \
-                 state_weights[generations % alternating_period][neighbours[i]]
-
-        if neighbours[neighbours.size() - 1] == 1:
-            if survival[generations % alternating_period].find(n) != \
-                    survival[generations % alternating_period].end():
-                return 1
-            return 0
-        else:
-            if birth[generations % alternating_period].find(n) != \
-                    birth[generations % alternating_period].end():
-                return 1
-            return 0
-
-
 cdef int depend_on_neighbours(int state, int generations):
-    if rule_space == b"BSFKL" or rule_space == b"Outer Totalistic":
+    if rule_space == b"BSFKL" or rule_space == b"Single State" or rule_space == b"Regenerating Generations":
         return -1
     elif rule_space == b"Extended Generations":
         if activity_list[generations % alternating_period].find(state) != \
@@ -343,10 +606,6 @@ cdef int depend_on_neighbours(int state, int generations):
             return -1
         else:
             return (state + 1) % n_states
-
-
-cdef extern from "compute.cpp":
-    pass
 
 cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache

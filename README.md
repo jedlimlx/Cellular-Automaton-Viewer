@@ -54,7 +54,10 @@ Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '-' below
 State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't Leave Spaces)
 
 Rulespace: BSFKL / Extended Generations / Outer Totalistic
-Will Add 3-state Outer Totalistic and Range 2 Isotropic Von Neumann (Need Help with This) Soon
+Will Add 3-state Outer Totalistic Soon
+
+B/S Conditions: Outer Totalistic / BokaBB 
+(Range 2 Isotropic Von Neumann) Coming Soon
 
 Rulestring: -> For Alternating Put | (No Max, Don't Leave Spaces)
 b1s2f3k4l5 or 1/2/3/4/5 (BSFKL)

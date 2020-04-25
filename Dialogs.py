@@ -305,27 +305,37 @@ class RandomRuleDialog(QDialog):
         label_rulespace = QLabel("Rulespace:")
         above_grid.addWidget(label_rulespace, 0, 0)
 
-        try: rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Weights
+        try: rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Rulespace
         except KeyError: rulespace = None
 
-        self.rulespaces = ["Outer Totalistic", "Extended Generations", "BSFKL"]
+        self.rulespaces = ["BSFKL", "Single State", "Extended Generations", "Regenerating Generations"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
         self.combo_box_rulespace.addItems(self.rulespaces)
-
-        # Load Prev Rulespace
-        if rulespace is not None: self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
-
         self.combo_box_rulespace.currentTextChanged.connect(self.change_rulespace)
         above_grid.addWidget(self.combo_box_rulespace, 0, 1)
 
-        self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the rule isotropic?
+        label_bsconditions = QLabel("B/S Condition:")
+        above_grid.addWidget(label_bsconditions, 1, 0)
+
+        try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
+        except KeyError: bscondition = None
+
+        self.bsconditions = ["Outer Totalistic", "BokaBB"]
+        self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
+        self.combo_box_bsconditions.addItems(self.bsconditions)
+        above_grid.addWidget(self.combo_box_bsconditions, 1, 1)
+
+        # Load Prev Rulespace
+        if bscondition is not None: self.combo_box_bsconditions.setCurrentIndex(self.bsconditions.index(bscondition))
+
+        self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the Rule Isotropic?
 
         # Get Rule Name from Settings.json
         try: isotropic = json.load(open("settings.json", "r"))["Isotropic"]
         except KeyError: isotropic = True
 
         self.isotropic_check_box.setChecked(isotropic)
-        above_grid.addWidget(self.isotropic_check_box, 1, 0)
+        above_grid.addWidget(self.isotropic_check_box, 2, 0)
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
@@ -333,7 +343,7 @@ class RandomRuleDialog(QDialog):
         except KeyError: weights = None
         if weights is not None: self.neighbourhood_table.load_values(weights)
 
-        above_grid.addWidget(self.neighbourhood_table, 1, 1)
+        above_grid.addWidget(self.neighbourhood_table, 2, 1)
 
         self.grid.addWidget(above_widget, 2, 0)
 
@@ -353,7 +363,8 @@ class RandomRuleDialog(QDialog):
         if weights is not None: self.state_weights.load_values(weights)
 
         self.grid.addWidget(self.state_weights, 3, 0)
-        if rulespace != "Extended Generations": self.state_weights.hide()
+        if rulespace != "Extended Generations" and rulespace != "Regenerating Generations":
+            self.state_weights.hide()
 
         self.state_btns = QWidget()
         grid_state_btns = QGridLayout()
@@ -368,7 +379,8 @@ class RandomRuleDialog(QDialog):
         grid_state_btns.addWidget(self.remove_state_btn, 0, 2)
 
         self.grid.addWidget(self.state_btns, 4, 0)
-        if rulespace != "Extended Generations": self.state_btns.hide()
+        if rulespace != "Extended Generations" and rulespace != "Regenerating Generations":
+            self.state_btns.hide()
 
         label_rulestring = QLabel("Rulestring:")
         self.grid.addWidget(label_rulestring, 5, 0)
@@ -404,6 +416,9 @@ class RandomRuleDialog(QDialog):
             self.random_range_line_edits[val] = QLineEdit()
             if text is not None: self.random_range_line_edits[val].setText(text[val])  # Reload Previous Values
             random_grid.addWidget(self.random_range_line_edits[val], index, 1)
+
+            # Load Prev Rulespace
+            if rulespace is not None: self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
 
     def add_state(self):
         num = self.state_weights.num[:]  # Make a Deepcopy
@@ -444,7 +459,8 @@ class RandomRuleDialog(QDialog):
         self.grid.addWidget(self.state_weights, 3, 0)
 
     def change_rulespace(self):
-        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations":
+        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations" or \
+                self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
             self.state_weights.show()
             self.state_btns.show()  # Show State Weights
         else:
@@ -517,7 +533,8 @@ class RandomRuleDialog(QDialog):
                 self.close()
                 return -1
 
-        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations":
+        if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations" or \
+            self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
             state_weights = ""  # Appending State Weights to String
             try:
                 settings["State Weights"] = self.state_weights.num
@@ -562,7 +579,7 @@ class RandomRuleDialog(QDialog):
 
             file.write(f"\nState Weights: {state_weights}\n\n")
 
-        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Outer Totalistic":
+        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Single State":
             file.write("\nState Weights: 0,1\n\n")
 
         elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL":
@@ -606,12 +623,14 @@ class RandomRuleDialog(QDialog):
                 self.close()
                 return -1
 
+        file.write(f"B/S Conditions: {self.bsconditions[self.combo_box_bsconditions.currentIndex()]}\n\n")
         file.write(f"Rulestring: {rulestring}\n\n")
         file.write("Colour Palette:\nNone\n")
         file.close()
 
         settings["Isotropic"] = self.isotropic_check_box.isChecked()
         settings["Rule Space"] = self.rulespaces[self.combo_box_rulespace.currentIndex()]
+        settings["B/S Conditions"] = self.bsconditions[self.combo_box_bsconditions.currentIndex()]
         settings["Rule String"] = self.rulestring.text()
         settings["Neighbourhood Weights"] = self.neighbourhood_table.num
         settings["Rule Name"] = self.rulename.text()
