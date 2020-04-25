@@ -37,6 +37,7 @@ cpdef load(filename):
     state_weights.clear()
     neighbourhood.clear()
     neighbourhood_weights.clear()
+    original_neighbourhood.clear()
     alternating_period = 0
     birth.clear()
     survival.clear()
@@ -144,9 +145,9 @@ cpdef load(filename):
 
         neighbourhood.push_back(pair_temp)
 
-    original_neighbourhood = neighbourhood
-    neighbourhood.clear()
     if bsconditions == b"BokaBB":
+        original_neighbourhood = neighbourhood
+        neighbourhood.clear()
         for i in range(alternating_period):
             set_neighbourhood.clear()
             for neighbour in original_neighbourhood[i]:
@@ -486,8 +487,6 @@ cdef int transition_func(vector[int] neighbours, int generations):
                     return 1
                 return 0
 
-            else:
-                return (neighbours[neighbours.size() - 1] + 1) % n_states
         elif bsconditions == b"BokaBB":
             n_birth = 0
             n_survival = 0
@@ -522,8 +521,6 @@ cdef int transition_func(vector[int] neighbours, int generations):
                     birth[generations % alternating_period].end():
                     return 1
                 return 0
-            else:
-                return (neighbours[neighbours.size() - 1] + 1) % n_states
     elif rule_space == b"Single State":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):

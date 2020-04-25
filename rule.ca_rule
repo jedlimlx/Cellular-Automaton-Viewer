@@ -1,21 +1,21 @@
-Name: hi
+Name: CustomRule
 
 Neighbourhood Range: 2
 
 Neighbourhood:
-0,0,0,0,0
-0,0,1,0,0
-0,1,0,1,0
-0,0,1,0,0
-0,0,0,0,0
+2,2,2,2,2
+2,5,6,5,2
+2,6,9,6,2
+2,5,6,5,2
+2,2,2,2,2
 
-State Weights: 0,1,0,0,0,0,0
+State Weights: 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 Rulespace: Extended Generations
 
-B/S Conditions: BokaBB
+B/S Conditions: Outer Totalistic
 
-Rulestring: (2,3)2,3/(1,4)2,3/1-5
+Rulestring: 13,43,49,39,44,26,15,36,48,51,56,61,69,71,78,80/6,16,38,60,69,79,80/1-13
 
 Colour Palette:
 None

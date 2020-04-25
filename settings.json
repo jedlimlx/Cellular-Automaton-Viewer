@@ -1,55 +1,43 @@
 {
     "UseParse": true,
-    "Isotropic": true,
-    "Rule Space": "Extended Generations",
-    "B/S Conditions": "BokaBB",
-    "Rule String": "(2,3)2,3/(1,4)2,3/1-5",
     "Neighbourhood Weights": [
         [
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
+            "?",
+            "2",
+            "2",
+            "2",
+            "?"
         ],
         [
-            "0",
-            "0",
-            "1",
-            "0",
-            "0"
+            "2",
+            "5",
+            "6",
+            "5",
+            "2"
         ],
         [
-            "0",
-            "1",
-            "0",
-            "1",
-            "0"
+            "2",
+            "6",
+            "9",
+            "6",
+            "2"
         ],
         [
-            "0",
-            "0",
-            "1",
-            "0",
-            "0"
+            "2",
+            "5",
+            "6",
+            "5",
+            "2"
         ],
         [
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
+            "?",
+            "2",
+            "2",
+            "2",
+            "?"
         ]
     ],
-    "Rule Name": "hi",
-    "Random Bounds": {
-        "Rulestring Upper Bound": "",
-        "Rulestring Lower Bound": "",
-        "State Weights Upper Bound": "",
-        "State Weights Lower Bound": "",
-        "Neighbourhood Weights Upper Bound": "",
-        "Neighbourhood Weights Lower Bound": ""
-    },
+    "Rule Name": "CustomRule",
     "State Weights": [
         [
             "0",
@@ -58,7 +46,27 @@
             "0",
             "0",
             "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
             "0"
         ]
-    ]
+    ],
+    "Rule String": "?,?,?,?,?,?,15,36,48,51,56,61,69,71,78,80/6,?,38,60,69,79,80/1-13",
+    "Rule Space": "Extended Generations",
+    "Random Bounds": {
+        "Rulestring Upper Bound": "50",
+        "Rulestring Lower Bound": "10",
+        "State Weights Upper Bound": "1",
+        "State Weights Lower Bound": "-1",
+        "Neighbourhood Weights Upper Bound": "2",
+        "Neighbourhood Weights Lower Bound": "-2"
+    },
+    "Isotropic": true,
+    "B/S Conditions": "Outer Totalistic"
 }
