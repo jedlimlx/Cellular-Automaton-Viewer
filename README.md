@@ -53,7 +53,7 @@ Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '-' below
 
 State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't Leave Spaces)
 
-Rulespace: BSFKL / Extended Generations / Outer Totalistic
+Rulespace: BSFKL / Extended Generations / Outer Totalistic / Regenerating Generations
 Will Add 3-state Outer Totalistic Soon
 
 B/S Conditions: Outer Totalistic / BokaBB 

@@ -13,6 +13,7 @@ cdef vector[vector[int]] colour_palette
 cdef string rule_name
 cdef string rule_space, bsconditions
 cdef int n_states
+cdef vector[unordered_map[pair[int, int], int]] index_map
 cdef vector[vector[int]] state_weights
 cdef vector[vector[pair[int, int]]] neighbourhood, original_neighbourhood
 cdef vector[vector[int]] neighbourhood_weights
@@ -27,7 +28,7 @@ cpdef load(filename):
     global colour_palette, rule_name, rule_space, n_states, state_weights, neighbourhood, neighbourhood_weights,\
         alternating_period, birth, survival, forcing, killing, living, \
         regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
-        original_neighbourhood
+        original_neighbourhood, index_map
 
     colour_palette.clear()
     rule_name = b""
@@ -39,11 +40,13 @@ cpdef load(filename):
     neighbourhood_weights.clear()
     original_neighbourhood.clear()
     alternating_period = 0
+    birth_state = 0
     birth.clear()
     survival.clear()
     forcing.clear()
     killing.clear()
     living.clear()
+    index_map.clear()
     activity_list.clear()
     regen_birth.clear()
     regen_survival.clear()
@@ -71,6 +74,7 @@ cpdef load(filename):
     cdef int i, j
     cdef vector[vector[int]] weights
     cdef vector[pair[int, int]] pair_temp
+    cdef unordered_map[pair[int, int], int] map_temp
 
     cdef vector[int] k
 
@@ -159,6 +163,11 @@ cpdef load(filename):
             pair_temp.clear()
             pair_temp.insert(pair_temp.end(), set_neighbourhood.begin(), set_neighbourhood.end())
             neighbourhood.push_back(pair_temp)
+
+            map_temp.clear()
+            for j in range(len(neighbourhood[i])):
+                map_temp[neighbourhood[i][j]] = j
+            index_map.push_back(map_temp)
 
     for weights in unflattened_neighbourhood_weights:
         temp.clear()
@@ -437,7 +446,7 @@ cpdef string get_rule_name():
     return rule_name
 
 cdef int transition_func(vector[int] neighbours, int generations):
-    cdef int n_living = 0, n_destructive = 0, n = 0, n_birth = 0, n_survival = 0, index, found_index
+    cdef int n_living = 0, n_destructive = 0, n = 0, n_birth = 0, n_survival = 0, index, found_index, idx
     cdef pair[int, int] neighbour, neighbour2
     if rule_space == b"BSFKL":
         for i in range(neighbours.size() - 1):
@@ -486,21 +495,18 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         birth[generations % alternating_period].end():
                     return 1
                 return 0
-
         elif bsconditions == b"BokaBB":
             n_birth = 0
             n_survival = 0
             for neighbour in original_neighbourhood[generations % alternating_period]:
                 n = 0
+                idx = 0
                 for neighbour2 in original_neighbourhood[generations % alternating_period]:
-                    found_index = -1
-                    for index in range(get_neighbourhood(generations).size()):
-                        if get_neighbourhood(generations)[index].first == neighbour.first + neighbour2.first and \
-                            get_neighbourhood(generations)[index].second == neighbour.second + neighbour2.second:
-                            found_index = index
-                            break
-
-                    n += state_weights[generations % alternating_period][neighbours[found_index]]
+                    n += neighbourhood_weights[generations % alternating_period][idx] * \
+                         state_weights[generations % alternating_period][neighbours[index_map[
+                             generations % alternating_period][pair[int, int]
+                         (neighbour.first + neighbour2.first, neighbour.second + neighbour2.second)]]]
+                    idx += 1
 
                 if other_birth[generations % alternating_period].find(n) != \
                         other_birth[generations % alternating_period].end():
@@ -542,15 +548,13 @@ cdef int transition_func(vector[int] neighbours, int generations):
             n_survival = 0
             for neighbour in original_neighbourhood[generations % alternating_period]:
                 n = 0
+                idx = 0
                 for neighbour2 in original_neighbourhood[generations % alternating_period]:
-                    found_index = -1
-                    for index in range(get_neighbourhood(generations).size()):
-                        if get_neighbourhood(generations)[index].first == neighbour.first + neighbour2.first and \
-                            get_neighbourhood(generations)[index].second == neighbour.second + neighbour2.second:
-                            found_index = index
-                            break
-
-                    if neighbours[found_index] == 1: n += 1
+                    n += neighbourhood_weights[generations % alternating_period][idx] * \
+                         state_weights[generations % alternating_period][neighbours[index_map[
+                             generations % alternating_period][pair[int, int]
+                         (neighbour.first + neighbour2.first, neighbour.second + neighbour2.second)]]]
+                    idx += 1
 
                 if other_birth[generations % alternating_period].find(n) != \
                         other_birth[generations % alternating_period].end():
