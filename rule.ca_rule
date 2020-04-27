@@ -1,4 +1,4 @@
-Name: GenerationsBokaBB_Rule_2
+Name: GenerationsDouble_Rule_2
 
 Neighbourhood Range: 2
 
@@ -13,7 +13,7 @@ State Weights: 0,1,0,0,0
 
 Rulespace: Extended Generations
 
-B/S Conditions: BokaBB
+B/S Conditions: Double Totalistic
 
 Rulestring: (3,6,8,12)2,3,9,12/(3,4,6,11)2,6,7/1-3
 

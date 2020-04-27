@@ -1161,6 +1161,8 @@ class CACanvas(QWidget):
                         self.load_rule_from_file("RecordedRules/" + i, "." + i.split(".")[1])
                         self.reset_and_load.emit(grid)
                         loaded_rule = True
+                if not loaded_rule:
+                    raise IndexError
 
             if not loaded_rule:
                 # Add the cells to the canvas
@@ -1185,12 +1187,11 @@ class CACanvas(QWidget):
 
         except IndexError:
             print(traceback.format_exc())
-            QMessageBox.warning(self, "Error", "The number of states in the rule currently loaded is lower than "
-                                               "the number of states in the rle. "
-                                               "There could also be an unidentified character in the rle. "
-                                               f"The current rule is {ca_rule_name} with {num_states} states. "
-                                               f"Pattern's rule is {pattern_rule_name}. "
-                                               f"Please load the correct rule first.",
+            QMessageBox.warning(self, "Error", "The rule currently loaded is not the same as the "
+                                               "rule needed by the pattern. "
+                                               f"Please load the correct rule. \n"
+                                               f"Current Rule: {ca_rule_name} \n"
+                                               f"Required Rule: {pattern_rule_name}",
                                 QMessageBox.Ok, QMessageBox.Ok)
             self.load_new_rule()
 
@@ -1229,8 +1230,8 @@ class CACanvas(QWidget):
 
             # Align to Cells
             self.rubber_band.setGeometry(QRect(self.offset_origin,
-                                               QPoint(x - x % self.cell_size - x_offset % self.cell_size,
-                                                      y - y % self.cell_size - y_offset % self.cell_size)))
+                                               QPoint(x - x % self.cell_size - (x_offset + 1) % self.cell_size,
+                                                      y - y % self.cell_size - (y_offset + 1) % self.cell_size)))
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if self.mode == "selecting":
@@ -1244,8 +1245,8 @@ class CACanvas(QWidget):
             # Align to Cells
             self.origin = QPoint(x - x % self.cell_size,
                                  y - y % self.cell_size)
-            self.offset_origin = QPoint(x - x % self.cell_size - x_offset % self.cell_size,
-                                        y - y % self.cell_size - y_offset % self.cell_size)
+            self.offset_origin = QPoint(x - x % self.cell_size - (x_offset + 1) % self.cell_size,
+                                        y - y % self.cell_size - (y_offset + 1) % self.cell_size)
             self.rubber_band.setGeometry(QRect(self.offset_origin, QSize()))
             self.rubber_band.show()
 

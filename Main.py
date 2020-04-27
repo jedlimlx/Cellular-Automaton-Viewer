@@ -88,6 +88,10 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.change_title.connect(set_title)
         if overwrite is not None: canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
 
+    # Setting Title of Application
+    window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "
+                          f"Number of States: {cacanvas.num_states}]")
+
     # Reconnect Canvas Actions to Menu Bar
     open_pattern_action.triggered.connect(canvas.open_pattern)
     save_pattern_action.triggered.connect(canvas.save_pattern)
@@ -174,7 +178,6 @@ grid.setSpacing(1)
 # Main Window
 window = QWidget()
 window.setLayout(grid)
-window.setWindowTitle("Cellular Automaton Viewer")
 window.setWindowIcon(QIcon("Icons/PulsarIcon.png"))
 
 # Canvas to Simulate the CA
@@ -186,6 +189,10 @@ canvas.zoom_out.connect(zoom_out)
 canvas.change_title.connect(set_title)
 canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
 canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
+
+# Setting Title of Application
+window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "
+                      f"Number of States: {cacanvas.num_states}]")
 grid.addWidget(canvas, 1, 0)
 
 # Menu Bar

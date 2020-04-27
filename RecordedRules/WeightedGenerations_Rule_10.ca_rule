@@ -1,0 +1,19 @@
+Name: WeightedGenerations_Rule_10
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,2,2,2,2
+2,5,6,5,2
+2,6,9,6,2
+2,5,6,5,2
+1,2,2,2,1
+
+State Weights: 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+Rulespace: Extended Generations
+
+Rulestring: 32,19,12,19,31,30,15,36,48,51,56,61,69,71,78,80/6,35,44,38,60,69,79,80/1-13
+
+Colour Palette:
+None

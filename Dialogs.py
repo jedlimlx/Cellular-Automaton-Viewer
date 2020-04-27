@@ -320,7 +320,7 @@ class RandomRuleDialog(QDialog):
         try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
         except KeyError: bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "BokaBB"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         above_grid.addWidget(self.combo_box_bsconditions, 1, 1)

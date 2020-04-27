@@ -40,32 +40,48 @@ def compare(first: Dict, second: Dict, lower_x: int, upper_x: int, lower_y: int,
         # print("=" * 10, len(first), len(second))
 
         offset_x, offset_y = keys_first[0][1] - keys_second[0][1], keys_first[0][0] - keys_second[0][0]
-        for j in range(len(keys_second)):
+        for j in range(1, len(keys_second)):
             found = False
+            # index_found = 0
             for i in range(len(keys_first)):
-                """
-                print(offset_x, offset_y,
-                      keys_first[i][1] - keys_second[j][1], keys_first[i][0] - keys_second[j][0],
-                      first[keys_first[i]], second[keys_second[j]])
-                """
-
-                if ((keys_first[i][1] - keys_second[j][1]) != offset_x or
+                if ((keys_first[i][1] - keys_second[j][1]) != offset_x and
                     (keys_first[i][1] - keys_second[j][1]) != -offset_x) and \
-                        ((keys_first[i][0] - keys_second[j][0]) != offset_y or
+                        ((keys_first[i][0] - keys_second[j][0]) != offset_y and
                          (keys_first[i][0] - keys_second[j][0]) != -offset_y):  # Checking for Replicator Offset
-
-                    # print("Die Liao!!")
+                    """
+                    print(offset_x, offset_y,
+                          keys_first[i][1] - keys_second[j][1],
+                          keys_first[i][0] - keys_second[j][0],
+                          first[keys_first[i]], second[keys_second[j]], i, j,
+                          ((keys_first[i][1] - keys_second[j][1]) == offset_x or
+                           (keys_first[i][1] - keys_second[j][1]) == -offset_x) and \
+                          ((keys_first[i][0] - keys_second[j][0]) == offset_y or
+                           (keys_first[i][0] - keys_second[j][0]) == -offset_y),
+                          "Offset Incorrect")
+                    """
                     continue
 
                 if first[keys_first[i]] != second[keys_second[j]]:
-                    # print("Die Liao!!")
+                    """
+                    print(offset_x, offset_y,
+                          keys_first[i][1] - keys_second[j][1],
+                          keys_first[i][0] - keys_second[j][0],
+                          first[keys_first[i]], second[keys_second[j]], i, j,
+                          first[keys_first[i]] == second[keys_second[j]], "State Incorrect")
+                    """
                     continue
 
                 found = True
+                # index_found = i  # For Debugging Purposes
                 break
 
-            if not found:
-                return False
+            """
+            print(offset_x, offset_y,
+                  keys_first[index_found][1] - keys_second[j][1], keys_first[index_found][0] - keys_second[j][0],
+                  first[keys_first[index_found]], second[keys_second[j]], found, index_found, j)
+            """
+
+            if not found: return False
 
         replicator = True
         return True
