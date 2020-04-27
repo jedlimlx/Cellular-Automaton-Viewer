@@ -18,13 +18,13 @@ Press it again to stop the recording and save the gif.<br>
 
 In the file menu, you can save, open, and create a new pattern.<br>
 In the edit menu, you can copy, cut, delete and paste a pattern.<br>
-In the control menu, you can adjust random soup and simulation settings and step forward 1 generation.<br>
+In the control menu, you can adjust random soup and simulation settings and step forward 1 generation and start the simulation.<br>
 In the zoom menu, you can zoom in and out and set the zoom.<br>
 
 Note
 ----
 When you load a pattern, it does not necessarily mean that the corresponding rule is loaded. <br>
-You have to load the rule first.
+You have to load the rule first. (Only true if you modified the rule or have not opened the rule before)
 
 Rule Format
 =================================
@@ -56,7 +56,7 @@ State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't L
 Rulespace: BSFKL / Extended Generations / Outer Totalistic / Regenerating Generations
 Will Add 3-state Outer Totalistic Soon
 
-B/S Conditions: Outer Totalistic / BokaBB 
+B/S Conditions: Outer Totalistic / Double Totalistic 
 (Range 2 Isotropic Von Neumann) Coming Soon
 
 Rulestring: -> For Alternating Put | (No Max, Don't Leave Spaces)
