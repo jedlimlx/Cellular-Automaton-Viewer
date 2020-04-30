@@ -1,12 +1,14 @@
-import logging
 import sys
+import logging
+import threading
 
 from PyQt5.Qt import QIcon, QAction
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog
 
+import Geneascopy as genscope
 import CACanvas as cacanvas
 from CACanvas import CACanvas
-from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog
+from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
@@ -27,6 +29,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     forward_one_action.triggered.disconnect(canvas.update_cells)
     simulation_settings_action.triggered.disconnect(simulation_settings)
     random_soup_settings_action.triggered.disconnect(random_soup_settings)
+    population_data_action.triggered.disconnect(save_population_data)
 
     # Get Soup Settings
     density: float = canvas.density
@@ -74,6 +77,8 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.destroy()
         del canvas
 
+        genscope.reload(cacanvas.use_parse)
+
         # Make a new one
         canvas = CACanvas(new_cell_size)
 
@@ -104,6 +109,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     forward_one_action.triggered.connect(canvas.update_cells)
     simulation_settings_action.triggered.connect(simulation_settings)
     random_soup_settings_action.triggered.connect(random_soup_settings)
+    population_data_action.triggered.connect(save_population_data)
 
     grid.addWidget(canvas)
 
@@ -165,6 +171,36 @@ def reload_rule() -> None:
 
 def set_title(title: str) -> None:
     window.setWindowTitle(title)
+
+
+def save_population_data() -> None:
+    # Open File Dialog
+    file_name, _ = QFileDialog.getSaveFileName(caption="Save .csv File", filter="CSV Files (*.csv)")
+
+    try:
+        file = open(file_name, "w+")
+        file.write("Generations,Population\n")
+        for generation, population in enumerate(canvas.population):
+            file.write(f"{generation},{population}\n")
+        file.close()
+    except FileNotFoundError:
+        pass
+
+
+def geneascopy():
+    # Open File Dialog
+    file_name, _ = QFileDialog.getSaveFileName(caption="Save .csv File", filter="CSV Files (*.csv)")
+
+    try:
+        dialog = GeneascopyDialog()
+
+        max_generations, num_soups = dialog.get_results()
+        thread = threading.Thread(target=lambda: genscope.main(cacanvas.use_parse,
+                                                               max_generations, num_soups, file_name))
+        thread.start()
+
+    except FileNotFoundError:
+        pass
 
 
 app = QApplication(sys.argv)
@@ -283,6 +319,16 @@ view_menu.addSeparator()
 set_zoom_action = QAction("Set Zoom")
 set_zoom_action.triggered.connect(set_zoom)
 view_menu.addAction(set_zoom_action)
+
+data_menu = menu.addMenu("Data")
+
+population_data_action = QAction("Get Population Data")
+population_data_action.triggered.connect(save_population_data)
+data_menu.addAction(population_data_action)
+
+geneascopy_action = QAction("Run Geneascopy")
+geneascopy_action.triggered.connect(geneascopy)
+data_menu.addAction(geneascopy_action)
 
 grid.addWidget(menu, 0, 0)
 

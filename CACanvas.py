@@ -157,6 +157,9 @@ class CACanvas(QWidget):
             # Load Rule
             parser.load("rule.ca_rule")
 
+        # Record Population
+        self.population: List[int] = []
+
         # Grid to Place Widgets
         grid = QGridLayout()
         grid.setHorizontalSpacing(1)
@@ -340,6 +343,12 @@ class CACanvas(QWidget):
             self.dict_grid[(y, x)] = state
         elif (y, x) in self.dict_grid:
             self.dict_grid.pop((y, x))
+
+        # Record Population Change
+        try:
+            self.population[self.generations - 1] = len(self.dict_grid)
+        except IndexError:
+            self.population.append(len(self.dict_grid))
 
         # Update Bounds
         self.lower_x = min(self.lower_x, x)
@@ -593,6 +602,7 @@ class CACanvas(QWidget):
                                 self.dict_grid, self.generations)
 
         computation_time_taken: float = time() - start_time
+        self.population.append(len(self.dict_grid))
 
         # Get Time the Visualisation Started
         start_time: float = time()
@@ -796,12 +806,26 @@ class CACanvas(QWidget):
             rle: str = self.to_rle(self.lower_x, self.lower_y, self.upper_x, self.upper_y)  # Get RLE
 
             # Open File Dialog
-            file_name, _ = QFileDialog.getSaveFileName(caption="Save RLE File", filter="RLE Files (*.rle)")
+            file_name, _ = QFileDialog.getSaveFileName(caption="Save RLE File",
+                                                       filter="RLE Files (*.rle);;"
+                                                              "CA Pattern Files (*.ca_pattern)")
 
-            # Write to the file
-            file = open(file_name, "w+")
-            file.write(rle)
-            file.close()
+            if _ == "RLE Files (*.rle)":  # Check File Type
+                # Write to the file
+                file = open(file_name, "w+")
+                file.write(rle)
+                file.close()
+            else:
+                # Write to the file
+                if use_parse: rule_file = open("rule.ca_rule", "r")
+                else: rule_file = open("transFunc.py", "r")
+
+                file = open(file_name, "w+")
+                file.write(rule_file.read() + "\n**********\n")  # Including Rule Inside
+                rule_file.close()  # Closing Rule File
+
+                file.write(rle)
+                file.close()
 
         except FileNotFoundError:
             pass
@@ -1145,17 +1169,25 @@ class CACanvas(QWidget):
             logging.log(logging.INFO, "Opening Pattern...")
 
             # Open File Dialog
-            filename, _ = QFileDialog.getOpenFileName(caption="Select .rle file",
-                                                      filter="RLE Files (*.rle)")
+            filename, file_type = QFileDialog.getOpenFileName(caption="Select Pattern File",
+                                                              filter="RLE Files (*.rle);;"
+                                                                     "CA Pattern Files (*.ca_pattern)")
             file = open(filename, "r")
 
-            rle: str = file.read()
+            if file_type == "RLE Files (*.rle)": rle = file.read()
+            else:
+                contents = file.read()
+                rle = contents.split("**********")[-1][1:]
+
+                file = open("temp.txt", "w+")
+                file.write(contents.split("**********")[0])
+                file.close()
 
             # Get Pattern's Name
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             loaded_rule: bool = False
             pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
-            if pattern_rule_name != ca_rule_name:
+            if pattern_rule_name != ca_rule_name and file_type == "RLE Files (*.rle":
                 for i in os.listdir("RecordedRules"):
                     if i.split(".")[0] == pattern_rule_name:
                         self.load_rule_from_file("RecordedRules/" + i, "." + i.split(".")[1])
@@ -1163,6 +1195,13 @@ class CACanvas(QWidget):
                         loaded_rule = True
                 if not loaded_rule:
                     raise IndexError
+            else:
+                if "def transition_func" in rle:
+                    self.load_rule_from_file("temp.txt", ".py")
+                else:
+                    self.load_rule_from_file("temp.txt", ".ca_rule")
+                self.reset_and_load.emit(grid)
+                loaded_rule = True
 
             if not loaded_rule:
                 # Add the cells to the canvas

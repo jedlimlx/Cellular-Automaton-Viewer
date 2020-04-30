@@ -3,12 +3,12 @@ import traceback
 import copy
 import json
 from functools import partial
-from typing import Tuple, List, Dict
+from typing import List, Dict
 
 from PyQt5.Qt import QIcon, pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QGridLayout, QSlider, QDialog, QDialogButtonBox, \
-    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit, QTabWidget, QMessageBox
+    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit, QTabWidget, QMessageBox, QProgressBar
 
 
 class Table(QWidget):
@@ -645,3 +645,59 @@ class RandomRuleDialog(QDialog):
         self.reset.emit()
         self.close()
 
+
+class GeneascopyDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        grid = QGridLayout()
+        self.setLayout(grid)
+        self.setWindowTitle("Geneascopy")
+        self.setWindowIcon(QIcon("Icons/PulsarIcon.png"))
+
+        # Soup Size Label
+        self.num_soup_label = QLabel(f"Soup Num: 20")
+        grid.addWidget(self.num_soup_label)
+
+        # Slider for adjusting density
+        self.num_soup_slider = QSlider(Qt.Horizontal)
+        self.num_soup_slider.setMaximum(200)
+        self.num_soup_slider.setMinimum(0)
+        self.num_soup_slider.setValue(20)
+        self.num_soup_slider.setTickInterval(5)
+        self.num_soup_slider.valueChanged.connect(self.change_num_label)
+        grid.addWidget(self.num_soup_slider)
+
+        # Soup Size Label
+        self.generations_label = QLabel(f"Generations: ")
+        grid.addWidget(self.generations_label)
+
+        # Slider for adjusting density
+        self.generations_slider = QSlider(Qt.Horizontal)
+        self.generations_slider.setMaximum(10000)
+        self.generations_slider.setMinimum(0)
+        self.generations_slider.setValue(750)
+        self.generations_slider.setTickInterval(5)
+        self.generations_slider.valueChanged.connect(self.change_generations_label)
+        grid.addWidget(self.generations_slider)
+
+        # Okay and Cancel Button
+        btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        button_box = QDialogButtonBox(btns)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        grid.addWidget(button_box)
+
+    def change_num_label(self):
+        self.num_soup_label.setText(f"Soup Num: {self.num_soup_slider.value()}")
+
+    def change_generations_label(self):
+        self.generations_label.setText(f"Generations: {self.generations_slider.value()}")
+
+    def get_results(self):
+        if self.exec_() == QDialog.Accepted:
+            return self.generations_slider.value(), self.num_soup_slider.value()
+        else:
+            return None, None
