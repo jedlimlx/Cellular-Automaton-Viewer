@@ -160,6 +160,9 @@ class CACanvas(QWidget):
         # Record Population
         self.population: List[int] = []
 
+        # Are grid lines enabled?
+        self.grid_lines = False
+
         # Grid to Place Widgets
         grid = QGridLayout()
         grid.setHorizontalSpacing(1)
@@ -357,7 +360,10 @@ class CACanvas(QWidget):
         self.upper_y = max(self.upper_y, y)
 
         pen = QPen()
-        pen.setWidth(self.cell_size)
+        if self.grid_lines:
+            pen.setWidth(self.cell_size - 1)
+        else:
+            pen.setWidth(self.cell_size)
 
         # Set Colour
         pen.setColor(QColor(self.colour_palette[state][0],
@@ -609,7 +615,10 @@ class CACanvas(QWidget):
         self.generations += 1
 
         pen = QPen()
-        pen.setWidth(self.cell_size)
+        if self.grid_lines:
+            pen.setWidth(self.cell_size - 1)
+        else:
+            pen.setWidth(self.cell_size)
 
         painter = QPainter(self.label.pixmap())
         painter.setPen(pen)
@@ -679,6 +688,40 @@ class CACanvas(QWidget):
 
         for key in dictionary:
             self.add_cell(dictionary[key], key[1] + offset_y, key[0] + offset_x)
+
+        # Update Everything
+        self.scroll_area.update()
+        self.label.update()
+        self.update()
+
+    def toggle_grid_lines(self):
+        self.grid_lines = not self.grid_lines
+        if self.grid_lines:
+            pen = QPen()
+            pen.setWidth(1)
+            pen.setColor(QColor(100, 100, 100))
+
+            painter = QPainter(self.label.pixmap())
+            painter.setPen(pen)
+            for i in range(self.cell_size // 2, 10001, self.cell_size):
+                painter.drawLine(0, i, 10000, i)  # Horizontal Line
+                painter.drawLine(i, 0, i, 10000)  # Vertical Line
+
+            painter.end()
+        else:
+            pen = QPen()
+            pen.setWidth(1)
+            pen.setColor(QColor(0, 0, 0))
+
+            painter = QPainter(self.label.pixmap())
+            painter.setPen(pen)
+            for i in range(self.cell_size // 2, 10001, self.cell_size):
+                painter.drawLine(0, i, 10000, i)  # Horizontal Line
+                painter.drawLine(i, 0, i, 10000)  # Vertical Line
+
+            painter.end()
+
+            self.load_from_dict(self.dict_grid)
 
         # Update Everything
         self.scroll_area.update()
@@ -1187,7 +1230,7 @@ class CACanvas(QWidget):
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             loaded_rule: bool = False
             pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
-            if pattern_rule_name != ca_rule_name and file_type == "RLE Files (*.rle":
+            if pattern_rule_name != ca_rule_name and file_type == "RLE Files (*.rle)":
                 for i in os.listdir("RecordedRules"):
                     if i.split(".")[0] == pattern_rule_name:
                         self.load_rule_from_file("RecordedRules/" + i, "." + i.split(".")[1])
@@ -1195,7 +1238,7 @@ class CACanvas(QWidget):
                         loaded_rule = True
                 if not loaded_rule:
                     raise IndexError
-            else:
+            elif file_type == "CA Pattern Files (*.ca_pattern)":
                 if "def transition_func" in rle:
                     self.load_rule_from_file("temp.txt", ".py")
                 else:

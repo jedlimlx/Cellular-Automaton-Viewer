@@ -29,12 +29,14 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     forward_one_action.triggered.disconnect(canvas.update_cells)
     simulation_settings_action.triggered.disconnect(simulation_settings)
     random_soup_settings_action.triggered.disconnect(random_soup_settings)
+    grid_lines_action.triggered.disconnect(canvas.toggle_grid_lines)
     population_data_action.triggered.disconnect(save_population_data)
 
     # Get Soup Settings
     density: float = canvas.density
     symmetry: str = canvas.symmetry
     max_speed: int = canvas.max_speed
+    grid_lines: bool = canvas.grid_lines
 
     if restore_pattern:
         # Destroy Canvas
@@ -71,6 +73,10 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
             canvas.load_from_dict(dictionary)
         else:
             canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
+
+        if grid_lines:  # Enabling Grid Lines if Necessary
+            canvas.toggle_grid_lines()
+
     else:
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -82,9 +88,12 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         # Make a new one
         canvas = CACanvas(new_cell_size)
 
+        # Setting Values to what they were previously
         canvas.density = density
         canvas.symmetry = symmetry
         canvas.max_speed = max_speed
+        if grid_lines:  # Enabling Grid Lines if Necessary
+            canvas.toggle_grid_lines()
 
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
@@ -109,6 +118,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     forward_one_action.triggered.connect(canvas.update_cells)
     simulation_settings_action.triggered.connect(simulation_settings)
     random_soup_settings_action.triggered.connect(random_soup_settings)
+    grid_lines_action.triggered.connect(canvas.toggle_grid_lines)
     population_data_action.triggered.connect(save_population_data)
 
     grid.addWidget(canvas)
@@ -314,11 +324,15 @@ zoom_out_action = QAction("Zoom Out")
 zoom_out_action.triggered.connect(zoom_out)
 view_menu.addAction(zoom_out_action)
 
-view_menu.addSeparator()
-
 set_zoom_action = QAction("Set Zoom")
 set_zoom_action.triggered.connect(set_zoom)
 view_menu.addAction(set_zoom_action)
+
+view_menu.addSeparator()
+
+grid_lines_action = QAction("Toggle Grid Lines")
+grid_lines_action.triggered.connect(canvas.toggle_grid_lines)
+view_menu.addAction(grid_lines_action)
 
 data_menu = menu.addMenu("Data")
 
