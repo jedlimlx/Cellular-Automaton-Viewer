@@ -11,6 +11,8 @@ offset_x, offset_y = 0, 0
 oscillate_in_bounds = False  # Check for Guns
 replicator = False  # Check for Replicator
 
+parser.load("rule.ca_rule")
+
 
 def reload(use_parse: bool):
     if use_parse:

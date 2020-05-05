@@ -19,7 +19,7 @@ import numpy as np
 import pyperclip
 from PIL import Image
 from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
+from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon, QCursor
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand
 
 from Identity import identify, reload
@@ -1161,11 +1161,31 @@ class CACanvas(QWidget):
             x_offset: int = self.scroll_area.horizontalScrollBar().value()
             y_offset: int = self.scroll_area.verticalScrollBar().value()
 
+            """
+            # Pixmap to change cursor img
+            cursor_img = QPixmap()
+            cursor_img.fill(QColor(0, 0, 0))
+            cursor_painter = QPainter(cursor_img)
+            """
+
             # Add the cells to the canvas
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             for key in grid:
                 self.add_cell(grid[key], key[1] + (self.origin.x() + x_offset) // self.cell_size,
                               key[0] + (self.origin.y() + y_offset) // self.cell_size)
+
+                """
+                pen = QPen()
+                pen.setWidth(self.cell_size)
+                pen.setColor(QColor(self.colour_palette[grid[key]][0],
+                                    self.colour_palette[grid[key]][1],
+                                    self.colour_palette[grid[key]][2]))
+
+                cursor_painter.setPen(pen)
+                cursor_painter.drawPoint(key[1] * self.cell_size, key[0] * self.cell_size)
+                """
+
+            # self.setCursor(QCursor(cursor_img))
 
             # Update Everything
             self.scroll_area.update()

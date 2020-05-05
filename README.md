@@ -1,4 +1,33 @@
 # Cellular-Automaton-Viewer
+Installation
+=================================
+For Windows, you can skip this step. <br>
+For Linux, run the following commands (credit to martin.novy) <br>
+```
+/usr/bin/sudo  apt install  python3-pyqt5  python3-pyperclip  python3-numpy python3-pil
+/usr/bin/sudo  apt install  cython3
+
+cd CAViewer/
+
+cd CACompute
+touch __init__.py
+cp -i Compute.cpp compute.cpp
+python3  setup.py --help
+python3  setup.py build_ext --inplace
+cd ..
+
+cd CAComputeParse/
+touch __init__.py
+cp -i Compute.cpp compute.cpp
+python3  setup.py build_ext --inplace
+cd ..
+
+
+#export DISPLAY=:0
+python3   Main.py 
+```
+
+
 Instructions
 =================================
 To Start the Program, Run RunMain.bat or Main.py<br>
@@ -11,7 +40,6 @@ To Cut, Press Ctrl+X<br>
 To Delete, Press Del<br>
 To Paste, in the area, Press Ctrl+V<br>
 To Generate Random Soup, Press the Button with a Soup<br>
-To Generate Multi-State Random Soup, Press the Button with a Soup and a 2 on it<br>
 To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, Oscillators and Spaceships)<br>
 To Record the Patterns in the Area Selected, Press the Record Button and it will turn black.<br>
 Press it again to stop the recording and save the gif.<br>
@@ -19,7 +47,7 @@ Press it again to stop the recording and save the gif.<br>
 In the file menu, you can save, open, and create a new pattern.<br>
 In the edit menu, you can copy, cut, delete and paste a pattern.<br>
 In the control menu, you can adjust random soup and simulation settings and step forward 1 generation and start the simulation.<br>
-In the zoom menu, you can zoom in and out and set the zoom.<br>
+In the view menu, you can zoom in, out, set the zoom and toggle grid lines.<br>
 
 Note
 ----

@@ -6,6 +6,7 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 from libcpp cimport bool
 from libcpp.string cimport string
+from libcpp.algorithm cimport sort
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
 
@@ -18,6 +19,8 @@ cdef vector[vector[int]] state_weights
 cdef vector[vector[pair[int, int]]] neighbourhood, original_neighbourhood
 cdef vector[vector[int]] neighbourhood_weights
 cdef int alternating_period, birth_state
+cdef int naive
+cdef vector[int] naive_lst
 cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
     regen_birth, regen_survival, activity_list, other_birth, other_survival, \
     other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living,
@@ -29,7 +32,7 @@ cpdef load(filename):
     global colour_palette, rule_name, rule_space, n_states, state_weights, neighbourhood, neighbourhood_weights,\
         alternating_period, birth, survival, forcing, killing, living, \
         regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
-        original_neighbourhood, index_map, other_forcing, other_killing, other_living
+        original_neighbourhood, index_map, other_forcing, other_killing, other_living, naive, naive_lst
 
     colour_palette.clear()
     rule_name = b""
@@ -42,6 +45,7 @@ cpdef load(filename):
     original_neighbourhood.clear()
     alternating_period = 0
     birth_state = 0
+    naive = -1
     birth.clear()
     survival.clear()
     forcing.clear()
@@ -58,6 +62,7 @@ cpdef load(filename):
     other_living.clear()
     other_regen_birth.clear()
     other_regen_survival.clear()
+    naive_lst.clear()
 
     cdef string rule
 
@@ -190,251 +195,464 @@ cpdef load(filename):
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[1].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[2]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
-                    for x in re.split(b"[bs]", individual_rule_string)[1].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|nn", individual_rule_string)[1].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bs]", individual_rule_string)[2].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|nn", individual_rule_string)[2].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(re.split(b"b|s|nn", individual_rule_string)[3]))
+                    except IndexError: naive_lst.push_back(-1)
         elif bsconditions == b"Double Totalistic":
             for individual_rule_string in rule_string:
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[1])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[0])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[1]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[0]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[2]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bs]", individual_rule_string)[1])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|nn", individual_rule_string)[1])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bs]", individual_rule_string)[2])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|nn", individual_rule_string)[2])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bs]", individual_rule_string)[1]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|nn", individual_rule_string)[1]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bs]", individual_rule_string)[2]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|nn", individual_rule_string)[2]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(re.split(b"b|s|nn", individual_rule_string)[3]))
+                    except IndexError: naive_lst.push_back(-1)
     elif rule_space == b"BSFKL":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[1].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[2].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     forcing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[3].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     killing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[4].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     living.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[5]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
-                    for x in re.split(b"[bsfkl]", individual_rule_string)[1].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[1].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bsfkl]", individual_rule_string)[2].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[2].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bsfkl]", individual_rule_string)[3].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[3].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     forcing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bsfkl]", individual_rule_string)[4].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[4].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     killing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bsfkl]", individual_rule_string)[5].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[5].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     living.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6]))
+                    except IndexError: naive_lst.push_back(-1)
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[0])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[1])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[2])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     forcing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[3])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     killing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[4])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     living.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[0]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[1]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[2]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_forcing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[3]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_killing.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[4]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_living.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[5]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsfkl]", individual_rule_string)[0])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[1])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsfkl]", individual_rule_string)[1])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[2])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsfkl]", individual_rule_string)[2])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[3])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     forcing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsfkl]", individual_rule_string)[3])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[4])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     killing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"[bsfkl]", individual_rule_string)[4])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[5])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     living.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsfkl]", individual_rule_string)[0]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsfkl]", individual_rule_string)[1]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsfkl]", individual_rule_string)[2]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_forcing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsfkl]", individual_rule_string)[3]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_killing.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsfkl]", individual_rule_string)[4]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_living.push_back(set_temp)
 
+                    try: naive_lst.push_back(int(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6]))
+                    except IndexError: naive_lst.push_back(-1)
     elif rule_space == b"Extended Generations":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[1].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     extended.clear()
                     for x in individual_rule_string.split(b"/")[2].split(b"-"):
                         extended.push_back(int(x))
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[3]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
-                    for x in re.split(b"[bsd]", individual_rule_string)[1].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[1].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"[bsd]", individual_rule_string)[2].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[2].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     extended.clear()
-                    for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
                         extended.push_back(int(x))
+
+                    try: naive_lst.push_back(int(re.split(b"b|s|d|nn", individual_rule_string)[4]))
+                    except IndexError: naive_lst.push_back(-1)
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -444,46 +662,80 @@ cpdef load(filename):
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[0])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[1]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[0]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     extended.clear()
                     for x in individual_rule_string.split(b"/")[2].split(b"-"):
                         extended.push_back(int(x))
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[3]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", re.split(b"[bsd]", individual_rule_string)[1])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", re.split(b"[bsd]", individual_rule_string)[2])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsd]", individual_rule_string)[1]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", re.split(b"[bsd]", individual_rule_string)[2]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     extended.clear()
                     for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
                         extended.push_back(int(x))
+
+                    try: naive_lst.push_back(int(re.split(b"b|s|d|nn", individual_rule_string)[4]))
+                    except IndexError: naive_lst.push_back(-1)
 
             num, alt = 1, 1
             set_temp.clear()
@@ -503,131 +755,238 @@ cpdef load(filename):
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[2].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[3].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[4].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[5].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[6]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
-                    birth_state = int(re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[2])
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
 
                     set_temp.clear()
-                    for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[3].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[4].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[5].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[6].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7]))
+                    except IndexError: naive_lst.push_back(-1)
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     birth_state = int(individual_rule_string.split(b"/")[1])
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[2])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[3])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[2]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[3]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[4])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[5])[0].split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[4]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_regen_birth.push_back(set_temp)
 
                     set_temp.clear()
                     for x in re.sub(b"\(.*?\)", b"", individual_rule_string.split(b"/")[5]).split(b","):
-                        set_temp.insert(int(x))
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_regen_survival.push_back(set_temp)
 
+                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[6]))
+                    except IndexError: naive_lst.push_back(-1)
                 else:
-                    birth_state = int(re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[2])
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[3])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[4])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[3]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[4]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[5])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[6])[0].split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.findall(b"\((.*?)\)", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6])[0].split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[5]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_regen_birth.push_back(set_temp)
 
                     set_temp.clear()
-                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs", individual_rule_string)[6]).split(b","):
-                        set_temp.insert(int(x))
+                    for x in re.sub(b"\(.*?\)", b"", re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]).split(b","):
+                        if x.find(b"-") != -1:
+                            for i in range(int(x.split(b"-")[0]), int(x.split(b"-")[1]) + 1):
+                                set_temp.insert(i)
+                        else:
+                            set_temp.insert(int(x))
                     other_regen_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7]))
+                    except IndexError: naive_lst.push_back(-1)
 
 cpdef vector[pair[int, int]] get_neighbourhood(int generations):
     return neighbourhood[generations % alternating_period]
@@ -907,9 +1266,53 @@ cdef int depend_on_neighbours(int state, int generations):
 
 cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache
+
+cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
+    if naive == 0:
+        if a.second == b.second:
+            return a.first < b.first
+        else:
+            return a.second < b.second
+    elif naive == 1:
+        if a.first == b.first:
+            return a.second < b.second
+        else:
+            return a.first < b.first
+    elif naive == 2:
+        if a.second == b.second:
+            return a.first > b.first
+        else:
+            return a.second > b.second
+    elif naive == 3:
+        if a.first == b.first:
+            return a.second > b.second
+        else:
+            return a.first > b.first
+    elif naive == 4:
+        if a.second == b.second:
+            return a.first > b.first
+        else:
+            return a.second < b.second
+    elif naive == 5:
+        if a.first == b.first:
+            return a.second > b.second
+        else:
+            return a.first < b.first
+    elif naive == 6:
+        if a.second == b.second:
+            return a.first < b.first
+        else:
+            return a.second > b.second
+    elif naive == 7:
+        if a.first == b.first:
+            return a.second < b.second
+        else:
+            return a.first > b.first
+
 cpdef compute(unordered_set[pair[int, int]] cells_changed,
               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
               int generations):
+    global naive
 
     cdef vector[int] neighbours
     neighbours.reserve(neighbourhood[generations % alternating_period].size() + 1)
@@ -918,6 +1321,7 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
 
     cdef int i, j
     cdef int ans
+    cdef vector[pair[int, int]] cells_to_check_vector
     cdef pair[int, int] coordinates, coordinates2
     cdef pair[int, int] neighbour
 
@@ -935,69 +1339,140 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
     else:
         cells_changed.clear()
 
-    for coordinates in cells_to_check:
-        neighbours.clear()
-        ans = -1
+    try: naive = naive_lst[generations % alternating_period]
+    except IndexError: naive = -1
 
-        if copy_grid.find(coordinates) == copy_grid.end():
-            if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
-                    depends_cache.end():
-                ans = depend_on_neighbours(0, generations % alternating_period)
-                depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
-            else:
-                ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
-        else:
-            if depends_cache.find(pair[int, int] (copy_grid[coordinates],
-                                                  generations % alternating_period)) == \
-                    depends_cache.end():
-                ans = depend_on_neighbours(copy_grid[coordinates], generations % alternating_period)
-                depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)] = ans
-            else:
-                ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)]
+    if naive == -1:
+        for coordinates in cells_to_check:
+            neighbours.clear()
+            ans = -1
 
-        if ans == -1:
-            for neighbour in neighbourhood[generations % alternating_period]:
-                coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                               coordinates.second + neighbour.second)
-                if copy_grid.find(coordinates2) != copy_grid.end():
-                    neighbours.push_back(copy_grid[coordinates2])
+            if copy_grid.find(coordinates) == copy_grid.end():
+                if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(0, generations % alternating_period)
+                    depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
                 else:
-                    neighbours.push_back(0)
-
-        if copy_grid.find(coordinates) != copy_grid.end():
-            neighbours.push_back(copy_grid[coordinates])
-            if transition_func_cache.find(
-                    pair[vector[int], int] (neighbours, generations % alternating_period)) == \
-                    transition_func_cache.end():
-                if ans == -1:
-                    ans = transition_func(neighbours, generations % alternating_period)
-                    transition_func_cache[
-                        pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                    ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
             else:
-                if ans == -1: ans = transition_func_cache[
-                    pair[vector[int], int] (neighbours, generations % alternating_period)]
+                if depends_cache.find(pair[int, int] (copy_grid[coordinates],
+                                                      generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(copy_grid[coordinates], generations % alternating_period)
+                    depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)] = ans
+                else:
+                    ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)]
 
-            if ans == 0:
-                dict_grid.erase(coordinates)
-                cells_changed.insert(coordinates)
-            elif ans != copy_grid[coordinates]:
-                dict_grid[coordinates] = ans
-                cells_changed.insert(coordinates)
-        else:
-            neighbours.push_back(0)
-            if transition_func_cache.find(
-                    pair[vector[int], int] (neighbours, generations % alternating_period)) == \
-                    transition_func_cache.end():
-                if ans == -1:
-                    ans = transition_func(neighbours, generations % alternating_period)
-                    transition_func_cache[
-                        pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+            if ans == -1:
+                for neighbour in neighbourhood[generations % alternating_period]:
+                    coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                   coordinates.second + neighbour.second)
+                    if copy_grid.find(coordinates2) != copy_grid.end():
+                        neighbours.push_back(copy_grid[coordinates2])
+                    else:
+                        neighbours.push_back(0)
+
+            if copy_grid.find(coordinates) != copy_grid.end():
+                neighbours.push_back(copy_grid[coordinates])
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                else:
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
+
+                if ans == 0:
+                    dict_grid.erase(coordinates)
+                    cells_changed.insert(coordinates)
+                elif ans != copy_grid[coordinates]:
+                    dict_grid[coordinates] = ans
+                    cells_changed.insert(coordinates)
             else:
-                if ans == -1: ans = transition_func_cache[
-                    pair[vector[int], int] (neighbours, generations % alternating_period)]
+                neighbours.push_back(0)
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                else:
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
 
-            if ans != 0:
-                dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
-                cells_changed.insert(coordinates)
+                if ans != 0:
+                    dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+                    cells_changed.insert(coordinates)
+    else:
+        cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())
+        sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)
+        for coordinates in cells_to_check_vector:
+            neighbours.clear()
+            ans = -1
+
+            if dict_grid.find(coordinates) == dict_grid.end():
+                if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(0, generations % alternating_period)
+                    depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
+                else:
+                    ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
+            else:
+                if depends_cache.find(pair[int, int] (dict_grid[coordinates],
+                                                      generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+                    depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
+                else:
+                    ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
+
+            if ans == -1:
+                for neighbour in neighbourhood[generations % alternating_period]:
+                    coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                   coordinates.second + neighbour.second)
+                    if dict_grid.find(coordinates2) != dict_grid.end():
+                        neighbours.push_back(dict_grid[coordinates2])
+                    else:
+                        neighbours.push_back(0)
+
+            if dict_grid.find(coordinates) != dict_grid.end():
+                neighbours.push_back(dict_grid[coordinates])
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                else:
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
+
+                if ans == 0:
+                    dict_grid.erase(coordinates)
+                    cells_changed.insert(coordinates)
+                elif ans != dict_grid[coordinates]:
+                    dict_grid[coordinates] = ans
+                    cells_changed.insert(coordinates)
+            else:
+                neighbours.push_back(0)
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                else:
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
+
+                if ans != 0:
+                    dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+                    cells_changed.insert(coordinates)
 
     return cells_changed, dict_grid

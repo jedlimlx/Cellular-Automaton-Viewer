@@ -1,0 +1,22 @@
+Name: RegeneratingWeighted_Rule_4
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,1,0,0
+0,3,3,3,0
+1,3,-1,3,1
+0,3,3,3,0
+0,0,1,0,0
+
+State Weights: 0,1,0,0
+
+Rulespace: Regenerating Generations
+
+B/S Conditions: Outer Totalistic
+
+Rulestring: rg4l1b7,8,9,11,12,20,25,27s5,6,9,10,15,16,20rb9,20,27rs7,11,13,15,24,25,26,27
+
+Colour Palette:
+None
+
