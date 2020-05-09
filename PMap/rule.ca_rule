@@ -1,0 +1,21 @@
+Name: 
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,0,0,0
+0,1,1,1,0
+0,1,0,1,0
+0,1,1,1,0
+0,0,0,0,0
+
+State Weights: 0,1
+
+Rulespace: Single State
+
+B/S Conditions: Outer Totalistic
+
+Rulestring: b7s2,7
+
+Colour Palette:
+None

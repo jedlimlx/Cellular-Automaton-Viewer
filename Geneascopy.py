@@ -63,7 +63,7 @@ def run_geneascopy(use_parse: bool, max_generations: int, num_soups: int):
 
 def main(use_parse: bool, max_generations: int, num_soups: int, filename: str):
     global populations
-    for i in range(5):
+    for i in range(5):  # Threading to Speed Up the Process
         thread = threading.Thread(target=lambda: run_geneascopy(use_parse, max_generations, num_soups // 5))
         thread.start()
 
@@ -80,6 +80,7 @@ def main(use_parse: bool, max_generations: int, num_soups: int, filename: str):
         file.write(f"{generations},{statistics.mean(generation_pop)}\n")
     file.close()
 
+    # Notify User
     QMessageBox.information(None, "Geneascopy Complete",
                             "The Geneascopy is Complete!",
                             QMessageBox.Ok, QMessageBox.Ok)

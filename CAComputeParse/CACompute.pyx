@@ -19,11 +19,13 @@ cdef vector[vector[int]] state_weights
 cdef vector[vector[pair[int, int]]] neighbourhood, original_neighbourhood
 cdef vector[vector[int]] neighbourhood_weights
 cdef int alternating_period, birth_state
-cdef int naive
-cdef vector[int] naive_lst
 cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
     regen_birth, regen_survival, activity_list, other_birth, other_survival, \
     other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living,
+cdef vector[string] naive_lst, direction_lst
+cdef vector[int] corner_lst, xy_lst
+cdef int corner, xy
+cdef string direction
 
 cdef extern from "compute.cpp":
     pass
@@ -32,7 +34,8 @@ cpdef load(filename):
     global colour_palette, rule_name, rule_space, n_states, state_weights, neighbourhood, neighbourhood_weights,\
         alternating_period, birth, survival, forcing, killing, living, \
         regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
-        original_neighbourhood, index_map, other_forcing, other_killing, other_living, naive, naive_lst
+        original_neighbourhood, index_map, other_forcing, other_killing, other_living, naive_lst, direction_lst, \
+        corner_lst, xy_lst
 
     colour_palette.clear()
     rule_name = b""
@@ -45,7 +48,6 @@ cpdef load(filename):
     original_neighbourhood.clear()
     alternating_period = 0
     birth_state = 0
-    naive = -1
     birth.clear()
     survival.clear()
     forcing.clear()
@@ -63,6 +65,12 @@ cpdef load(filename):
     other_regen_birth.clear()
     other_regen_survival.clear()
     naive_lst.clear()
+    direction_lst.clear()
+    corner_lst.clear()
+    xy_lst.clear()
+    corner = -1
+    xy = -1
+    direction = b"o"
 
     cdef string rule
 
@@ -211,8 +219,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[2]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.split(b"b|s|nn", individual_rule_string)[1].split(b","):
@@ -232,8 +240,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|nn", individual_rule_string)[3]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
         elif bsconditions == b"Double Totalistic":
             for individual_rule_string in rule_string:
                 if individual_rule_string.find(b"/") != -1:
@@ -273,8 +281,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[2]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", re.split(b"b|s|nn", individual_rule_string)[1])[0].split(b","):
@@ -312,8 +320,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|nn", individual_rule_string)[3]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
     elif rule_space == b"BSFKL":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
@@ -363,8 +371,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     living.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[5]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[1].split(b","):
@@ -411,8 +419,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     living.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -505,8 +513,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_living.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[5]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", re.split(b"b|s|f|k|l|nn", individual_rule_string)[1])[0].split(b","):
@@ -598,8 +606,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_living.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
     elif rule_space == b"Extended Generations":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
@@ -627,7 +635,7 @@ cpdef load(filename):
                         extended.push_back(int(x))
 
                     try: naive_lst.push_back(int(individual_rule_string.split(b"/")[3]))
-                    except IndexError: naive_lst.push_back(-1)
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.split(b"b|s|d|nn", individual_rule_string)[1].split(b","):
@@ -651,8 +659,8 @@ cpdef load(filename):
                     for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
                         extended.push_back(int(x))
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|d|nn", individual_rule_string)[4]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -691,8 +699,8 @@ cpdef load(filename):
                     for x in individual_rule_string.split(b"/")[2].split(b"-"):
                         extended.push_back(int(x))
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[3]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", re.split(b"[bsd]", individual_rule_string)[1])[0].split(b","):
@@ -734,8 +742,8 @@ cpdef load(filename):
                     for x in re.split(b"[bsd]", individual_rule_string)[3].split(b"-"):
                         extended.push_back(int(x))
 
-                    try: naive_lst.push_back(int(re.split(b"b|s|d|nn", individual_rule_string)[4]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
 
             num, alt = 1, 1
             set_temp.clear()
@@ -789,8 +797,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[6]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
 
@@ -830,8 +838,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     regen_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
             elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     birth_state = int(individual_rule_string.split(b"/")[1])
@@ -908,8 +916,8 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_regen_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[6]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
                 else:
                     birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
 
@@ -985,8 +993,19 @@ cpdef load(filename):
                             set_temp.insert(int(x))
                     other_regen_survival.push_back(set_temp)
 
-                    try: naive_lst.push_back(int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7]))
-                    except IndexError: naive_lst.push_back(-1)
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
+
+    for x in naive_lst:
+        if x != b"-1":
+            corner_lst.push_back(int(x.decode("utf-8")[0]))
+            direction_lst.push_back(str(x.decode("utf-8")[1]).encode("utf-8"))
+            xy_lst.push_back(int(x.decode("utf-8")[2]))
+        else:
+            corner_lst.push_back(-1)
+            direction_lst.push_back(b"")
+            xy_lst.push_back(-1)
+
 
 cpdef vector[pair[int, int]] get_neighbourhood(int generations):
     return neighbourhood[generations % alternating_period]
@@ -1268,51 +1287,97 @@ cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache
 
 cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
-    if naive == 0:
-        if a.second == b.second:
-            return a.first < b.first
-        else:
-            return a.second < b.second
-    elif naive == 1:
-        if a.first == b.first:
-            return a.second < b.second
-        else:
-            return a.first < b.first
-    elif naive == 2:
-        if a.second == b.second:
-            return a.first > b.first
-        else:
-            return a.second > b.second
-    elif naive == 3:
-        if a.first == b.first:
-            return a.second > b.second
-        else:
-            return a.first > b.first
-    elif naive == 4:
-        if a.second == b.second:
-            return a.first > b.first
-        else:
-            return a.second < b.second
-    elif naive == 5:
-        if a.first == b.first:
-            return a.second > b.second
-        else:
-            return a.first < b.first
-    elif naive == 6:
-        if a.second == b.second:
-            return a.first < b.first
-        else:
-            return a.second > b.second
-    elif naive == 7:
-        if a.first == b.first:
-            return a.second < b.second
-        else:
-            return a.first > b.first
+    if direction == b"o":
+        if corner == 0:
+            if xy == 0:
+                if a.second == b.second:
+                    return a.first < b.first
+                return a.second < b.second
+            elif xy == 1:
+                if a.first == b.first:
+                    return a.second < b.second
+                return a.first < b.first
+
+        elif corner == 1:
+            if xy == 0:
+                if a.second == b.second:
+                    return a.first < b.first
+                return a.second > b.second
+            elif xy == 1:
+                if a.first == b.first:
+                    return a.second > b.second
+                return a.first < b.first
+
+        elif corner == 2:
+            if xy == 0:
+                if a.second == b.second:
+                    return a.first > b.first
+                return a.second < b.second
+            elif xy == 1:
+                if a.first == b.first:
+                    return a.second < b.second
+                return a.first > b.first
+
+        elif corner == 3:
+            if xy == 0:
+                if a.second == b.second:
+                    return a.first > b.first
+                return a.second > b.second
+            elif xy == 1:
+                if a.first == b.first:
+                    return a.second > b.second
+                return a.first > b.first
+
+    elif direction == b"d":
+        if corner == 0:
+            if xy == 0:
+                if a.first + a.second == b.first + b.second:
+                    return a.first < b.first
+                return a.first + a.second < b.first + b.second
+            elif xy == 1:
+                if a.first + a.second == b.first + b.second:
+                    return a.first > b.first
+                return a.first + a.second < b.first + b.second
+
+        elif corner == 1:
+            if xy == 0:
+                if a.first - a.second == b.first - b.second:
+                    return a.first < b.first
+                return a.first - a.second < b.first - b.second
+            elif xy == 1:
+                if a.first - a.second == b.first - b.second:
+                    return a.first > b.first
+                return a.first - a.second < b.first - b.second
+
+        elif corner == 2:
+            if xy == 0:
+                if a.first - a.second == b.first - b.second:
+                    return a.first < b.first
+                return a.first - a.second > b.first - b.second
+            elif xy == 1:
+                if a.first - a.second == b.first - b.second:
+                    return a.first > b.first
+                return a.first - a.second > b.first - b.second
+
+        elif corner == 3:
+            if xy == 0:
+                if a.first + a.second == b.first + b.second:
+                    return a.first < b.first
+                return a.first + a.second > b.first + b.second
+            elif xy == 1:
+                if a.first + a.second == b.first + b.second:
+                    return a.first > b.first
+                return a.first + a.second > b.first + b.second
 
 cpdef compute(unordered_set[pair[int, int]] cells_changed,
               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
               int generations):
-    global naive
+    if generations == 1:
+        file = open("log.log", "a")
+        file.write(str(birth) + " " + str(survival) + " " + str(regen_birth) + " " + str(regen_survival) + "\n")
+        file.close()
+
+    global corner, direction, xy
 
     cdef vector[int] neighbours
     neighbours.reserve(neighbourhood[generations % alternating_period].size() + 1)
@@ -1339,10 +1404,11 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
     else:
         cells_changed.clear()
 
-    try: naive = naive_lst[generations % alternating_period]
-    except IndexError: naive = -1
+    corner = corner_lst[generations % alternating_period]
+    direction = direction_lst[generations % alternating_period]
+    xy = xy_lst[generations % alternating_period]
 
-    if naive == -1:
+    if corner == -1:
         for coordinates in cells_to_check:
             neighbours.clear()
             ans = -1

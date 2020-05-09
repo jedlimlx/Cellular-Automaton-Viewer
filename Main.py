@@ -6,9 +6,10 @@ from PyQt5.Qt import QIcon, QAction
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog
 
 import Geneascopy as genscope
+import ParamMap as param_map
 import CACanvas as cacanvas
 from CACanvas import CACanvas
-from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog
+from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog, ParamMapDialog
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
@@ -174,6 +175,12 @@ def new_random_rule() -> None:
     rule_dialog.exec_()
 
 
+def new_param_map() -> None:
+    param_map_dialog = ParamMapDialog()
+    param_map_dialog.run_param.connect(lambda: param_map.generate_param_map(50, 5, 5, 500))
+    param_map_dialog.exec_()
+
+
 def reload_rule() -> None:
     canvas.reload_rule()
     change_zoom(cell_size, restore_pattern=False)
@@ -268,6 +275,11 @@ file_menu.addAction(new_rule_action)
 open_rule_action = QAction("Open Rule")
 open_rule_action.triggered.connect(canvas.load_new_rule)
 file_menu.addAction(open_rule_action)
+
+file_menu.addSeparator()
+parameter_map_action = QAction("New Parameter Map")
+parameter_map_action.triggered.connect(new_param_map)
+file_menu.addAction(parameter_map_action)
 
 edit_menu = menu.addMenu("Edit")
 
