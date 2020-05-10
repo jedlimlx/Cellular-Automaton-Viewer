@@ -4,10 +4,10 @@ import random
 import traceback
 from typing import List, Tuple
 
-import CAComputeParse.CACompute as parser
 import numpy as np
 from PIL import Image
 
+import CAComputeParse.CACompute as parser
 import RuleParser
 
 param_map_array = []
@@ -22,9 +22,11 @@ def param_map(soup_size, x, y, max_generations, dict_grid):
     else:
         colour_palette: List[Tuple[int, int, int]] = [(0, 0, 0), (255, 255, 255)]
 
+    parser.load("PMap/rule.ca_rule")
+    RuleParser.load("PMap/rule.ca_rule")
+
     cells_changed = dict_grid.keys()  # Running Simulation
     for generations in range(max_generations):
-        if generations == 100: print(sorted(dict_grid.keys()))
         copy_grid = copy.deepcopy(dict_grid)
         cells_changed, dict_grid = parser.compute(cells_changed, copy_grid, dict_grid, generations)
 
@@ -56,14 +58,13 @@ def generate_param_map(soup_size, rows, columns, generations):
         for x in range(5):
             print("Running", (x, y))
             try:
-                new_rule = open("rule.ca_rule", "w+")  # Transferring Rule
                 rule = open(f"PMap/rule_{x}_{y}.ca_rule", "r")
-                new_rule.write(rule.read())
+                rule_contents = rule.read()
                 rule.close()
-                new_rule.close()
 
-                parser.load("rule.ca_rule")
-                RuleParser.load("rule.ca_rule")
+                new_rule = open("PMap/rule.ca_rule", "w+")  # Transferring Rule
+                new_rule.write(rule_contents)
+                new_rule.close()
 
                 param_map(soup_size, x, y, generations, copy.deepcopy(dict_grid))
             except Exception:

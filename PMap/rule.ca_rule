@@ -1,4 +1,4 @@
-Name: 
+Name: ParamMap_1_1
 
 Neighbourhood Range: 2
 
@@ -15,7 +15,7 @@ Rulespace: Single State
 
 B/S Conditions: Outer Totalistic
 
-Rulestring: b7s2,7
+Rulestring: b4s2,4
 
 Colour Palette:
 None

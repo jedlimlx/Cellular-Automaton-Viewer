@@ -1,5 +1,5 @@
 {
-    "UseParse": false,
+    "UseParse": true,
     "Isotropic PMap": true,
     "Rule Space PMap": "Single State",
     "B/S Conditions PMap": "Outer Totalistic",

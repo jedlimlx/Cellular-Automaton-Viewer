@@ -1372,10 +1372,6 @@ cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
 cpdef compute(unordered_set[pair[int, int]] cells_changed,
               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
               int generations):
-    if generations == 1:
-        file = open("log.log", "a")
-        file.write(str(birth) + " " + str(survival) + " " + str(regen_birth) + " " + str(regen_survival) + "\n")
-        file.close()
 
     global corner, direction, xy
 
