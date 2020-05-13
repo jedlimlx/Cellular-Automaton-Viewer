@@ -1,24 +1,21 @@
-Name: RegeneratingWeighted_Rule_7
+Name: BSFKLSemiTotalistic_Rule_1
 
-Neighbourhood Range: 1
+Neighbourhood Range: 2
 
 Neighbourhood:
-1,1,1
-1,0,1
-1,1,1
+0,0,0,0,0
+0,1,1,1,0
+0,1,0,1,0
+0,1,1,1,0
+0,0,0,0,0
 
-State Weights: 0,2,0,1,0
+State Weights: 0,1,1
 
-Rulespace: Regenerating Generations
+Rulespace: BSFKL
 
-B/S Conditions: Outer Totalistic
+B/S Conditions: Range 1 Moore Semi Totalistic
 
-Rulestring: rg6l4b2s1rb2s1,5,6,8,9
+Rulestring: b0220111441233244s03301221044013312214412332f000330122114412332k03301221144144l0001020304101112131420212223243031323334
 
 Colour Palette:
-(0, 0, 0)
-(255, 255, 0)
-(255, 170, 0)
-(255, 85, 0)
-(255, 0, 0)
-
+None

@@ -1,4 +1,4 @@
-rule_string = "0xgxlxn1cccdcgcickcl2cacccdcenanc3ca/0xn1cgcickcl2cccdcenc3ca"
+rule_string = "2x3x8x/1en2icig3cd3x5x-3kg"
 outside_four_cells = {
     "a": [0, 0, 0, 0],
     "c": [1, 0, 0, 0],
@@ -86,46 +86,92 @@ def rotate_4_reflect(neighbours):
     return lst
 
 
-current_num = 0
-current_trans = ""
-birth_trans = []
-birth_string = rule_string.split("/")[1]
-
-for i in range(len(birth_string)):
-    try:
-        current_num = int(birth_string[i])
-    except ValueError:
-        current_trans += birth_string[i]
-        if len(current_trans) == 2:
-            if current_trans[0] != "x":
-                birth_trans += rotate_4_reflect(
-                    hensel[current_num][current_trans[0]] + outside_four_cells[current_trans[1]])
-            else:
-                for key in hensel[current_num]:
-                    birth_trans += rotate_4_reflect(
-                        hensel[current_num][key] + outside_four_cells[current_trans[1]])
-
+def get_trans(birth_string):
+    subtract = False
+    birth_trans = []
+    current_num = 0
+    current_trans = ""
+    for i in range(len(birth_string)):
+        try:
+            prev_num = current_num
+            current_num = int(birth_string[i])
+            if len(current_trans) == 1 and current_trans[0] == "x":
+                for num in range(prev_num):
+                    for key in hensel[num]:
+                        if prev_num - num == 0:
+                            for key2 in ["a"]:
+                                birth_trans += rotate_4_reflect(
+                                    hensel[num][key] + outside_four_cells[key2])
+                        elif prev_num - num == 1:
+                            for key2 in ["c", "d", "e", "f"]:
+                                birth_trans += rotate_4_reflect(
+                                    hensel[num][key] + outside_four_cells[key2])
+                        elif prev_num - num == 2:
+                            for key2 in ["g", "i", "j", "k", "l", "m"]:
+                                birth_trans += rotate_4_reflect(
+                                    hensel[num][key] + outside_four_cells[key2])
+                        elif prev_num - num == 3:
+                            for key2 in ["n", "o", "p", "q"]:
+                                birth_trans += rotate_4_reflect(
+                                    hensel[num][key] + outside_four_cells[key2])
+                        else:
+                            for key2 in ["r"]:
+                                birth_trans += rotate_4_reflect(
+                                    hensel[num][key] + outside_four_cells[key2])
             current_trans = ""
+        except ValueError:
+            if birth_string[i] != "-":
+                current_trans += birth_string[i]
+                if len(current_trans) == 2:
+                    if current_trans[0] != "x":
+                        if subtract:
+                            trans_to_add = rotate_4_reflect(
+                                hensel[current_num][current_trans[0]] + outside_four_cells[current_trans[1]])
+                            for i in trans_to_add:
+                                try:
+                                    birth_trans.remove(i)
+                                except ValueError:
+                                    pass
+                        else:
+                            birth_trans += rotate_4_reflect(
+                                hensel[current_num][current_trans[0]] + outside_four_cells[current_trans[1]])
+                    else:
+                        subtract = False
+                        for key in hensel[current_num]:
+                            birth_trans += rotate_4_reflect(
+                                hensel[current_num][key] + outside_four_cells[current_trans[1]])
 
-current_num = 0
-current_trans = ""
-survival_trans = []
-survival_string = rule_string.split("/")[0]
-
-for i in range(len(survival_string)):
-    try:
-        current_num = int(survival_string[i])
-    except ValueError:
-        current_trans += survival_string[i]
-        if len(current_trans) == 2:
-            if current_trans[0] != "x":
-                survival_trans += rotate_4_reflect(
-                    hensel[current_num][current_trans[0]] + outside_four_cells[current_trans[1]])
+                    current_trans = ""
             else:
-                for key in hensel[current_num]:
-                    survival_trans += rotate_4_reflect(
-                        hensel[current_num][key] + outside_four_cells[current_trans[1]])
-            current_trans = ""
+                subtract = True
+                if len(current_trans) == 1 and current_trans[0] == "x":
+                    for num in range(current_num):
+                        for key in hensel[num]:
+                            if current_num - num == 0:
+                                for key2 in ["a"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif current_num - num == 1:
+                                for key2 in ["c", "d", "e", "f"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif current_num - num == 2:
+                                for key2 in ["g", "i", "j", "k", "l", "m"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif current_num - num == 3:
+                                for key2 in ["n", "o", "p", "q"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            else:
+                                for key2 in ["r"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+    return birth_trans
+
+
+birth_trans = get_trans(rule_string.split("/")[1])
+survival_trans = get_trans(rule_string.split("/")[0])
 
 birth_trans, survival_trans = set(birth_trans), set(survival_trans)
 

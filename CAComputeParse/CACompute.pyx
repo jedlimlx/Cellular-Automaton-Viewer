@@ -21,7 +21,9 @@ cdef vector[vector[int]] neighbourhood_weights
 cdef int alternating_period, birth_state
 cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
     regen_birth, regen_survival, activity_list, other_birth, other_survival, \
-    other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living,
+    other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living
+cdef vector[unordered_set[pair[int, int]]] birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, living_semi_1, \
+    regen_birth_semi_1, regen_survival_semi_1
 cdef vector[string] naive_lst, direction_lst
 cdef vector[int] corner_lst, xy_lst
 cdef int corner, xy
@@ -35,7 +37,8 @@ cpdef load(filename):
         alternating_period, birth, survival, forcing, killing, living, \
         regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
         original_neighbourhood, index_map, other_forcing, other_killing, other_living, naive_lst, direction_lst, \
-        corner_lst, xy_lst
+        corner_lst, xy_lst, birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, living_semi_1,\
+        regen_birth_semi_1, regen_survival_semi_1
 
     colour_palette.clear()
     rule_name = b""
@@ -64,6 +67,13 @@ cpdef load(filename):
     other_living.clear()
     other_regen_birth.clear()
     other_regen_survival.clear()
+    birth_semi_1.clear()
+    survival_semi_1.clear()
+    forcing_semi_1.clear()
+    killing_semi_1.clear()
+    living_semi_1.clear()
+    regen_birth_semi_1.clear()
+    regen_survival_semi_1.clear()
     naive_lst.clear()
     direction_lst.clear()
     corner_lst.clear()
@@ -99,6 +109,7 @@ cpdef load(filename):
 
     cdef int num, alt
     cdef unordered_set[int] set_temp
+    cdef unordered_set[pair[int, int]] temp_semi_1
     cdef vector[int] extended
 
     file = open(filename, "r")
@@ -198,8 +209,8 @@ cpdef load(filename):
         neighbourhood_weights.push_back(temp)
 
     if rule_space == b"Single State":
-        if bsconditions == b"Outer Totalistic":
-            for individual_rule_string in rule_string:
+        for individual_rule_string in rule_string:
+            if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in individual_rule_string.split(b"/")[1].split(b","):
@@ -242,8 +253,7 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
                     except IndexError: naive_lst.push_back(b"-1")
-        elif bsconditions == b"Double Totalistic":
-            for individual_rule_string in rule_string:
+            elif bsconditions == b"Double Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
                     for x in re.findall(b"\((.*?)\)", individual_rule_string.split(b"/")[1])[0].split(b","):
@@ -319,6 +329,52 @@ cpdef load(filename):
                         else:
                             set_temp.insert(int(x))
                     other_survival.push_back(set_temp)
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Semi Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in individual_rule_string.split(b"/")[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in individual_rule_string.split(b"/")[0]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    file = open("log.log", "a")
+                    file.write(str(birth_semi_1) + " " + str(survival_semi_1) + "\n")
+                    file.close()
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in re.split(b"b|s|nn", individual_rule_string)[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|nn", individual_rule_string)[2]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
                     except IndexError: naive_lst.push_back(b"-1")
@@ -608,6 +664,103 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Semi Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[0]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[2]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    forcing_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[3]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    killing_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[4]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    living_semi_1.push_back(temp_semi_1)
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    forcing_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    killing_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    living_semi_1.push_back(temp_semi_1)
+
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
     elif rule_space == b"Extended Generations":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
@@ -743,6 +896,56 @@ cpdef load(filename):
                         extended.push_back(int(x))
 
                     try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Semi Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in individual_rule_string.split(b"/")[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in individual_rule_string.split(b"/")[0]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    file = open("log.log", "a")
+                    file.write(str(birth_semi_1) + " " + str(survival_semi_1) + "\n")
+                    file.close()
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    temp_semi_1.clear()
+                    current_trans = []
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[1]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    temp_semi_1.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[2]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    extended.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[4])
                     except IndexError: naive_lst.push_back(b"-1")
 
             num, alt = 1, 1
@@ -995,6 +1198,89 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Semi Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_state = int(individual_rule_string.split(b"/")[1])
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[2]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[3]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[4]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    regen_birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in individual_rule_string.split(b"/")[5]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    regen_survival_semi_1.push_back(temp_semi_1)
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    survival_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    regen_birth_semi_1.push_back(temp_semi_1)
+
+                    current_trans = []
+                    temp_semi_1.clear()
+                    for x in re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]:
+                        current_trans.append(int(str(x)))
+                        if len(current_trans) == 2:
+                            temp_semi_1.insert(pair[int, int] (current_trans[0] - 48, current_trans[1] - 48))
+                            current_trans = []
+                    regen_survival_semi_1.push_back(temp_semi_1)
+
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
 
     for x in naive_lst:
         if x != b"-1":
@@ -1021,8 +1307,9 @@ cpdef string get_rule_name():
 
 cdef int transition_func(vector[int] neighbours, int generations):
     cdef int n_living = 0, n_destructive = 0, n = 0, n_birth = 0, n_survival = 0, index, found_index, idx, \
-        n_regen_birth = 0, n_regen_survival = 0, n_forcing = 0, n_killing = 0, n1 = 0, n2 = 0
-    cdef pair[int, int] neighbour, neighbour2
+        n_regen_birth = 0, n_regen_survival = 0, n_forcing = 0, n_killing = 0, n1 = 0, n2 = 0, \
+        n_edge = 0, n_corner = 0, n_edge_destructive = 0, n_corner_destructive = 0
+    cdef pair[int, int] neighbour, neighbour2, alive_semi_1, destructive_semi_1
     if rule_space == b"BSFKL":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):
@@ -1109,6 +1396,46 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         birth[generations % alternating_period].end():
                     return 1
                 return 0
+        elif bsconditions == b"Range 1 Moore Semi Totalistic":
+            for i in range(len(neighbours) - 1):
+                if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (-1, 0):
+                    if neighbours[i] == 1:
+                        n_edge += 1
+                    elif neighbours[i] == 2:
+                        n_edge_destructive += 1
+                else:
+                    if neighbours[i] == 1:
+                        n_corner += 1
+                    elif neighbours[i] == 2:
+                        n_corner_destructive += 1
+
+            alive_semi_1 = pair[int, int] (n_corner, n_edge)
+            destructive_semi_1 = pair[int, int] (n_corner_destructive, n_edge_destructive)
+            if neighbours[neighbours.size() - 1] == 1:
+                if killing_semi_1[generations % alternating_period].find(destructive_semi_1) != \
+                        killing_semi_1[generations % alternating_period].end():
+                    return 0
+                elif survival_semi_1[generations % alternating_period].find(alive_semi_1) != \
+                        survival_semi_1[generations % alternating_period].end():
+                    return 1
+                return 2
+
+            elif neighbours[neighbours.size() - 1] == 2:
+                if living_semi_1[generations % alternating_period].find(alive_semi_1) != \
+                        living_semi_1[generations % alternating_period].end():
+                    return 0
+                return 2
+
+            else:
+                if forcing_semi_1[generations % alternating_period].find(destructive_semi_1) != \
+                        forcing_semi_1[generations % alternating_period].end() and \
+                        birth_semi_1[generations % alternating_period].find(alive_semi_1) != \
+                        birth_semi_1[generations % alternating_period].end():
+                    return 1
+                return 0
     elif rule_space == b"Extended Generations":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):
@@ -1159,6 +1486,27 @@ cdef int transition_func(vector[int] neighbours, int generations):
                     birth[generations % alternating_period].end():
                     return 1
                 return 0
+        elif bsconditions == b"Range 1 Moore Semi Totalistic":
+            n_edge, n_corner = 0, 0
+            for i in range(len(neighbours) - 1):
+                if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (-1, 0):
+                    n_edge += state_weights[generations % alternating_period][neighbours[i]]
+                else:
+                    n_corner += state_weights[generations % alternating_period][neighbours[i]]
+
+            if neighbours[neighbours.size() - 1] == 0:
+                if birth_semi_1[generations % alternating_period].find(pair[int, int] (n_corner, n_edge)) != \
+                    birth_semi_1[generations % alternating_period].end():
+                    return 1
+                return 0
+            elif neighbours[neighbours.size() - 1] == 1:
+                if survival_semi_1[generations % alternating_period].find(pair[int, int] (n_corner, n_edge)) != \
+                    survival_semi_1[generations % alternating_period].end():
+                    return 1
+                return 2
     elif rule_space == b"Single State":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):
@@ -1204,6 +1552,27 @@ cdef int transition_func(vector[int] neighbours, int generations):
             elif neighbours[neighbours.size() - 1] == 0:
                 if birth[generations % alternating_period].find(n_birth) != \
                     birth[generations % alternating_period].end():
+                    return 1
+                return 0
+        elif bsconditions == b"Range 1 Moore Semi Totalistic":
+            n_edge, n_corner = 0, 0
+            for i in range(len(neighbours) - 1):
+                if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (-1, 0):
+                    n_edge += neighbours[i]
+                else: 
+                    n_corner += neighbours[i]
+
+            if neighbours[neighbours.size() - 1] == 0:
+                if birth_semi_1[generations % alternating_period].find(pair[int, int] (n_corner, n_edge)) != \
+                    birth_semi_1[generations % alternating_period].end():
+                    return 1
+                return 0
+            elif neighbours[neighbours.size() - 1] == 1:
+                if survival_semi_1[generations % alternating_period].find(pair[int, int] (n_corner, n_edge)) != \
+                    survival_semi_1[generations % alternating_period].end():
                     return 1
                 return 0
     elif rule_space == b"Regenerating Generations":
@@ -1272,6 +1641,36 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         regen_survival[generations % alternating_period].end():
                     return neighbours[neighbours.size() - 1]
                 return (neighbours[neighbours.size() - 1] + 1) % n_states
+        elif bsconditions == b"Range 1 Moore Semi Totalistic":
+            n_edge, n_corner = 0, 0
+            for i in range(len(neighbours) - 1):
+                if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
+                        neighbourhood[generations % alternating_period][i] == pair[int, int] (-1, 0):
+                    n_edge += state_weights[generations % alternating_period][neighbours[i]]
+                else:
+                    n_corner += state_weights[generations % alternating_period][neighbours[i]]
+
+            if neighbours[neighbours.size() - 1] == 0:
+                if birth_semi_1[generations % alternating_period].find(pair[int, int] (n_edge, n_corner)) != \
+                        birth_semi_1[generations % alternating_period].end():
+                    return birth_state
+                return 0
+            elif neighbours[neighbours.size() - 1] == 1:
+                if survival_semi_1[generations % alternating_period].find(pair[int, int] (n_edge, n_corner)) != \
+                        survival_semi_1[generations % alternating_period].end():
+                    return 1
+                return 2
+            else:
+                if regen_birth_semi_1[generations % alternating_period].find(pair[int, int] (n_edge, n_corner)) != \
+                        regen_birth_semi_1[generations % alternating_period].end():
+                    return neighbours[neighbours.size() - 1] - 1
+                elif regen_survival_semi_1[generations % alternating_period].find(
+                        pair[int, int] (n_edge, n_corner)) != \
+                        regen_survival_semi_1[generations % alternating_period].end():
+                    return neighbours[neighbours.size() - 1]
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
 
 cdef int depend_on_neighbours(int state, int generations):
     if rule_space == b"BSFKL" or rule_space == b"Single State" or rule_space == b"Regenerating Generations":
@@ -1327,7 +1726,6 @@ cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
                 if a.first == b.first:
                     return a.second > b.second
                 return a.first > b.first
-
     elif direction == b"d":
         if corner == 0:
             if xy == 0:

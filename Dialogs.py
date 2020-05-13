@@ -321,13 +321,11 @@ class RandomRuleDialog(QDialog):
         try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
         except KeyError: bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "Double Totalistic"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
+        self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
         above_grid.addWidget(self.combo_box_bsconditions, 1, 1)
-
-        # Load Prev Rulespace
-        if bscondition is not None: self.combo_box_bsconditions.setCurrentIndex(self.bsconditions.index(bscondition))
 
         self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the Rule Isotropic?
 
@@ -418,8 +416,13 @@ class RandomRuleDialog(QDialog):
             if text is not None: self.random_range_line_edits[val].setText(text[val])  # Reload Previous Values
             random_grid.addWidget(self.random_range_line_edits[val], index, 1)
 
-            # Load Prev Rulespace
-            if rulespace is not None: self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
+        # Load Prev Rulespace
+        if rulespace is not None:
+            self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
+
+        # Load Prev B/S Condition
+        if bscondition is not None:
+            self.combo_box_bsconditions.setCurrentIndex(self.bsconditions.index(bscondition))
 
     def add_state(self):
         num = self.state_weights.num[:]  # Make a Deepcopy
@@ -468,6 +471,14 @@ class RandomRuleDialog(QDialog):
             self.state_weights.hide()  # Hide State Weights
             self.state_btns.hide()
 
+    def change_bsconditions(self):
+        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic":
+            self.neighbourhood_table.hide()
+            self.isotropic_check_box.hide()
+        else:
+            self.neighbourhood_table.show()
+            self.isotropic_check_box.show()
+
     def write_to_rule(self):
         prev_rule = open("rule.ca_rule", "r").read()
         settings = json.load(open("settings.json", "r"))
@@ -476,6 +487,14 @@ class RandomRuleDialog(QDialog):
         file.write(f"Name: {self.rulename.text()}\n\n")
         file.write("Neighbourhood Range: 2\n\n")
         file.write("Neighbourhood:\n")
+
+        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "0", "0", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "1", "0", "1", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "0", "0", "0", "0"]]
+
         try:
             neighbourhood = copy.deepcopy(self.neighbourhood_table.num)
             for i in range(len(self.neighbourhood_table.num)):
@@ -510,7 +529,6 @@ class RandomRuleDialog(QDialog):
                             string += str(neighbourhood[i][j])
 
                 file.write(string + "\n")
-
         except ValueError as e:  # Error Handling, Inform User of Error
             if "empty range for randrange()" in str(e):
                 QMessageBox.warning(self, "Random State Weights Error",
@@ -723,7 +741,9 @@ class ParamMapDialog(QDialog):
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
-        try: weights = json.load(open("settings.json", "r"))["Neighbourhood Weights PMap"]  # Get Previous Selected Weights
+
+        # Get Previous Selected Weights
+        try: weights = json.load(open("settings.json", "r"))["Neighbourhood Weights PMap"]
         except KeyError: weights = None
         if weights is not None: self.neighbourhood_table.load_values(weights)
 
