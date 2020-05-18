@@ -84,15 +84,14 @@ State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't L
 Rulespace: BSFKL / Extended Generations / Outer Totalistic / Regenerating Generations
 Will Add 3-state Outer Totalistic Soon
 
-B/S Conditions: Outer Totalistic / Double Totalistic 
-(Range 2 Isotropic Von Neumann) Coming Soon
+B/S Conditions: Outer Totalistic / Double Totalistic / Range 1 Moore Isotropic Non-Totalistic / Range 2 Cross Isotropic Non-Totalistic / Range 2 Von Neumann Isotropic Non-Totalistic
 
 Rulestring: -> For Alternating Put | (No Max, Don't Leave Spaces)
 b1s2f3k4l5 or 1/2/3/4/5 (BSFKL)
 b3,4,5s4d1-1-1 or 4/3,4,5/1-1-1 (Extended Generations)
 b3s2,3 or 2,3/3 (Outer Totalistic)
 
-(Must Add Commas because of Extended Neighbourhood, Don't Leave Spaces)
+(Must Add Commas because of Extended Neighbourhood (except if you use a bscondition that has a fixed neighbourhood), Don't Leave Spaces)
 
 Colour Palette: -> RGB (To Tell Program to Auto Generate Put None Below Colour Palette)
 (0, 0, 0)
