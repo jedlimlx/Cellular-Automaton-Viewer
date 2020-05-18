@@ -321,7 +321,9 @@ class RandomRuleDialog(QDialog):
         try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
         except KeyError: bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic",
+                             "Range 1 Moore Isotropic Non-Totalistic", "Range 2 Cross Isotropic Non-Totalistic",
+                             "Range 2 Von Neumann Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
@@ -472,7 +474,11 @@ class RandomRuleDialog(QDialog):
             self.state_btns.hide()
 
     def change_bsconditions(self):
-        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic":
+        bsconditions = self.bsconditions[self.combo_box_bsconditions.currentIndex()]
+        if bsconditions == "Range 1 Moore Semi Totalistic" or \
+                bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == "Range 1 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.hide()
             self.isotropic_check_box.hide()
         else:
@@ -488,12 +494,26 @@ class RandomRuleDialog(QDialog):
         file.write("Neighbourhood Range: 2\n\n")
         file.write("Neighbourhood:\n")
 
-        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic":
+        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic" or \
+            self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "0", "0", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "1", "0", "1", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "0", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Cross Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["1", "1", "0", "1", "1"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+            "Range 1 Von Neumann Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["1", "1", "0", "1", "1"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "0", "1", "0", "0"]]
 
         try:
             neighbourhood = copy.deepcopy(self.neighbourhood_table.num)

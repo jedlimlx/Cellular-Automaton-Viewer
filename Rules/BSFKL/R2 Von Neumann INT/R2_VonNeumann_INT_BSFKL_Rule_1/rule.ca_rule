@@ -1,0 +1,21 @@
+Name: R2_VonNeumann_INT_BSFKL_Rule_1
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,1,0,0
+0,1,1,1,0
+1,1,0,1,1
+0,1,1,1,0
+0,0,1,0,0
+
+State Weights: 0,1,1
+
+Rulespace: BSFKL
+
+B/S Conditions: Range 2 Von Neumann Isotropic Non-Totalistic
+
+Rulestring: 1er2kg3x7x12x/0xn1cgcickcl2cccdcenc3ca4x5x6x12x/0x3x4x5x10x11x12x/3x5x6x8x9x10x12x/0x1x2x3x4x5x6x7x8x9x
+
+Colour Palette:
+None

@@ -96,28 +96,31 @@ def get_trans(birth_string):
             prev_num = current_num
             current_num = int(birth_string[i])
             if len(current_trans) == 1 and current_trans[0] == "x":
-                for num in range(prev_num):
-                    for key in hensel[num]:
-                        if prev_num - num == 0:
-                            for key2 in ["a"]:
-                                birth_trans += rotate_4_reflect(
-                                    hensel[num][key] + outside_four_cells[key2])
-                        elif prev_num - num == 1:
-                            for key2 in ["c", "d", "e", "f"]:
-                                birth_trans += rotate_4_reflect(
-                                    hensel[num][key] + outside_four_cells[key2])
-                        elif prev_num - num == 2:
-                            for key2 in ["g", "i", "j", "k", "l", "m"]:
-                                birth_trans += rotate_4_reflect(
-                                    hensel[num][key] + outside_four_cells[key2])
-                        elif prev_num - num == 3:
-                            for key2 in ["n", "o", "p", "q"]:
-                                birth_trans += rotate_4_reflect(
-                                    hensel[num][key] + outside_four_cells[key2])
-                        else:
-                            for key2 in ["r"]:
-                                birth_trans += rotate_4_reflect(
-                                    hensel[num][key] + outside_four_cells[key2])
+                if prev_num != 0:
+                    for num in range(prev_num):
+                        for key in hensel[num]:
+                            if prev_num - num == 0:
+                                for key2 in ["a"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif prev_num - num == 1:
+                                for key2 in ["c", "d", "e", "f"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif prev_num - num == 2:
+                                for key2 in ["g", "i", "j", "k", "l", "m"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            elif prev_num - num == 3:
+                                for key2 in ["n", "o", "p", "q"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                            else:
+                                for key2 in ["r"]:
+                                    birth_trans += rotate_4_reflect(
+                                        hensel[num][key] + outside_four_cells[key2])
+                else:
+                    birth_trans += [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
             current_trans = ""
         except ValueError:
             if birth_string[i] != "-":

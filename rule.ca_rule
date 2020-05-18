@@ -1,4 +1,4 @@
-Name: BSFKLSemiTotalistic_Rule_1
+Name: R2_Cross_INT_Rule_1
 
 Neighbourhood Range: 2
 
@@ -9,13 +9,13 @@ Neighbourhood:
 0,1,1,1,0
 0,0,0,0,0
 
-State Weights: 0,1,1
+State Weights: 0,1
 
-Rulespace: BSFKL
+Rulespace: Single State
 
-B/S Conditions: Range 1 Moore Semi Totalistic
+B/S Conditions: Range 2 Cross Isotropic Non-Totalistic
 
-Rulestring: b0220111441233244s03301221044013312214412332f000330122114412332k03301221144144l0001020304101112131420212223243031323334
+Rulestring: 2j34-qt5p6/2e3
 
 Colour Palette:
 None

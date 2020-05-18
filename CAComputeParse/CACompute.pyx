@@ -10,6 +10,12 @@ from libcpp.algorithm cimport sort
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
 
+from CAComputeParse.R1_INT_Moore import get_trans_moore
+from CAComputeParse.R2_INT_Cross import get_trans_cross
+from CAComputeParse.R2_INT_Von_Neumann import get_trans_von_neumann
+
+cdef unordered_map[pair[int, int], int] depends_cache
+cdef map[pair[vector[int], int], int] transition_func_cache
 cdef vector[vector[int]] colour_palette
 cdef string rule_name
 cdef string rule_space, bsconditions
@@ -22,12 +28,15 @@ cdef int alternating_period, birth_state
 cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
     regen_birth, regen_survival, activity_list, other_birth, other_survival, \
     other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living
-cdef vector[unordered_set[pair[int, int]]] birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, living_semi_1, \
-    regen_birth_semi_1, regen_survival_semi_1
+cdef vector[unordered_set[pair[int, int]]] birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, \
+    living_semi_1, regen_birth_semi_1, regen_survival_semi_1
 cdef vector[string] naive_lst, direction_lst
 cdef vector[int] corner_lst, xy_lst
 cdef int corner, xy
 cdef string direction
+
+birth_trans, survival_trans, forcing_trans, killing_trans, living_trans, \
+    regen_birth_trans, regen_survival_trans = [], [], [], [], [], [], []
 
 cdef extern from "compute.cpp":
     pass
@@ -38,7 +47,8 @@ cpdef load(filename):
         regen_birth, regen_survival, activity_list, birth_state, other_birth, other_survival, bsconditions, \
         original_neighbourhood, index_map, other_forcing, other_killing, other_living, naive_lst, direction_lst, \
         corner_lst, xy_lst, birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, living_semi_1,\
-        regen_birth_semi_1, regen_survival_semi_1
+        regen_birth_semi_1, regen_survival_semi_1, birth_trans, survival_trans, forcing_trans, killing_trans, \
+        living_trans, regen_birth_trans, regen_survival_trans
 
     colour_palette.clear()
     rule_name = b""
@@ -78,9 +88,14 @@ cpdef load(filename):
     direction_lst.clear()
     corner_lst.clear()
     xy_lst.clear()
+    depends_cache.clear()
+    transition_func_cache.clear()
     corner = -1
     xy = -1
     direction = b"o"
+
+    birth_trans, survival_trans, forcing_trans, killing_trans, living_trans, \
+        regen_birth_trans, regen_survival_trans = [], [], [], [], [], [], []
 
     cdef string rule
 
@@ -207,6 +222,17 @@ cpdef load(filename):
                     temp.push_back(j)
 
         neighbourhood_weights.push_back(temp)
+
+    if bsconditions == b"Range 1 Moore Isotropic Non-Totalistic":
+        neighbourhood = [[(1, -1), (1, 0), (1, 1), (0, 1),
+                          (-1, 1), (-1, 0), (-1, -1), (0, -1)] for x in range(alternating_period)]
+    elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
+        neighbourhood = [[(2, 0), (0, 2), (-2, 0), (0, -2),
+                          (1, 0), (0, 1), (-1, 0), (0, -1)] for x in range(alternating_period)]
+    elif bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+        neighbourhood = [[(1, -1), (1, 0), (1, 1), (0, 1),
+                          (-1, 1), (-1, 0), (-1, -1), (0, -1),
+                          (2, 0), (0, 2), (-2, 0), (0, -2)] for x in range(alternating_period)]
 
     if rule_space == b"Single State":
         for individual_rule_string in rule_string:
@@ -377,6 +403,45 @@ cpdef load(filename):
                     survival_semi_1.push_back(temp_semi_1)
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_moore(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_moore(individual_rule_string.split(b"/")[0]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_moore(re.split(b"b|s|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_moore(re.split(b"b|s|nn", individual_rule_string)[2]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_cross(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_cross(individual_rule_string.split(b"/")[0]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_cross(re.split(b"b|s|nn", individual_rule_string)[0]))
+                    survival_trans.append(get_trans_cross(re.split(b"b|s|nn", individual_rule_string)[1]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[0]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_von_neumann(re.split(b"b|s|nn", individual_rule_string)[0]))
+                    survival_trans.append(get_trans_von_neumann(re.split(b"b|s|nn", individual_rule_string)[1]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
                     except IndexError: naive_lst.push_back(b"-1")
     elif rule_space == b"BSFKL":
         for individual_rule_string in rule_string:
@@ -761,6 +826,78 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_moore(individual_rule_string.split(b"/")[0]))
+                    survival_trans.append(get_trans_moore(individual_rule_string.split(b"/")[1]))
+                    forcing_trans.append(get_trans_moore(individual_rule_string.split(b"/")[2]))
+                    killing_trans.append(get_trans_moore(individual_rule_string.split(b"/")[3]))
+                    living_trans.append(get_trans_moore(individual_rule_string.split(b"/")[4]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_moore(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_moore(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]))
+                    forcing_trans.append(get_trans_moore(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]))
+                    killing_trans.append(get_trans_moore(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]))
+                    living_trans.append(get_trans_moore(
+                       re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_cross(individual_rule_string.split(b"/")[0]))
+                    survival_trans.append(get_trans_cross(individual_rule_string.split(b"/")[1]))
+                    forcing_trans.append(get_trans_cross(individual_rule_string.split(b"/")[2]))
+                    killing_trans.append(get_trans_cross(individual_rule_string.split(b"/")[3]))
+                    living_trans.append(get_trans_cross(individual_rule_string.split(b"/")[4]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_cross(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_cross(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]))
+                    forcing_trans.append(get_trans_cross(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]))
+                    killing_trans.append(get_trans_cross(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]))
+                    living_trans.append(get_trans_cross(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[0]))
+                    survival_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[1]))
+                    forcing_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[2]))
+                    killing_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[3]))
+                    living_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[4]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_von_neumann(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_von_neumann(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]))
+                    forcing_trans.append(get_trans_von_neumann(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]))
+                    killing_trans.append(get_trans_von_neumann(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]))
+                    living_trans.append(get_trans_von_neumann(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
     elif rule_space == b"Extended Generations":
         for individual_rule_string in rule_string:
             if bsconditions == b"Outer Totalistic":
@@ -917,10 +1054,6 @@ cpdef load(filename):
                             current_trans = []
                     survival_semi_1.push_back(temp_semi_1)
 
-                    file = open("log.log", "a")
-                    file.write(str(birth_semi_1) + " " + str(survival_semi_1) + "\n")
-                    file.close()
-
                     try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
@@ -946,6 +1079,69 @@ cpdef load(filename):
                         extended.push_back(int(x))
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_moore(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_moore(individual_rule_string.split(b"/")[0]))
+
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_moore(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_moore(re.split(b"b|s|d|nn", individual_rule_string)[2]))
+
+                    extended.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[4].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_cross(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_cross(individual_rule_string.split(b"/")[0]))
+
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[0]))
+                    survival_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+
+                    extended.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[0]))
+
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[0]))
+                    survival_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+
+                    extended.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
                     except IndexError: naive_lst.push_back(b"-1")
 
             num, alt = 1, 1
@@ -1281,6 +1477,74 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_state = int(individual_rule_string.split(b"/")[1])
+                    birth_trans.append(get_trans_moore(individual_rule_string.split(b"/")[2]))
+                    survival_trans.append(get_trans_moore(individual_rule_string.split(b"/")[3]))
+                    regen_birth_trans.append(get_trans_moore(individual_rule_string.split(b"/")[4]))
+                    regen_survival_trans.append(get_trans_moore(individual_rule_string.split(b"/")[5]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
+                    birth_trans.append(
+                        get_trans_moore(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]))
+                    survival_trans.append(
+                        get_trans_moore(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]))
+                    regen_birth_trans.append(
+                        get_trans_moore(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]))
+                    regen_survival_trans.append(
+                        get_trans_moore(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]))
+
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_state = int(individual_rule_string.split(b"/")[1])
+                    birth_trans.append(get_trans_cross(individual_rule_string.split(b"/")[2]))
+                    survival_trans.append(get_trans_cross(individual_rule_string.split(b"/")[3]))
+                    regen_birth_trans.append(get_trans_cross(individual_rule_string.split(b"/")[4]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
+                    birth_trans.append(
+                        get_trans_cross(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]))
+                    survival_trans.append(
+                        get_trans_cross(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]))
+                    regen_birth_trans.append(
+                        get_trans_cross(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]))
+                    regen_survival_trans.append(
+                        get_trans_cross(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]))
+
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_state = int(individual_rule_string.split(b"/")[1])
+                    birth_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[2]))
+                    survival_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[3]))
+                    regen_birth_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[4]))
+                    regen_survival_trans.append(get_trans_von_neumann(individual_rule_string.split(b"/")[5]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
+                    birth_trans.append(
+                        get_trans_von_neumann(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]))
+                    survival_trans.append(
+                        get_trans_von_neumann(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]))
+                    regen_birth_trans.append(
+                        get_trans_von_neumann(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]))
+                    regen_survival_trans.append(
+                        get_trans_von_neumann(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]))
+
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
 
     for x in naive_lst:
         if x != b"-1":
@@ -1310,6 +1574,7 @@ cdef int transition_func(vector[int] neighbours, int generations):
         n_regen_birth = 0, n_regen_survival = 0, n_forcing = 0, n_killing = 0, n1 = 0, n2 = 0, \
         n_edge = 0, n_corner = 0, n_edge_destructive = 0, n_corner_destructive = 0
     cdef pair[int, int] neighbour, neighbour2, alive_semi_1, destructive_semi_1
+
     if rule_space == b"BSFKL":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):
@@ -1326,13 +1591,11 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         survival[generations % alternating_period].end():
                     return 1
                 return 2
-
             elif neighbours[neighbours.size() - 1] == 2:
                 if living[generations % alternating_period].find(n_living) != \
                         living[generations % alternating_period].end():
                     return 0
                 return 2
-
             else:
                 if forcing[generations % alternating_period].find(n_destructive) != \
                         forcing[generations % alternating_period].end() and \
@@ -1397,7 +1660,7 @@ cdef int transition_func(vector[int] neighbours, int generations):
                     return 1
                 return 0
         elif bsconditions == b"Range 1 Moore Semi Totalistic":
-            for i in range(len(neighbours) - 1):
+            for i in range(neighbours.size() - 1):
                 if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
@@ -1434,6 +1697,37 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         forcing_semi_1[generations % alternating_period].end() and \
                         birth_semi_1[generations % alternating_period].find(alive_semi_1) != \
                         birth_semi_1[generations % alternating_period].end():
+                    return 1
+                return 0
+        elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+            new_neighbours_living = []
+            new_neighbours_destructive = []
+            for i in range(neighbours.size() - 1):
+                if neighbours[i] == 1:
+                    new_neighbours_living.append(1)
+                    new_neighbours_destructive.append(0)
+                elif neighbours[i] == 2:
+                    new_neighbours_living.append(0)
+                    new_neighbours_destructive.append(1)
+                else:
+                    new_neighbours_living.append(0)
+                    new_neighbours_destructive.append(0)
+
+            if neighbours[neighbours.size() - 1] == 1:
+                if tuple(new_neighbours_destructive) in killing_trans[generations % alternating_period]:
+                    return 0
+                elif tuple(new_neighbours_living) in survival_trans[generations % alternating_period]:
+                    return 1
+                return 2
+            elif neighbours[neighbours.size() - 1] == 2:
+                if tuple(new_neighbours_living) in living_trans[generations % alternating_period]:
+                    return 0
+                return 2
+            else:
+                if tuple(new_neighbours_destructive) in forcing_trans[generations % alternating_period] and \
+                        tuple(new_neighbours_living) in birth_trans[generations % alternating_period]:
                     return 1
                 return 0
     elif rule_space == b"Extended Generations":
@@ -1488,7 +1782,7 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 0
         elif bsconditions == b"Range 1 Moore Semi Totalistic":
             n_edge, n_corner = 0, 0
-            for i in range(len(neighbours) - 1):
+            for i in range(neighbours.size() - 1):
                 if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
@@ -1507,6 +1801,26 @@ cdef int transition_func(vector[int] neighbours, int generations):
                     survival_semi_1[generations % alternating_period].end():
                     return 1
                 return 2
+        elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+            new_neighbours = []
+            for i in range(neighbours.size() - 1):
+                if activity_list[generations % alternating_period].find(neighbours[i]) != \
+                    activity_list[generations % alternating_period].end():
+                    new_neighbours.append(1)
+                else:
+                    new_neighbours.append(0)
+
+            if activity_list[generations % alternating_period].find(neighbours[neighbours.size() - 1]) != \
+                    activity_list[generations % alternating_period].end():
+                if tuple(new_neighbours) in survival_trans[generations % alternating_period]:
+                    return 1
+                return 2
+            else:
+                if tuple(new_neighbours) in birth_trans[generations % alternating_period]:
+                    return 1
+                return 0
     elif rule_space == b"Single State":
         if bsconditions == b"Outer Totalistic":
             for i in range(neighbours.size() - 1):
@@ -1556,7 +1870,7 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 0
         elif bsconditions == b"Range 1 Moore Semi Totalistic":
             n_edge, n_corner = 0, 0
-            for i in range(len(neighbours) - 1):
+            for i in range(neighbours.size() - 1):
                 if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
@@ -1573,6 +1887,21 @@ cdef int transition_func(vector[int] neighbours, int generations):
             elif neighbours[neighbours.size() - 1] == 1:
                 if survival_semi_1[generations % alternating_period].find(pair[int, int] (n_corner, n_edge)) != \
                     survival_semi_1[generations % alternating_period].end():
+                    return 1
+                return 0
+        elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+            new_neighbours = []
+            for i in range(neighbours.size() - 1):
+                new_neighbours.append(neighbours[i])
+
+            if neighbours[neighbours.size() - 1] == 1:
+                if tuple(new_neighbours) in survival_trans[generations % alternating_period]:
+                    return 1
+                return 0
+            else:
+                if tuple(new_neighbours) in birth_trans[generations % alternating_period]:
                     return 1
                 return 0
     elif rule_space == b"Regenerating Generations":
@@ -1643,7 +1972,7 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return (neighbours[neighbours.size() - 1] + 1) % n_states
         elif bsconditions == b"Range 1 Moore Semi Totalistic":
             n_edge, n_corner = 0, 0
-            for i in range(len(neighbours) - 1):
+            for i in range(neighbours.size() - 1):
                 if neighbourhood[generations % alternating_period][i] == pair[int, int] (0, -1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (0, 1) or \
                         neighbourhood[generations % alternating_period][i] == pair[int, int] (1, 0) or \
@@ -1671,6 +2000,30 @@ cdef int transition_func(vector[int] neighbours, int generations):
                         regen_survival_semi_1[generations % alternating_period].end():
                     return neighbours[neighbours.size() - 1]
                 return (neighbours[neighbours.size() - 1] + 1) % n_states
+        elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+            new_neighbours = []
+            for i in range(neighbours.size() - 1):
+                if state_weights[generations % alternating_period][neighbours[i]] >= 1:
+                    new_neighbours.append(1)
+                else:
+                    new_neighbours.append(0)
+
+            if neighbours[neighbours.size() - 1] == 0:
+                if tuple(new_neighbours) in birth_trans[generations % alternating_period]:
+                    return 1
+                return 0
+            elif neighbours[neighbours.size() - 1] == 1:
+                if tuple(new_neighbours) in survival_trans[generations % alternating_period]:
+                    return 1
+                return 2
+            else:
+                if tuple(new_neighbours) in regen_birth_trans[generations % alternating_period]:
+                    return neighbours[neighbours.size() - 1] - 1
+                elif tuple(new_neighbours) in regen_survival_trans[generations % alternating_period]:
+                    return neighbours[neighbours.size() - 1]
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
 
 cdef int depend_on_neighbours(int state, int generations):
     if rule_space == b"BSFKL" or rule_space == b"Single State" or rule_space == b"Regenerating Generations":
@@ -1681,9 +2034,6 @@ cdef int depend_on_neighbours(int state, int generations):
             return -1
         else:
             return (state + 1) % n_states
-
-cdef unordered_map[pair[int, int], int] depends_cache
-cdef map[pair[vector[int], int], int] transition_func_cache
 
 cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
     if direction == b"o":

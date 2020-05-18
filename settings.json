@@ -1,10 +1,10 @@
 {
     "UseParse": true,
     "Isotropic": true,
-    "Rule Space": "BSFKL",
-    "B/S Conditions": "Range 1 Moore Semi Totalistic",
-    "Rule String": "b0220111441233244s03301221044013312214412332f000330122114412332k03301221144144l0001020304101112131420212223243031323334",
-    "Rule Name": "BSFKLSemiTotalistic_Rule_1",
+    "Rule Space": "Single State",
+    "B/S Conditions": "Range 2 Cross Isotropic Non-Totalistic",
+    "Rule String": "2j34-qt5p6/2e3",
+    "Rule Name": "Cross INT",
     "Random Bounds": {
         "Rulestring Upper Bound": "",
         "Rulestring Lower Bound": "",
@@ -49,5 +49,61 @@
             "0",
             "0"
         ]
-    ]
+    ],
+    "Isotropic PMap": true,
+    "Rule Space PMap": "Single State",
+    "B/S Conditions PMap": "Outer Totalistic",
+    "Rule String PMap": "b\"x+3\"s2,\"y+3\"",
+    "Neighbourhood Weights PMap": [
+        [
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ],
+        [
+            "0",
+            "1",
+            "1",
+            "1",
+            "0"
+        ],
+        [
+            "0",
+            "1",
+            "0",
+            "1",
+            "0"
+        ],
+        [
+            "0",
+            "1",
+            "1",
+            "1",
+            "0"
+        ],
+        [
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ]
+    ],
+    "State Weights PMap": [
+        [
+            "0",
+            "0"
+        ]
+    ],
+    "Rule Name PMap": "",
+    "Random Bounds PMap": {
+        "Rulestring Upper Bound": "",
+        "Rulestring Lower Bound": "",
+        "State Weights Upper Bound": "",
+        "State Weights Lower Bound": "",
+        "Neighbourhood Weights Upper Bound": "",
+        "Neighbourhood Weights Lower Bound": ""
+    }
 }
