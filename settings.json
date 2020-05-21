@@ -1,10 +1,10 @@
 {
     "UseParse": true,
     "Isotropic": true,
-    "Rule Space": "Single State",
-    "B/S Conditions": "Range 2 Cross Isotropic Non-Totalistic",
-    "Rule String": "2j34-qt5p6/2e3",
-    "Rule Name": "Cross INT",
+    "Rule Space": "Regenerating Generations",
+    "B/S Conditions": "Range 1 Moore Isotropic Non-Totalistic",
+    "Rule String": "rg3l1b3-jknr4ity5ijk6i8s23-a4city6c7crb2n3rb23-q",
+    "Rule Name": "RULE",
     "Random Bounds": {
         "Rulestring Upper Bound": "",
         "Rulestring Lower Bound": "",
@@ -51,53 +51,55 @@
         ]
     ],
     "Isotropic PMap": true,
-    "Rule Space PMap": "Single State",
-    "B/S Conditions PMap": "Outer Totalistic",
-    "Rule String PMap": "b\"x+3\"s2,\"y+3\"",
+    "Rule Space PMap": "Regenerating Generations",
+    "B/S Conditions PMap": "Range 2 Cross Isotropic Non-Totalistic",
+    "Rule String PMap": "rg4l1b2e3-a4u8s2hj34-qt5p6rb3-\"['a', 'c', 'e', 'h', 'i', 'j'][x]\"5rs4\"['o', 'p', 'q', 'u', 'w', 't'][y]\"8",
     "Neighbourhood Weights PMap": [
         [
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
+            "1",
+            "2",
+            "3",
+            "2",
+            "1"
         ],
         [
-            "0",
-            "1",
-            "1",
-            "1",
-            "0"
+            "2",
+            "4",
+            "6",
+            "4",
+            "2"
         ],
         [
-            "0",
-            "1",
-            "0",
-            "1",
-            "0"
+            "3",
+            "6",
+            "9",
+            "6",
+            "3"
         ],
         [
-            "0",
-            "1",
-            "1",
-            "1",
-            "0"
+            "2",
+            "4",
+            "6",
+            "4",
+            "2"
         ],
         [
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
+            "1",
+            "2",
+            "3",
+            "2",
+            "1"
         ]
     ],
     "State Weights PMap": [
         [
             "0",
+            "1",
+            "0",
             "0"
         ]
     ],
-    "Rule Name PMap": "",
+    "Rule Name PMap": "RULE",
     "Random Bounds PMap": {
         "Rulestring Upper Bound": "",
         "Rulestring Lower Bound": "",
@@ -105,5 +107,18 @@
         "State Weights Lower Bound": "",
         "Neighbourhood Weights Upper Bound": "",
         "Neighbourhood Weights Lower Bound": ""
-    }
+    },
+    "PMap Settings": {
+        "Soup Size": "50",
+        "Generations": "500",
+        "Number of Rules X": "6",
+        "Number of Rules Y": "6"
+    },
+    "State Weights": [
+        [
+            "0",
+            "1",
+            "0"
+        ]
+    ]
 }

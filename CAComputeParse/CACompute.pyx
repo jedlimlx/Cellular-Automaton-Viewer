@@ -14,6 +14,7 @@ from CAComputeParse.R1_INT_Moore import get_trans_moore
 from CAComputeParse.R2_INT_Cross import get_trans_cross
 from CAComputeParse.R2_INT_Von_Neumann import get_trans_von_neumann
 
+cdef unordered_map[pair[int, int], vector[int]] neighbours_cache
 cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache
 cdef vector[vector[int]] colour_palette
@@ -90,6 +91,7 @@ cpdef load(filename):
     xy_lst.clear()
     depends_cache.clear()
     transition_func_cache.clear()
+    neighbours_cache.clear()
     corner = -1
     xy = -1
     direction = b"o"
@@ -234,8 +236,9 @@ cpdef load(filename):
                           (-1, 1), (-1, 0), (-1, -1), (0, -1),
                           (2, 0), (0, 2), (-2, 0), (0, -2)] for x in range(alternating_period)]
 
-    if rule_space == b"Single State":
-        for individual_rule_string in rule_string:
+    for individual_rule_string in rule_string:
+        individual_rule_string = individual_rule_string.lower()
+        if rule_space == b"Single State":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -443,8 +446,7 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
                     except IndexError: naive_lst.push_back(b"-1")
-    elif rule_space == b"BSFKL":
-        for individual_rule_string in rule_string:
+        elif rule_space == b"BSFKL":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -898,8 +900,7 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
                     except IndexError: naive_lst.push_back(b"-1")
-    elif rule_space == b"Extended Generations":
-        for individual_rule_string in rule_string:
+        elif rule_space == b"Extended Generations":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     set_temp.clear()
@@ -1113,8 +1114,8 @@ cpdef load(filename):
                     try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
-                    birth_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[0]))
-                    survival_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    birth_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_cross(re.split(b"b|s|d|nn", individual_rule_string)[2]))
 
                     extended.clear()
                     for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
@@ -1134,8 +1135,8 @@ cpdef load(filename):
                     try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
-                    birth_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[0]))
-                    survival_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    birth_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[2]))
 
                     extended.clear()
                     for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
@@ -1153,9 +1154,8 @@ cpdef load(filename):
                     num += 1
                 alt *= -1
 
-            activity_list.push_back(set_temp)
-    elif rule_space == b"Regenerating Generations":
-        for individual_rule_string in rule_string:
+                activity_list.push_back(set_temp)
+        elif rule_space == b"Regenerating Generations":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
                     birth_state = int(individual_rule_string.split(b"/")[1])
@@ -2127,6 +2127,7 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
     neighbours.reserve(neighbourhood[generations % alternating_period].size() + 1)
 
     cdef unordered_set[pair[int, int]] cells_to_check
+    cdef unordered_map[pair[int, int], vector[int]] copy_neighbour_cache = neighbours_cache
 
     cdef int i, j
     cdef int ans
@@ -2174,13 +2175,21 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
                     ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)]
 
             if ans == -1:
-                for neighbour in neighbourhood[generations % alternating_period]:
-                    coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                                   coordinates.second + neighbour.second)
-                    if copy_grid.find(coordinates2) != copy_grid.end():
-                        neighbours.push_back(copy_grid[coordinates2])
-                    else:
-                        neighbours.push_back(0)
+                if True: # copy_neighbour_cache.find(coordinates) == copy_neighbour_cache.end():
+                    for neighbour in neighbourhood[generations % alternating_period]:
+                        coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                       coordinates.second + neighbour.second)
+                        if neighbours_cache.find(coordinates2) != neighbours_cache.end():
+                            neighbours_cache.erase(coordinates2)
+
+                        if copy_grid.find(coordinates2) != copy_grid.end():
+                            neighbours.push_back(copy_grid[coordinates2])
+                        else:
+                            neighbours.push_back(0)
+
+                    neighbours_cache[coordinates] = neighbours
+                else:
+                    neighbours = copy_neighbour_cache[coordinates]
 
             if copy_grid.find(coordinates) != copy_grid.end():
                 neighbours.push_back(copy_grid[coordinates])

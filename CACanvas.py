@@ -824,7 +824,7 @@ class CACanvas(QWidget):
             prev_int = convert_to_int
             if not convert_to_int: num = 1
 
-            if first and not convert_to_int:
+            if first:
                 first = False
 
         return dict_grid

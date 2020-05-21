@@ -26,8 +26,8 @@ def generate_param_map(soup_size, rows, columns, max_generations):
             if random.randint(0, 1):
                 soup[(i, j)] = 1
 
-    for y in range(5):
-        for x in range(5):
+    for y in range(rows):
+        for x in range(columns):
             rule = open(f"PMap/rule_{x}_{y}.ca_rule", "r")
             rule_contents = rule.read()
             rule.close()

@@ -40,7 +40,7 @@ To Cut, Press Ctrl+X<br>
 To Delete, Press Del<br>
 To Paste, in the area, Press Ctrl+V<br>
 To Generate Random Soup, Press the Button with a Soup<br>
-To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, Oscillators and Spaceships)<br>
+To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, Oscillators, Spaceships, Guns and Replicators)<br>
 To Record the Patterns in the Area Selected, Press the Record Button and it will turn black.<br>
 Press it again to stop the recording and save the gif.<br>
 

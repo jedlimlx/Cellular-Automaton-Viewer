@@ -139,16 +139,16 @@ def get_trans_von_neumann(birth_string):
             prev_num = -1
             if birth_string[i] != "-":
                 current_trans += birth_string[i]
-                print(current_trans)
+                # print(current_trans)
                 if len(current_trans) == 2:
                     if current_trans[0] != "x":
                         if subtract:
                             trans_to_add = rotate_4_reflect(
                                 hensel[current_num][current_trans[0]] + outside_four_cells[current_trans[1]])
 
-                            print(trans_to_add[0].count(1), subtract_num, current_trans)
+                            # print(trans_to_add[0].count(1), subtract_num, current_trans)
                             if trans_to_add[0].count(1) != subtract_num:
-                                print("POOP")
+                                # print("POOP")
                                 birth_trans += trans_to_add
                                 subtract = False
                                 current_trans = ""
@@ -172,7 +172,7 @@ def get_trans_von_neumann(birth_string):
             else:
                 subtract = True
                 subtract_num = current_num
-                print("SUBTRACT")
+                # print("SUBTRACT")
                 if len(current_trans) == 1 and current_trans[0] == "x":
                     for num in range(9):
                         for key in hensel[num]:
@@ -221,5 +221,5 @@ def get_trans_von_neumann(birth_string):
                         birth_trans += rotate_4_reflect(
                             hensel[num][key] + outside_four_cells[key2])
 
-    print(Counter([x.count(1) for x in set(birth_trans)]))
+    # print(Counter([x.count(1) for x in set(birth_trans)]))
     return set(birth_trans)

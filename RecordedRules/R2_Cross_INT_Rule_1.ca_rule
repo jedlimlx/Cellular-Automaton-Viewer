@@ -1,0 +1,21 @@
+Name: R2_Cross_INT_Rule_1
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,0,0,0
+0,1,1,1,0
+0,1,0,1,0
+0,1,1,1,0
+0,0,0,0,0
+
+State Weights: 0,1
+
+Rulespace: Single State
+
+B/S Conditions: Range 2 Cross Isotropic Non-Totalistic
+
+Rulestring: 2j34-qt5p6/2e3
+
+Colour Palette:
+None

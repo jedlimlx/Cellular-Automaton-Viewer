@@ -177,7 +177,7 @@ def new_random_rule() -> None:
 
 def new_param_map() -> None:
     param_map_dialog = ParamMapDialog()
-    param_map_dialog.run_param.connect(lambda: param_map.generate_param_map(50, 5, 5, 500))
+    param_map_dialog.run_param.connect(param_map.generate_param_map)
     param_map_dialog.exec_()
 
 

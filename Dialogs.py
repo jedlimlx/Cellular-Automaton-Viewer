@@ -478,7 +478,7 @@ class RandomRuleDialog(QDialog):
         if bsconditions == "Range 1 Moore Semi Totalistic" or \
                 bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == "Range 1 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == "Range 2 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.hide()
             self.isotropic_check_box.hide()
         else:
@@ -686,7 +686,7 @@ class RandomRuleDialog(QDialog):
 
 
 class ParamMapDialog(QDialog):
-    run_param = pyqtSignal()
+    run_param = pyqtSignal(int, int, int, int)
 
     def __init__(self):
         super().__init__()
@@ -700,9 +700,11 @@ class ParamMapDialog(QDialog):
         layout.addWidget(tabs)
 
         main_tab = QWidget()  # Tab for Rule Settings
+        param_map_tab = QWidget()
         random_tab = QWidget()  # Tab for Random Settings
 
         tabs.addTab(main_tab, "Rule Settings")
+        tabs.addTab(param_map_tab, "Parameter Map Settings")
         tabs.addTab(random_tab, "Random Settings")
 
         self.grid = QGridLayout()
@@ -712,8 +714,10 @@ class ParamMapDialog(QDialog):
         self.grid.addWidget(label_rulename, 0, 0)
 
         # Get Rule Name from Settings.json
-        try: rule_name = json.load(open("settings.json", "r"))["Rule Name PMap"]
-        except KeyError: rule_name = ""
+        try:
+            rule_name = json.load(open("settings.json", "r"))["Rule Name PMap"]
+        except KeyError:
+            rule_name = ""
 
         self.rulename = QLineEdit()
         self.rulename.setText(rule_name)
@@ -727,8 +731,10 @@ class ParamMapDialog(QDialog):
         label_rulespace = QLabel("Rulespace:")
         above_grid.addWidget(label_rulespace, 0, 0)
 
-        try: rulespace = json.load(open("settings.json", "r"))["Rule Space PMap"]  # Get Previous Selected Rulespace
-        except KeyError: rulespace = None
+        try:
+            rulespace = json.load(open("settings.json", "r"))["Rule Space PMap"]  # Get Previous Selected Rulespace
+        except KeyError:
+            rulespace = None
 
         self.rulespaces = ["BSFKL", "Single State", "Extended Generations", "Regenerating Generations"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
@@ -739,40 +745,46 @@ class ParamMapDialog(QDialog):
         label_bsconditions = QLabel("B/S Condition:")
         above_grid.addWidget(label_bsconditions, 1, 0)
 
-        try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions PMap"]  # Get B/S Conditions
-        except KeyError: bscondition = None
+        try:
+            bscondition = json.load(open("settings.json", "r"))["B/S Conditions PMap"]  # Get B/S Conditions
+        except KeyError:
+            bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "Double Totalistic"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic",
+                             "Range 1 Moore Isotropic Non-Totalistic", "Range 2 Cross Isotropic Non-Totalistic",
+                             "Range 2 Von Neumann Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
+        self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
         above_grid.addWidget(self.combo_box_bsconditions, 1, 1)
-
-        # Load Prev Rulespace
-        if bscondition is not None: self.combo_box_bsconditions.setCurrentIndex(self.bsconditions.index(bscondition))
 
         self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the Rule Isotropic?
 
         # Get Rule Name from Settings.json
-        try: isotropic = json.load(open("settings.json", "r"))["Isotropic PMap"]
-        except KeyError: isotropic = True
+        try:
+            isotropic = json.load(open("settings.json", "r"))["Isotropic PMap"]
+        except KeyError:
+            isotropic = True
 
         self.isotropic_check_box.setChecked(isotropic)
         above_grid.addWidget(self.isotropic_check_box, 2, 0)
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
-
-        # Get Previous Selected Weights
-        try: weights = json.load(open("settings.json", "r"))["Neighbourhood Weights PMap"]
-        except KeyError: weights = None
+        try:
+            weights = json.load(open("settings.json", "r"))["Neighbourhood Weights PMap"]  # Get Previous Selected Weights
+        except KeyError:
+            weights = None
         if weights is not None: self.neighbourhood_table.load_values(weights)
 
         above_grid.addWidget(self.neighbourhood_table, 2, 1)
 
         self.grid.addWidget(above_widget, 2, 0)
 
-        try: weights = json.load(open("settings.json", "r"))["State Weights PMap"]  # Get Previous Selected Weights
-        except KeyError: weights = None
+        try:
+            weights = json.load(open("settings.json", "r"))["State Weights PMap"]  # Get Previous Selected Weights
+        except KeyError:
+            weights = None
 
         self.n_states: int = 2
         if weights is not None: self.n_states = len(weights[0])
@@ -810,17 +822,20 @@ class ParamMapDialog(QDialog):
         self.grid.addWidget(label_rulestring, 5, 0)
 
         # Get Rule Name from Settings.json
-        try: rulestring = json.load(open("settings.json", "r"))["Rule String PMap"]
-        except KeyError: rulestring = ""
+        try:
+            rulestring = json.load(open("settings.json", "r"))["Rule String PMap"]
+        except KeyError:
+            rulestring = ""
 
         self.rulestring = QLineEdit()
         self.rulestring.setText(rulestring)
         self.grid.addWidget(self.rulestring, 6, 0)
 
-        btn_write = QPushButton("Generate Parameter Map")
+        btn_write = QPushButton("Create Parameter Map")
         btn_write.clicked.connect(self.run_param_map)
         self.grid.addWidget(btn_write, 7, 0)
 
+        # Random Settings
         self.random_range_line_edits: Dict[str, QLineEdit] = {}
         label_text = ["Rulestring Upper Bound", "Rulestring Lower Bound",
                       "State Weights Upper Bound", "State Weights Lower Bound",
@@ -830,8 +845,10 @@ class ParamMapDialog(QDialog):
         random_tab.setLayout(random_grid)
 
         # Get Rule Name from Settings.json
-        try: text = json.load(open("settings.json", "r"))["Random Bounds PMap"]
-        except KeyError: text = None
+        try:
+            text = json.load(open("settings.json", "r"))["Random Bounds PMap"]
+        except KeyError:
+            text = None
 
         for index, val in enumerate(label_text):  # Adding Random Bounds Entries
             label = QLabel(val + ":")
@@ -841,8 +858,34 @@ class ParamMapDialog(QDialog):
             if text is not None: self.random_range_line_edits[val].setText(text[val])  # Reload Previous Values
             random_grid.addWidget(self.random_range_line_edits[val], index, 1)
 
-            # Load Prev Rulespace
-            if rulespace is not None: self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
+        # PMap Settings
+        self.pmap_settings_line_edits: Dict[str, QLineEdit] = {}
+        label_text = ["Soup Size", "Generations", "Number of Rules X", "Number of Rules Y"]
+
+        param_map_grid = QGridLayout()
+        param_map_tab.setLayout(param_map_grid)
+
+        # Get Rule Name from Settings.json
+        try:
+            text = json.load(open("settings.json", "r"))["PMap Settings"]
+        except KeyError:
+            text = None
+
+        for index, val in enumerate(label_text):  # Adding Param Map Settings Entries
+            label = QLabel(val + ":")
+            param_map_grid.addWidget(label, index, 0)
+
+            self.pmap_settings_line_edits[val] = QLineEdit()
+            if text is not None: self.pmap_settings_line_edits[val].setText(text[val])  # Reload Previous Values
+            param_map_grid.addWidget(self.pmap_settings_line_edits[val], index, 1)
+
+        # Load Prev Rulespace
+        if rulespace is not None:
+            self.combo_box_rulespace.setCurrentIndex(self.rulespaces.index(rulespace))
+
+        # Load Prev B/S Condition
+        if bscondition is not None:
+            self.combo_box_bsconditions.setCurrentIndex(self.bsconditions.index(bscondition))
 
     def add_state(self):
         num = self.state_weights.num[:]  # Make a Deepcopy
@@ -891,13 +934,31 @@ class ParamMapDialog(QDialog):
             self.state_weights.hide()  # Hide State Weights
             self.state_btns.hide()
 
+    def change_bsconditions(self):
+        bsconditions = self.bsconditions[self.combo_box_bsconditions.currentIndex()]
+        if bsconditions == "Range 1 Moore Semi Totalistic" or \
+                bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
+                bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
+                bsconditions == "Range 1 Von Neumann Isotropic Non-Totalistic":
+            self.neighbourhood_table.hide()
+            self.isotropic_check_box.hide()
+        else:
+            self.neighbourhood_table.show()
+            self.isotropic_check_box.show()
+
     def run_param_map(self):
         try:
-            for i in range(5):
-                for j in range(5):
+            settings = json.load(open("settings.json", "r"))  # Writing new settings to settings.json
+            param_map_text: Dict[str, str] = {}
+            for key in self.pmap_settings_line_edits:
+                param_map_text[key] = self.pmap_settings_line_edits[key].text()
+
+            settings["PMap Settings"] = param_map_text
+
+            for i in range(int(param_map_text["Number of Rules X"])):
+                for j in range(int(param_map_text["Number of Rules Y"])):
                     self.write_to_rule(i, j)
 
-            settings = json.load(open("settings.json", "r"))  # Writing new settings to settings.json
             settings["Isotropic PMap"] = self.isotropic_check_box.isChecked()
             settings["Rule Space PMap"] = self.rulespaces[self.combo_box_rulespace.currentIndex()]
             settings["B/S Conditions PMap"] = self.bsconditions[self.combo_box_bsconditions.currentIndex()]
@@ -913,7 +974,14 @@ class ParamMapDialog(QDialog):
             settings["Random Bounds PMap"] = text
 
             json.dump(settings, open("settings.json", "w"), indent=4)
-            self.run_param.emit()
+
+            try:
+                self.run_param.emit(int(param_map_text["Soup Size"]), int(param_map_text["Number of Rules X"]),
+                                    int(param_map_text["Number of Rules Y"]), int(param_map_text["Generations"]))
+            except ValueError:
+                QMessageBox.warning(self, "Parameter Map Settings Error",
+                                    "The inputted settings are not valid integers!",
+                                    QMessageBox.Ok, QMessageBox.Ok)
 
         except Exception:
             print(traceback.format_exc())
@@ -925,6 +993,28 @@ class ParamMapDialog(QDialog):
         file.write(f"Name: {self.rulename.text() + '_' + str(x) + '_' + str(y)}\n\n")
         file.write("Neighbourhood Range: 2\n\n")
         file.write("Neighbourhood:\n")
+
+        if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic" or \
+            self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "0", "0", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "1", "0", "1", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "0", "0", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Cross Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["1", "1", "0", "1", "1"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+            "Range 1 Von Neumann Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["1", "1", "0", "1", "1"],
+                                            ["0", "1", "1", "1", "0"],
+                                            ["0", "0", "1", "0", "0"]]
+
         try:
             neighbourhood = copy.deepcopy(self.neighbourhood_table.num)
             for i in range(len(self.neighbourhood_table.num)):
@@ -959,7 +1049,6 @@ class ParamMapDialog(QDialog):
                             string += str(neighbourhood[i][j])
 
                 file.write(string + "\n")
-
         except ValueError as e:  # Error Handling, Inform User of Error
             if "empty range for randrange()" in str(e):
                 QMessageBox.warning(self, "Random State Weights Error",
