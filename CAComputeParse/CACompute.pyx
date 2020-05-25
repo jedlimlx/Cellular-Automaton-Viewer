@@ -2117,8 +2117,7 @@ cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
                     return a.first > b.first
                 return a.first + a.second > b.first + b.second
 
-cpdef compute(unordered_set[pair[int, int]] cells_changed,
-              unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
+cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[int, int], int] dict_grid,
               int generations):
 
     global corner, direction, xy
@@ -2134,6 +2133,7 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
     cdef vector[pair[int, int]] cells_to_check_vector
     cdef pair[int, int] coordinates, coordinates2
     cdef pair[int, int] neighbour
+    cdef unordered_map[pair[int, int], int] copy_grid = dict_grid
 
     for coor in cells_changed:
         for neighbour in neighbourhood[generations % alternating_period]:
@@ -2175,12 +2175,11 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed,
                     ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period)]
 
             if ans == -1:
-                if True: # copy_neighbour_cache.find(coordinates) == copy_neighbour_cache.end():
+                if True:
                     for neighbour in neighbourhood[generations % alternating_period]:
                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
                                                        coordinates.second + neighbour.second)
-                        if neighbours_cache.find(coordinates2) != neighbours_cache.end():
-                            neighbours_cache.erase(coordinates2)
+                        neighbours_cache.erase(coordinates2)
 
                         if copy_grid.find(coordinates2) != copy_grid.end():
                             neighbours.push_back(copy_grid[coordinates2])

@@ -131,7 +131,7 @@ def identify(dict_grid: Dict[Tuple[int, int], int], generations: int, use_parse:
     period: int = 1
 
     if use_parse:  # Check if using parser
-        cells_changed, dict_grid = parser.compute(dict_grid.keys(), copy_grid, dict_grid, generations)
+        cells_changed, dict_grid = parser.compute(dict_grid.keys(), dict_grid, generations)
     else:
         # Compute New Grid Cells
         cells_changed, dict_grid = compute.compute(transFunc.get_neighbourhood(generations),
@@ -143,7 +143,7 @@ def identify(dict_grid: Dict[Tuple[int, int], int], generations: int, use_parse:
         copy_grid = copy.deepcopy(dict_grid)
 
         if use_parse:  # Check if using parser
-            cells_changed, dict_grid = parser.compute(cells_changed, copy_grid, dict_grid, generations)
+            cells_changed, dict_grid = parser.compute(cells_changed, dict_grid, generations)
         else:
             # Compute New Grid Cells
             cells_changed, dict_grid = compute.compute(transFunc.get_neighbourhood(generations), cells_changed,

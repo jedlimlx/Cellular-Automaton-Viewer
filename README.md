@@ -44,7 +44,7 @@ To Identify the Pattern, Press the Question Mark Button (Supports Still Lifes, O
 To Record the Patterns in the Area Selected, Press the Record Button and it will turn black.<br>
 Press it again to stop the recording and save the gif.<br>
 
-In the file menu, you can save, open, and create a new pattern.<br>
+In the file menu, you can save, open, and create a new pattern. You can also create and open a new rule or create a parameter map (saved as pmap.gif in the CAViewer folder).<br>
 In the edit menu, you can copy, cut, delete and paste a pattern.<br>
 In the control menu, you can adjust random soup and simulation settings and step forward 1 generation and start the simulation.<br>
 In the view menu, you can zoom in, out, set the zoom and toggle grid lines.<br>
@@ -89,6 +89,7 @@ B/S Conditions: Outer Totalistic / Double Totalistic / Range 1 Moore Isotropic N
 Rulestring: -> For Alternating Put | (No Max, Don't Leave Spaces)
 b1s2f3k4l5 or 1/2/3/4/5 (BSFKL)
 b3,4,5s4d1-1-1 or 4/3,4,5/1-1-1 (Extended Generations)
+rg3l1b3s2,3rb3,6rs5,8 or 3/1/3/2,3/3,6/5,8 (Regenerating Generations)
 b3s2,3 or 2,3/3 (Outer Totalistic)
 
 (Must Add Commas because of Extended Neighbourhood (except if you use a bscondition that has a fixed neighbourhood), Don't Leave Spaces)

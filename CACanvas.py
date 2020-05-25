@@ -101,7 +101,7 @@ class CACanvas(QWidget):
         self.lower_y: int = 10 ** 9
         self.upper_x: int = 0
         self.upper_y: int = 0
-        self.generations: int = 1
+        self.generations: int = 0
 
         # Initialising Cells Changed -> Keep Track of Changes in Prev Generation
         self.cells_changed: Set[Tuple[int, int]] = set()
@@ -159,6 +159,9 @@ class CACanvas(QWidget):
 
         # Record Population
         self.population: List[int] = []
+
+        # Recording History
+        self.history: List[Tuple[int, Dict[Tuple[int, int], int]]] = []
 
         # Are grid lines enabled?
         self.grid_lines = False
@@ -559,11 +562,13 @@ class CACanvas(QWidget):
             self.label.update()
             self.update()
 
+            # Adding to History
+            self.history.append((self.generations, self.dict_grid))
+
         except AttributeError:
             QMessageBox.warning(self, "Error Generating Random Soup",
                                 "Error Generating Random Soup\nNo Area Selected Yet",
                                 QMessageBox.Ok, QMessageBox.Ok)
-
 
     def toggle_simulation(self) -> None:
         self.running = not self.running
@@ -601,7 +606,7 @@ class CACanvas(QWidget):
         if use_parse:
             # Compute New Grid Cells
             self.cells_changed, self.dict_grid = \
-                parser.compute(self.cells_changed, copy_grid, self.dict_grid, self.generations)
+                parser.compute(self.cells_changed, self.dict_grid, self.generations)
         else:
             self.cells_changed, self.dict_grid = \
                 compute.compute(transFunc.get_neighbourhood(self.generations), self.cells_changed, copy_grid,
@@ -623,6 +628,7 @@ class CACanvas(QWidget):
         painter = QPainter(self.label.pixmap())
         painter.setPen(pen)
 
+        self.lower_x, self.lower_y, self.upper_x, self.upper_y = 10 ** 9, 10 ** 9, -10 ** 9, -10 ** 9
         for cell in self.cells_changed:
             # key -> (y, x)
             # * self.cell_size -> cells are represented by cell_size * cell_size squares
@@ -644,21 +650,25 @@ class CACanvas(QWidget):
                 painter.setPen(pen)
                 painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
 
-                # Updating Bounds (Not needed above as the top one is converting cells to 0)
-                if cell[1] < self.lower_x:
-                    self.lower_x = cell[1]
-                elif cell[1] > self.upper_x:
-                    self.upper_x = cell[1]
-
-                if cell[0] < self.lower_y:
-                    self.lower_y = cell[0]
-                elif cell[0] > self.upper_y:
-                    self.upper_y = cell[0]
-
                 if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
                         self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
                     self.img[cell[0] - self.recording_lower_y][cell[1] - self.recording_lower_x] = \
                         self.colour_palette[self.dict_grid[cell]]
+
+        # Updating Bounds
+        for cell in self.dict_grid:
+            if cell[1] < self.lower_x:
+                self.lower_x = cell[1]
+            elif cell[1] > self.upper_x:
+                self.upper_x = cell[1]
+
+            if cell[0] < self.lower_y:
+                self.lower_y = cell[0]
+            elif cell[0] > self.upper_y:
+                self.upper_y = cell[0]
+
+        # Add Stuff to History
+        self.history.append((self.generations, copy.deepcopy(self.dict_grid)))
 
         painter.end()
 
@@ -685,6 +695,8 @@ class CACanvas(QWidget):
 
     def load_from_dict(self, dictionary: Dict[Tuple[int, int], int], offset_x=0, offset_y=0) -> None:
         self.label.pixmap().fill(color=QColor(0, 0, 0))  # Clear the Pixmap
+        self.dict_grid = {}
+        self.cells_changed = set()
 
         for key in dictionary:
             self.add_cell(dictionary[key], key[1] + offset_y, key[0] + offset_x)
@@ -808,9 +820,12 @@ class CACanvas(QWidget):
                 num = int(i)
 
             if not convert_to_int and first: num = 1
-            if i != "." and i != "$" and not convert_to_int:
+            if i != "." and i != "$" and i != "b" and not convert_to_int:
                 for j in range(num):
-                    dict_grid[(current_coor[0], current_coor[1])] = ord(i) - 64
+                    if i != "o":
+                        dict_grid[(current_coor[0], current_coor[1])] = ord(i) - 64
+                    else:
+                        dict_grid[(current_coor[0], current_coor[1])] = 1
 
                     current_coor[1] += 1
 
@@ -818,7 +833,7 @@ class CACanvas(QWidget):
                 current_coor[0] += num
                 current_coor[1] = 0
 
-            elif i == ".":
+            elif i == "." or i == "b":
                 current_coor[1] += num
 
             prev_int = convert_to_int
@@ -984,7 +999,9 @@ class CACanvas(QWidget):
                 file_name, _ = QFileDialog.getSaveFileName(caption="Save *.gif File",
                                                            filter="GIF Files (*.gif)")
 
-                img_frames: List = [Image.fromarray(x) for x in self.frames]
+                img_frames: List = [Image.fromarray(x.repeat(self.cell_size, axis=0).repeat(self.cell_size, axis=1))
+                                    for x in self.frames]
+
                 img_frames[0].save(file_name, format='GIF', append_images=img_frames[1:],
                                    save_all=True, loop=0)
             else:
@@ -1302,6 +1319,48 @@ class CACanvas(QWidget):
             QMessageBox.warning(self, "RLE Parsing Error", traceback.format_exc(),
                                 QMessageBox.Ok, QMessageBox.Ok)
 
+    def select_all(self):
+        self.mode = "selecting"
+
+        # Align to Cells
+        self.origin = QPoint(self.lower_x * self.cell_size,
+                             self.lower_y * self.cell_size)
+        self.selection_release = QPoint(self.upper_x * self.cell_size + self.cell_size,
+                                        self.upper_y * self.cell_size + self.cell_size)
+        self.rubber_band.setGeometry(QRect(self.origin, self.selection_release))
+        self.rubber_band.show()
+
+        logging.log(logging.INFO, f"Start selecting at {(self.lower_x, self.lower_y)}")
+
+    def undo(self):
+        try:
+            print(len(self.history))
+
+            # Remove the Current State of the Pattern from History
+            self.history.pop()
+
+            # Reloading the Pattern to the Prev State
+            self.generations = self.history[-1][0]
+            self.load_from_dict(self.history[-1][1])
+
+            # Reload the Status of the Pattern
+            if self.running:
+                self.status_label.setText(f"Generation: {self.generations}, "
+                                          f"Population: {len(self.dict_grid)}\n"
+                                          f"Simulation Running")
+            else:
+                self.status_label.setText(f"Generation: {self.generations}, "
+                                          f"Population: {len(self.dict_grid)}\n"
+                                          f"Simulation Paused")
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
+
+        except Exception:
+            pass
+
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         if self.mode == "painting":
             if self.running:  # Pause the Simulation
@@ -1313,6 +1372,7 @@ class CACanvas(QWidget):
 
             # Add Cell to Grid and Canvas
             self.add_cell(self.current_state, new_x // self.cell_size, new_y // self.cell_size)
+            self.history.append((self.generations, self.dict_grid))
 
             logging.log(logging.INFO, f"Drawing at with state {self.current_state}" +
                         f"{(new_x // self.cell_size, new_y // self.cell_size)}")
@@ -1321,7 +1381,6 @@ class CACanvas(QWidget):
             self.scroll_area.update()
             self.label.update()
             self.update()
-
         elif self.mode == "selecting":
             x: int = event.pos().x()
             y: int = event.pos().y()

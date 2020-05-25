@@ -50,8 +50,7 @@ def generate_param_map(soup_size, rows, columns, max_generations):
                 cells_changed = soup.keys()  # Running Simulation
                 for generations in range(max_generations):
                     if generations == 100: print(sorted(dict_grid))
-                    copy_grid = copy.deepcopy(dict_grid)
-                    cells_changed, dict_grid = parser.compute(cells_changed, copy_grid, dict_grid, generations)
+                    cells_changed, dict_grid = parser.compute(cells_changed, dict_grid, generations)
 
                     keys_to_pop = []
                     for key in dict_grid:

@@ -1,9 +1,10 @@
 import sys
 import logging
 import threading
+import traceback
 
 from PyQt5.Qt import QIcon, QAction
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog, QInputDialog, QLineEdit
 
 import Geneascopy as genscope
 import ParamMap as param_map
@@ -26,6 +27,8 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     cut_action.triggered.disconnect(canvas.cut_selection)
     delete_action.triggered.disconnect(canvas.delete_selection)
     paste_action.triggered.disconnect(canvas.paste_clipboard)
+    undo_action.triggered.disconnect(canvas.undo)
+    select_all_action.triggered.disconnect(canvas.select_all)
     start_simulation_action.triggered.disconnect(canvas.toggle_simulation)
     forward_one_action.triggered.disconnect(canvas.update_cells)
     simulation_settings_action.triggered.disconnect(simulation_settings)
@@ -46,6 +49,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         generations = canvas.generations
         dictionary = canvas.dict_grid
         cells_changed = canvas.cells_changed
+        history = canvas.history
 
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -63,6 +67,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.density = density
         canvas.symmetry = symmetry
         canvas.max_speed = max_speed
+        canvas.history = history
 
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
@@ -77,7 +82,6 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
 
         if grid_lines:  # Enabling Grid Lines if Necessary
             canvas.toggle_grid_lines()
-
     else:
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -115,6 +119,8 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     cut_action.triggered.connect(canvas.cut_selection)
     delete_action.triggered.connect(canvas.delete_selection)
     paste_action.triggered.connect(canvas.paste_clipboard)
+    undo_action.triggered.connect(canvas.undo)
+    select_all_action.triggered.connect(canvas.select_all)
     start_simulation_action.triggered.connect(canvas.toggle_simulation)
     forward_one_action.triggered.connect(canvas.update_cells)
     simulation_settings_action.triggered.connect(simulation_settings)
@@ -220,6 +226,21 @@ def geneascopy():
         pass
 
 
+def back_to_gen(x):
+    try:
+        print(x)
+
+        inx = 0
+        for i in range(len(canvas.history) - 1):
+            if canvas.history[i + 1] == x + 1:
+                inx = i
+                break
+
+        canvas.load_from_dict(canvas.history[inx][1])
+    except Exception:
+        print(traceback.format_exc())
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 
@@ -304,6 +325,21 @@ paste_action = QAction("Paste Clipboard")
 paste_action.setShortcut("Ctrl+V")
 paste_action.triggered.connect(canvas.paste_clipboard)
 edit_menu.addAction(paste_action)
+
+select_all_action = QAction("Select All")
+select_all_action.triggered.connect(canvas.select_all)
+edit_menu.addAction(select_all_action)
+
+edit_menu.addSeparator()
+
+reset_to_gen_zero = QAction("Reset to Gen 0")
+reset_to_gen_zero.triggered.connect(lambda: back_to_gen(0))
+edit_menu.addAction(reset_to_gen_zero)
+
+undo_action = QAction("Undo")
+undo_action.triggered.connect(canvas.undo)
+undo_action.setShortcut("Ctrl+Z")
+edit_menu.addAction(undo_action)
 
 control_menu = menu.addMenu("Control")
 start_simulation_action = QAction("Start Simulation")

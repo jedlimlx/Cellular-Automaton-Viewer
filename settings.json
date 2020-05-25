@@ -1,5 +1,5 @@
 {
-    "UseParse": true,
+    "UseParse": false,
     "Isotropic": true,
     "Rule Space": "Regenerating Generations",
     "B/S Conditions": "Range 1 Moore Isotropic Non-Totalistic",

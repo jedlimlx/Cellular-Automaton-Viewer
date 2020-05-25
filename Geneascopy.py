@@ -43,7 +43,7 @@ def run_soup(use_parse: bool, max_generations: int):
         if not generations % 250: print(generations)
         generations += 1
         if use_parse:  # Check if using parser
-            cells_changed, dict_grid = parser.compute(cells_changed, copy_grid, dict_grid, generations)
+            cells_changed, dict_grid = parser.compute(cells_changed, dict_grid, generations)
         else:
             # Compute New Grid Cells
             cells_changed, dict_grid = compute.compute(transFunc.get_neighbourhood(generations),
