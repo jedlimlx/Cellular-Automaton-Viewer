@@ -1,0 +1,21 @@
+Name: R2_VonNeumann_INT_Rule_2
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,1,0,0
+0,1,1,1,0
+1,1,0,1,1
+0,1,1,1,0
+0,0,1,0,0
+
+State Weights: 0,1
+
+Rulespace: Single State
+
+B/S Conditions: Range 2 Von Neumann Isotropic Non-Totalistic
+
+Rulestring: 2x3arngqg5ir7x-6nd10x/3x6ed8x7eg12x
+
+Colour Palette:
+None

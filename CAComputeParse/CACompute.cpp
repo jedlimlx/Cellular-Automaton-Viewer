@@ -1427,7 +1427,6 @@ static std::vector<std::vector<int> >  __pyx_f_9CACompute_get_colour_palette(int
 static std::string __pyx_f_9CACompute_get_rule_name(int __pyx_skip_dispatch); /*proto*/
 static int __pyx_f_9CACompute_transition_func(std::vector<int> , int); /*proto*/
 static int __pyx_f_9CACompute_depend_on_neighbours(int, int); /*proto*/
-static bool __pyx_f_9CACompute_compare_pairs(std::pair<int,int> , std::pair<int,int> ); /*proto*/
 static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int> > , std::unordered_map<std::pair<int,int> ,int> , int, int __pyx_skip_dispatch); /*proto*/
 static std::pair<int,int>  __pyx_convert_pair_from_py_int__and_int(PyObject *); /*proto*/
 static std::unordered_set<std::pair<int,int> >  __pyx_convert_unordered_set_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(PyObject *); /*proto*/
@@ -56086,8 +56085,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int
   std::vector<int>  __pyx_v_neighbours;
   std::unordered_set<std::pair<int,int> >  __pyx_v_cells_to_check;
   CYTHON_UNUSED std::unordered_map<std::pair<int,int> ,std::vector<int> >  __pyx_v_copy_neighbour_cache;
+  int __pyx_v_i;
+  int __pyx_v_j;
   int __pyx_v_ans;
-  std::vector<std::pair<int,int> >  __pyx_v_cells_to_check_vector;
   std::pair<int,int>  __pyx_v_coordinates;
   std::pair<int,int>  __pyx_v_coordinates2;
   std::pair<int,int>  __pyx_v_neighbour;
@@ -56102,10 +56102,11 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int
   int __pyx_t_5;
   std::pair<std::vector<int> ,int>  __pyx_t_6;
   std::pair<std::pair<int,int> ,int>  __pyx_t_7;
-  std::vector<std::pair<int,int> > ::iterator __pyx_t_8;
-  PyObject *__pyx_t_9 = NULL;
+  int __pyx_t_8;
+  int __pyx_t_9;
   PyObject *__pyx_t_10 = NULL;
   PyObject *__pyx_t_11 = NULL;
+  PyObject *__pyx_t_12 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
 
   /* "CACompute.pyx":2126
@@ -57072,7 +57073,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int
  *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                     cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
  *     else:
- *         cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())
+ *         for i in range(100):
  */
           (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
@@ -57109,812 +57110,947 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int
   /* "CACompute.pyx":2229
  *                     cells_changed.insert(coordinates)
  *     else:
- *         cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())             # <<<<<<<<<<<<<<
- *         sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)
- *         for coordinates in cells_to_check_vector:
+ *         for i in range(100):             # <<<<<<<<<<<<<<
+ *             for j in range(100):
+ *                 coordinates = pair[int, int] (i, j)
  */
   /*else*/ {
-    try {
-      __pyx_v_cells_to_check_vector.assign(__pyx_v_cells_to_check.begin(), __pyx_v_cells_to_check.end());
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 2229, __pyx_L1_error)
-    }
+    for (__pyx_t_8 = 0; __pyx_t_8 < 0x64; __pyx_t_8+=1) {
+      __pyx_v_i = __pyx_t_8;
 
-    /* "CACompute.pyx":2230
+      /* "CACompute.pyx":2230
  *     else:
- *         cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())
- *         sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)             # <<<<<<<<<<<<<<
- *         for coordinates in cells_to_check_vector:
- *             neighbours.clear()
+ *         for i in range(100):
+ *             for j in range(100):             # <<<<<<<<<<<<<<
+ *                 coordinates = pair[int, int] (i, j)
+ *                 neighbours.clear()
  */
-    std::sort<std::vector<std::pair<int,int> > ::iterator,bool (std::pair<int,int> , std::pair<int,int> )>(__pyx_v_cells_to_check_vector.begin(), __pyx_v_cells_to_check_vector.end(), __pyx_f_9CACompute_compare_pairs);
+      for (__pyx_t_9 = 0; __pyx_t_9 < 0x64; __pyx_t_9+=1) {
+        __pyx_v_j = __pyx_t_9;
 
-    /* "CACompute.pyx":2231
- *         cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())
- *         sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)
- *         for coordinates in cells_to_check_vector:             # <<<<<<<<<<<<<<
- *             neighbours.clear()
- *             ans = -1
- */
-    __pyx_t_3 = __pyx_v_cells_to_check_vector.begin();
-    for (;;) {
-      if (!(__pyx_t_3 != __pyx_v_cells_to_check_vector.end())) break;
-      __pyx_t_2 = *__pyx_t_3;
-      ++__pyx_t_3;
-      __pyx_v_coordinates = __pyx_t_2;
-
-      /* "CACompute.pyx":2232
- *         sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)
- *         for coordinates in cells_to_check_vector:
- *             neighbours.clear()             # <<<<<<<<<<<<<<
- *             ans = -1
- * 
- */
-      __pyx_v_neighbours.clear();
-
-      /* "CACompute.pyx":2233
- *         for coordinates in cells_to_check_vector:
- *             neighbours.clear()
- *             ans = -1             # <<<<<<<<<<<<<<
- * 
- *             if dict_grid.find(coordinates) == dict_grid.end():
- */
-      __pyx_v_ans = -1;
-
-      /* "CACompute.pyx":2235
- *             ans = -1
- * 
- *             if dict_grid.find(coordinates) == dict_grid.end():             # <<<<<<<<<<<<<<
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
- *                         depends_cache.end():
- */
-      __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) == __pyx_v_dict_grid.end()) != 0);
-      if (__pyx_t_5) {
-
-        /* "CACompute.pyx":2236
- * 
- *             if dict_grid.find(coordinates) == dict_grid.end():
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(0, generations % alternating_period)
+        /* "CACompute.pyx":2231
+ *         for i in range(100):
+ *             for j in range(100):
+ *                 coordinates = pair[int, int] (i, j)             # <<<<<<<<<<<<<<
+ *                 neighbours.clear()
+ *                 ans = -1
  */
         try {
-          __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          __pyx_t_2 = std::pair<int,int> (__pyx_v_i, __pyx_v_j);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2236, __pyx_L1_error)
+          __PYX_ERR(0, 2231, __pyx_L1_error)
         }
+        __pyx_v_coordinates = __pyx_t_2;
 
-        /* "CACompute.pyx":2237
- *             if dict_grid.find(coordinates) == dict_grid.end():
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
- *                         depends_cache.end():             # <<<<<<<<<<<<<<
- *                     ans = depend_on_neighbours(0, generations % alternating_period)
- *                     depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
- */
-        __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
-
-        /* "CACompute.pyx":2236
+        /* "CACompute.pyx":2232
+ *             for j in range(100):
+ *                 coordinates = pair[int, int] (i, j)
+ *                 neighbours.clear()             # <<<<<<<<<<<<<<
+ *                 ans = -1
  * 
- *             if dict_grid.find(coordinates) == dict_grid.end():
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(0, generations % alternating_period)
  */
+        __pyx_v_neighbours.clear();
+
+        /* "CACompute.pyx":2233
+ *                 coordinates = pair[int, int] (i, j)
+ *                 neighbours.clear()
+ *                 ans = -1             # <<<<<<<<<<<<<<
+ * 
+ *                 if dict_grid.find(coordinates) == dict_grid.end():
+ */
+        __pyx_v_ans = -1;
+
+        /* "CACompute.pyx":2235
+ *                 ans = -1
+ * 
+ *                 if dict_grid.find(coordinates) == dict_grid.end():             # <<<<<<<<<<<<<<
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+ *                             depends_cache.end():
+ */
+        __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) == __pyx_v_dict_grid.end()) != 0);
         if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2238
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(0, generations % alternating_period)             # <<<<<<<<<<<<<<
- *                     depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
- *                 else:
- */
-          __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours(0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-
-          /* "CACompute.pyx":2239
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(0, generations % alternating_period)
- *                     depends_cache[pair[int, int] (0, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
- *                 else:
- *                     ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
- */
-          try {
-            __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2239, __pyx_L1_error)
-          }
-          (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
           /* "CACompute.pyx":2236
  * 
- *             if dict_grid.find(coordinates) == dict_grid.end():
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(0, generations % alternating_period)
+ *                 if dict_grid.find(coordinates) == dict_grid.end():
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)
  */
-          goto __pyx_L31;
-        }
-
-        /* "CACompute.pyx":2241
- *                     depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
- *                 else:
- *                     ans = depends_cache[pair[int, int] (0, generations % alternating_period)]             # <<<<<<<<<<<<<<
- *             else:
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],
- */
-        /*else*/ {
           try {
             __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2241, __pyx_L1_error)
+            __PYX_ERR(0, 2236, __pyx_L1_error)
           }
-          __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
-        }
-        __pyx_L31:;
 
-        /* "CACompute.pyx":2235
- *             ans = -1
+          /* "CACompute.pyx":2237
+ *                 if dict_grid.find(coordinates) == dict_grid.end():
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+ *                             depends_cache.end():             # <<<<<<<<<<<<<<
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)
+ *                         depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
+ */
+          __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
+
+          /* "CACompute.pyx":2236
  * 
- *             if dict_grid.find(coordinates) == dict_grid.end():             # <<<<<<<<<<<<<<
- *                 if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
- *                         depends_cache.end():
+ *                 if dict_grid.find(coordinates) == dict_grid.end():
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)
  */
-        goto __pyx_L30;
-      }
+          if (__pyx_t_5) {
 
-      /* "CACompute.pyx":2243
- *                     ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
- *             else:
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
- *                                                       generations % alternating_period)) == \
- *                         depends_cache.end():
+            /* "CACompute.pyx":2238
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)             # <<<<<<<<<<<<<<
+ *                         depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
+ *                     else:
  */
-      /*else*/ {
+            __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours(0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
 
-        /* "CACompute.pyx":2244
- *             else:
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],
- *                                                       generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+            /* "CACompute.pyx":2239
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)
+ *                         depends_cache[pair[int, int] (0, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
  */
-        try {
-          __pyx_t_2 = std::pair<int,int> ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2243, __pyx_L1_error)
-        }
+            try {
+              __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              __PYX_ERR(0, 2239, __pyx_L1_error)
+            }
+            (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
-        /* "CACompute.pyx":2245
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],
- *                                                       generations % alternating_period)) == \
- *                         depends_cache.end():             # <<<<<<<<<<<<<<
- *                     ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
- *                     depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
+            /* "CACompute.pyx":2236
+ * 
+ *                 if dict_grid.find(coordinates) == dict_grid.end():
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(0, generations % alternating_period)
  */
-        __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
-
-        /* "CACompute.pyx":2243
- *                     ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
- *             else:
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
- *                                                       generations % alternating_period)) == \
- *                         depends_cache.end():
- */
-        if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2246
- *                                                       generations % alternating_period)) == \
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)             # <<<<<<<<<<<<<<
- *                     depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
- *                 else:
- */
-          __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-
-          /* "CACompute.pyx":2247
- *                         depends_cache.end():
- *                     ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
- *                     depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
- *                 else:
- *                     ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
- */
-          try {
-            __pyx_t_2 = std::pair<int,int> ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2247, __pyx_L1_error)
+            goto __pyx_L33;
           }
-          (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
-          /* "CACompute.pyx":2243
- *                     ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
- *             else:
- *                 if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
- *                                                       generations % alternating_period)) == \
- *                         depends_cache.end():
+          /* "CACompute.pyx":2241
+ *                         depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
+ *                     else:
+ *                         ans = depends_cache[pair[int, int] (0, generations % alternating_period)]             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],
+ */
+          /*else*/ {
+            try {
+              __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              __PYX_ERR(0, 2241, __pyx_L1_error)
+            }
+            __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
+          }
+          __pyx_L33:;
+
+          /* "CACompute.pyx":2235
+ *                 ans = -1
+ * 
+ *                 if dict_grid.find(coordinates) == dict_grid.end():             # <<<<<<<<<<<<<<
+ *                     if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+ *                             depends_cache.end():
  */
           goto __pyx_L32;
         }
 
-        /* "CACompute.pyx":2249
- *                     depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
+        /* "CACompute.pyx":2243
+ *                         ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
  *                 else:
- *                     ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]             # <<<<<<<<<<<<<<
- * 
- *             if ans == -1:
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
+ *                                                           generations % alternating_period)) == \
+ *                             depends_cache.end():
  */
         /*else*/ {
+
+          /* "CACompute.pyx":2244
+ *                 else:
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],
+ *                                                           generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+ */
           try {
             __pyx_t_2 = std::pair<int,int> ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2249, __pyx_L1_error)
+            __PYX_ERR(0, 2243, __pyx_L1_error)
           }
-          __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
-        }
-        __pyx_L32:;
-      }
-      __pyx_L30:;
 
-      /* "CACompute.pyx":2251
- *                     ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
- * 
- *             if ans == -1:             # <<<<<<<<<<<<<<
- *                 for neighbour in neighbourhood[generations % alternating_period]:
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+          /* "CACompute.pyx":2245
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],
+ *                                                           generations % alternating_period)) == \
+ *                             depends_cache.end():             # <<<<<<<<<<<<<<
+ *                         ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+ *                         depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
  */
-      __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-      if (__pyx_t_5) {
+          __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
 
-        /* "CACompute.pyx":2252
- * 
- *             if ans == -1:
- *                 for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                    coordinates.second + neighbour.second)
+          /* "CACompute.pyx":2243
+ *                         ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
+ *                 else:
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
+ *                                                           generations % alternating_period)) == \
+ *                             depends_cache.end():
  */
-        __pyx_t_4 = &(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
-        __pyx_t_8 = __pyx_t_4->begin();
-        for (;;) {
-          if (!(__pyx_t_8 != __pyx_t_4->end())) break;
-          __pyx_t_2 = *__pyx_t_8;
-          ++__pyx_t_8;
-          __pyx_v_neighbour = __pyx_t_2;
-
-          /* "CACompute.pyx":2253
- *             if ans == -1:
- *                 for neighbour in neighbourhood[generations % alternating_period]:
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
- *                                                    coordinates.second + neighbour.second)
- *                     if dict_grid.find(coordinates2) != dict_grid.end():
- */
-          try {
-            __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2253, __pyx_L1_error)
-          }
-          __pyx_v_coordinates2 = __pyx_t_2;
-
-          /* "CACompute.pyx":2255
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                    coordinates.second + neighbour.second)
- *                     if dict_grid.find(coordinates2) != dict_grid.end():             # <<<<<<<<<<<<<<
- *                         neighbours.push_back(dict_grid[coordinates2])
- *                     else:
- */
-          __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates2) != __pyx_v_dict_grid.end()) != 0);
           if (__pyx_t_5) {
 
-            /* "CACompute.pyx":2256
- *                                                    coordinates.second + neighbour.second)
- *                     if dict_grid.find(coordinates2) != dict_grid.end():
- *                         neighbours.push_back(dict_grid[coordinates2])             # <<<<<<<<<<<<<<
+            /* "CACompute.pyx":2246
+ *                                                           generations % alternating_period)) == \
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)             # <<<<<<<<<<<<<<
+ *                         depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
  *                     else:
- *                         neighbours.push_back(0)
+ */
+            __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+
+            /* "CACompute.pyx":2247
+ *                             depends_cache.end():
+ *                         ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+ *                         depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
  */
             try {
-              __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates2]));
+              __pyx_t_2 = std::pair<int,int> ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2256, __pyx_L1_error)
+              __PYX_ERR(0, 2247, __pyx_L1_error)
             }
+            (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
-            /* "CACompute.pyx":2255
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                    coordinates.second + neighbour.second)
- *                     if dict_grid.find(coordinates2) != dict_grid.end():             # <<<<<<<<<<<<<<
- *                         neighbours.push_back(dict_grid[coordinates2])
- *                     else:
+            /* "CACompute.pyx":2243
+ *                         ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
+ *                 else:
+ *                     if depends_cache.find(pair[int, int] (dict_grid[coordinates],             # <<<<<<<<<<<<<<
+ *                                                           generations % alternating_period)) == \
+ *                             depends_cache.end():
  */
-            goto __pyx_L36;
+            goto __pyx_L34;
           }
 
-          /* "CACompute.pyx":2258
- *                         neighbours.push_back(dict_grid[coordinates2])
+          /* "CACompute.pyx":2249
+ *                         depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
  *                     else:
- *                         neighbours.push_back(0)             # <<<<<<<<<<<<<<
+ *                         ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]             # <<<<<<<<<<<<<<
  * 
- *             if dict_grid.find(coordinates) != dict_grid.end():
+ *                 if ans == -1:
  */
           /*else*/ {
             try {
-              __pyx_v_neighbours.push_back(0);
+              __pyx_t_2 = std::pair<int,int> ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2258, __pyx_L1_error)
+              __PYX_ERR(0, 2249, __pyx_L1_error)
             }
+            __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
           }
-          __pyx_L36:;
+          __pyx_L34:;
+        }
+        __pyx_L32:;
+
+        /* "CACompute.pyx":2251
+ *                         ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
+ * 
+ *                 if ans == -1:             # <<<<<<<<<<<<<<
+ *                     for neighbour in neighbourhood[generations % alternating_period]:
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ */
+        __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+        if (__pyx_t_5) {
 
           /* "CACompute.pyx":2252
  * 
- *             if ans == -1:
- *                 for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                    coordinates.second + neighbour.second)
+ *                 if ans == -1:
+ *                     for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                        coordinates.second + neighbour.second)
  */
-        }
+          __pyx_t_4 = &(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+          __pyx_t_3 = __pyx_t_4->begin();
+          for (;;) {
+            if (!(__pyx_t_3 != __pyx_t_4->end())) break;
+            __pyx_t_2 = *__pyx_t_3;
+            ++__pyx_t_3;
+            __pyx_v_neighbour = __pyx_t_2;
 
-        /* "CACompute.pyx":2251
- *                     ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
- * 
- *             if ans == -1:             # <<<<<<<<<<<<<<
- *                 for neighbour in neighbourhood[generations % alternating_period]:
- *                     coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- */
-      }
-
-      /* "CACompute.pyx":2260
- *                         neighbours.push_back(0)
- * 
- *             if dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
- *                 neighbours.push_back(dict_grid[coordinates])
- *                 if transition_func_cache.find(
- */
-      __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
-      if (__pyx_t_5) {
-
-        /* "CACompute.pyx":2261
- * 
- *             if dict_grid.find(coordinates) != dict_grid.end():
- *                 neighbours.push_back(dict_grid[coordinates])             # <<<<<<<<<<<<<<
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- */
-        try {
-          __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates]));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2261, __pyx_L1_error)
-        }
-
-        /* "CACompute.pyx":2263
- *                 neighbours.push_back(dict_grid[coordinates])
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         transition_func_cache.end():
- *                     if ans == -1:
- */
-        try {
-          __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2263, __pyx_L1_error)
-        }
-
-        /* "CACompute.pyx":2264
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():             # <<<<<<<<<<<<<<
- *                     if ans == -1:
- *                         ans = transition_func(neighbours, generations % alternating_period)
- */
-        __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
-
-        /* "CACompute.pyx":2262
- *             if dict_grid.find(coordinates) != dict_grid.end():
- *                 neighbours.push_back(dict_grid[coordinates])
- *                 if transition_func_cache.find(             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- */
-        if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2265
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- *                     if ans == -1:             # <<<<<<<<<<<<<<
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
- */
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-
-            /* "CACompute.pyx":2266
- *                         transition_func_cache.end():
- *                     if ans == -1:
- *                         ans = transition_func(neighbours, generations % alternating_period)             # <<<<<<<<<<<<<<
- *                         transition_func_cache[
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
- */
-            __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-
-            /* "CACompute.pyx":2268
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[
+            /* "CACompute.pyx":2253
+ *                 if ans == -1:
+ *                     for neighbour in neighbourhood[generations % alternating_period]:
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                        coordinates.second + neighbour.second)
+ *                         if dict_grid.find(coordinates2) != dict_grid.end():
  */
             try {
-              __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2268, __pyx_L1_error)
+              __PYX_ERR(0, 2253, __pyx_L1_error)
             }
-            (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
+            __pyx_v_coordinates2 = __pyx_t_2;
 
-            /* "CACompute.pyx":2265
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- *                     if ans == -1:             # <<<<<<<<<<<<<<
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
+            /* "CACompute.pyx":2255
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                        coordinates.second + neighbour.second)
+ *                         if dict_grid.find(coordinates2) != dict_grid.end():             # <<<<<<<<<<<<<<
+ *                             neighbours.push_back(dict_grid[coordinates2])
+ *                         else:
+ */
+            __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates2) != __pyx_v_dict_grid.end()) != 0);
+            if (__pyx_t_5) {
+
+              /* "CACompute.pyx":2256
+ *                                                        coordinates.second + neighbour.second)
+ *                         if dict_grid.find(coordinates2) != dict_grid.end():
+ *                             neighbours.push_back(dict_grid[coordinates2])             # <<<<<<<<<<<<<<
+ *                         else:
+ *                             neighbours.push_back(0)
+ */
+              try {
+                __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates2]));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2256, __pyx_L1_error)
+              }
+
+              /* "CACompute.pyx":2255
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                        coordinates.second + neighbour.second)
+ *                         if dict_grid.find(coordinates2) != dict_grid.end():             # <<<<<<<<<<<<<<
+ *                             neighbours.push_back(dict_grid[coordinates2])
+ *                         else:
+ */
+              goto __pyx_L38;
+            }
+
+            /* "CACompute.pyx":2258
+ *                             neighbours.push_back(dict_grid[coordinates2])
+ *                         else:
+ *                             neighbours.push_back(0)             # <<<<<<<<<<<<<<
+ * 
+ *                 if dict_grid.find(coordinates) != dict_grid.end():
+ */
+            /*else*/ {
+              try {
+                __pyx_v_neighbours.push_back(0);
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2258, __pyx_L1_error)
+              }
+            }
+            __pyx_L38:;
+
+            /* "CACompute.pyx":2252
+ * 
+ *                 if ans == -1:
+ *                     for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                        coordinates.second + neighbour.second)
  */
           }
 
-          /* "CACompute.pyx":2262
- *             if dict_grid.find(coordinates) != dict_grid.end():
- *                 neighbours.push_back(dict_grid[coordinates])
- *                 if transition_func_cache.find(             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- */
-          goto __pyx_L38;
-        }
-
-        /* "CACompute.pyx":2270
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
+          /* "CACompute.pyx":2251
+ *                         ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
  * 
- */
-        /*else*/ {
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-
-            /* "CACompute.pyx":2271
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]             # <<<<<<<<<<<<<<
- * 
- *                 if ans == 0:
- */
-            try {
-              __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2271, __pyx_L1_error)
-            }
-
-            /* "CACompute.pyx":2270
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
- */
-            __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
-          }
-        }
-        __pyx_L38:;
-
-        /* "CACompute.pyx":2273
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
- *                 if ans == 0:             # <<<<<<<<<<<<<<
- *                     dict_grid.erase(coordinates)
- *                     cells_changed.insert(coordinates)
- */
-        __pyx_t_5 = ((__pyx_v_ans == 0) != 0);
-        if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2274
- * 
- *                 if ans == 0:
- *                     dict_grid.erase(coordinates)             # <<<<<<<<<<<<<<
- *                     cells_changed.insert(coordinates)
- *                 elif ans != dict_grid[coordinates]:
- */
-          (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
-
-          /* "CACompute.pyx":2275
- *                 if ans == 0:
- *                     dict_grid.erase(coordinates)
- *                     cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
- *                 elif ans != dict_grid[coordinates]:
- *                     dict_grid[coordinates] = ans
- */
-          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
-
-          /* "CACompute.pyx":2273
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
- *                 if ans == 0:             # <<<<<<<<<<<<<<
- *                     dict_grid.erase(coordinates)
- *                     cells_changed.insert(coordinates)
- */
-          goto __pyx_L41;
-        }
-
-        /* "CACompute.pyx":2276
- *                     dict_grid.erase(coordinates)
- *                     cells_changed.insert(coordinates)
- *                 elif ans != dict_grid[coordinates]:             # <<<<<<<<<<<<<<
- *                     dict_grid[coordinates] = ans
- *                     cells_changed.insert(coordinates)
- */
-        __pyx_t_5 = ((__pyx_v_ans != (__pyx_v_dict_grid[__pyx_v_coordinates])) != 0);
-        if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2277
- *                     cells_changed.insert(coordinates)
- *                 elif ans != dict_grid[coordinates]:
- *                     dict_grid[coordinates] = ans             # <<<<<<<<<<<<<<
- *                     cells_changed.insert(coordinates)
- *             else:
- */
-          (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
-
-          /* "CACompute.pyx":2278
- *                 elif ans != dict_grid[coordinates]:
- *                     dict_grid[coordinates] = ans
- *                     cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
- *             else:
- *                 neighbours.push_back(0)
- */
-          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
-
-          /* "CACompute.pyx":2276
- *                     dict_grid.erase(coordinates)
- *                     cells_changed.insert(coordinates)
- *                 elif ans != dict_grid[coordinates]:             # <<<<<<<<<<<<<<
- *                     dict_grid[coordinates] = ans
- *                     cells_changed.insert(coordinates)
+ *                 if ans == -1:             # <<<<<<<<<<<<<<
+ *                     for neighbour in neighbourhood[generations % alternating_period]:
+ *                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
  */
         }
-        __pyx_L41:;
 
         /* "CACompute.pyx":2260
- *                         neighbours.push_back(0)
+ *                             neighbours.push_back(0)
  * 
- *             if dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
- *                 neighbours.push_back(dict_grid[coordinates])
- *                 if transition_func_cache.find(
+ *                 if dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
+ *                     neighbours.push_back(dict_grid[coordinates])
+ *                     if transition_func_cache.find(
  */
-        goto __pyx_L37;
-      }
-
-      /* "CACompute.pyx":2280
- *                     cells_changed.insert(coordinates)
- *             else:
- *                 neighbours.push_back(0)             # <<<<<<<<<<<<<<
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- */
-      /*else*/ {
-        try {
-          __pyx_v_neighbours.push_back(0);
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2280, __pyx_L1_error)
-        }
-
-        /* "CACompute.pyx":2282
- *                 neighbours.push_back(0)
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
- *                         transition_func_cache.end():
- *                     if ans == -1:
- */
-        try {
-          __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 2282, __pyx_L1_error)
-        }
-
-        /* "CACompute.pyx":2283
- *                 if transition_func_cache.find(
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():             # <<<<<<<<<<<<<<
- *                     if ans == -1:
- *                         ans = transition_func(neighbours, generations % alternating_period)
- */
-        __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
-
-        /* "CACompute.pyx":2281
- *             else:
- *                 neighbours.push_back(0)
- *                 if transition_func_cache.find(             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- */
+        __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
         if (__pyx_t_5) {
 
-          /* "CACompute.pyx":2284
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- *                     if ans == -1:             # <<<<<<<<<<<<<<
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
+          /* "CACompute.pyx":2261
+ * 
+ *                 if dict_grid.find(coordinates) != dict_grid.end():
+ *                     neighbours.push_back(dict_grid[coordinates])             # <<<<<<<<<<<<<<
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
  */
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-
-            /* "CACompute.pyx":2285
- *                         transition_func_cache.end():
- *                     if ans == -1:
- *                         ans = transition_func(neighbours, generations % alternating_period)             # <<<<<<<<<<<<<<
- *                         transition_func_cache[
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
- */
-            __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-
-            /* "CACompute.pyx":2287
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[
- */
-            try {
-              __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2287, __pyx_L1_error)
-            }
-            (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
-
-            /* "CACompute.pyx":2284
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
- *                     if ans == -1:             # <<<<<<<<<<<<<<
- *                         ans = transition_func(neighbours, generations % alternating_period)
- *                         transition_func_cache[
- */
+          try {
+            __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates]));
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            __PYX_ERR(0, 2261, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":2281
- *             else:
- *                 neighbours.push_back(0)
- *                 if transition_func_cache.find(             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)) == \
- *                         transition_func_cache.end():
+          /* "CACompute.pyx":2263
+ *                     neighbours.push_back(dict_grid[coordinates])
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             transition_func_cache.end():
+ *                         if ans == -1:
  */
-          goto __pyx_L42;
-        }
+          try {
+            __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            __PYX_ERR(0, 2263, __pyx_L1_error)
+          }
 
-        /* "CACompute.pyx":2289
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
+          /* "CACompute.pyx":2264
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():             # <<<<<<<<<<<<<<
+ *                         if ans == -1:
+ *                             ans = transition_func(neighbours, generations % alternating_period)
  */
-        /*else*/ {
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+          __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+
+          /* "CACompute.pyx":2262
+ *                 if dict_grid.find(coordinates) != dict_grid.end():
+ *                     neighbours.push_back(dict_grid[coordinates])
+ *                     if transition_func_cache.find(             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ */
           if (__pyx_t_5) {
 
-            /* "CACompute.pyx":2290
- *                 else:
- *                     if ans == -1: ans = transition_func_cache[
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]             # <<<<<<<<<<<<<<
- * 
- *                 if ans != 0:
+            /* "CACompute.pyx":2265
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ *                         if ans == -1:             # <<<<<<<<<<<<<<
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
  */
-            try {
-              __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 2290, __pyx_L1_error)
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+
+              /* "CACompute.pyx":2266
+ *                             transition_func_cache.end():
+ *                         if ans == -1:
+ *                             ans = transition_func(neighbours, generations % alternating_period)             # <<<<<<<<<<<<<<
+ *                             transition_func_cache[
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ */
+              __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+
+              /* "CACompute.pyx":2268
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[
+ */
+              try {
+                __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2268, __pyx_L1_error)
+              }
+              (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
+
+              /* "CACompute.pyx":2265
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ *                         if ans == -1:             # <<<<<<<<<<<<<<
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
+ */
+            }
+
+            /* "CACompute.pyx":2262
+ *                 if dict_grid.find(coordinates) != dict_grid.end():
+ *                     neighbours.push_back(dict_grid[coordinates])
+ *                     if transition_func_cache.find(             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ */
+            goto __pyx_L40;
+          }
+
+          /* "CACompute.pyx":2270
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ */
+          /*else*/ {
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+
+              /* "CACompute.pyx":2271
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]             # <<<<<<<<<<<<<<
+ * 
+ *                     if ans == 0:
+ */
+              try {
+                __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2271, __pyx_L1_error)
+              }
+
+              /* "CACompute.pyx":2270
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ */
+              __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
+            }
+          }
+          __pyx_L40:;
+
+          /* "CACompute.pyx":2273
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ *                     if ans == 0:             # <<<<<<<<<<<<<<
+ *                         dict_grid.erase(coordinates)
+ *                         cells_changed.insert(coordinates)
+ */
+          __pyx_t_5 = ((__pyx_v_ans == 0) != 0);
+          if (__pyx_t_5) {
+
+            /* "CACompute.pyx":2274
+ * 
+ *                     if ans == 0:
+ *                         dict_grid.erase(coordinates)             # <<<<<<<<<<<<<<
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ */
+            (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
+
+            /* "CACompute.pyx":2275
+ *                     if ans == 0:
+ *                         dict_grid.erase(coordinates)
+ *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ */
+            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+
+            /* "CACompute.pyx":2276
+ *                         dict_grid.erase(coordinates)
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            __pyx_t_4 = &(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4->begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4->end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+
+              /* "CACompute.pyx":2277
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)
+ */
+              try {
+                __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2277, __pyx_L1_error)
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+
+              /* "CACompute.pyx":2279
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)             # <<<<<<<<<<<<<<
+ *                     elif ans != dict_grid[coordinates]:
+ *                         dict_grid[coordinates] = ans
+ */
+              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
+
+              /* "CACompute.pyx":2276
+ *                         dict_grid.erase(coordinates)
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            }
+
+            /* "CACompute.pyx":2273
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ *                     if ans == 0:             # <<<<<<<<<<<<<<
+ *                         dict_grid.erase(coordinates)
+ *                         cells_changed.insert(coordinates)
+ */
+            goto __pyx_L43;
+          }
+
+          /* "CACompute.pyx":2280
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)
+ *                     elif ans != dict_grid[coordinates]:             # <<<<<<<<<<<<<<
+ *                         dict_grid[coordinates] = ans
+ *                         cells_changed.insert(coordinates)
+ */
+          __pyx_t_5 = ((__pyx_v_ans != (__pyx_v_dict_grid[__pyx_v_coordinates])) != 0);
+          if (__pyx_t_5) {
+
+            /* "CACompute.pyx":2281
+ *                             cells_to_check.insert(coordinates2)
+ *                     elif ans != dict_grid[coordinates]:
+ *                         dict_grid[coordinates] = ans             # <<<<<<<<<<<<<<
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ */
+            (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
+
+            /* "CACompute.pyx":2282
+ *                     elif ans != dict_grid[coordinates]:
+ *                         dict_grid[coordinates] = ans
+ *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ */
+            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+
+            /* "CACompute.pyx":2283
+ *                         dict_grid[coordinates] = ans
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            __pyx_t_4 = &(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4->begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4->end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+
+              /* "CACompute.pyx":2284
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)
+ */
+              try {
+                __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2284, __pyx_L1_error)
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+
+              /* "CACompute.pyx":2286
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     neighbours.push_back(0)
+ */
+              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
+
+              /* "CACompute.pyx":2283
+ *                         dict_grid[coordinates] = ans
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            }
+
+            /* "CACompute.pyx":2280
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)
+ *                     elif ans != dict_grid[coordinates]:             # <<<<<<<<<<<<<<
+ *                         dict_grid[coordinates] = ans
+ *                         cells_changed.insert(coordinates)
+ */
+          }
+          __pyx_L43:;
+
+          /* "CACompute.pyx":2260
+ *                             neighbours.push_back(0)
+ * 
+ *                 if dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
+ *                     neighbours.push_back(dict_grid[coordinates])
+ *                     if transition_func_cache.find(
+ */
+          goto __pyx_L39;
+        }
+
+        /* "CACompute.pyx":2288
+ *                             cells_to_check.insert(coordinates2)
+ *                 else:
+ *                     neighbours.push_back(0)             # <<<<<<<<<<<<<<
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ */
+        /*else*/ {
+          try {
+            __pyx_v_neighbours.push_back(0);
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            __PYX_ERR(0, 2288, __pyx_L1_error)
+          }
+
+          /* "CACompute.pyx":2290
+ *                     neighbours.push_back(0)
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \             # <<<<<<<<<<<<<<
+ *                             transition_func_cache.end():
+ *                         if ans == -1:
+ */
+          try {
+            __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            __PYX_ERR(0, 2290, __pyx_L1_error)
+          }
+
+          /* "CACompute.pyx":2291
+ *                     if transition_func_cache.find(
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():             # <<<<<<<<<<<<<<
+ *                         if ans == -1:
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ */
+          __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+
+          /* "CACompute.pyx":2289
+ *                 else:
+ *                     neighbours.push_back(0)
+ *                     if transition_func_cache.find(             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ */
+          if (__pyx_t_5) {
+
+            /* "CACompute.pyx":2292
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ *                         if ans == -1:             # <<<<<<<<<<<<<<
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
+ */
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+
+              /* "CACompute.pyx":2293
+ *                             transition_func_cache.end():
+ *                         if ans == -1:
+ *                             ans = transition_func(neighbours, generations % alternating_period)             # <<<<<<<<<<<<<<
+ *                             transition_func_cache[
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ */
+              __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+
+              /* "CACompute.pyx":2295
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[
+ */
+              try {
+                __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2295, __pyx_L1_error)
+              }
+              (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
+
+              /* "CACompute.pyx":2292
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
+ *                         if ans == -1:             # <<<<<<<<<<<<<<
+ *                             ans = transition_func(neighbours, generations % alternating_period)
+ *                             transition_func_cache[
+ */
             }
 
             /* "CACompute.pyx":2289
- *                             pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
  *                 else:
- *                     if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
+ *                     neighbours.push_back(0)
+ *                     if transition_func_cache.find(             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+ *                             transition_func_cache.end():
  */
-            __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
+            goto __pyx_L48;
           }
-        }
-        __pyx_L42:;
 
-        /* "CACompute.pyx":2292
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
- * 
- *                 if ans != 0:             # <<<<<<<<<<<<<<
- *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
- *                     cells_changed.insert(coordinates)
- */
-        __pyx_t_5 = ((__pyx_v_ans != 0) != 0);
-        if (__pyx_t_5) {
-
-          /* "CACompute.pyx":2293
- * 
- *                 if ans != 0:
- *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))             # <<<<<<<<<<<<<<
- *                     cells_changed.insert(coordinates)
+          /* "CACompute.pyx":2297
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
  * 
  */
-          try {
-            __pyx_t_7 = std::pair<std::pair<int,int> ,int> (__pyx_v_coordinates, __pyx_v_ans);
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 2293, __pyx_L1_error)
+          /*else*/ {
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+
+              /* "CACompute.pyx":2298
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]             # <<<<<<<<<<<<<<
+ * 
+ *                     if ans != 0:
+ */
+              try {
+                __pyx_t_6 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2298, __pyx_L1_error)
+              }
+
+              /* "CACompute.pyx":2297
+ *                                 pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+ *                     else:
+ *                         if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ */
+              __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
+            }
           }
-          (void)(__pyx_v_dict_grid.insert(__pyx_t_7));
+          __pyx_L48:;
 
-          /* "CACompute.pyx":2294
- *                 if ans != 0:
- *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
- *                     cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
+          /* "CACompute.pyx":2300
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
+ * 
+ *                     if ans != 0:             # <<<<<<<<<<<<<<
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+ *                         cells_changed.insert(coordinates)
+ */
+          __pyx_t_5 = ((__pyx_v_ans != 0) != 0);
+          if (__pyx_t_5) {
+
+            /* "CACompute.pyx":2301
+ * 
+ *                     if ans != 0:
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))             # <<<<<<<<<<<<<<
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ */
+            try {
+              __pyx_t_7 = std::pair<std::pair<int,int> ,int> (__pyx_v_coordinates, __pyx_v_ans);
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              __PYX_ERR(0, 2301, __pyx_L1_error)
+            }
+            (void)(__pyx_v_dict_grid.insert(__pyx_t_7));
+
+            /* "CACompute.pyx":2302
+ *                     if ans != 0:
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+ *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ */
+            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+
+            /* "CACompute.pyx":2303
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            __pyx_t_4 = &(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4->begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4->end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+
+              /* "CACompute.pyx":2304
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)
+ */
+              try {
+                __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                __PYX_ERR(0, 2304, __pyx_L1_error)
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+
+              /* "CACompute.pyx":2306
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ *                             cells_to_check.insert(coordinates2)             # <<<<<<<<<<<<<<
  * 
  *     return cells_changed, dict_grid
  */
-          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
 
-          /* "CACompute.pyx":2292
- *                         pair[vector[int], int] (neighbours, generations % alternating_period)]
+              /* "CACompute.pyx":2303
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+ *                         cells_changed.insert(coordinates)
+ *                         for neighbour in neighbourhood[generations % alternating_period]:             # <<<<<<<<<<<<<<
+ *                             coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                                                            coordinates.second + neighbour.second)
+ */
+            }
+
+            /* "CACompute.pyx":2300
+ *                             pair[vector[int], int] (neighbours, generations % alternating_period)]
  * 
- *                 if ans != 0:             # <<<<<<<<<<<<<<
- *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
- *                     cells_changed.insert(coordinates)
+ *                     if ans != 0:             # <<<<<<<<<<<<<<
+ *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+ *                         cells_changed.insert(coordinates)
  */
+          }
         }
+        __pyx_L39:;
       }
-      __pyx_L37:;
-
-      /* "CACompute.pyx":2231
- *         cells_to_check_vector.assign(cells_to_check.begin(), cells_to_check.end())
- *         sort(cells_to_check_vector.begin(), cells_to_check_vector.end(), compare_pairs)
- *         for coordinates in cells_to_check_vector:             # <<<<<<<<<<<<<<
- *             neighbours.clear()
- *             ans = -1
- */
     }
   }
   __pyx_L9:;
 
-  /* "CACompute.pyx":2296
- *                     cells_changed.insert(coordinates)
+  /* "CACompute.pyx":2308
+ *                             cells_to_check.insert(coordinates2)
  * 
  *     return cells_changed, dict_grid             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_9 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2296, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_10 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 2296, __pyx_L1_error)
+  __pyx_t_10 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 2308, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 2296, __pyx_L1_error)
+  __pyx_t_11 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 2308, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __Pyx_GIVEREF(__pyx_t_9);
-  PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_9);
+  __pyx_t_12 = PyTuple_New(2); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 2308, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
   __Pyx_GIVEREF(__pyx_t_10);
-  PyTuple_SET_ITEM(__pyx_t_11, 1, __pyx_t_10);
-  __pyx_t_9 = 0;
+  PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_10);
+  __Pyx_GIVEREF(__pyx_t_11);
+  PyTuple_SET_ITEM(__pyx_t_12, 1, __pyx_t_11);
   __pyx_t_10 = 0;
-  __pyx_r = __pyx_t_11;
   __pyx_t_11 = 0;
+  __pyx_r = __pyx_t_12;
+  __pyx_t_12 = 0;
   goto __pyx_L0;
 
   /* "CACompute.pyx":2120
@@ -57927,9 +58063,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set<std::pair<int,int
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_12);
   __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;

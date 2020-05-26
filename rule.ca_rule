@@ -1,21 +1,19 @@
-Name: R2_VonNeumann_INT_Regenerating_Rule_1
+Name: NaiveLife
 
-Neighbourhood Range: 2
+Neighbourhood Range: 1
 
 Neighbourhood:
-0,0,1,0,0
-0,1,1,1,0
-1,1,0,1,1
-0,1,1,1,0
-0,0,1,0,0
+1,1,1
+1,0,1
+1,1,1
 
-State Weights: 0,1,0,0,0
+State Weights: 0,1,0
 
-Rulespace: Regenerating Generations
+Rulespace: Extended Generations
 
-B/S Conditions: Range 2 Von Neumann Isotropic Non-Totalistic
+B/S Conditions: Outer Totalistic
 
-Rulestring: 5/1/0xr3x4id6x7x12x/0xn2accc2x4x7x/4kg5id5x8x12x/3kd5x6x12x
+Rulestring: b2s6,8d1-1nn0o0
 
 Colour Palette:
 None

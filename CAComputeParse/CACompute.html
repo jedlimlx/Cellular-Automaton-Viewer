@@ -39405,8 +39405,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set&lt;std::pair&lt;i
   std::vector&lt;int&gt;  __pyx_v_neighbours;
   std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_to_check;
   CYTHON_UNUSED std::unordered_map&lt;std::pair&lt;int,int&gt; ,std::vector&lt;int&gt; &gt;  __pyx_v_copy_neighbour_cache;
+  int __pyx_v_i;
+  int __pyx_v_j;
   int __pyx_v_ans;
-  std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_to_check_vector;
   std::pair&lt;int,int&gt;  __pyx_v_coordinates;
   std::pair&lt;int,int&gt;  __pyx_v_coordinates2;
   std::pair&lt;int,int&gt;  __pyx_v_neighbour;
@@ -39418,9 +39419,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::unordered_set&lt;std::pair&lt;i
 /* … */
   /* function exit code */
   __pyx_L1_error:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_9);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_10);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_11);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_12);
   <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -39920,340 +39921,401 @@ static PyObject *__pyx_pf_9CACompute_10compute(CYTHON_UNUSED PyObject *__pyx_sel
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2227</span>:                     <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 </pre><pre class="cython line score-0">&#xA0;<span class="">2228</span>:     <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2229</span>:         <span class="n">cells_to_check_vector</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cells_to_check</span><span class="o">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">cells_to_check</span><span class="o">.</span><span class="n">end</span><span class="p">())</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2229</span>:         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mf">100</span><span class="p">):</span></pre>
 <pre class='cython code score-0 '>  /*else*/ {
-    try {
-      __pyx_v_cells_to_check_vector.assign(__pyx_v_cells_to_check.begin(), __pyx_v_cells_to_check.end());
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      <span class='error_goto'>__PYX_ERR(0, 2229, __pyx_L1_error)</span>
-    }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2230</span>:         <span class="n">sort</span><span class="p">(</span><span class="n">cells_to_check_vector</span><span class="o">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">cells_to_check_vector</span><span class="o">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">compare_pairs</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>    std::sort&lt;std::vector&lt;std::pair&lt;int,int&gt; &gt; ::iterator,bool (std::pair&lt;int,int&gt; , std::pair&lt;int,int&gt; )&gt;(__pyx_v_cells_to_check_vector.begin(), __pyx_v_cells_to_check_vector.end(), __pyx_f_9CACompute_compare_pairs);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2231</span>:         <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">cells_to_check_vector</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>    __pyx_t_3 = __pyx_v_cells_to_check_vector.begin();
-    for (;;) {
-      if (!(__pyx_t_3 != __pyx_v_cells_to_check_vector.end())) break;
-      __pyx_t_2 = *__pyx_t_3;
-      ++__pyx_t_3;
-      __pyx_v_coordinates = __pyx_t_2;
-/* … */
-    }
-  }
-  __pyx_L9:;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2232</span>:             <span class="n">neighbours</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></pre>
-<pre class='cython code score-0 '>      __pyx_v_neighbours.clear();
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2233</span>:             <span class="n">ans</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1</span></pre>
-<pre class='cython code score-0 '>      __pyx_v_ans = -1;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2234</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2235</span>:             <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">==</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class='cython code score-0 '>      __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) == __pyx_v_dict_grid.end()) != 0);
-      if (__pyx_t_5) {
-/* … */
-        goto __pyx_L30;
-      }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2236</span>:                 <span class="k">if</span> <span class="n">depends_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
+    for (__pyx_t_8 = 0; __pyx_t_8 &lt; 0x64; __pyx_t_8+=1) {
+      __pyx_v_i = __pyx_t_8;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2230</span>:             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mf">100</span><span class="p">):</span></pre>
+<pre class='cython code score-0 '>      for (__pyx_t_9 = 0; __pyx_t_9 &lt; 0x64; __pyx_t_9+=1) {
+        __pyx_v_j = __pyx_t_9;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2231</span>:                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>        try {
-          __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          __pyx_t_2 = std::pair&lt;int,int&gt; (__pyx_v_i, __pyx_v_j);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2236, __pyx_L1_error)</span>
+          <span class='error_goto'>__PYX_ERR(0, 2231, __pyx_L1_error)</span>
         }
-/* … */
-        __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
-/* … */
-        if (__pyx_t_5) {
-/* … */
-          goto __pyx_L31;
-        }
-</pre><pre class="cython line score-0">&#xA0;<span class="">2237</span>:                         <span class="n">depends_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2238</span>:                     <span class="n">ans</span> <span class="o">=</span> <span class="n">depend_on_neighbours</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours(0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2239</span>:                     <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
-<pre class='cython code score-0 '>          try {
-            __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2239, __pyx_L1_error)</span>
-          }
-          (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2240</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2241</span>:                     <span class="n">ans</span> <span class="o">=</span> <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
-<pre class='cython code score-0 '>        /*else*/ {
-          try {
-            __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2241, __pyx_L1_error)</span>
-          }
-          __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
-        }
-        __pyx_L31:;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2242</span>:             <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2243</span>:                 <span class="k">if</span> <span class="n">depends_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span></pre>
-<pre class='cython code score-0 '>      /*else*/ {
-/* … */
-        try {
-          __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2243, __pyx_L1_error)</span>
-        }
-/* … */
+        __pyx_v_coordinates = __pyx_t_2;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2232</span>:                 <span class="n">neighbours</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></pre>
+<pre class='cython code score-0 '>        __pyx_v_neighbours.clear();
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2233</span>:                 <span class="n">ans</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1</span></pre>
+<pre class='cython code score-0 '>        __pyx_v_ans = -1;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2234</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2235</span>:                 <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">==</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) == __pyx_v_dict_grid.end()) != 0);
         if (__pyx_t_5) {
 /* … */
           goto __pyx_L32;
         }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2244</span>:                                                       <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
-<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
-</pre><pre class="cython line score-0">&#xA0;<span class="">2245</span>:                         <span class="n">depends_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2246</span>:                     <span class="n">ans</span> <span class="o">=</span> <span class="n">depend_on_neighbours</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2247</span>:                     <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2236</span>:                     <span class="k">if</span> <span class="n">depends_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
 <pre class='cython code score-0 '>          try {
-            __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+            __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2247, __pyx_L1_error)</span>
+            <span class='error_goto'>__PYX_ERR(0, 2236, __pyx_L1_error)</span>
           }
-          (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2248</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2249</span>:                     <span class="n">ans</span> <span class="o">=</span> <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
+/* … */
+          __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
+/* … */
+          if (__pyx_t_5) {
+/* … */
+            goto __pyx_L33;
+          }
+</pre><pre class="cython line score-0">&#xA0;<span class="">2237</span>:                             <span class="n">depends_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2238</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">depend_on_neighbours</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours(0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2239</span>:                         <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
+<pre class='cython code score-0 '>            try {
+              __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              <span class='error_goto'>__PYX_ERR(0, 2239, __pyx_L1_error)</span>
+            }
+            (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2240</span>:                     <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2241</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
+<pre class='cython code score-0 '>          /*else*/ {
+            try {
+              __pyx_t_2 = std::pair&lt;int,int&gt; (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              <span class='error_goto'>__PYX_ERR(0, 2241, __pyx_L1_error)</span>
+            }
+            __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
+          }
+          __pyx_L33:;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2242</span>:                 <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2243</span>:                     <span class="k">if</span> <span class="n">depends_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span></pre>
 <pre class='cython code score-0 '>        /*else*/ {
+/* … */
           try {
             __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2249, __pyx_L1_error)</span>
+            <span class='error_goto'>__PYX_ERR(0, 2243, __pyx_L1_error)</span>
           }
-          __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
-        }
-        __pyx_L32:;
-      }
-      __pyx_L30:;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2250</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2251</span>:             <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>      __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-      if (__pyx_t_5) {
 /* … */
-      }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2252</span>:                 <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="n">neighbourhood</span><span class="p">[</span><span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">]:</span></pre>
-<pre class='cython code score-0 '>        __pyx_t_4 = &amp;(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
-        __pyx_t_8 = __pyx_t_4-&gt;begin();
-        for (;;) {
-          if (!(__pyx_t_8 != __pyx_t_4-&gt;end())) break;
-          __pyx_t_2 = *__pyx_t_8;
-          ++__pyx_t_8;
-          __pyx_v_neighbour = __pyx_t_2;
-/* … */
-        }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2253</span>:                     <span class="n">coordinates2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
-<pre class='cython code score-0 '>          try {
-            __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
-          } catch(...) {
-            __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2253, __pyx_L1_error)</span>
-          }
-          __pyx_v_coordinates2 = __pyx_t_2;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2254</span>:                                                    <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">second</span><span class="p">)</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2255</span>:                     <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates2</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates2) != __pyx_v_dict_grid.end()) != 0);
           if (__pyx_t_5) {
 /* … */
-            goto __pyx_L36;
+            goto __pyx_L34;
           }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2256</span>:                         <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates2</span><span class="p">])</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2244</span>:                                                           <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
+<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
+</pre><pre class="cython line score-0">&#xA0;<span class="">2245</span>:                             <span class="n">depends_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2246</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">depend_on_neighbours</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            __pyx_v_ans = __pyx_f_9CACompute_depend_on_neighbours((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2247</span>:                         <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
 <pre class='cython code score-0 '>            try {
-              __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates2]));
+              __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2256, __pyx_L1_error)</span>
+              <span class='error_goto'>__PYX_ERR(0, 2247, __pyx_L1_error)</span>
             }
-</pre><pre class="cython line score-0">&#xA0;<span class="">2257</span>:                     <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2258</span>:                         <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span></pre>
+            (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2248</span>:                     <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2249</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">depends_cache</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
 <pre class='cython code score-0 '>          /*else*/ {
             try {
-              __pyx_v_neighbours.push_back(0);
+              __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_dict_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2258, __pyx_L1_error)</span>
+              <span class='error_goto'>__PYX_ERR(0, 2249, __pyx_L1_error)</span>
             }
+            __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
           }
-          __pyx_L36:;
+          __pyx_L34:;
+        }
+        __pyx_L32:;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2250</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2251</span>:                 <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+        if (__pyx_t_5) {
+/* … */
+        }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2252</span>:                     <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="n">neighbourhood</span><span class="p">[</span><span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">]:</span></pre>
+<pre class='cython code score-0 '>          __pyx_t_4 = &amp;(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+          __pyx_t_3 = __pyx_t_4-&gt;begin();
+          for (;;) {
+            if (!(__pyx_t_3 != __pyx_t_4-&gt;end())) break;
+            __pyx_t_2 = *__pyx_t_3;
+            ++__pyx_t_3;
+            __pyx_v_neighbour = __pyx_t_2;
+/* … */
+          }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2253</span>:                         <span class="n">coordinates2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
+<pre class='cython code score-0 '>            try {
+              __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              <span class='error_goto'>__PYX_ERR(0, 2253, __pyx_L1_error)</span>
+            }
+            __pyx_v_coordinates2 = __pyx_t_2;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2254</span>:                                                        <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">second</span><span class="p">)</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2255</span>:                         <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates2</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates2) != __pyx_v_dict_grid.end()) != 0);
+            if (__pyx_t_5) {
+/* … */
+              goto __pyx_L38;
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2256</span>:                             <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates2</span><span class="p">])</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates2]));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2256, __pyx_L1_error)</span>
+              }
+</pre><pre class="cython line score-0">&#xA0;<span class="">2257</span>:                         <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2258</span>:                             <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            /*else*/ {
+              try {
+                __pyx_v_neighbours.push_back(0);
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2258, __pyx_L1_error)</span>
+              }
+            }
+            __pyx_L38:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">2259</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2260</span>:             <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class='cython code score-0 '>      __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
-      if (__pyx_t_5) {
-/* … */
-        goto __pyx_L37;
-      }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2261</span>:                 <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">])</span></pre>
-<pre class='cython code score-0 '>        try {
-          __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates]));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2261, __pyx_L1_error)</span>
-        }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2262</span>:                 <span class="k">if</span> <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span></pre>
-<pre class='cython code score-0 '>        if (__pyx_t_5) {
-/* … */
-          goto __pyx_L38;
-        }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2263</span>:                         <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
-<pre class='cython code score-0 '>        try {
-          __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2263, __pyx_L1_error)</span>
-        }
-/* … */
-        __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
-</pre><pre class="cython line score-0">&#xA0;<span class="">2264</span>:                         <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2265</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-/* … */
-          }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2266</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func</span><span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>            __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-</pre><pre class="cython line score-0">&#xA0;<span class="">2267</span>:                         <span class="n">transition_func_cache</span><span class="p">[</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2268</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
-<pre class='cython code score-0 '>            try {
-              __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2268, __pyx_L1_error)</span>
-            }
-            (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2269</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2270</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func_cache</span><span class="p">[</span></pre>
-<pre class='cython code score-0 '>        /*else*/ {
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-/* … */
-            __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
-          }
-        }
-        __pyx_L38:;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2271</span>:                         <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
-<pre class='cython code score-0 '>            try {
-              __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2271, __pyx_L1_error)</span>
-            }
-</pre><pre class="cython line score-0">&#xA0;<span class="">2272</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2273</span>:                 <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="mf">0</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_ans == 0) != 0);
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2260</span>:                 <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
         if (__pyx_t_5) {
 /* … */
-          goto __pyx_L41;
+          goto __pyx_L39;
         }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2274</span>:                     <span class="n">dict_grid</span><span class="o">.</span><span class="n">erase</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2275</span>:                     <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2276</span>:                 <span class="k">elif</span> <span class="n">ans</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]:</span></pre>
-<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_ans != (__pyx_v_dict_grid[__pyx_v_coordinates])) != 0);
-        if (__pyx_t_5) {
-/* … */
-        }
-        __pyx_L41:;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2277</span>:                     <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">ans</span></pre>
-<pre class='cython code score-0 '>          (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2278</span>:                     <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
-</pre><pre class="cython line score-0">&#xA0;<span class="">2279</span>:             <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2280</span>:                 <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>      /*else*/ {
-        try {
-          __pyx_v_neighbours.push_back(0);
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2280, __pyx_L1_error)</span>
-        }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2281</span>:                 <span class="k">if</span> <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span></pre>
-<pre class='cython code score-0 '>        if (__pyx_t_5) {
-/* … */
-          goto __pyx_L42;
-        }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2282</span>:                         <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
-<pre class='cython code score-0 '>        try {
-          __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          <span class='error_goto'>__PYX_ERR(0, 2282, __pyx_L1_error)</span>
-        }
-/* … */
-        __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
-</pre><pre class="cython line score-0">&#xA0;<span class="">2283</span>:                         <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2284</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-/* … */
-          }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2285</span>:                         <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func</span><span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>            __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-</pre><pre class="cython line score-0">&#xA0;<span class="">2286</span>:                         <span class="n">transition_func_cache</span><span class="p">[</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2287</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
-<pre class='cython code score-0 '>            try {
-              __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2287, __pyx_L1_error)</span>
-            }
-            (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
-</pre><pre class="cython line score-0">&#xA0;<span class="">2288</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2289</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func_cache</span><span class="p">[</span></pre>
-<pre class='cython code score-0 '>        /*else*/ {
-          __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
-          if (__pyx_t_5) {
-/* … */
-            __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
-          }
-        }
-        __pyx_L42:;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2290</span>:                         <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
-<pre class='cython code score-0 '>            try {
-              __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
-            } catch(...) {
-              __Pyx_CppExn2PyErr();
-              <span class='error_goto'>__PYX_ERR(0, 2290, __pyx_L1_error)</span>
-            }
-</pre><pre class="cython line score-0">&#xA0;<span class="">2291</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2292</span>:                 <span class="k">if</span> <span class="n">ans</span> <span class="o">!=</span> <span class="mf">0</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>        __pyx_t_5 = ((__pyx_v_ans != 0) != 0);
-        if (__pyx_t_5) {
-/* … */
-        }
-      }
-      __pyx_L37:;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2293</span>:                     <span class="n">dict_grid</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">ans</span><span class="p">))</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2261</span>:                     <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">])</span></pre>
 <pre class='cython code score-0 '>          try {
-            __pyx_t_7 = std::pair&lt;std::pair&lt;int,int&gt; ,int&gt; (__pyx_v_coordinates, __pyx_v_ans);
+            __pyx_v_neighbours.push_back((__pyx_v_dict_grid[__pyx_v_coordinates]));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            <span class='error_goto'>__PYX_ERR(0, 2293, __pyx_L1_error)</span>
+            <span class='error_goto'>__PYX_ERR(0, 2261, __pyx_L1_error)</span>
           }
-          (void)(__pyx_v_dict_grid.insert(__pyx_t_7));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2294</span>:                     <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
-<pre class='cython code score-0 '>          (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
-</pre><pre class="cython line score-0">&#xA0;<span class="">2295</span>: </pre>
-<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2296</span>:     <span class="k">return</span> <span class="n">cells_changed</span><span class="p">,</span> <span class="n">dict_grid</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2262</span>:                     <span class="k">if</span> <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span></pre>
+<pre class='cython code score-0 '>          if (__pyx_t_5) {
+/* … */
+            goto __pyx_L40;
+          }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2263</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
+<pre class='cython code score-0 '>          try {
+            __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            <span class='error_goto'>__PYX_ERR(0, 2263, __pyx_L1_error)</span>
+          }
+/* … */
+          __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+</pre><pre class="cython line score-0">&#xA0;<span class="">2264</span>:                             <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2265</span>:                         <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+/* … */
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2266</span>:                             <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func</span><span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>              __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+</pre><pre class="cython line score-0">&#xA0;<span class="">2267</span>:                             <span class="n">transition_func_cache</span><span class="p">[</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2268</span>:                                 <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2268, __pyx_L1_error)</span>
+              }
+              (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2269</span>:                     <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2270</span>:                         <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func_cache</span><span class="p">[</span></pre>
+<pre class='cython code score-0 '>          /*else*/ {
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+/* … */
+              __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
+            }
+          }
+          __pyx_L40:;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2271</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2271, __pyx_L1_error)</span>
+              }
+</pre><pre class="cython line score-0">&#xA0;<span class="">2272</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2273</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="mf">0</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_ans == 0) != 0);
+          if (__pyx_t_5) {
+/* … */
+            goto __pyx_L43;
+          }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2274</span>:                         <span class="n">dict_grid</span><span class="o">.</span><span class="n">erase</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2275</span>:                         <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2276</span>:                         <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="n">neighbourhood</span><span class="p">[</span><span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">]:</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_4 = &amp;(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4-&gt;begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4-&gt;end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+/* … */
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2277</span>:                             <span class="n">coordinates2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2277, __pyx_L1_error)</span>
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2278</span>:                                                            <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">second</span><span class="p">)</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2279</span>:                             <span class="n">cells_to_check</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates2</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2280</span>:                     <span class="k">elif</span> <span class="n">ans</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]:</span></pre>
+<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_ans != (__pyx_v_dict_grid[__pyx_v_coordinates])) != 0);
+          if (__pyx_t_5) {
+/* … */
+          }
+          __pyx_L43:;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2281</span>:                         <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">ans</span></pre>
+<pre class='cython code score-0 '>            (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2282</span>:                         <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2283</span>:                         <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="n">neighbourhood</span><span class="p">[</span><span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">]:</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_4 = &amp;(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4-&gt;begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4-&gt;end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+/* … */
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2284</span>:                             <span class="n">coordinates2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2284, __pyx_L1_error)</span>
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2285</span>:                                                            <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">second</span><span class="p">)</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2286</span>:                             <span class="n">cells_to_check</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates2</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
+</pre><pre class="cython line score-0">&#xA0;<span class="">2287</span>:                 <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2288</span>:                     <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>        /*else*/ {
+          try {
+            __pyx_v_neighbours.push_back(0);
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            <span class='error_goto'>__PYX_ERR(0, 2288, __pyx_L1_error)</span>
+          }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2289</span>:                     <span class="k">if</span> <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">find</span><span class="p">(</span></pre>
+<pre class='cython code score-0 '>          if (__pyx_t_5) {
+/* … */
+            goto __pyx_L48;
+          }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2290</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">))</span> <span class="o">==</span> \</pre>
+<pre class='cython code score-0 '>          try {
+            __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+          } catch(...) {
+            __Pyx_CppExn2PyErr();
+            <span class='error_goto'>__PYX_ERR(0, 2290, __pyx_L1_error)</span>
+          }
+/* … */
+          __pyx_t_5 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_6) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+</pre><pre class="cython line score-0">&#xA0;<span class="">2291</span>:                             <span class="n">transition_func_cache</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2292</span>:                         <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+/* … */
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2293</span>:                             <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func</span><span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>              __pyx_v_ans = __pyx_f_9CACompute_transition_func(__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+</pre><pre class="cython line score-0">&#xA0;<span class="">2294</span>:                             <span class="n">transition_func_cache</span><span class="p">[</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2295</span>:                                 <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ans</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2295, __pyx_L1_error)</span>
+              }
+              (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]) = __pyx_v_ans;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2296</span>:                     <span class="k">else</span><span class="p">:</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2297</span>:                         <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">transition_func_cache</span><span class="p">[</span></pre>
+<pre class='cython code score-0 '>          /*else*/ {
+            __pyx_t_5 = ((__pyx_v_ans == -1L) != 0);
+            if (__pyx_t_5) {
+/* … */
+              __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_6]);
+            }
+          }
+          __pyx_L48:;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2298</span>:                             <span class="n">pair</span><span class="p">[</span><span class="n">vector</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">)]</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_6 = std::pair&lt;std::vector&lt;int&gt; ,int&gt; (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2298, __pyx_L1_error)</span>
+              }
+</pre><pre class="cython line score-0">&#xA0;<span class="">2299</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2300</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">!=</span> <span class="mf">0</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>          __pyx_t_5 = ((__pyx_v_ans != 0) != 0);
+          if (__pyx_t_5) {
+/* … */
+          }
+        }
+        __pyx_L39:;
+      }
+    }
+  }
+  __pyx_L9:;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2301</span>:                         <span class="n">dict_grid</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">ans</span><span class="p">))</span></pre>
+<pre class='cython code score-0 '>            try {
+              __pyx_t_7 = std::pair&lt;std::pair&lt;int,int&gt; ,int&gt; (__pyx_v_coordinates, __pyx_v_ans);
+            } catch(...) {
+              __Pyx_CppExn2PyErr();
+              <span class='error_goto'>__PYX_ERR(0, 2301, __pyx_L1_error)</span>
+            }
+            (void)(__pyx_v_dict_grid.insert(__pyx_t_7));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2302</span>:                         <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>            (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2303</span>:                         <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="n">neighbourhood</span><span class="p">[</span><span class="n">generations</span> <span class="o">%</span> <span class="n">alternating_period</span><span class="p">]:</span></pre>
+<pre class='cython code score-0 '>            __pyx_t_4 = &amp;(__pyx_v_9CACompute_neighbourhood[(__pyx_v_generations % __pyx_v_9CACompute_alternating_period)]);
+            __pyx_t_3 = __pyx_t_4-&gt;begin();
+            for (;;) {
+              if (!(__pyx_t_3 != __pyx_t_4-&gt;end())) break;
+              __pyx_t_2 = *__pyx_t_3;
+              ++__pyx_t_3;
+              __pyx_v_neighbour = __pyx_t_2;
+/* … */
+            }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2304</span>:                             <span class="n">coordinates2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
+<pre class='cython code score-0 '>              try {
+                __pyx_t_2 = std::pair&lt;int,int&gt; ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
+              } catch(...) {
+                __Pyx_CppExn2PyErr();
+                <span class='error_goto'>__PYX_ERR(0, 2304, __pyx_L1_error)</span>
+              }
+              __pyx_v_coordinates2 = __pyx_t_2;
+</pre><pre class="cython line score-0">&#xA0;<span class="">2305</span>:                                                            <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span> <span class="o">+</span> <span class="n">neighbour</span><span class="o">.</span><span class="n">second</span><span class="p">)</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2306</span>:                             <span class="n">cells_to_check</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates2</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>              (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates2));
+</pre><pre class="cython line score-0">&#xA0;<span class="">2307</span>: </pre>
+<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">2308</span>:     <span class="k">return</span> <span class="n">cells_changed</span><span class="p">,</span> <span class="n">dict_grid</span></pre>
 <pre class='cython code score-8 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_9 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed);<span class='error_goto'> if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 2296, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_9);
-  __pyx_t_10 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid);<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 2296, __pyx_L1_error)</span>
+  __pyx_t_10 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed);<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 2308, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_10);
-  __pyx_t_11 = <span class='py_c_api'>PyTuple_New</span>(2);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 2296, __pyx_L1_error)</span>
+  __pyx_t_11 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 2308, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_11);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_9);
-  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_11, 0, __pyx_t_9);
+  __pyx_t_12 = <span class='py_c_api'>PyTuple_New</span>(2);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 2308, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_10);
-  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_11, 1, __pyx_t_10);
-  __pyx_t_9 = 0;
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_12, 0, __pyx_t_10);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_11);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_12, 1, __pyx_t_11);
   __pyx_t_10 = 0;
-  __pyx_r = __pyx_t_11;
   __pyx_t_11 = 0;
+  __pyx_r = __pyx_t_12;
+  __pyx_t_12 = 0;
   goto __pyx_L0;
 </pre></div></body></html>
