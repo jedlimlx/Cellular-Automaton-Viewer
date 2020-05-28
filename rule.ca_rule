@@ -1,19 +1,21 @@
-Name: NaiveLife
+Name: R2_Cross_INT_Rule_1
 
-Neighbourhood Range: 1
+Neighbourhood Range: 2
 
 Neighbourhood:
-1,1,1
-1,0,1
-1,1,1
+1,0,0,0,1
+0,0,1,0,0
+0,1,0,1,0
+0,0,1,0,0
+1,0,0,0,1
 
-State Weights: 0,1,0
+State Weights: 0,1
 
-Rulespace: Extended Generations
+Rulespace: Single State
 
-B/S Conditions: Outer Totalistic
+B/S Conditions: Range 2 Far Corners Isotropic Non-Totalistic
 
-Rulestring: b2s6,8d1-1nn0o0
+Rulestring: 234cij8/2n3cij45ey78
 
 Colour Palette:
 None

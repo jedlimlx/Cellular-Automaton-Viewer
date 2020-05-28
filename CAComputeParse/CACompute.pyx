@@ -13,6 +13,8 @@ from libcpp.unordered_set cimport unordered_set
 from CAComputeParse.R1_INT_Moore import get_trans_moore
 from CAComputeParse.R2_INT_Cross import get_trans_cross
 from CAComputeParse.R2_INT_Von_Neumann import get_trans_von_neumann
+from CAComputeParse.R2_INT_FarCorners import get_trans_far
+from CAComputeParse.Naive_Generate import naive_gen
 
 cdef unordered_map[pair[int, int], vector[int]] neighbours_cache
 cdef unordered_map[pair[int, int], int] depends_cache
@@ -235,6 +237,9 @@ cpdef load(filename):
         neighbourhood = [[(1, -1), (1, 0), (1, 1), (0, 1),
                           (-1, 1), (-1, 0), (-1, -1), (0, -1),
                           (2, 0), (0, 2), (-2, 0), (0, -2)] for x in range(alternating_period)]
+    elif bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
+        neighbourhood = [[(2, -2), (1, 0), (2, 2), (0, 1),
+                          (-2, 2), (-1, 0), (-2, -2), (0, -1)] for x in range(alternating_period)]
 
     for individual_rule_string in rule_string:
         individual_rule_string = individual_rule_string.lower()
@@ -381,10 +386,6 @@ cpdef load(filename):
                             current_trans = []
                     survival_semi_1.push_back(temp_semi_1)
 
-                    file = open("log.log", "a")
-                    file.write(str(birth_semi_1) + " " + str(survival_semi_1) + "\n")
-                    file.close()
-
                     try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
@@ -443,6 +444,19 @@ cpdef load(filename):
                 else:
                     birth_trans.append(get_trans_von_neumann(re.split(b"b|s|nn", individual_rule_string)[0]))
                     survival_trans.append(get_trans_von_neumann(re.split(b"b|s|nn", individual_rule_string)[1]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_far(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_far(individual_rule_string.split(b"/")[0]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[0]))
+                    survival_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[1]))
 
                     try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
                     except IndexError: naive_lst.push_back(b"-1")
@@ -900,6 +914,30 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_far(individual_rule_string.split(b"/")[0]))
+                    survival_trans.append(get_trans_far(individual_rule_string.split(b"/")[1]))
+                    forcing_trans.append(get_trans_far(individual_rule_string.split(b"/")[2]))
+                    killing_trans.append(get_trans_far(individual_rule_string.split(b"/")[3]))
+                    living_trans.append(get_trans_far(individual_rule_string.split(b"/")[4]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[5])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_far(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_far(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[2]))
+                    forcing_trans.append(get_trans_far(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[3]))
+                    killing_trans.append(get_trans_far(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[4]))
+                    living_trans.append(get_trans_far(
+                        re.split(b"b|s|f|k|l|nn", individual_rule_string)[5]))
+
+                    try: naive_lst.push_back(re.split(b"b|s|f|k|l|nn", individual_rule_string)[6])
+                    except IndexError: naive_lst.push_back(b"-1")
         elif rule_space == b"Extended Generations":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
@@ -925,7 +963,7 @@ cpdef load(filename):
                     for x in individual_rule_string.split(b"/")[2].split(b"-"):
                         extended.push_back(int(x))
 
-                    try: naive_lst.push_back(int(individual_rule_string.split(b"/")[3]))
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
                     set_temp.clear()
@@ -1097,10 +1135,10 @@ cpdef load(filename):
                     survival_trans.append(get_trans_moore(re.split(b"b|s|d|nn", individual_rule_string)[2]))
 
                     extended.clear()
-                    for x in re.split(b"b|s|d|nn", individual_rule_string)[4].split(b"-"):
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
                         extended.push_back(int(x))
 
-                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[3])
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
                     except IndexError: naive_lst.push_back(b"-1")
             elif bsconditions == b"Range 2 Cross Isotropic Non-Totalistic":
                 if individual_rule_string.find(b"/") != -1:
@@ -1137,6 +1175,27 @@ cpdef load(filename):
                 else:
                     birth_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[1]))
                     survival_trans.append(get_trans_von_neumann(re.split(b"b|s|d|nn", individual_rule_string)[2]))
+
+                    extended.clear()
+                    for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(re.split(b"b|s|d|nn", individual_rule_string)[4])
+                    except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_trans.append(get_trans_far(individual_rule_string.split(b"/")[1]))
+                    survival_trans.append(get_trans_far(individual_rule_string.split(b"/")[0]))
+
+                    extended.clear()
+                    for x in individual_rule_string.split(b"/")[2].split(b"-"):
+                        extended.push_back(int(x))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[3])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_trans.append(get_trans_far(re.split(b"b|s|d|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_far(re.split(b"b|s|d|nn", individual_rule_string)[2]))
 
                     extended.clear()
                     for x in re.split(b"b|s|d|nn", individual_rule_string)[3].split(b"-"):
@@ -1545,6 +1604,29 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
                     except IndexError: naive_lst.push_back(b"-1")
+            elif bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
+                if individual_rule_string.find(b"/") != -1:
+                    birth_state = int(individual_rule_string.split(b"/")[1])
+                    birth_trans.append(get_trans_far(individual_rule_string.split(b"/")[2]))
+                    survival_trans.append(get_trans_far(individual_rule_string.split(b"/")[3]))
+                    regen_birth_trans.append(get_trans_far(individual_rule_string.split(b"/")[4]))
+                    regen_survival_trans.append(get_trans_far(individual_rule_string.split(b"/")[5]))
+
+                    try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                    except IndexError: naive_lst.push_back(b"-1")
+                else:
+                    birth_state = int(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[2])
+                    birth_trans.append(
+                        get_trans_far(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[3]))
+                    survival_trans.append(
+                        get_trans_far(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[4]))
+                    regen_birth_trans.append(
+                        get_trans_far(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[5]))
+                    regen_survival_trans.append(
+                        get_trans_far(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[6]))
+
+                    try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
+                    except IndexError: naive_lst.push_back(b"-1")
 
     for x in naive_lst:
         if x != b"-1":
@@ -1701,7 +1783,8 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 0
         elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
             new_neighbours_living = []
             new_neighbours_destructive = []
             for i in range(neighbours.size() - 1):
@@ -1803,7 +1886,8 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 2
         elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
             new_neighbours = []
             for i in range(neighbours.size() - 1):
                 if activity_list[generations % alternating_period].find(neighbours[i]) != \
@@ -1891,7 +1975,8 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return 0
         elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
             new_neighbours = []
             for i in range(neighbours.size() - 1):
                 new_neighbours.append(neighbours[i])
@@ -2002,7 +2087,8 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 return (neighbours[neighbours.size() - 1] + 1) % n_states
         elif bsconditions == b"Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == b"Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == b"Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == b"Range 2 Far Corners Isotropic Non-Totalistic":
             new_neighbours = []
             for i in range(neighbours.size() - 1):
                 if state_weights[generations % alternating_period][neighbours[i]] >= 1:
@@ -2226,83 +2312,81 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[in
                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
                     cells_changed.insert(coordinates)
     else:
-        for i in range(100):
-            for j in range(100):
-                coordinates = pair[int, int] (i, j)
-                neighbours.clear()
-                ans = -1
+        for coordinates in naive_gen(150, 150, corner, direction, xy):
+            neighbours.clear()
+            ans = -1
 
-                if dict_grid.find(coordinates) == dict_grid.end():
-                    if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
-                            depends_cache.end():
-                        ans = depend_on_neighbours(0, generations % alternating_period)
-                        depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
-                    else:
-                        ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
+            if dict_grid.find(coordinates) == dict_grid.end():
+                if depends_cache.find(pair[int, int] (0, generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(0, generations % alternating_period)
+                    depends_cache[pair[int, int] (0, generations % alternating_period)] = ans
                 else:
-                    if depends_cache.find(pair[int, int] (dict_grid[coordinates],
-                                                          generations % alternating_period)) == \
-                            depends_cache.end():
-                        ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
-                        depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
-                    else:
-                        ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
+                    ans = depends_cache[pair[int, int] (0, generations % alternating_period)]
+            else:
+                if depends_cache.find(pair[int, int] (dict_grid[coordinates],
+                                                      generations % alternating_period)) == \
+                        depends_cache.end():
+                    ans = depend_on_neighbours(dict_grid[coordinates], generations % alternating_period)
+                    depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)] = ans
+                else:
+                    ans = depends_cache[pair[int, int] (dict_grid[coordinates], generations % alternating_period)]
 
-                if ans == -1:
+            if ans == -1:
+                for neighbour in neighbourhood[generations % alternating_period]:
+                    coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                   coordinates.second + neighbour.second)
+                    if dict_grid.find(coordinates2) != dict_grid.end():
+                        neighbours.push_back(dict_grid[coordinates2])
+                    else:
+                        neighbours.push_back(0)
+
+            if dict_grid.find(coordinates) != dict_grid.end():
+                neighbours.push_back(dict_grid[coordinates])
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
+                else:
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
+
+                if ans == 0:
+                    dict_grid.erase(coordinates)
+                    cells_changed.insert(coordinates)
                     for neighbour in neighbourhood[generations % alternating_period]:
                         coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
                                                        coordinates.second + neighbour.second)
-                        if dict_grid.find(coordinates2) != dict_grid.end():
-                            neighbours.push_back(dict_grid[coordinates2])
-                        else:
-                            neighbours.push_back(0)
-
-                if dict_grid.find(coordinates) != dict_grid.end():
-                    neighbours.push_back(dict_grid[coordinates])
-                    if transition_func_cache.find(
-                            pair[vector[int], int] (neighbours, generations % alternating_period)) == \
-                            transition_func_cache.end():
-                        if ans == -1:
-                            ans = transition_func(neighbours, generations % alternating_period)
-                            transition_func_cache[
-                                pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
-                    else:
-                        if ans == -1: ans = transition_func_cache[
-                            pair[vector[int], int] (neighbours, generations % alternating_period)]
-
-                    if ans == 0:
-                        dict_grid.erase(coordinates)
-                        cells_changed.insert(coordinates)
-                        for neighbour in neighbourhood[generations % alternating_period]:
-                            coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                                           coordinates.second + neighbour.second)
-                            cells_to_check.insert(coordinates2)
-                    elif ans != dict_grid[coordinates]:
-                        dict_grid[coordinates] = ans
-                        cells_changed.insert(coordinates)
-                        for neighbour in neighbourhood[generations % alternating_period]:
-                            coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                                           coordinates.second + neighbour.second)
-                            cells_to_check.insert(coordinates2)
+                        cells_to_check.insert(coordinates2)
+                elif ans != dict_grid[coordinates]:
+                    dict_grid[coordinates] = ans
+                    cells_changed.insert(coordinates)
+                    for neighbour in neighbourhood[generations % alternating_period]:
+                        coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                       coordinates.second + neighbour.second)
+                        cells_to_check.insert(coordinates2)
+            else:
+                neighbours.push_back(0)
+                if transition_func_cache.find(
+                        pair[vector[int], int] (neighbours, generations % alternating_period)) == \
+                        transition_func_cache.end():
+                    if ans == -1:
+                        ans = transition_func(neighbours, generations % alternating_period)
+                        transition_func_cache[
+                            pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
                 else:
-                    neighbours.push_back(0)
-                    if transition_func_cache.find(
-                            pair[vector[int], int] (neighbours, generations % alternating_period)) == \
-                            transition_func_cache.end():
-                        if ans == -1:
-                            ans = transition_func(neighbours, generations % alternating_period)
-                            transition_func_cache[
-                                pair[vector[int], int] (neighbours, generations % alternating_period)] = ans
-                    else:
-                        if ans == -1: ans = transition_func_cache[
-                            pair[vector[int], int] (neighbours, generations % alternating_period)]
+                    if ans == -1: ans = transition_func_cache[
+                        pair[vector[int], int] (neighbours, generations % alternating_period)]
 
-                    if ans != 0:
-                        dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
-                        cells_changed.insert(coordinates)
-                        for neighbour in neighbourhood[generations % alternating_period]:
-                            coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                                           coordinates.second + neighbour.second)
-                            cells_to_check.insert(coordinates2)
+                if ans != 0:
+                    dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
+                    cells_changed.insert(coordinates)
+                    for neighbour in neighbourhood[generations % alternating_period]:
+                        coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+                                                       coordinates.second + neighbour.second)
+                        cells_to_check.insert(coordinates2)
 
     return cells_changed, dict_grid

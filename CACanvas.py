@@ -19,8 +19,8 @@ import numpy as np
 import pyperclip
 from PIL import Image
 from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon, QCursor
-from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand
+from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
+from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand, QInputDialog
 
 from Identity import identify, reload
 
@@ -693,13 +693,26 @@ class CACanvas(QWidget):
                                   f"Speed: {gen_per_s} gen/s.")
         self.status_label.update()
 
-    def load_from_dict(self, dictionary: Dict[Tuple[int, int], int], offset_x=0, offset_y=0) -> None:
+    def load_from_dict(self, dictionary: Dict[Tuple[int, int], int], offset_x=0, offset_y=0, grid_lines=False) -> None:
         self.label.pixmap().fill(color=QColor(0, 0, 0))  # Clear the Pixmap
         self.dict_grid = {}
         self.cells_changed = set()
 
         for key in dictionary:
             self.add_cell(dictionary[key], key[1] + offset_y, key[0] + offset_x)
+
+        if grid_lines:
+            pen = QPen()
+            pen.setWidth(1)
+            pen.setColor(QColor(100, 100, 100))
+
+            painter = QPainter(self.label.pixmap())
+            painter.setPen(pen)
+            for i in range(self.cell_size // 2, 10001, self.cell_size):
+                painter.drawLine(0, i, 10000, i)  # Horizontal Line
+                painter.drawLine(i, 0, i, 10000)  # Vertical Line
+
+            painter.end()
 
         # Update Everything
         self.scroll_area.update()
@@ -999,11 +1012,14 @@ class CACanvas(QWidget):
                 file_name, _ = QFileDialog.getSaveFileName(caption="Save *.gif File",
                                                            filter="GIF Files (*.gif)")
 
-                img_frames: List = [Image.fromarray(x.repeat(self.cell_size, axis=0).repeat(self.cell_size, axis=1))
+                gif_cell_size = QInputDialog.getInt(self, "Enter Cell Size of GIF", "Enter Cell Size of GIF:", 10, 1)
+                img_frames: List = [Image.fromarray(x.repeat(gif_cell_size[0], axis=0).repeat(gif_cell_size[0], axis=1))
                                     for x in self.frames]
 
+                duration = QInputDialog.getInt(self, "Enter Duration between Frames (ms)",
+                                               "Enter Duration between Frames (ms):", 20, 1)
                 img_frames[0].save(file_name, format='GIF', append_images=img_frames[1:],
-                                   save_all=True, loop=0)
+                                   save_all=True, loop=0, duration=duration[0])
             else:
                 self.btn_record.setIcon(QIcon("Icons/RecordIcon2.png"))
 
@@ -1341,7 +1357,7 @@ class CACanvas(QWidget):
 
             # Reloading the Pattern to the Prev State
             self.generations = self.history[-1][0]
-            self.load_from_dict(self.history[-1][1])
+            self.load_from_dict(self.history[-1][1], grid_lines=self.grid_lines)
 
             # Reload the Status of the Pattern
             if self.running:
