@@ -415,8 +415,8 @@ class CACanvas(QWidget):
                                 self.add_cell(random.choice(self.include_states), x, y)
                             else:
                                 self.add_cell(0, x, y)
-
                 else:
+                    # Resizing the bounds to suit the symmetry
                     upper_x = upper_x - (upper_x - lower_x) % 2 + 1
                     upper_y = upper_y - (upper_y - lower_y) % 2 + 1
 
@@ -461,6 +461,20 @@ class CACanvas(QWidget):
                             else:
                                 self.add_cell(0, x, y)
                                 self.add_cell(0, upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
+
+                elif self.symmetry == "D2_x":
+                    for x in range(lower_x, upper_x):  # D2_x symmetry is a square
+                        for y in range(lower_y, lower_y + upper_x - lower_x):
+                            if y - lower_y > x - lower_x: break
+                            if random.uniform(0, 1) < self.density:
+                                self.add_cell(random.choice(self.include_states), x, y)
+
+                                # Reflecting cells across diagonal
+                                self.add_cell(random.choice(self.include_states),
+                                              y - lower_y + lower_x, x - lower_x + lower_y)
+                            else:
+                                self.add_cell(0, x, y)
+                                self.add_cell(0, y - lower_y + lower_x, x - lower_x + lower_y)
 
                 elif self.symmetry == "D2_+1":
                     for x in range(lower_x, upper_x):
@@ -569,7 +583,6 @@ class CACanvas(QWidget):
 
             # Adding to History
             self.history.append((self.generations, self.dict_grid))
-
         except AttributeError:
             QMessageBox.warning(self, "Error Generating Random Soup",
                                 "Error Generating Random Soup\nNo Area Selected Yet",
@@ -874,8 +887,10 @@ class CACanvas(QWidget):
                 file.close()
             else:
                 # Write to the file
-                if use_parse: rule_file = open("rule.ca_rule", "r")
-                else: rule_file = open("transFunc.py", "r")
+                if use_parse:
+                    rule_file = open("rule.ca_rule", "r")
+                else:
+                    rule_file = open("transFunc.py", "r")
 
                 file = open(file_name, "w+")
                 file.write(rule_file.read() + "\n**********\n")  # Including Rule Inside
@@ -1256,7 +1271,8 @@ class CACanvas(QWidget):
                                                                      "CA Pattern Files (*.ca_pattern)")
             file = open(filename, "r")
 
-            if file_type == "RLE Files (*.rle)": rle = file.read()
+            if file_type == "RLE Files (*.rle)":
+                rle = file.read()
             else:
                 contents = file.read()
                 rle = contents.split("**********")[-1][1:]
