@@ -29,6 +29,7 @@ logging.basicConfig(filename='log.log', level=logging.INFO)
 settings = json.load(open("settings.json", "r"))
 use_parse: bool = settings["UseParse"]
 
+tiling = "Square"
 if use_parse:
     RuleParser.load("rule.ca_rule")
     num_states = RuleParser.n_states
@@ -337,30 +338,31 @@ class CACanvas(QWidget):
         simulationThread = threading.Thread(target=self.run_simulation)
         simulationThread.start()
 
-    def add_cell(self, state: int, x: int, y: int) -> None:
+    def add_cell(self, state: int, x: int, y: int, change_grid=True) -> None:
         if state > num_states - 1:
             raise IndexError
 
-        # Add Cells to cells_changed
-        self.cells_changed.add((y, x))
+        if change_grid:
+            # Add Cells to cells_changed
+            self.cells_changed.add((y, x))
 
-        # Add Cell to Dictionary
-        if state > 0:
-            self.dict_grid[(y, x)] = state
-        elif (y, x) in self.dict_grid:
-            self.dict_grid.pop((y, x))
+            # Add Cell to Dictionary
+            if state > 0:
+                self.dict_grid[(y, x)] = state
+            elif (y, x) in self.dict_grid:
+                self.dict_grid.pop((y, x))
 
-        # Record Population Change
-        try:
-            self.population[self.generations - 1] = len(self.dict_grid)
-        except IndexError:
-            self.population.append(len(self.dict_grid))
+            # Record Population Change
+            try:
+                self.population[self.generations - 1] = len(self.dict_grid)
+            except IndexError:
+                self.population.append(len(self.dict_grid))
 
-        # Update Bounds
-        self.lower_x = min(self.lower_x, x)
-        self.lower_y = min(self.lower_y, y)
-        self.upper_x = max(self.upper_x, x)
-        self.upper_y = max(self.upper_y, y)
+            # Update Bounds
+            self.lower_x = min(self.lower_x, x)
+            self.lower_y = min(self.lower_y, y)
+            self.upper_x = max(self.upper_x, x)
+            self.upper_y = max(self.upper_y, y)
 
         pen = QPen()
         if self.grid_lines:
@@ -377,7 +379,10 @@ class CACanvas(QWidget):
         painter.setPen(pen)
 
         # Draws the cell as cell_size * cells_size squares
-        painter.drawPoint(x * self.cell_size, y * self.cell_size)
+        if tiling == "Hexagonal":
+            painter.drawPoint(x * self.cell_size - y % 2 * self.cell_size // 2, y * self.cell_size)
+        elif tiling == "Square":
+            painter.drawPoint(x * self.cell_size, y * self.cell_size)
 
         painter.end()
 
@@ -619,36 +624,19 @@ class CACanvas(QWidget):
         start_time: float = time()
         self.generations += 1
 
-        pen = QPen()
-        if self.grid_lines:
-            pen.setWidth(self.cell_size - 1)
-        else:
-            pen.setWidth(self.cell_size)
-
-        painter = QPainter(self.label.pixmap())
-        painter.setPen(pen)
-
         self.lower_x, self.lower_y, self.upper_x, self.upper_y = 10 ** 9, 10 ** 9, -10 ** 9, -10 ** 9
         for cell in self.cells_changed:
             # key -> (y, x)
             # * self.cell_size -> cells are represented by cell_size * cell_size squares
             if cell not in self.dict_grid:
-                pen.setColor(QColor(self.colour_palette[0][0],
-                                    self.colour_palette[0][1],
-                                    self.colour_palette[0][2]))
-                painter.setPen(pen)
-                painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
+                self.add_cell(0, cell[1], cell[0], change_grid=False)
 
                 if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
                         self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
                     self.img[cell[0] - self.recording_lower_y][cell[1] - self.recording_lower_x] = \
                         self.colour_palette[0]
             else:
-                pen.setColor(QColor(self.colour_palette[self.dict_grid[cell]][0],
-                                    self.colour_palette[self.dict_grid[cell]][1],
-                                    self.colour_palette[self.dict_grid[cell]][2]))
-                painter.setPen(pen)
-                painter.drawPoint(cell[1] * self.cell_size, cell[0] * self.cell_size)
+                self.add_cell(self.dict_grid[cell], cell[1], cell[0], change_grid=False)
 
                 if self.recording_lower_x <= cell[1] <= self.recording_upper_x and \
                         self.recording_lower_y <= cell[0] <= self.recording_upper_y and self.recording:
@@ -669,8 +657,6 @@ class CACanvas(QWidget):
 
         # Add Stuff to History
         self.history.append((self.generations, copy.deepcopy(self.dict_grid)))
-
-        painter.end()
 
         if self.recording: self.frames.append(self.img.copy())  # Add to Frames
 

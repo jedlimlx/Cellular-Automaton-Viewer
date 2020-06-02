@@ -1,100 +1,63 @@
-def parse(rulestring):
-    allll = False
-    to_subtract_1 = set()
-    to_subtract_2 = set()
-    transitions = set()
-    current_trans = []
-    for i in rulestring:
-        if "l" not in i:
-            current_trans.append(int(i))
+rule_string = "8,10,11,12,13,14,15,16,17,18,19/4,16,21/1-1"
+birth = set([int(x) for x in rule_string.split("/")[1].split(",")])
+survival = set([int(x) for x in rule_string.split("/")[0].split(",")])
+
+num, alt = 1, 1
+activity = set()
+inactivity = {0}
+for i in rule_string.split("/")[-1].split("-"):
+    for j in range(num, int(i) + num):
+        if alt > 0:
+            activity.add(j)
         else:
-            if "-" not in i:
-                current_trans.append(i)
-                allll = True
-            else:
-                if len(current_trans) == 0:
-                    for j in i[2:].split("-"):
-                        to_subtract_1.add(int(j))
-                else:
-                    for j in i[2:].split("-"):
-                        to_subtract_2.add(int(j))
-                current_trans.append("l")
+            inactivity.add(j)
+        num += 1
 
-        if len(current_trans) == 2:
-            if not allll:
-                transitions.add(tuple(current_trans))
-            elif "l" in str(current_trans[0]) and "l" in str(current_trans[1]):
-                for j in range(9):
-                    for k in range(9):
-                        if j not in to_subtract_1 and k not in to_subtract_2:
-                            transitions.add((int(j), int(k)))
-                allll = False
-            elif "l" in str(current_trans[0]):
-                for j in range(9):
-                    if j not in to_subtract_2:
-                        transitions.add((int(j), int(current_trans[1])))
-                allll = False
-            elif "l" in str(current_trans[1]):
-                for j in range(9):
-                    if j not in to_subtract_1:
-                        transitions.add((int(current_trans[0]), int(j)))
-                allll = False
-
-            current_trans = []
-            to_subtract_1 = set()
-            to_subtract_2 = set()
-
-    return transitions
-
-
-rule_string = "3,0/10,10/2,0,3,0,l,l-0/0,3/10,10/0,2,0,3,l-0,l"
-birth_1 = parse(rule_string.split("/")[0].split(","))
-mutate_1 = parse(rule_string.split("/")[1].split(","))
-survival_1 = parse(rule_string.split("/")[2].split(","))
-birth_2 = parse(rule_string.split("/")[3].split(","))
-mutate_2 = parse(rule_string.split("/")[4].split(","))
-survival_2 = parse(rule_string.split("/")[5].split(","))
+    alt *= -1
 
 # Information about the Rule (Must be filled)
-n_states = 3  # Number of States
-alternating_period = 2  # For alternating rules / neighbourhoods
+n_states = sum([int(x) for x in rule_string.split("/")[-1].split("-")]) + 1  # Number of States
+alternating_period = 1  # For alternating rules / neighbourhoods
 colour_palette = None  # Colours of the different states
-rule_name = "BMS"  # Rule Name
+rule_name = "WeightedGenerations_Rule_1"  # Rule Name
 
 
 # Neighbourhood of the Rule (Relative Distance from Central Cell)
 def get_neighbourhood(generation):  # Note (y, x) not (x, y)
-    return [(1, 1), (1, -1), (-1, 1), (-1, -1),
-            (0, 1), (1, 0), (-1, 0), (0, -1)]
+    return [(1, -1), (1, 1), (-1, 1), (-1, -1),
+            (1, 0), (0, 1), (-1, 0), (0, -1),
+            (2, 0), (0, 2), (-2, 0), (0, -2)]
 
 
 # Transition Function of Rule, Last Element of Neighbours is the Central Cell
 def transition_func(neighbours, generation):
-    n1 = neighbours[:-1].count(1)
-    n2 = neighbours[:-1].count(2)
+    n = 0
+    weights = [1, 1, 1, 1,
+               2, 2, 2, 2,
+               3, 3, 3, 3]
 
-    if neighbours[-1] == 0:
-        if (n1, n2) in birth_1:
+    for i in range(len(neighbours) - 1):
+        if neighbours[i] in activity: n += weights[i]
+
+    if neighbours[-1] in activity:
+        if n in survival:
+            return neighbours[-1]
+        return (neighbours[-1] + 1) % n_states
+
+    elif neighbours[-1] == 0:
+        if n in birth:
             return 1
-        elif (n1, n2) in birth_2:
-            return 2
         return 0
-    elif neighbours[-1] == 1:
-        if (n1, n2) in survival_1:
-            return 1
-        elif (n1, n2) in mutate_1:
-            return 2
-        return 0
+
     else:
-        if (n1, n2) in survival_2:
-            return 2
-        elif (n1, n2) in mutate_2:
-            return 1
-        return 0
+        return (neighbours[-1] + 1) % n_states
 
 
 # Does the next state of the cell depend on its neighbours?
 # If yes, return next state
 # If no, return -1
 def depend_on_neighbours(state, generation):
-    return -1
+    if state in activity or state == 0:
+        return -1
+    else:
+        return (state + 1) % n_states

@@ -1,9 +1,9 @@
 {
     "UseParse": true,
     "Isotropic": true,
-    "Rule Space": "Regenerating Generations",
-    "B/S Conditions": "Range 1 Moore Isotropic Non-Totalistic",
-    "Rule String": "rg3l1b3-jknr4ity5ijk6i8s23-a4city6c7crb2n3rb23-q",
+    "Rule Space": "Single State",
+    "B/S Conditions": "Range 2 Far Corners Isotropic Non-Totalistic",
+    "Rule String": "2-k34cij68/2a45ey78",
     "Rule Name": "RULE",
     "Random Bounds": {
         "Rulestring Upper Bound": "",
@@ -15,39 +15,39 @@
     },
     "Neighbourhood Weights": [
         [
+            "1",
             "0",
             "0",
             "0",
+            "1"
+        ],
+        [
+            "0",
+            "0",
+            "1",
             "0",
             "0"
         ],
         [
             "0",
             "1",
-            "1",
-            "1",
-            "0"
-        ],
-        [
-            "0",
-            "1",
             "0",
             "1",
             "0"
         ],
         [
             "0",
+            "0",
             "1",
-            "1",
-            "1",
+            "0",
             "0"
         ],
         [
+            "1",
             "0",
             "0",
             "0",
-            "0",
-            "0"
+            "1"
         ]
     ],
     "Isotropic PMap": true,

@@ -1,21 +1,21 @@
-Name: R2_Cross_INT_Rule_1
+Name: RULE
 
 Neighbourhood Range: 2
 
 Neighbourhood:
-1,0,0,0,1
-0,0,1,0,0
+0,0,0,0,0
+0,1,1,1,0
 0,1,0,1,0
-0,0,1,0,0
-1,0,0,0,1
+0,1,1,1,0
+0,0,0,0,0
 
-State Weights: 0,1
+State Weights: 0,1,0,0,0
 
-Rulespace: Single State
+Rulespace: Extended Generations
 
-B/S Conditions: Range 2 Far Corners Isotropic Non-Totalistic
+B/S Conditions: Range 1 Moore Isotropic Non-Totalistic
 
-Rulestring: 234cij8/2n3cij45ey78
+Rulestring: B2S345D0-1-1-1
 
 Colour Palette:
 None

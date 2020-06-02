@@ -84,7 +84,7 @@ State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't L
 Rulespace: BSFKL / Extended Generations / Outer Totalistic / Regenerating Generations
 Will Add 3-state Outer Totalistic Soon
 
-B/S Conditions: Outer Totalistic / Double Totalistic / Range 1 Moore Isotropic Non-Totalistic / Range 2 Cross Isotropic Non-Totalistic / Range 2 Von Neumann Isotropic Non-Totalistic
+B/S Conditions: Outer Totalistic / Double Totalistic / Range 1 Moore Isotropic Non-Totalistic / Range 2 Cross Isotropic Non-Totalistic / Range 2 Von Neumann Isotropic Non-Totalistic / Range 2 Far Corners Isotropic Non-Totalistic
 
 Rulestring: -> For Alternating Put | (No Max, Don't Leave Spaces)
 b1s2f3k4l5 or 1/2/3/4/5 (BSFKL)

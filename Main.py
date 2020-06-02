@@ -327,6 +327,7 @@ paste_action.triggered.connect(canvas.paste_clipboard)
 edit_menu.addAction(paste_action)
 
 select_all_action = QAction("Select All")
+select_all_action.setShortcut("Ctrl+A")
 select_all_action.triggered.connect(canvas.select_all)
 edit_menu.addAction(select_all_action)
 

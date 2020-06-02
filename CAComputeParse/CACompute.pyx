@@ -6,7 +6,6 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 from libcpp cimport bool
 from libcpp.string cimport string
-from libcpp.algorithm cimport sort
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
 
@@ -15,6 +14,7 @@ from CAComputeParse.R2_INT_Cross import get_trans_cross
 from CAComputeParse.R2_INT_Von_Neumann import get_trans_von_neumann
 from CAComputeParse.R2_INT_FarCorners import get_trans_far
 from CAComputeParse.Naive_Generate import naive_gen
+from CAComputeParse.BMS import bms_parse
 
 cdef unordered_map[pair[int, int], vector[int]] neighbours_cache
 cdef unordered_map[pair[int, int], int] depends_cache
@@ -32,7 +32,8 @@ cdef vector[unordered_set[int]] birth, survival, forcing, killing, living, \
     regen_birth, regen_survival, activity_list, other_birth, other_survival, \
     other_regen_birth, other_regen_survival, other_forcing, other_killing, other_living
 cdef vector[unordered_set[pair[int, int]]] birth_semi_1, survival_semi_1, forcing_semi_1, killing_semi_1, \
-    living_semi_1, regen_birth_semi_1, regen_survival_semi_1
+    living_semi_1, regen_birth_semi_1, regen_survival_semi_1, birth_1, survival_1, \
+    mutate_1, birth_2, survival_2, mutate_2
 cdef vector[string] naive_lst, direction_lst
 cdef vector[int] corner_lst, xy_lst
 cdef int corner, xy
@@ -87,6 +88,12 @@ cpdef load(filename):
     living_semi_1.clear()
     regen_birth_semi_1.clear()
     regen_survival_semi_1.clear()
+    birth_1.clear()
+    survival_1.clear()
+    mutate_1.clear()
+    birth_2.clear()
+    survival_2.clear()
+    mutate_2.clear()
     naive_lst.clear()
     direction_lst.clear()
     corner_lst.clear()
@@ -455,10 +462,10 @@ cpdef load(filename):
                     try: naive_lst.push_back(individual_rule_string.split(b"/")[2])
                     except IndexError: naive_lst.push_back(b"-1")
                 else:
-                    birth_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[0]))
-                    survival_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[1]))
+                    birth_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[1]))
+                    survival_trans.append(get_trans_far(re.split(b"b|s|nn", individual_rule_string)[2]))
 
-                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[2])
+                    try: naive_lst.push_back(re.split(b"b|s|nn", individual_rule_string)[3])
                     except IndexError: naive_lst.push_back(b"-1")
         elif rule_space == b"BSFKL":
             if bsconditions == b"Outer Totalistic":
@@ -1213,7 +1220,11 @@ cpdef load(filename):
                     num += 1
                 alt *= -1
 
-                activity_list.push_back(set_temp)
+            activity_list.push_back(set_temp)
+
+            file = open("log.log", "w")
+            file.write(str(activity_lst))
+            file.close()
         elif rule_space == b"Regenerating Generations":
             if bsconditions == b"Outer Totalistic":
                 if individual_rule_string.find(b"/") != -1:
@@ -1627,6 +1638,25 @@ cpdef load(filename):
 
                     try: naive_lst.push_back(re.split(b"rg|l|b|s|rb|rs|nn", individual_rule_string)[7])
                     except IndexError: naive_lst.push_back(b"-1")
+        elif rule_space == b"(B/M/S)*2":
+            if individual_rule_string.find(b"/") != -1:
+                birth_1.push_back(bms_parse(individual_rule_string.split(b"/")[0]))
+                mutate_1.push_back(bms_parse(individual_rule_string.split(b"/")[1]))
+                survival_1.push_back(bms_parse(individual_rule_string.split(b"/")[2]))
+                birth_2.push_back(bms_parse(individual_rule_string.split(b"/")[3]))
+                mutate_2.push_back(bms_parse(individual_rule_string.split(b"/")[4]))
+                survival_2.push_back(bms_parse(individual_rule_string.split(b"/")[5]))
+                try: naive_lst.push_back(individual_rule_string.split(b"/")[6])
+                except IndexError: naive_lst.push_back(b"-1")
+            else:
+                birth_1.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[1]))
+                mutate_1.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[2]))
+                survival_1.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[3]))
+                birth_2.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[4]))
+                mutate_2.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[5]))
+                survival_2.push_back(bms_parse(re.split(b"b|s|m|nn", individual_rule_string)[6]))
+                try: naive_lst.push_back(re.split(b"b|s|m|nn", individual_rule_string)[7])
+                except IndexError: naive_lst.push_back(b"-1")
 
     for x in naive_lst:
         if x != b"-1":
@@ -1899,8 +1929,8 @@ cdef int transition_func(vector[int] neighbours, int generations):
             if activity_list[generations % alternating_period].find(neighbours[neighbours.size() - 1]) != \
                     activity_list[generations % alternating_period].end():
                 if tuple(new_neighbours) in survival_trans[generations % alternating_period]:
-                    return 1
-                return 2
+                    return neighbours[neighbours.size() - 1]
+                return (neighbours[neighbours.size() - 1] + 1) % n_states
             else:
                 if tuple(new_neighbours) in birth_trans[generations % alternating_period]:
                     return 1
@@ -2110,9 +2140,41 @@ cdef int transition_func(vector[int] neighbours, int generations):
                 elif tuple(new_neighbours) in regen_survival_trans[generations % alternating_period]:
                     return neighbours[neighbours.size() - 1]
                 return (neighbours[neighbours.size() - 1] + 1) % n_states
+    elif rule_space == b"(B/M/S)*2":
+        for i in range(neighbours.size() - 1):
+            if neighbours[i] == 1:
+                n1 += neighbourhood_weights[generations % alternating_period][i]
+            elif neighbours[i] == 2:
+                n2 += neighbourhood_weights[generations % alternating_period][i]
+
+        if neighbours[neighbours.size() - 1] == 0:
+            if birth_1[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    birth_1[generations % alternating_period].end():
+                return 1
+            elif birth_2[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    birth_2[generations % alternating_period].end():
+                return 2
+            return 0
+        elif neighbours[neighbours.size() - 1] == 1:
+            if survival_1[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    survival_1[generations % alternating_period].end():
+                return 1
+            elif mutate_1[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    mutate_1[generations % alternating_period].end():
+                return 2
+            return 0
+        else:
+            if survival_2[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    survival_2[generations % alternating_period].end():
+                return 2
+            elif mutate_2[generations % alternating_period].find(pair[int, int] (n1, n2)) != \
+                    mutate_2[generations % alternating_period].end():
+                return 1
+            return 0
 
 cdef int depend_on_neighbours(int state, int generations):
-    if rule_space == b"BSFKL" or rule_space == b"Single State" or rule_space == b"Regenerating Generations":
+    if rule_space == b"BSFKL" or rule_space == b"Single State" or rule_space == b"Regenerating Generations"\
+             or rule_space == b"(B/M/S)*2":
         return -1
     elif rule_space == b"Extended Generations":
         if activity_list[generations % alternating_period].find(state) != \
@@ -2311,6 +2373,7 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[in
                 if ans != 0:
                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
                     cells_changed.insert(coordinates)
+
     else:
         for coordinates in naive_gen(150, 150, corner, direction, xy):
             neighbours.clear()

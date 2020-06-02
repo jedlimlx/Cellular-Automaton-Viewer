@@ -309,7 +309,7 @@ class RandomRuleDialog(QDialog):
         try: rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Rulespace
         except KeyError: rulespace = None
 
-        self.rulespaces = ["BSFKL", "Single State", "Extended Generations", "Regenerating Generations"]
+        self.rulespaces = ["BSFKL", "(B/M/S)*2", "Single State", "Extended Generations", "Regenerating Generations"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
         self.combo_box_rulespace.addItems(self.rulespaces)
         self.combo_box_rulespace.currentTextChanged.connect(self.change_rulespace)
@@ -321,9 +321,12 @@ class RandomRuleDialog(QDialog):
         try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
         except KeyError: bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic",
-                             "Range 1 Moore Isotropic Non-Totalistic", "Range 2 Cross Isotropic Non-Totalistic",
-                             "Range 2 Von Neumann Isotropic Non-Totalistic"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic",
+                             "Range 1 Moore Semi Totalistic",
+                             "Range 1 Moore Isotropic Non-Totalistic",
+                             "Range 2 Cross Isotropic Non-Totalistic",
+                             "Range 2 Von Neumann Isotropic Non-Totalistic",
+                             "Range 2 Far Corners Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
@@ -478,7 +481,8 @@ class RandomRuleDialog(QDialog):
         if bsconditions == "Range 1 Moore Semi Totalistic" or \
                 bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == "Range 2 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == "Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == "Range 2 Far Corners Isotropic Non-Totalistic":
             self.neighbourhood_table.hide()
             self.isotropic_check_box.hide()
         else:
@@ -508,12 +512,19 @@ class RandomRuleDialog(QDialog):
                                             ["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"]]
         elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
-            "Range 1 Von Neumann Isotropic Non-Totalistic":
+                "Range 2 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["1", "1", "0", "1", "1"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+                 "Range 2 Far Corners Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["1", "0", "0", "0", "1"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["0", "1", "0", "1", "0"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["1", "0", "0", "0", "1"]]
 
         try:
             neighbourhood = copy.deepcopy(self.neighbourhood_table.num)
@@ -621,7 +632,8 @@ class RandomRuleDialog(QDialog):
         elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Single State":
             file.write("\nState Weights: 0,1\n\n")
 
-        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL":
+        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL" or \
+                self.rulespaces[self.combo_box_rulespace.currentIndex()] == "(B/M/S)*2":
             file.write("\nState Weights: 0,1,1\n\n")
 
         file.write(f"Rulespace: {self.rulespaces[self.combo_box_rulespace.currentIndex()]}\n\n")
@@ -736,7 +748,7 @@ class ParamMapDialog(QDialog):
         except KeyError:
             rulespace = None
 
-        self.rulespaces = ["BSFKL", "Single State", "Extended Generations", "Regenerating Generations"]
+        self.rulespaces = ["BSFKL", "(B/M/S)*2", "Single State", "Extended Generations", "Regenerating Generations"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
         self.combo_box_rulespace.addItems(self.rulespaces)
         self.combo_box_rulespace.currentTextChanged.connect(self.change_rulespace)
@@ -750,9 +762,12 @@ class ParamMapDialog(QDialog):
         except KeyError:
             bscondition = None
 
-        self.bsconditions = ["Outer Totalistic", "Double Totalistic", "Range 1 Moore Semi Totalistic",
-                             "Range 1 Moore Isotropic Non-Totalistic", "Range 2 Cross Isotropic Non-Totalistic",
-                             "Range 2 Von Neumann Isotropic Non-Totalistic"]
+        self.bsconditions = ["Outer Totalistic", "Double Totalistic",
+                             "Range 1 Moore Semi Totalistic",
+                             "Range 1 Moore Isotropic Non-Totalistic",
+                             "Range 2 Cross Isotropic Non-Totalistic",
+                             "Range 2 Von Neumann Isotropic Non-Totalistic",
+                             "Range 2 Far Corners Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
@@ -939,7 +954,8 @@ class ParamMapDialog(QDialog):
         if bsconditions == "Range 1 Moore Semi Totalistic" or \
                 bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
-                bsconditions == "Range 1 Von Neumann Isotropic Non-Totalistic":
+                bsconditions == "Range 2 Von Neumann Isotropic Non-Totalistic" or \
+                bsconditions == "Range 2 Far Corners Isotropic Non-Totalistic":
             self.neighbourhood_table.hide()
             self.isotropic_check_box.hide()
         else:
@@ -995,7 +1011,8 @@ class ParamMapDialog(QDialog):
         file.write("Neighbourhood:\n")
 
         if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic" or \
-            self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
+                self.bsconditions[
+                    self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "0", "0", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "1", "0", "1", "0"],
@@ -1008,12 +1025,19 @@ class ParamMapDialog(QDialog):
                                             ["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"]]
         elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
-            "Range 1 Von Neumann Isotropic Non-Totalistic":
+                "Range 2 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["1", "1", "0", "1", "1"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+                "Range 2 Far Corners Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["1", "0", "0", "0", "1"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["0", "1", "0", "1", "0"],
+                                            ["0", "0", "1", "0", "0"],
+                                            ["1", "0", "0", "0", "1"]]
 
         try:
             neighbourhood = copy.deepcopy(self.neighbourhood_table.num)
@@ -1120,7 +1144,8 @@ class ParamMapDialog(QDialog):
         elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Single State":
             file.write("\nState Weights: 0,1\n\n")
 
-        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL":
+        elif self.rulespaces[self.combo_box_rulespace.currentIndex()] == "BSFKL" or \
+                self.rulespaces[self.combo_box_rulespace.currentIndex()] == "(B/M/S)*2":
             file.write("\nState Weights: 0,1,1\n\n")
 
         file.write(f"Rulespace: {self.rulespaces[self.combo_box_rulespace.currentIndex()]}\n\n")
