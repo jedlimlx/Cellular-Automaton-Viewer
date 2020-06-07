@@ -15,6 +15,7 @@ from CAComputeParse.R2_INT_Von_Neumann import get_trans_von_neumann
 from CAComputeParse.R2_INT_FarCorners import get_trans_far
 from CAComputeParse.Naive_Generate import naive_gen
 from CAComputeParse.BMS import bms_parse
+from CAComputeParse.Bounds import correct_coor
 
 cdef unordered_map[pair[int, int], vector[int]] neighbours_cache
 cdef unordered_map[pair[int, int], int] depends_cache
@@ -38,6 +39,8 @@ cdef vector[string] naive_lst, direction_lst
 cdef vector[int] corner_lst, xy_lst
 cdef int corner, xy
 cdef string direction
+cdef int x_bound, y_bound
+cdef string bound_type
 
 birth_trans, survival_trans, forcing_trans, killing_trans, living_trans, \
     regen_birth_trans, regen_survival_trans = [], [], [], [], [], [], []
@@ -56,8 +59,8 @@ cpdef load(filename):
 
     colour_palette.clear()
     rule_name = b""
-    rule_space = b""
-    bsconditions = b""
+    rule_space = b"Single State"
+    bsconditions = b"Outer Totalistic"
     n_states = 0
     state_weights.clear()
     neighbourhood.clear()
@@ -1223,7 +1226,7 @@ cpdef load(filename):
             activity_list.push_back(set_temp)
 
             file = open("log.log", "w")
-            file.write(str(activity_lst))
+            file.write(str(activity_list) + " " + str(extended))
             file.close()
         elif rule_space == b"Regenerating Generations":
             if bsconditions == b"Outer Totalistic":
@@ -1661,8 +1664,8 @@ cpdef load(filename):
     for x in naive_lst:
         if x != b"-1":
             corner_lst.push_back(int(x.decode("utf-8")[0]))
-            direction_lst.push_back(str(x.decode("utf-8")[1]).encode("utf-8"))
-            xy_lst.push_back(int(x.decode("utf-8")[2]))
+            direction_lst.push_back(str(x.decode("utf-8")[1:-1]).encode("utf-8"))
+            xy_lst.push_back(int(x.decode("utf-8")[-1]))
         else:
             corner_lst.push_back(-1)
             direction_lst.push_back(b"")
@@ -2265,6 +2268,12 @@ cdef bool compare_pairs(pair[int, int] a, pair[int, int] b):
                     return a.first > b.first
                 return a.first + a.second > b.first + b.second
 
+cpdef set_bounds(int x, int y, string type1):
+    global x_bound, y_bound, bound_type
+    x_bound, y_bound = x, y
+    bound_type = type1
+
+
 cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[int, int], int] dict_grid,
               int generations):
 
@@ -2303,6 +2312,8 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[in
 
     if corner == -1:
         for coordinates in cells_to_check:
+            coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)
+
             neighbours.clear()
             ans = -1
 
@@ -2325,8 +2336,10 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[in
             if ans == -1:
                 if True:
                     for neighbour in neighbourhood[generations % alternating_period]:
-                        coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                                       coordinates.second + neighbour.second)
+                        coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+                                                                    coordinates.second + neighbour.second),
+                                                    bound_type, x_bound, y_bound)
+
                         neighbours_cache.erase(coordinates2)
 
                         if copy_grid.find(coordinates2) != copy_grid.end():
@@ -2373,7 +2386,6 @@ cpdef compute(unordered_set[pair[int, int]] cells_changed, unordered_map[pair[in
                 if ans != 0:
                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
                     cells_changed.insert(coordinates)
-
     else:
         for coordinates in naive_gen(150, 150, corner, direction, xy):
             neighbours.clear()

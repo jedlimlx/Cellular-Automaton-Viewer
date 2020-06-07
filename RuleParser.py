@@ -43,15 +43,17 @@ colour_palette = []
 parsing_colour_palette: bool = False
 
 rule_name: str = ""
+tiling: str = "Square"
 n_states: int = 0
 state_weights: List[List[int]] = []
 
 
 def load(filename):
     global colour_palette, colour_palette_count, parsing_colour_palette, \
-        rule_name, n_states, state_weights
+        rule_name, n_states, state_weights, tiling
     file = open(filename, "r")
     rule: str = file.read()
+    colour_palette = []
 
     for section in rule.split("\n"):
         if "Colour Palette:" in section:
@@ -74,3 +76,5 @@ def load(filename):
             state_weights = [[int(x) for x in y.split(",")]
                              for y in section.replace("State Weights: ", "").split("|")]
             n_states = len(state_weights[0])
+        elif "Tiling:" in section:
+            tiling = section.replace("Tiling: ", "")

@@ -16,7 +16,7 @@ logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
 
 
-def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None) -> None:
+def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None, offset_x=100, offset_y=100) -> None:
     global canvas, cell_size
 
     # Disconnect Actions
@@ -78,7 +78,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         if overwrite is None:
             canvas.load_from_dict(dictionary)
         else:
-            canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
+            canvas.load_from_dict(overwrite, offset_x=offset_x, offset_y=offset_y)
 
         if grid_lines:  # Enabling Grid Lines if Necessary
             canvas.toggle_grid_lines()
@@ -105,7 +105,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
         canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
         canvas.change_title.connect(set_title)
-        if overwrite is not None: canvas.load_from_dict(overwrite, offset_x=100, offset_y=100)
+        if overwrite is not None: canvas.load_from_dict(overwrite, offset_x=offset_x, offset_y=offset_y)
 
     # Setting Title of Application
     window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "
@@ -262,7 +262,8 @@ canvas.zoom_in.connect(zoom_in)
 canvas.zoom_out.connect(zoom_out)
 canvas.change_title.connect(set_title)
 canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
-canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
+canvas.reset_and_load.connect(lambda grid, offset_x, offset_y: change_zoom(cell_size, overwrite=grid,
+                                                                           offset_x=offset_x, offset_y=offset_y))
 
 # Setting Title of Application
 window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "

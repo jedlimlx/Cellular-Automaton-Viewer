@@ -102,7 +102,7 @@ class SoupSettings(QDialog):
         # Combo Box for Selecting Symmetries
         self.symmetries: List[str] = ["C1", "C2_1", "C2_2", "C2_4",
                                       "D2_x", "D2_+1", "D2_+2",
-                                      "D4_x1", "D4_+1", "D4_+2", "D4_+4"]
+                                      "D4_+1", "D4_+2", "D4_+4"]
 
         self.combo = QComboBox()
         self.combo.addItems(self.symmetries)

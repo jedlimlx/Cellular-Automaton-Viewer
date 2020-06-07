@@ -81,3 +81,83 @@ def naive_gen(x, y, corner, direction, xy):
                     for j in range(i + 1):
                         if i - j <= x and j <= x:
                             yield j, i - j
+    elif direction == b"osn":
+        alt = 1
+        if corner == 0:
+            if xy == 0:
+                for i in range(y):
+                    if alt == 1:
+                        for j in range(x):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(x - 1, -1, -1):
+                            yield i, j
+                    alt *= -1
+
+            elif xy == 1:
+                for i in range(x):
+                    if alt == 1:
+                        for j in range(y):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(y - 1, -1, -1):
+                            yield i, j
+                    alt *= -1
+        elif corner == 1:
+            if xy == 0:
+                for i in range(y):
+                    if alt == 1:
+                        for j in range(x - 1, -1, -1):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(x):
+                            yield i, j
+                    alt *= -1
+
+            elif xy == 1:
+                for i in range(x - 1, -1, -1):
+                    if alt == 1:
+                        for j in range(y - 1, -1, -1):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(y):
+                            yield i, j
+                    alt *= -1
+        elif corner == 2:
+            if xy == 0:
+                for i in range(y - 1, -1, -1):
+                    if alt == 1:
+                        for j in range(x):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(x - 1, -1, -1):
+                            yield i, j
+                    alt *= -1
+            elif xy == 1:
+                for i in range(x):
+                    if alt == 1:
+                        for j in range(y - 1, -1, -1):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(y):
+                            yield i, j
+                    alt *= -1
+        elif corner == 3:
+            if xy == 0:
+                for i in range(y - 1, -1, -1):
+                    if alt == 1:
+                        for j in range(x - 1, -1, -1):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(x):
+                            yield i, j
+                    alt *= -1
+            elif xy == 1:
+                for i in range(x - 1, -1, -1):
+                    if alt == 1:
+                        for j in range(y - 1, -1, -1):
+                            yield i, j
+                    elif alt == -1:
+                        for j in range(y):
+                            yield i, j
+                    alt *= -1

@@ -35,10 +35,13 @@ if use_parse:
     num_states = RuleParser.n_states
     ca_rule_name = RuleParser.rule_name
     colours = RuleParser.colour_palette
+    tiling = RuleParser.tiling
 else:
     num_states = transFunc.n_states
     ca_rule_name = transFunc.rule_name
     colours = transFunc.colour_palette
+
+parser.set_bounds(150, 150, b"T")
 
 
 class CACanvas(QWidget):
@@ -46,7 +49,7 @@ class CACanvas(QWidget):
     zoom_in = pyqtSignal()
     zoom_out = pyqtSignal()
     reset = pyqtSignal()
-    reset_and_load = pyqtSignal(dict)
+    reset_and_load = pyqtSignal(dict, int, int)
     change_title = pyqtSignal(str)
 
     def __init__(self, cell_size: int):
@@ -903,7 +906,7 @@ class CACanvas(QWidget):
             pass
 
     def load_rule_from_file(self, filename: str, file_format: str) -> None:
-        global use_parse, num_states, colours, ca_rule_name
+        global use_parse, num_states, colours, ca_rule_name, tiling
         new_rule_file = open(filename, "r")
         if file_format == ".py":
             rule = new_rule_file.read()
@@ -933,7 +936,6 @@ class CACanvas(QWidget):
             recorded_rule_file = open("RecordedRules/" + ca_rule_name + ".py", "w+")
             recorded_rule_file.write(rule)
             recorded_rule_file.close()
-
         elif file_format == ".ca_rule":
             rule = new_rule_file.read()
             logging.log(logging.INFO, rule)
@@ -953,6 +955,7 @@ class CACanvas(QWidget):
             num_states = RuleParser.n_states
             ca_rule_name = RuleParser.rule_name
             colours = RuleParser.colour_palette
+            tiling = RuleParser.tiling
 
             # Write to Recorded Rules
             recorded_rule_file = open("RecordedRules/" + ca_rule_name + ".ca_rule", "w+")
@@ -966,7 +969,7 @@ class CACanvas(QWidget):
             json.dump(settings, open("settings.json", "w"), indent=4)
 
     def load_new_rule(self) -> None:
-        global use_parse, num_states, colours, ca_rule_name
+        global use_parse, num_states, colours, ca_rule_name, tiling
 
         # Start File Dialog
         filename, file_format = QFileDialog.getOpenFileName(caption="Select rule file",
@@ -997,6 +1000,7 @@ class CACanvas(QWidget):
         num_states = RuleParser.n_states
         ca_rule_name = RuleParser.rule_name
         colours = RuleParser.colour_palette
+        tiling = RuleParser.tiling
 
         # Update Settings
         use_parse = True
@@ -1202,6 +1206,14 @@ class CACanvas(QWidget):
             cursor_painter = QPainter(cursor_img)
             """
 
+            # Removing Comments
+            temp_rle: str = ""
+            for i in rle.split("\n"):
+                if i[0] != "#":
+                    temp_rle += i + "\n"
+
+            rle = temp_rle  # Reassign Value
+
             # Add the cells to the canvas
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             for key in grid:
@@ -1281,30 +1293,69 @@ class CACanvas(QWidget):
                 file.write(contents.split("**********")[0])
                 file.close()
 
+            # Removing Comments
+            temp_rle: str = ""
+            for i in rle.split("\n"):
+                if i[0] != "#":
+                    temp_rle += i + "\n"
+
+            rle = temp_rle  # Reassign Value
+
             # Get Pattern's Name
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             loaded_rule: bool = False
-            pattern_rule_name: str = rle.split("\n")[0].split(",")[-1].replace(" rule = ", "")
+
+            # Offsets for Loading
+            offset_x = 100
+            offset_y = 100
+
+            rle_header: str = rle.split("\n")[0]
+            pattern_rule_name: str = rle.split("\n")[0].split(":")[0].split(",")[-1].replace(" rule = ", "")
+
+            # Settings Bounds from the RLE Header e.g. Life:T16,16
+            if len(rle_header.split(":")) > 1:
+                parser.set_bounds(int(rle_header.split(":")[1].split(",")[0][1:]),
+                                  int(rle_header.split(":")[1].split(",")[1]),
+                                  rle_header.split(":")[1].split(",")[0][0].encode("utf-8"))
+            else:
+                parser.set_bounds(100, 100, b"#")
+
             if pattern_rule_name != ca_rule_name and file_type == "RLE Files (*.rle)":
                 for i in os.listdir("RecordedRules"):
                     if i.split(".")[0] == pattern_rule_name:
                         self.load_rule_from_file("RecordedRules/" + i, "." + i.split(".")[1])
-                        self.reset_and_load.emit(grid)
+                        # self.reset_and_load.emit(grid)
                         loaded_rule = True
+
                 if not loaded_rule:
                     raise IndexError
+
             elif file_type == "CA Pattern Files (*.ca_pattern)":
                 if "def transition_func" in rle:
                     self.load_rule_from_file("temp.txt", ".py")
                 else:
                     self.load_rule_from_file("temp.txt", ".ca_rule")
+
+                """
                 self.reset_and_load.emit(grid)
                 loaded_rule = True
+                """
 
+            if len(rle_header.split(":")) == 2:
+                offset_x = 0
+                offset_y = 0
+
+            self.reset_and_load.emit(grid, offset_x, offset_y)
+            loaded_rule = True  # Reload rule no matter what (clear the grid and stuff)
+
+            # Old code that I shall not remove
             if not loaded_rule:
                 # Add the cells to the canvas
                 for key in grid:
-                    self.add_cell(grid[key], key[1] + 100, key[0] + 100)
+                    if len(rle_header.split(":")) == 1:
+                        self.add_cell(grid[key], key[1] + 100, key[0] + 100)
+                    else:
+                        self.add_cell(grid[key], key[1], key[0])
 
             # Close File
             file.close()
