@@ -1,0 +1,21 @@
+Name: R2_FarCorners_INT_Generations_Rule_1
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+0,0,1,0,0
+0,1,1,1,0
+1,1,0,1,1
+0,1,1,1,0
+0,0,1,0,0
+
+State Weights: 0,1,0
+
+Rulespace: Extended Generations
+
+B/S Conditions: Range 2 Far Corners Isotropic Non-Totalistic
+
+Rulestring: 3-q4567/2a3ace4w/1-1
+
+Colour Palette:
+None

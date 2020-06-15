@@ -4,13 +4,15 @@ import threading
 import traceback
 
 from PyQt5.Qt import QIcon, QAction
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog, QInputDialog, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog
 
 import Geneascopy as genscope
 import ParamMap as param_map
 import CACanvas as cacanvas
 from CACanvas import CACanvas
-from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog, ParamMapDialog
+from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog, \
+    ParamMapDialog, AgarDialog
+from OCAgar import agar_search
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
@@ -241,6 +243,16 @@ def back_to_gen(x):
         print(traceback.format_exc())
 
 
+def agar():
+    agar = AgarDialog()
+    num_soups, x_bound, y_bound, bound_type = agar.get_results()
+
+    x = lambda: agar_search(cacanvas.use_parse, x_bound, y_bound, num_soups, bound_type.encode("utf-8"))
+
+    thread = threading.Thread(target=x)
+    thread.start()
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 
@@ -264,7 +276,6 @@ canvas.change_title.connect(set_title)
 canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
 canvas.reset_and_load.connect(lambda grid, offset_x, offset_y: change_zoom(cell_size, overwrite=grid,
                                                                            offset_x=offset_x, offset_y=offset_y))
-
 # Setting Title of Application
 window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "
                       f"Number of States: {cacanvas.num_states}]")
@@ -393,6 +404,12 @@ data_menu.addAction(population_data_action)
 geneascopy_action = QAction("Run Geneascopy")
 geneascopy_action.triggered.connect(geneascopy)
 data_menu.addAction(geneascopy_action)
+
+search_menu = menu.addMenu("Search")
+
+agar_action = QAction("Run Agar Search")
+agar_action.triggered.connect(agar)
+search_menu.addAction(agar_action)
 
 grid.addWidget(menu, 0, 0)
 

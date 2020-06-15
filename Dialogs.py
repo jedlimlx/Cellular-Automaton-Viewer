@@ -9,7 +9,7 @@ from typing import List, Dict
 from PyQt5.Qt import QIcon, pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QGridLayout, QSlider, QDialog, QDialogButtonBox, \
-    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit, QTabWidget, QMessageBox
+    QComboBox, QCheckBox, QWidget, QPushButton, QLineEdit, QTabWidget, QMessageBox, QSpinBox
 
 
 class Table(QWidget):
@@ -292,8 +292,10 @@ class RandomRuleDialog(QDialog):
         self.grid.addWidget(label_rulename, 0, 0)
 
         # Get Rule Name from Settings.json
-        try: rule_name = json.load(open("settings.json", "r"))["Rule Name"]
-        except KeyError: rule_name = ""
+        try:
+            rule_name = json.load(open("settings.json", "r"))["Rule Name"]
+        except KeyError:
+            rule_name = ""
 
         self.rulename = QLineEdit()
         self.rulename.setText(rule_name)
@@ -307,8 +309,10 @@ class RandomRuleDialog(QDialog):
         label_rulespace = QLabel("Rulespace:")
         above_grid.addWidget(label_rulespace, 0, 0)
 
-        try: rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Rulespace
-        except KeyError: rulespace = None
+        try:
+            rulespace = json.load(open("settings.json", "r"))["Rule Space"]  # Get Previous Selected Rulespace
+        except KeyError:
+            rulespace = None
 
         self.rulespaces = ["BSFKL", "(B/M/S)*2", "Single State", "Extended Generations", "Regenerating Generations"]
         self.combo_box_rulespace = QComboBox()  # Choose Rulespace
@@ -319,8 +323,10 @@ class RandomRuleDialog(QDialog):
         label_bsconditions = QLabel("B/S Condition:")
         above_grid.addWidget(label_bsconditions, 1, 0)
 
-        try: bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
-        except KeyError: bscondition = None
+        try:
+            bscondition = json.load(open("settings.json", "r"))["B/S Conditions"]  # Get B/S Conditions
+        except KeyError:
+            bscondition = None
 
         self.bsconditions = ["Outer Totalistic", "Double Totalistic",
                              "Range 1 Moore Semi Totalistic",
@@ -336,24 +342,30 @@ class RandomRuleDialog(QDialog):
         self.isotropic_check_box = QCheckBox(text="Isotropic")  # Is the Rule Isotropic?
 
         # Get Rule Name from Settings.json
-        try: isotropic = json.load(open("settings.json", "r"))["Isotropic"]
-        except KeyError: isotropic = True
+        try:
+            isotropic = json.load(open("settings.json", "r"))["Isotropic"]
+        except KeyError:
+            isotropic = True
 
         self.isotropic_check_box.setChecked(isotropic)
         above_grid.addWidget(self.isotropic_check_box, 2, 0)
 
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
-        try: weights = json.load(open("settings.json", "r"))["Neighbourhood Weights"]  # Get Previous Selected Weights
-        except KeyError: weights = None
+        try:
+            weights = json.load(open("settings.json", "r"))["Neighbourhood Weights"]  # Get Previous Selected Weights
+        except KeyError:
+            weights = None
         if weights is not None: self.neighbourhood_table.load_values(weights)
 
         above_grid.addWidget(self.neighbourhood_table, 2, 1)
 
         self.grid.addWidget(above_widget, 2, 0)
 
-        try: weights = json.load(open("settings.json", "r"))["State Weights"]  # Get Previous Selected Weights
-        except KeyError: weights = None
+        try:
+            weights = json.load(open("settings.json", "r"))["State Weights"]  # Get Previous Selected Weights
+        except KeyError:
+            weights = None
 
         self.n_states: int = 2
         if weights is not None: self.n_states = len(weights[0])
@@ -391,8 +403,10 @@ class RandomRuleDialog(QDialog):
         self.grid.addWidget(label_rulestring, 5, 0)
 
         # Get Rule Name from Settings.json
-        try: rulestring = json.load(open("settings.json", "r"))["Rule String"]
-        except KeyError: rulestring = ""
+        try:
+            rulestring = json.load(open("settings.json", "r"))["Rule String"]
+        except KeyError:
+            rulestring = ""
 
         self.rulestring = QLineEdit()
         self.rulestring.setText(rulestring)
@@ -411,8 +425,10 @@ class RandomRuleDialog(QDialog):
         random_tab.setLayout(random_grid)
 
         # Get Rule Name from Settings.json
-        try: text = json.load(open("settings.json", "r"))["Random Bounds"]
-        except KeyError: text = None
+        try:
+            text = json.load(open("settings.json", "r"))["Random Bounds"]
+        except KeyError:
+            text = None
 
         for index, val in enumerate(label_text):  # Adding Random Bounds Entries
             label = QLabel(val + ":")
@@ -500,7 +516,8 @@ class RandomRuleDialog(QDialog):
         file.write("Neighbourhood:\n")
 
         if self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Semi Totalistic" or \
-            self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
+                self.bsconditions[
+                    self.combo_box_bsconditions.currentIndex()] == "Range 1 Moore Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "0", "0", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "1", "0", "1", "0"],
@@ -520,7 +537,7 @@ class RandomRuleDialog(QDialog):
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "1", "0", "0"]]
         elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
-                 "Range 2 Far Corners Isotropic Non-Totalistic":
+                "Range 2 Far Corners Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["1", "0", "0", "0", "1"],
                                             ["0", "0", "1", "0", "0"],
                                             ["0", "1", "0", "1", "0"],
@@ -585,7 +602,7 @@ class RandomRuleDialog(QDialog):
                 return -1
 
         if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations" or \
-            self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
+                self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
             state_weights = ""  # Appending State Weights to String
             try:
                 settings["State Weights"] = self.state_weights.num
@@ -788,7 +805,8 @@ class ParamMapDialog(QDialog):
         self.neighbourhood_table = Table(5, 5, "Neighbourhood Weights",  # Select Neighbourhood Weights
                                          [str(x) for x in range(-2, 3)], [str(x) for x in range(-2, 3)])
         try:
-            weights = json.load(open("settings.json", "r"))["Neighbourhood Weights PMap"]  # Get Previous Selected Weights
+            weights = json.load(open("settings.json", "r"))[
+                "Neighbourhood Weights PMap"]  # Get Previous Selected Weights
         except KeyError:
             weights = None
         if weights is not None: self.neighbourhood_table.load_values(weights)
@@ -1098,7 +1116,7 @@ class ParamMapDialog(QDialog):
                 return -1
 
         if self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Extended Generations" or \
-            self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
+                self.rulespaces[self.combo_box_rulespace.currentIndex()] == "Regenerating Generations":
             state_weights = ""  # Appending State Weights to String
             try:
                 for i in range(len(self.state_weights.num[0])):
@@ -1253,3 +1271,63 @@ class GeneascopyDialog(QDialog):
             return self.generations_slider.value(), self.num_soup_slider.value()
         else:
             return None, None
+
+
+class AgarDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        grid = QGridLayout()
+        self.setLayout(grid)
+
+        label_num_soups = QLabel("Number of Soups:")
+        grid.addWidget(label_num_soups)
+
+        # Spinbox for Number of Soups
+        self.spinbox_num_soups = QSpinBox()
+        self.spinbox_num_soups.setMaximum(10000)
+        self.spinbox_num_soups.setMinimum(10)
+        grid.addWidget(self.spinbox_num_soups)
+
+        label_x_bound = QLabel("X Bound:")
+        grid.addWidget(label_x_bound)
+
+        # Spinbox for X Bound
+        self.spinbox_x_bound = QSpinBox()
+        self.spinbox_x_bound.setMaximum(100)
+        self.spinbox_x_bound.setMinimum(5)
+        grid.addWidget(self.spinbox_x_bound)
+
+        label_y_bound = QLabel("Y Bound:")
+        grid.addWidget(label_y_bound)
+
+        # Spinbox for Y Bound
+        self.spinbox_y_bound = QSpinBox()
+        self.spinbox_y_bound.setMaximum(100)
+        self.spinbox_y_bound.setMinimum(5)
+        grid.addWidget(self.spinbox_y_bound)
+
+        label_bound_type = QLabel("Bound Type:")
+        grid.addWidget(label_bound_type)
+
+        # Combo Box for Bound Type
+        self.bound_types = ["Torus", "Klein Bottle", "Cross Surface", "Spherical"]
+        self.bound_types_symbol = ["T", "K", "C", "S"]
+        self.combo_box_bound_type = QComboBox()
+        self.combo_box_bound_type.addItems(self.bound_types)
+        grid.addWidget(self.combo_box_bound_type)
+
+        # Okay and Cancel Button
+        btns = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        button_box = QDialogButtonBox(btns)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
+        grid.addWidget(button_box)
+
+    def get_results(self):
+        if self.exec() == QDialog.Accepted:
+            return self.spinbox_num_soups.value(), self.spinbox_x_bound.value(), \
+                   self.spinbox_y_bound.value(), self.bound_types_symbol[self.combo_box_bound_type.currentIndex()]
+        else:
+            return None

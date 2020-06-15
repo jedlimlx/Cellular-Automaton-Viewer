@@ -630,6 +630,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <vector>
 #include <utility>
 #include <map>
+#include <string.h>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include "compute.cpp"
@@ -1138,6 +1140,9 @@ static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
 
+/* ImportFrom.proto */
+static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name);
+
 /* CLineInTraceback.proto */
 #ifdef CYTHON_CLINE_IN_TRACEBACK
 #define __Pyx_CLineForTraceback(tstate, c_line)  (((CYTHON_CLINE_IN_TRACEBACK)) ? c_line : 0)
@@ -1163,6 +1168,9 @@ static void __pyx_insert_code_object(int code_line, PyCodeObject* code_object);
 /* AddTraceback.proto */
 static void __Pyx_AddTraceback(const char *funcname, int c_line,
                                int py_line, const char *filename);
+
+/* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
 /* CppExceptionConversion.proto */
 #ifndef __Pyx_CppExn2PyErr
@@ -1206,9 +1214,6 @@ static void __Pyx_CppExn2PyErr() {
 }
 #endif
 
-/* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
-
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
@@ -1249,6 +1254,10 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'libcpp.map' */
 
+/* Module declarations from 'libc.string' */
+
+/* Module declarations from 'libcpp.string' */
+
 /* Module declarations from 'libcpp.unordered_map' */
 
 /* Module declarations from 'libcpp.unordered_set' */
@@ -1257,14 +1266,24 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 static std::unordered_map<std::pair<int,int> ,int>  __pyx_v_9CACompute_depends_cache;
 static std::map<std::pair<std::vector<int> ,int> ,int>  __pyx_v_9CACompute_transition_func_cache;
 static int __pyx_v_9CACompute_alternating_period2;
+static int __pyx_v_9CACompute_x_bound;
+static int __pyx_v_9CACompute_y_bound;
+static std::string __pyx_v_9CACompute_bound_type;
 static void __pyx_f_9CACompute_reload(int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_9CACompute_set_bounds(int, int, std::string, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> > , std::unordered_set<std::pair<int,int> > , std::unordered_map<std::pair<int,int> ,int> , std::unordered_map<std::pair<int,int> ,int> , int, int __pyx_skip_dispatch); /*proto*/
+static std::string __pyx_convert_string_from_py_std__in_string(PyObject *); /*proto*/
 static std::pair<int,int>  __pyx_convert_pair_from_py_int__and_int(PyObject *); /*proto*/
 static std::vector<std::pair<int,int> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(PyObject *); /*proto*/
 static std::unordered_set<std::pair<int,int> >  __pyx_convert_unordered_set_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(PyObject *); /*proto*/
 static std::unordered_map<std::pair<int,int> ,int>  __pyx_convert_unordered_map_from_py_std_3a__3a_pair_3c_int_2c_int_3e_____and_int(PyObject *); /*proto*/
-static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*proto*/
 static PyObject *__pyx_convert_pair_to_py_int____int(std::pair<int,int>  const &); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_convert_PyBytes_string_to_py_std__in_string(std::string const &); /*proto*/
+static CYTHON_INLINE PyObject *__pyx_convert_PyByteArray_string_to_py_std__in_string(std::string const &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*proto*/
 static PyObject *__pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(std::unordered_set<std::pair<int,int> >  const &); /*proto*/
 static PyObject *__pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(std::unordered_map<std::pair<int,int> ,int>  const &); /*proto*/
 #define __Pyx_MODULE_NAME "CACompute"
@@ -1273,10 +1292,13 @@ int __pyx_module_is_main_CACompute = 0;
 
 /* Implementation of 'CACompute' */
 static PyObject *__pyx_builtin_range;
+static const char __pyx_k_x[] = "x";
+static const char __pyx_k_y[] = "y";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_range[] = "range";
+static const char __pyx_k_type1[] = "type1";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_reload[] = "reload";
 static const char __pyx_k_copy_grid[] = "copy_grid";
@@ -1285,17 +1307,21 @@ static const char __pyx_k_importlib[] = "importlib";
 static const char __pyx_k_iteritems[] = "iteritems";
 static const char __pyx_k_transFunc[] = "transFunc";
 static const char __pyx_k_generations[] = "generations";
+static const char __pyx_k_correct_coor[] = "correct_coor";
 static const char __pyx_k_cells_changed[] = "cells_changed";
 static const char __pyx_k_neighbourhood[] = "neighbourhood";
 static const char __pyx_k_transition_func[] = "transition_func";
 static const char __pyx_k_alternating_period[] = "alternating_period";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_depend_on_neighbours[] = "depend_on_neighbours";
+static const char __pyx_k_CAComputeParse_Bounds[] = "CAComputeParse.Bounds";
 static const char __pyx_k_cdef_extern_from_Compute_cpp_cd[] = "\ncdef extern from \"Compute.cpp\":\n    cdef struct compute_return:\n        int lower_x, lower_y, upper_x, upper_y\n        unordered_map[pair[int, int], int] dict_grid\n        unordered_set[pair[int, int]] cells_changed\n\n    cdef compute_return compute(vector[pair[int, int]] neighbourhood, bool first,\n                                unordered_set[pair[int, int]] cells_changed, int lower_x, int upper_x, int lower_y,\n                                int upper_y, unordered_map[pair[int, int], int] copy_grid,\n                                unordered_map[pair[int, int], int] dict_grid)\n\n\ncpdef pycompute(vector[pair[int, int]] neighbourhood, bool first,\n              unordered_set[pair[int, int]] cells_changed, int lower_x, int upper_x, int lower_y,\n              int upper_y, unordered_map[pair[int, int], int] copy_grid,\n              unordered_map[pair[int, int], int] dict_grid):\n\n    cdef compute_return ans = compute(neighbourhood, first, cells_changed, lower_x, upper_x, lower_y, upper_y,\n                                      copy_grid, dict_grid)\n\n    return ans.lower_x, ans.lower_y, ans.upper_x, ans.upper_y, ans.cells_changed, ans.dict_grid\n\n\n";
+static PyObject *__pyx_n_s_CAComputeParse_Bounds;
 static PyObject *__pyx_n_s_alternating_period;
 static PyObject *__pyx_n_s_cells_changed;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_copy_grid;
+static PyObject *__pyx_n_s_correct_coor;
 static PyObject *__pyx_n_s_depend_on_neighbours;
 static PyObject *__pyx_n_s_dict_grid;
 static PyObject *__pyx_n_s_generations;
@@ -1310,13 +1336,17 @@ static PyObject *__pyx_n_s_reload;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_transFunc;
 static PyObject *__pyx_n_s_transition_func;
+static PyObject *__pyx_n_s_type1;
+static PyObject *__pyx_n_s_x;
+static PyObject *__pyx_n_s_y;
 static PyObject *__pyx_pf_9CACompute_reload(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_9CACompute_2compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations); /* proto */
+static PyObject *__pyx_pf_9CACompute_2set_bounds(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_x, int __pyx_v_y, std::string __pyx_v_type1); /* proto */
+static PyObject *__pyx_pf_9CACompute_4compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations); /* proto */
 static PyObject *__pyx_int_0;
 /* Late includes */
 
-/* "CACompute.pyx":44
- * cdef int alternating_period2 = transFunc.alternating_period
+/* "CACompute.pyx":48
+ * cdef string bound_type
  * 
  * cpdef void reload():             # <<<<<<<<<<<<<<
  *     global depends_cache, transition_func_cache, alternating_period2
@@ -1333,19 +1363,19 @@ static void __pyx_f_9CACompute_reload(CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("reload", 0);
 
-  /* "CACompute.pyx":46
+  /* "CACompute.pyx":50
  * cpdef void reload():
  *     global depends_cache, transition_func_cache, alternating_period2
  *     importlib.reload(transFunc)             # <<<<<<<<<<<<<<
  *     depends_cache.clear()
  *     transition_func_cache.clear()
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_importlib); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_importlib); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_reload); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_reload); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -1360,12 +1390,12 @@ static void __pyx_f_9CACompute_reload(CYTHON_UNUSED int __pyx_skip_dispatch) {
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CACompute.pyx":47
+  /* "CACompute.pyx":51
  *     global depends_cache, transition_func_cache, alternating_period2
  *     importlib.reload(transFunc)
  *     depends_cache.clear()             # <<<<<<<<<<<<<<
@@ -1374,7 +1404,7 @@ static void __pyx_f_9CACompute_reload(CYTHON_UNUSED int __pyx_skip_dispatch) {
  */
   __pyx_v_9CACompute_depends_cache.clear();
 
-  /* "CACompute.pyx":48
+  /* "CACompute.pyx":52
  *     importlib.reload(transFunc)
  *     depends_cache.clear()
  *     transition_func_cache.clear()             # <<<<<<<<<<<<<<
@@ -1383,24 +1413,24 @@ static void __pyx_f_9CACompute_reload(CYTHON_UNUSED int __pyx_skip_dispatch) {
  */
   __pyx_v_9CACompute_transition_func_cache.clear();
 
-  /* "CACompute.pyx":49
+  /* "CACompute.pyx":53
  *     depends_cache.clear()
  *     transition_func_cache.clear()
  *     alternating_period2 = transFunc.alternating_period             # <<<<<<<<<<<<<<
  * 
- * cpdef compute(vector[pair[int, int]] neighbourhood,
+ * cpdef set_bounds(int x, int y, string type1):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_alternating_period); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_alternating_period); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_9CACompute_alternating_period2 = __pyx_t_5;
 
-  /* "CACompute.pyx":44
- * cdef int alternating_period2 = transFunc.alternating_period
+  /* "CACompute.pyx":48
+ * cdef string bound_type
  * 
  * cpdef void reload():             # <<<<<<<<<<<<<<
  *     global depends_cache, transition_func_cache, alternating_period2
@@ -1438,7 +1468,7 @@ static PyObject *__pyx_pf_9CACompute_reload(CYTHON_UNUSED PyObject *__pyx_self) 
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("reload", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_9CACompute_reload(0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_9CACompute_reload(0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -1455,15 +1485,162 @@ static PyObject *__pyx_pf_9CACompute_reload(CYTHON_UNUSED PyObject *__pyx_self) 
   return __pyx_r;
 }
 
-/* "CACompute.pyx":51
+/* "CACompute.pyx":55
  *     alternating_period2 = transFunc.alternating_period
+ * 
+ * cpdef set_bounds(int x, int y, string type1):             # <<<<<<<<<<<<<<
+ *     global x_bound, y_bound, bound_type
+ *     x_bound, y_bound = x, y
+ */
+
+static PyObject *__pyx_pw_9CACompute_3set_bounds(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_9CACompute_set_bounds(int __pyx_v_x, int __pyx_v_y, std::string __pyx_v_type1, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  __Pyx_RefNannySetupContext("set_bounds", 0);
+
+  /* "CACompute.pyx":57
+ * cpdef set_bounds(int x, int y, string type1):
+ *     global x_bound, y_bound, bound_type
+ *     x_bound, y_bound = x, y             # <<<<<<<<<<<<<<
+ *     bound_type = type1
+ * 
+ */
+  __pyx_t_1 = __pyx_v_x;
+  __pyx_t_2 = __pyx_v_y;
+  __pyx_v_9CACompute_x_bound = __pyx_t_1;
+  __pyx_v_9CACompute_y_bound = __pyx_t_2;
+
+  /* "CACompute.pyx":58
+ *     global x_bound, y_bound, bound_type
+ *     x_bound, y_bound = x, y
+ *     bound_type = type1             # <<<<<<<<<<<<<<
+ * 
+ * cpdef compute(vector[pair[int, int]] neighbourhood,
+ */
+  __pyx_v_9CACompute_bound_type = __pyx_v_type1;
+
+  /* "CACompute.pyx":55
+ *     alternating_period2 = transFunc.alternating_period
+ * 
+ * cpdef set_bounds(int x, int y, string type1):             # <<<<<<<<<<<<<<
+ *     global x_bound, y_bound, bound_type
+ *     x_bound, y_bound = x, y
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9CACompute_3set_bounds(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_9CACompute_3set_bounds(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  int __pyx_v_x;
+  int __pyx_v_y;
+  std::string __pyx_v_type1;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("set_bounds (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x,&__pyx_n_s_y,&__pyx_n_s_type1,0};
+    PyObject* values[3] = {0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_y)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("set_bounds", 1, 3, 3, 1); __PYX_ERR(0, 55, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_type1)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("set_bounds", 1, 3, 3, 2); __PYX_ERR(0, 55, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "set_bounds") < 0)) __PYX_ERR(0, 55, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+    }
+    __pyx_v_x = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_x == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L3_error)
+    __pyx_v_y = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_y == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L3_error)
+    __pyx_v_type1 = __pyx_convert_string_from_py_std__in_string(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("set_bounds", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 55, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("CACompute.set_bounds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_9CACompute_2set_bounds(__pyx_self, __pyx_v_x, __pyx_v_y, __pyx_v_type1);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9CACompute_2set_bounds(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_x, int __pyx_v_y, std::string __pyx_v_type1) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("set_bounds", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_f_9CACompute_set_bounds(__pyx_v_x, __pyx_v_y, __pyx_v_type1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("CACompute.set_bounds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "CACompute.pyx":60
+ *     bound_type = type1
  * 
  * cpdef compute(vector[pair[int, int]] neighbourhood,             # <<<<<<<<<<<<<<
  *               unordered_set[pair[int, int]] cells_changed,
  *               unordered_map[pair[int, int], int] copy_grid, unordered_map[pair[int, int], int] dict_grid,
  */
 
-static PyObject *__pyx_pw_9CACompute_3compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_9CACompute_5compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations, CYTHON_UNUSED int __pyx_skip_dispatch) {
   std::vector<int>  __pyx_v_neighbours;
   std::unordered_set<std::pair<int,int> >  __pyx_v_cells_to_check;
@@ -1482,14 +1659,16 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
-  int __pyx_t_9;
+  PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
   PyObject *__pyx_t_11 = NULL;
-  std::pair<std::vector<int> ,int>  __pyx_t_12;
-  std::pair<std::pair<int,int> ,int>  __pyx_t_13;
+  int __pyx_t_12;
+  PyObject *__pyx_t_13 = NULL;
+  std::pair<std::vector<int> ,int>  __pyx_t_14;
+  std::pair<std::pair<int,int> ,int>  __pyx_t_15;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "CACompute.pyx":57
+  /* "CACompute.pyx":66
  * 
  *     cdef vector[int] neighbours
  *     neighbours.reserve(neighbourhood.size() + 1)             # <<<<<<<<<<<<<<
@@ -1498,7 +1677,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   __pyx_v_neighbours.reserve((__pyx_v_neighbourhood.size() + 1));
 
-  /* "CACompute.pyx":66
+  /* "CACompute.pyx":75
  *     cdef pair[int, int] neighbour
  * 
  *     for coor in cells_changed:             # <<<<<<<<<<<<<<
@@ -1512,7 +1691,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     ++__pyx_t_1;
     __pyx_v_coor = __pyx_t_2;
 
-    /* "CACompute.pyx":67
+    /* "CACompute.pyx":76
  * 
  *     for coor in cells_changed:
  *         for neighbour in neighbourhood:             # <<<<<<<<<<<<<<
@@ -1526,7 +1705,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       ++__pyx_t_3;
       __pyx_v_neighbour = __pyx_t_2;
 
-      /* "CACompute.pyx":68
+      /* "CACompute.pyx":77
  *     for coor in cells_changed:
  *         for neighbour in neighbourhood:
  *             coordinates.first = coor.first + neighbour.first             # <<<<<<<<<<<<<<
@@ -1535,7 +1714,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_v_coordinates.first = (__pyx_v_coor.first + __pyx_v_neighbour.first);
 
-      /* "CACompute.pyx":69
+      /* "CACompute.pyx":78
  *         for neighbour in neighbourhood:
  *             coordinates.first = coor.first + neighbour.first
  *             coordinates.second = coor.second + neighbour.second             # <<<<<<<<<<<<<<
@@ -1544,7 +1723,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_v_coordinates.second = (__pyx_v_coor.second + __pyx_v_neighbour.second);
 
-      /* "CACompute.pyx":70
+      /* "CACompute.pyx":79
  *             coordinates.first = coor.first + neighbour.first
  *             coordinates.second = coor.second + neighbour.second
  *             cells_to_check.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -1553,7 +1732,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       (void)(__pyx_v_cells_to_check.insert(__pyx_v_coordinates));
 
-      /* "CACompute.pyx":67
+      /* "CACompute.pyx":76
  * 
  *     for coor in cells_changed:
  *         for neighbour in neighbourhood:             # <<<<<<<<<<<<<<
@@ -1562,7 +1741,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     }
 
-    /* "CACompute.pyx":72
+    /* "CACompute.pyx":81
  *             cells_to_check.insert(coordinates)
  * 
  *         cells_to_check.insert(coor)             # <<<<<<<<<<<<<<
@@ -1571,7 +1750,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     (void)(__pyx_v_cells_to_check.insert(__pyx_v_coor));
 
-    /* "CACompute.pyx":66
+    /* "CACompute.pyx":75
  *     cdef pair[int, int] neighbour
  * 
  *     for coor in cells_changed:             # <<<<<<<<<<<<<<
@@ -1580,7 +1759,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   }
 
-  /* "CACompute.pyx":74
+  /* "CACompute.pyx":83
  *         cells_to_check.insert(coor)
  * 
  *     if alternating_period2 > 1:             # <<<<<<<<<<<<<<
@@ -1590,7 +1769,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   __pyx_t_4 = ((__pyx_v_9CACompute_alternating_period2 > 1) != 0);
   if (__pyx_t_4) {
 
-    /* "CACompute.pyx":75
+    /* "CACompute.pyx":84
  * 
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:             # <<<<<<<<<<<<<<
@@ -1600,7 +1779,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     __pyx_t_4 = (((__pyx_v_generations % (__pyx_v_9CACompute_alternating_period2 - 1)) == 0) != 0);
     if (__pyx_t_4) {
 
-      /* "CACompute.pyx":76
+      /* "CACompute.pyx":85
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:
  *             cells_changed.clear()             # <<<<<<<<<<<<<<
@@ -1609,7 +1788,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_v_cells_changed.clear();
 
-      /* "CACompute.pyx":75
+      /* "CACompute.pyx":84
  * 
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:             # <<<<<<<<<<<<<<
@@ -1618,7 +1797,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     }
 
-    /* "CACompute.pyx":74
+    /* "CACompute.pyx":83
  *         cells_to_check.insert(coor)
  * 
  *     if alternating_period2 > 1:             # <<<<<<<<<<<<<<
@@ -1628,7 +1807,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     goto __pyx_L7;
   }
 
-  /* "CACompute.pyx":78
+  /* "CACompute.pyx":87
  *             cells_changed.clear()
  *     else:
  *         cells_changed.clear()             # <<<<<<<<<<<<<<
@@ -1640,12 +1819,12 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   }
   __pyx_L7:;
 
-  /* "CACompute.pyx":80
+  /* "CACompute.pyx":89
  *         cells_changed.clear()
  * 
  *     for coordinates in cells_to_check:             # <<<<<<<<<<<<<<
- *         neighbours.clear()
- *         ans = -1
+ *         coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)
+ * 
  */
   __pyx_t_1 = __pyx_v_cells_to_check.begin();
   for (;;) {
@@ -1654,17 +1833,97 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     ++__pyx_t_1;
     __pyx_v_coordinates = __pyx_t_2;
 
-    /* "CACompute.pyx":81
+    /* "CACompute.pyx":90
  * 
  *     for coordinates in cells_to_check:
+ *         coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)             # <<<<<<<<<<<<<<
+ * 
+ *         neighbours.clear()
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_correct_coor); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_7 = __pyx_convert_pair_to_py_int____int(__pyx_v_coordinates); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_8 = __pyx_convert_PyBytes_string_to_py_std__in_string(__pyx_v_9CACompute_bound_type); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_9CACompute_x_bound); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_9CACompute_y_bound); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __pyx_t_11 = NULL;
+    __pyx_t_12 = 0;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+      __pyx_t_11 = PyMethod_GET_SELF(__pyx_t_6);
+      if (likely(__pyx_t_11)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+        __Pyx_INCREF(__pyx_t_11);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_6, function);
+        __pyx_t_12 = 1;
+      }
+    }
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_6)) {
+      PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_t_7, __pyx_t_8, __pyx_t_9, __pyx_t_10};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_12, 4+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
+      PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_t_7, __pyx_t_8, __pyx_t_9, __pyx_t_10};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_12, 4+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    } else
+    #endif
+    {
+      __pyx_t_13 = PyTuple_New(4+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      if (__pyx_t_11) {
+        __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_11); __pyx_t_11 = NULL;
+      }
+      __Pyx_GIVEREF(__pyx_t_7);
+      PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_12, __pyx_t_7);
+      __Pyx_GIVEREF(__pyx_t_8);
+      PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_12, __pyx_t_8);
+      __Pyx_GIVEREF(__pyx_t_9);
+      PyTuple_SET_ITEM(__pyx_t_13, 2+__pyx_t_12, __pyx_t_9);
+      __Pyx_GIVEREF(__pyx_t_10);
+      PyTuple_SET_ITEM(__pyx_t_13, 3+__pyx_t_12, __pyx_t_10);
+      __pyx_t_7 = 0;
+      __pyx_t_8 = 0;
+      __pyx_t_9 = 0;
+      __pyx_t_10 = 0;
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_13, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_2 = __pyx_convert_pair_from_py_int__and_int(__pyx_t_5); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_v_coordinates = __pyx_t_2;
+
+    /* "CACompute.pyx":92
+ *         coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)
+ * 
  *         neighbours.clear()             # <<<<<<<<<<<<<<
  *         ans = -1
  * 
  */
     __pyx_v_neighbours.clear();
 
-    /* "CACompute.pyx":82
- *     for coordinates in cells_to_check:
+    /* "CACompute.pyx":93
+ * 
  *         neighbours.clear()
  *         ans = -1             # <<<<<<<<<<<<<<
  * 
@@ -1672,7 +1931,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     __pyx_v_ans = -1;
 
-    /* "CACompute.pyx":84
+    /* "CACompute.pyx":95
  *         ans = -1
  * 
  *         if copy_grid.find(coordinates) == copy_grid.end():             # <<<<<<<<<<<<<<
@@ -1682,7 +1941,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     __pyx_t_4 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) == __pyx_v_copy_grid.end()) != 0);
     if (__pyx_t_4) {
 
-      /* "CACompute.pyx":85
+      /* "CACompute.pyx":96
  * 
  *         if copy_grid.find(coordinates) == copy_grid.end():
  *             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -1693,10 +1952,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 85, __pyx_L1_error)
+        __PYX_ERR(0, 96, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":86
+      /* "CACompute.pyx":97
  *         if copy_grid.find(coordinates) == copy_grid.end():
  *             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \
  *                     depends_cache.end():             # <<<<<<<<<<<<<<
@@ -1705,7 +1964,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_t_4 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
 
-      /* "CACompute.pyx":85
+      /* "CACompute.pyx":96
  * 
  *         if copy_grid.find(coordinates) == copy_grid.end():
  *             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -1714,72 +1973,72 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":87
+        /* "CACompute.pyx":98
  *             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \
  *                     depends_cache.end():
  *                 ans = transFunc.depend_on_neighbours(0, generations % alternating_period2)             # <<<<<<<<<<<<<<
  *                 depends_cache[pair[int, int] (0, generations % alternating_period2)] = ans
  *             else:
  */
-        __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 87, __pyx_L1_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 98, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_depend_on_neighbours); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 87, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_depend_on_neighbours); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 98, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 87, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 98, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_8 = NULL;
-        __pyx_t_9 = 0;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_7);
-          if (likely(__pyx_t_8)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-            __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_10 = NULL;
+        __pyx_t_12 = 0;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_13);
+          if (likely(__pyx_t_10)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_13);
+            __Pyx_INCREF(__pyx_t_10);
             __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_7, function);
-            __pyx_t_9 = 1;
+            __Pyx_DECREF_SET(__pyx_t_13, function);
+            __pyx_t_12 = 1;
           }
         }
         #if CYTHON_FAST_PYCALL
-        if (PyFunction_Check(__pyx_t_7)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_int_0, __pyx_t_6};
-          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        if (PyFunction_Check(__pyx_t_13)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_int_0, __pyx_t_6};
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         } else
         #endif
         #if CYTHON_FAST_PYCCALL
-        if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_int_0, __pyx_t_6};
-          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_13)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_int_0, __pyx_t_6};
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         } else
         #endif
         {
-          __pyx_t_10 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 87, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_10);
-          if (__pyx_t_8) {
-            __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_8); __pyx_t_8 = NULL;
+          __pyx_t_9 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 98, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_9);
+          if (__pyx_t_10) {
+            __Pyx_GIVEREF(__pyx_t_10); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_10); __pyx_t_10 = NULL;
           }
           __Pyx_INCREF(__pyx_int_0);
           __Pyx_GIVEREF(__pyx_int_0);
-          PyTuple_SET_ITEM(__pyx_t_10, 0+__pyx_t_9, __pyx_int_0);
+          PyTuple_SET_ITEM(__pyx_t_9, 0+__pyx_t_12, __pyx_int_0);
           __Pyx_GIVEREF(__pyx_t_6);
-          PyTuple_SET_ITEM(__pyx_t_10, 1+__pyx_t_9, __pyx_t_6);
+          PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_12, __pyx_t_6);
           __pyx_t_6 = 0;
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 87, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         }
-        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 87, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __pyx_t_12 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 98, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_v_ans = __pyx_t_9;
+        __pyx_v_ans = __pyx_t_12;
 
-        /* "CACompute.pyx":88
+        /* "CACompute.pyx":99
  *                     depends_cache.end():
  *                 ans = transFunc.depend_on_neighbours(0, generations % alternating_period2)
  *                 depends_cache[pair[int, int] (0, generations % alternating_period2)] = ans             # <<<<<<<<<<<<<<
@@ -1790,11 +2049,11 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 88, __pyx_L1_error)
+          __PYX_ERR(0, 99, __pyx_L1_error)
         }
         (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
-        /* "CACompute.pyx":85
+        /* "CACompute.pyx":96
  * 
  *         if copy_grid.find(coordinates) == copy_grid.end():
  *             if depends_cache.find(pair[int, int] (0, generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -1804,7 +2063,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         goto __pyx_L12;
       }
 
-      /* "CACompute.pyx":90
+      /* "CACompute.pyx":101
  *                 depends_cache[pair[int, int] (0, generations % alternating_period2)] = ans
  *             else:
  *                 ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]             # <<<<<<<<<<<<<<
@@ -1816,13 +2075,13 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_2 = std::pair<int,int> (0, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 90, __pyx_L1_error)
+          __PYX_ERR(0, 101, __pyx_L1_error)
         }
         __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
       }
       __pyx_L12:;
 
-      /* "CACompute.pyx":84
+      /* "CACompute.pyx":95
  *         ans = -1
  * 
  *         if copy_grid.find(coordinates) == copy_grid.end():             # <<<<<<<<<<<<<<
@@ -1832,7 +2091,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       goto __pyx_L11;
     }
 
-    /* "CACompute.pyx":92
+    /* "CACompute.pyx":103
  *                 ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]
  *         else:
  *             if depends_cache.find(pair[int, int] (copy_grid[coordinates],             # <<<<<<<<<<<<<<
@@ -1841,7 +2100,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     /*else*/ {
 
-      /* "CACompute.pyx":93
+      /* "CACompute.pyx":104
  *         else:
  *             if depends_cache.find(pair[int, int] (copy_grid[coordinates],
  *                                                   generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -1852,10 +2111,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_2 = std::pair<int,int> ((__pyx_v_copy_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 92, __pyx_L1_error)
+        __PYX_ERR(0, 103, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":94
+      /* "CACompute.pyx":105
  *             if depends_cache.find(pair[int, int] (copy_grid[coordinates],
  *                                                   generations % alternating_period2)) == \
  *                     depends_cache.end():             # <<<<<<<<<<<<<<
@@ -1864,7 +2123,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_t_4 = ((__pyx_v_9CACompute_depends_cache.find(__pyx_t_2) == __pyx_v_9CACompute_depends_cache.end()) != 0);
 
-      /* "CACompute.pyx":92
+      /* "CACompute.pyx":103
  *                 ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]
  *         else:
  *             if depends_cache.find(pair[int, int] (copy_grid[coordinates],             # <<<<<<<<<<<<<<
@@ -1873,76 +2132,76 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":95
+        /* "CACompute.pyx":106
  *                                                   generations % alternating_period2)) == \
  *                     depends_cache.end():
  *                 ans = transFunc.depend_on_neighbours(copy_grid[coordinates], generations % alternating_period2)             # <<<<<<<<<<<<<<
  *                 depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)] = ans
  *             else:
  */
-        __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 95, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_depend_on_neighbours); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 95, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_10);
-        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-        __pyx_t_7 = __Pyx_PyInt_From_int((__pyx_v_copy_grid[__pyx_v_coordinates])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 95, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 95, __pyx_L1_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_depend_on_neighbours); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __pyx_t_13 = __Pyx_PyInt_From_int((__pyx_v_copy_grid[__pyx_v_coordinates])); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 106, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_8 = NULL;
-        __pyx_t_9 = 0;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_10))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_10);
-          if (likely(__pyx_t_8)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_10);
-            __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_10 = NULL;
+        __pyx_t_12 = 0;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
+          __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_9);
+          if (likely(__pyx_t_10)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
+            __Pyx_INCREF(__pyx_t_10);
             __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_10, function);
-            __pyx_t_9 = 1;
+            __Pyx_DECREF_SET(__pyx_t_9, function);
+            __pyx_t_12 = 1;
           }
         }
         #if CYTHON_FAST_PYCALL
-        if (PyFunction_Check(__pyx_t_10)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_7, __pyx_t_6};
-          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_10, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 95, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        if (PyFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_13, __pyx_t_6};
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         } else
         #endif
         #if CYTHON_FAST_PYCCALL
-        if (__Pyx_PyFastCFunction_Check(__pyx_t_10)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_7, __pyx_t_6};
-          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_10, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 95, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_13, __pyx_t_6};
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         } else
         #endif
         {
-          __pyx_t_11 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 95, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_11);
-          if (__pyx_t_8) {
-            __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_8); __pyx_t_8 = NULL;
+          __pyx_t_8 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 106, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_8);
+          if (__pyx_t_10) {
+            __Pyx_GIVEREF(__pyx_t_10); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_10); __pyx_t_10 = NULL;
           }
-          __Pyx_GIVEREF(__pyx_t_7);
-          PyTuple_SET_ITEM(__pyx_t_11, 0+__pyx_t_9, __pyx_t_7);
+          __Pyx_GIVEREF(__pyx_t_13);
+          PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_12, __pyx_t_13);
           __Pyx_GIVEREF(__pyx_t_6);
-          PyTuple_SET_ITEM(__pyx_t_11, 1+__pyx_t_9, __pyx_t_6);
-          __pyx_t_7 = 0;
+          PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_12, __pyx_t_6);
+          __pyx_t_13 = 0;
           __pyx_t_6 = 0;
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_10, __pyx_t_11, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 95, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_8, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
-        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 95, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __pyx_t_12 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 106, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_v_ans = __pyx_t_9;
+        __pyx_v_ans = __pyx_t_12;
 
-        /* "CACompute.pyx":96
+        /* "CACompute.pyx":107
  *                     depends_cache.end():
  *                 ans = transFunc.depend_on_neighbours(copy_grid[coordinates], generations % alternating_period2)
  *                 depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)] = ans             # <<<<<<<<<<<<<<
@@ -1953,11 +2212,11 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_2 = std::pair<int,int> ((__pyx_v_copy_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 96, __pyx_L1_error)
+          __PYX_ERR(0, 107, __pyx_L1_error)
         }
         (__pyx_v_9CACompute_depends_cache[__pyx_t_2]) = __pyx_v_ans;
 
-        /* "CACompute.pyx":92
+        /* "CACompute.pyx":103
  *                 ans = depends_cache[pair[int, int] (0, generations % alternating_period2)]
  *         else:
  *             if depends_cache.find(pair[int, int] (copy_grid[coordinates],             # <<<<<<<<<<<<<<
@@ -1967,7 +2226,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         goto __pyx_L13;
       }
 
-      /* "CACompute.pyx":98
+      /* "CACompute.pyx":109
  *                 depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)] = ans
  *             else:
  *                 ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)]             # <<<<<<<<<<<<<<
@@ -1979,7 +2238,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_2 = std::pair<int,int> ((__pyx_v_copy_grid[__pyx_v_coordinates]), (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 98, __pyx_L1_error)
+          __PYX_ERR(0, 109, __pyx_L1_error)
         }
         __pyx_v_ans = (__pyx_v_9CACompute_depends_cache[__pyx_t_2]);
       }
@@ -1987,22 +2246,22 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     }
     __pyx_L11:;
 
-    /* "CACompute.pyx":100
+    /* "CACompute.pyx":111
  *                 ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)]
  * 
  *         if ans == -1:             # <<<<<<<<<<<<<<
  *             for neighbour in neighbourhood:
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
  */
     __pyx_t_4 = ((__pyx_v_ans == -1L) != 0);
     if (__pyx_t_4) {
 
-      /* "CACompute.pyx":101
+      /* "CACompute.pyx":112
  * 
  *         if ans == -1:
  *             for neighbour in neighbourhood:             # <<<<<<<<<<<<<<
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                coordinates.second + neighbour.second)
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+ *                                                             coordinates.second + neighbour.second),
  */
       __pyx_t_3 = __pyx_v_neighbourhood.begin();
       for (;;) {
@@ -2011,24 +2270,127 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         ++__pyx_t_3;
         __pyx_v_neighbour = __pyx_t_2;
 
-        /* "CACompute.pyx":102
+        /* "CACompute.pyx":113
  *         if ans == -1:
  *             for neighbour in neighbourhood:
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
- *                                                coordinates.second + neighbour.second)
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)
+ */
+        __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_correct_coor); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+
+        /* "CACompute.pyx":114
+ *             for neighbour in neighbourhood:
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+ *                                                             coordinates.second + neighbour.second),             # <<<<<<<<<<<<<<
+ *                                             bound_type, x_bound, y_bound)
  *                 if copy_grid.find(coordinates2) != copy_grid.end():
  */
         try {
           __pyx_t_2 = std::pair<int,int> ((__pyx_v_coordinates.first + __pyx_v_neighbour.first), (__pyx_v_coordinates.second + __pyx_v_neighbour.second));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 102, __pyx_L1_error)
+          __PYX_ERR(0, 113, __pyx_L1_error)
         }
+
+        /* "CACompute.pyx":113
+ *         if ans == -1:
+ *             for neighbour in neighbourhood:
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)
+ */
+        __pyx_t_8 = __pyx_convert_pair_to_py_int____int(__pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+
+        /* "CACompute.pyx":115
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)             # <<<<<<<<<<<<<<
+ *                 if copy_grid.find(coordinates2) != copy_grid.end():
+ *                     neighbours.push_back(copy_grid[coordinates2])
+ */
+        __pyx_t_6 = __pyx_convert_PyBytes_string_to_py_std__in_string(__pyx_v_9CACompute_bound_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 115, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_9CACompute_x_bound); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 115, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_9CACompute_y_bound); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 115, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_10);
+        __pyx_t_7 = NULL;
+        __pyx_t_12 = 0;
+        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
+          __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_9);
+          if (likely(__pyx_t_7)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
+            __Pyx_INCREF(__pyx_t_7);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_9, function);
+            __pyx_t_12 = 1;
+          }
+        }
+        #if CYTHON_FAST_PYCALL
+        if (PyFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[5] = {__pyx_t_7, __pyx_t_8, __pyx_t_6, __pyx_t_13, __pyx_t_10};
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 4+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        } else
+        #endif
+        #if CYTHON_FAST_PYCCALL
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[5] = {__pyx_t_7, __pyx_t_8, __pyx_t_6, __pyx_t_13, __pyx_t_10};
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_12, 4+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        } else
+        #endif
+        {
+          __pyx_t_11 = PyTuple_New(4+__pyx_t_12); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 113, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_11);
+          if (__pyx_t_7) {
+            __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_7); __pyx_t_7 = NULL;
+          }
+          __Pyx_GIVEREF(__pyx_t_8);
+          PyTuple_SET_ITEM(__pyx_t_11, 0+__pyx_t_12, __pyx_t_8);
+          __Pyx_GIVEREF(__pyx_t_6);
+          PyTuple_SET_ITEM(__pyx_t_11, 1+__pyx_t_12, __pyx_t_6);
+          __Pyx_GIVEREF(__pyx_t_13);
+          PyTuple_SET_ITEM(__pyx_t_11, 2+__pyx_t_12, __pyx_t_13);
+          __Pyx_GIVEREF(__pyx_t_10);
+          PyTuple_SET_ITEM(__pyx_t_11, 3+__pyx_t_12, __pyx_t_10);
+          __pyx_t_8 = 0;
+          __pyx_t_6 = 0;
+          __pyx_t_13 = 0;
+          __pyx_t_10 = 0;
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_11, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        }
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+
+        /* "CACompute.pyx":113
+ *         if ans == -1:
+ *             for neighbour in neighbourhood:
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,             # <<<<<<<<<<<<<<
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)
+ */
+        __pyx_t_2 = __pyx_convert_pair_from_py_int__and_int(__pyx_t_5); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 113, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __pyx_v_coordinates2 = __pyx_t_2;
 
-        /* "CACompute.pyx":104
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                coordinates.second + neighbour.second)
+        /* "CACompute.pyx":116
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)
  *                 if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                     neighbours.push_back(copy_grid[coordinates2])
  *                 else:
@@ -2036,8 +2398,8 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_4 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates2) != __pyx_v_copy_grid.end()) != 0);
         if (__pyx_t_4) {
 
-          /* "CACompute.pyx":105
- *                                                coordinates.second + neighbour.second)
+          /* "CACompute.pyx":117
+ *                                             bound_type, x_bound, y_bound)
  *                 if copy_grid.find(coordinates2) != copy_grid.end():
  *                     neighbours.push_back(copy_grid[coordinates2])             # <<<<<<<<<<<<<<
  *                 else:
@@ -2047,12 +2409,12 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_v_neighbours.push_back((__pyx_v_copy_grid[__pyx_v_coordinates2]));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 105, __pyx_L1_error)
+            __PYX_ERR(0, 117, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":104
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                coordinates.second + neighbour.second)
+          /* "CACompute.pyx":116
+ *                                                             coordinates.second + neighbour.second),
+ *                                             bound_type, x_bound, y_bound)
  *                 if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                     neighbours.push_back(copy_grid[coordinates2])
  *                 else:
@@ -2060,7 +2422,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           goto __pyx_L17;
         }
 
-        /* "CACompute.pyx":107
+        /* "CACompute.pyx":119
  *                     neighbours.push_back(copy_grid[coordinates2])
  *                 else:
  *                     neighbours.push_back(0)             # <<<<<<<<<<<<<<
@@ -2072,30 +2434,30 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_v_neighbours.push_back(0);
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 107, __pyx_L1_error)
+            __PYX_ERR(0, 119, __pyx_L1_error)
           }
         }
         __pyx_L17:;
 
-        /* "CACompute.pyx":101
+        /* "CACompute.pyx":112
  * 
  *         if ans == -1:
  *             for neighbour in neighbourhood:             # <<<<<<<<<<<<<<
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
- *                                                coordinates.second + neighbour.second)
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+ *                                                             coordinates.second + neighbour.second),
  */
       }
 
-      /* "CACompute.pyx":100
+      /* "CACompute.pyx":111
  *                 ans = depends_cache[pair[int, int] (copy_grid[coordinates], generations % alternating_period2)]
  * 
  *         if ans == -1:             # <<<<<<<<<<<<<<
  *             for neighbour in neighbourhood:
- *                 coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
+ *                 coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
  */
     }
 
-    /* "CACompute.pyx":109
+    /* "CACompute.pyx":121
  *                     neighbours.push_back(0)
  * 
  *         if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -2105,7 +2467,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     __pyx_t_4 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) != __pyx_v_copy_grid.end()) != 0);
     if (__pyx_t_4) {
 
-      /* "CACompute.pyx":110
+      /* "CACompute.pyx":122
  * 
  *         if copy_grid.find(coordinates) != copy_grid.end():
  *             neighbours.push_back(copy_grid[coordinates])             # <<<<<<<<<<<<<<
@@ -2116,10 +2478,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_v_neighbours.push_back((__pyx_v_copy_grid[__pyx_v_coordinates]));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 110, __pyx_L1_error)
+        __PYX_ERR(0, 122, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":112
+      /* "CACompute.pyx":124
  *             neighbours.push_back(copy_grid[coordinates])
  *             if transition_func_cache.find(
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -2127,22 +2489,22 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                 if ans == -1:
  */
       try {
-        __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+        __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 112, __pyx_L1_error)
+        __PYX_ERR(0, 124, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":113
+      /* "CACompute.pyx":125
  *             if transition_func_cache.find(
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():             # <<<<<<<<<<<<<<
  *                 if ans == -1:
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)
  */
-      __pyx_t_4 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_12) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+      __pyx_t_4 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_14) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
 
-      /* "CACompute.pyx":111
+      /* "CACompute.pyx":123
  *         if copy_grid.find(coordinates) != copy_grid.end():
  *             neighbours.push_back(copy_grid[coordinates])
  *             if transition_func_cache.find(             # <<<<<<<<<<<<<<
@@ -2151,7 +2513,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":114
+        /* "CACompute.pyx":126
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2161,76 +2523,76 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_4 = ((__pyx_v_ans == -1L) != 0);
         if (__pyx_t_4) {
 
-          /* "CACompute.pyx":115
+          /* "CACompute.pyx":127
  *                     transition_func_cache.end():
  *                 if ans == -1:
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)             # <<<<<<<<<<<<<<
  *                     transition_func_cache[
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  */
-          __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 115, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_10);
-          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_transition_func); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 115, __pyx_L1_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 127, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_9);
+          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_transition_func); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 127, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
-          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-          __pyx_t_10 = __pyx_convert_vector_to_py_int(__pyx_v_neighbours); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 115, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+          __pyx_t_9 = __pyx_convert_vector_to_py_int(__pyx_v_neighbours); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 127, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_9);
+          __pyx_t_10 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 127, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_10);
-          __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 115, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_6);
-          __pyx_t_7 = NULL;
-          __pyx_t_9 = 0;
+          __pyx_t_13 = NULL;
+          __pyx_t_12 = 0;
           if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_11))) {
-            __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_11);
-            if (likely(__pyx_t_7)) {
+            __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_11);
+            if (likely(__pyx_t_13)) {
               PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_11);
-              __Pyx_INCREF(__pyx_t_7);
+              __Pyx_INCREF(__pyx_t_13);
               __Pyx_INCREF(function);
               __Pyx_DECREF_SET(__pyx_t_11, function);
-              __pyx_t_9 = 1;
+              __pyx_t_12 = 1;
             }
           }
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_11)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_10, __pyx_t_6};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
-            __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+            PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_9, __pyx_t_10};
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
+            __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
+            __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
             __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           } else
           #endif
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_10, __pyx_t_6};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
-            __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+            PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_9, __pyx_t_10};
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
+            __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
+            __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
             __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           } else
           #endif
           {
-            __pyx_t_8 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 115, __pyx_L1_error)
-            __Pyx_GOTREF(__pyx_t_8);
-            if (__pyx_t_7) {
-              __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_7); __pyx_t_7 = NULL;
+            __pyx_t_6 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 127, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_6);
+            if (__pyx_t_13) {
+              __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_13); __pyx_t_13 = NULL;
             }
+            __Pyx_GIVEREF(__pyx_t_9);
+            PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_12, __pyx_t_9);
             __Pyx_GIVEREF(__pyx_t_10);
-            PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_9, __pyx_t_10);
-            __Pyx_GIVEREF(__pyx_t_6);
-            PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_9, __pyx_t_6);
+            PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_12, __pyx_t_10);
+            __pyx_t_9 = 0;
             __pyx_t_10 = 0;
-            __pyx_t_6 = 0;
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_8, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_6, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
-            __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           }
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-          __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 115, __pyx_L1_error)
+          __pyx_t_12 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 127, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __pyx_v_ans = __pyx_t_9;
+          __pyx_v_ans = __pyx_t_12;
 
-          /* "CACompute.pyx":117
+          /* "CACompute.pyx":129
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)
  *                     transition_func_cache[
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans             # <<<<<<<<<<<<<<
@@ -2238,14 +2600,14 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                 if ans == -1: ans = transition_func_cache[
  */
           try {
-            __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+            __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 117, __pyx_L1_error)
+            __PYX_ERR(0, 129, __pyx_L1_error)
           }
-          (__pyx_v_9CACompute_transition_func_cache[__pyx_t_12]) = __pyx_v_ans;
+          (__pyx_v_9CACompute_transition_func_cache[__pyx_t_14]) = __pyx_v_ans;
 
-          /* "CACompute.pyx":114
+          /* "CACompute.pyx":126
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2254,7 +2616,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         }
 
-        /* "CACompute.pyx":111
+        /* "CACompute.pyx":123
  *         if copy_grid.find(coordinates) != copy_grid.end():
  *             neighbours.push_back(copy_grid[coordinates])
  *             if transition_func_cache.find(             # <<<<<<<<<<<<<<
@@ -2264,7 +2626,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         goto __pyx_L19;
       }
 
-      /* "CACompute.pyx":119
+      /* "CACompute.pyx":131
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  *             else:
  *                 if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
@@ -2275,7 +2637,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_4 = ((__pyx_v_ans == -1L) != 0);
         if (__pyx_t_4) {
 
-          /* "CACompute.pyx":120
+          /* "CACompute.pyx":132
  *             else:
  *                 if ans == -1: ans = transition_func_cache[
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]             # <<<<<<<<<<<<<<
@@ -2283,25 +2645,25 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *             if ans == 0:
  */
           try {
-            __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+            __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 120, __pyx_L1_error)
+            __PYX_ERR(0, 132, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":119
+          /* "CACompute.pyx":131
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  *             else:
  *                 if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  */
-          __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_12]);
+          __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_14]);
         }
       }
       __pyx_L19:;
 
-      /* "CACompute.pyx":122
+      /* "CACompute.pyx":134
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  *             if ans == 0:             # <<<<<<<<<<<<<<
@@ -2311,7 +2673,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       __pyx_t_4 = ((__pyx_v_ans == 0) != 0);
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":123
+        /* "CACompute.pyx":135
  * 
  *             if ans == 0:
  *                 dict_grid.erase(coordinates)             # <<<<<<<<<<<<<<
@@ -2320,7 +2682,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
 
-        /* "CACompute.pyx":124
+        /* "CACompute.pyx":136
  *             if ans == 0:
  *                 dict_grid.erase(coordinates)
  *                 cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2329,7 +2691,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-        /* "CACompute.pyx":122
+        /* "CACompute.pyx":134
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  *             if ans == 0:             # <<<<<<<<<<<<<<
@@ -2339,7 +2701,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         goto __pyx_L22;
       }
 
-      /* "CACompute.pyx":125
+      /* "CACompute.pyx":137
  *                 dict_grid.erase(coordinates)
  *                 cells_changed.insert(coordinates)
  *             elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -2349,7 +2711,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       __pyx_t_4 = ((__pyx_v_ans != (__pyx_v_copy_grid[__pyx_v_coordinates])) != 0);
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":126
+        /* "CACompute.pyx":138
  *                 cells_changed.insert(coordinates)
  *             elif ans != copy_grid[coordinates]:
  *                 dict_grid[coordinates] = ans             # <<<<<<<<<<<<<<
@@ -2358,7 +2720,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
 
-        /* "CACompute.pyx":127
+        /* "CACompute.pyx":139
  *             elif ans != copy_grid[coordinates]:
  *                 dict_grid[coordinates] = ans
  *                 cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2367,7 +2729,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-        /* "CACompute.pyx":125
+        /* "CACompute.pyx":137
  *                 dict_grid.erase(coordinates)
  *                 cells_changed.insert(coordinates)
  *             elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -2377,7 +2739,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       }
       __pyx_L22:;
 
-      /* "CACompute.pyx":109
+      /* "CACompute.pyx":121
  *                     neighbours.push_back(0)
  * 
  *         if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -2387,7 +2749,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       goto __pyx_L18;
     }
 
-    /* "CACompute.pyx":129
+    /* "CACompute.pyx":141
  *                 cells_changed.insert(coordinates)
  *         else:
  *             neighbours.push_back(0)             # <<<<<<<<<<<<<<
@@ -2399,10 +2761,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_v_neighbours.push_back(0);
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 129, __pyx_L1_error)
+        __PYX_ERR(0, 141, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":131
+      /* "CACompute.pyx":143
  *             neighbours.push_back(0)
  *             if transition_func_cache.find(
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \             # <<<<<<<<<<<<<<
@@ -2410,22 +2772,22 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                 if ans == -1:
  */
       try {
-        __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+        __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 131, __pyx_L1_error)
+        __PYX_ERR(0, 143, __pyx_L1_error)
       }
 
-      /* "CACompute.pyx":132
+      /* "CACompute.pyx":144
  *             if transition_func_cache.find(
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():             # <<<<<<<<<<<<<<
  *                 if ans == -1:
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)
  */
-      __pyx_t_4 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_12) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
+      __pyx_t_4 = ((__pyx_v_9CACompute_transition_func_cache.find(__pyx_t_14) == __pyx_v_9CACompute_transition_func_cache.end()) != 0);
 
-      /* "CACompute.pyx":130
+      /* "CACompute.pyx":142
  *         else:
  *             neighbours.push_back(0)
  *             if transition_func_cache.find(             # <<<<<<<<<<<<<<
@@ -2434,7 +2796,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":133
+        /* "CACompute.pyx":145
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2444,76 +2806,76 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_4 = ((__pyx_v_ans == -1L) != 0);
         if (__pyx_t_4) {
 
-          /* "CACompute.pyx":134
+          /* "CACompute.pyx":146
  *                     transition_func_cache.end():
  *                 if ans == -1:
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)             # <<<<<<<<<<<<<<
  *                     transition_func_cache[
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  */
-          __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 134, __pyx_L1_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 146, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_transition_func); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_8);
-          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-          __pyx_t_11 = __pyx_convert_vector_to_py_int(__pyx_v_neighbours); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 134, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_6 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+          __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_transition_func); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 146, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
-          __pyx_t_10 = NULL;
-          __pyx_t_9 = 0;
-          if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_8))) {
-            __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_8);
-            if (likely(__pyx_t_10)) {
-              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
-              __Pyx_INCREF(__pyx_t_10);
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __pyx_t_11 = __pyx_convert_vector_to_py_int(__pyx_v_neighbours); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 146, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_11);
+          __pyx_t_10 = __Pyx_PyInt_From_int((__pyx_v_generations % __pyx_v_9CACompute_alternating_period2)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 146, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_10);
+          __pyx_t_9 = NULL;
+          __pyx_t_12 = 0;
+          if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+            __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_6);
+            if (likely(__pyx_t_9)) {
+              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+              __Pyx_INCREF(__pyx_t_9);
               __Pyx_INCREF(function);
-              __Pyx_DECREF_SET(__pyx_t_8, function);
-              __pyx_t_9 = 1;
+              __Pyx_DECREF_SET(__pyx_t_6, function);
+              __pyx_t_12 = 1;
             }
           }
           #if CYTHON_FAST_PYCALL
-          if (PyFunction_Check(__pyx_t_8)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_11, __pyx_t_6};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L1_error)
-            __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+          if (PyFunction_Check(__pyx_t_6)) {
+            PyObject *__pyx_temp[3] = {__pyx_t_9, __pyx_t_11, __pyx_t_10};
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 146, __pyx_L1_error)
+            __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+            __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           } else
           #endif
           #if CYTHON_FAST_PYCCALL
-          if (__Pyx_PyFastCFunction_Check(__pyx_t_8)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_11, __pyx_t_6};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L1_error)
-            __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+          if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
+            PyObject *__pyx_temp[3] = {__pyx_t_9, __pyx_t_11, __pyx_t_10};
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 146, __pyx_L1_error)
+            __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+            __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           } else
           #endif
           {
-            __pyx_t_7 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
-            __Pyx_GOTREF(__pyx_t_7);
-            if (__pyx_t_10) {
-              __Pyx_GIVEREF(__pyx_t_10); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_10); __pyx_t_10 = NULL;
+            __pyx_t_13 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 146, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_13);
+            if (__pyx_t_9) {
+              __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_9); __pyx_t_9 = NULL;
             }
             __Pyx_GIVEREF(__pyx_t_11);
-            PyTuple_SET_ITEM(__pyx_t_7, 0+__pyx_t_9, __pyx_t_11);
-            __Pyx_GIVEREF(__pyx_t_6);
-            PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_9, __pyx_t_6);
+            PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_12, __pyx_t_11);
+            __Pyx_GIVEREF(__pyx_t_10);
+            PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_12, __pyx_t_10);
             __pyx_t_11 = 0;
-            __pyx_t_6 = 0;
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_7, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L1_error)
+            __pyx_t_10 = 0;
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_13, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 146, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
-            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+            __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
           }
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 134, __pyx_L1_error)
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+          __pyx_t_12 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_12 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 146, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __pyx_v_ans = __pyx_t_9;
+          __pyx_v_ans = __pyx_t_12;
 
-          /* "CACompute.pyx":136
+          /* "CACompute.pyx":148
  *                     ans = transFunc.transition_func(neighbours, generations % alternating_period2)
  *                     transition_func_cache[
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans             # <<<<<<<<<<<<<<
@@ -2521,14 +2883,14 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                 if ans == -1: ans = transition_func_cache[
  */
           try {
-            __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+            __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 136, __pyx_L1_error)
+            __PYX_ERR(0, 148, __pyx_L1_error)
           }
-          (__pyx_v_9CACompute_transition_func_cache[__pyx_t_12]) = __pyx_v_ans;
+          (__pyx_v_9CACompute_transition_func_cache[__pyx_t_14]) = __pyx_v_ans;
 
-          /* "CACompute.pyx":133
+          /* "CACompute.pyx":145
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)) == \
  *                     transition_func_cache.end():
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2537,7 +2899,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         }
 
-        /* "CACompute.pyx":130
+        /* "CACompute.pyx":142
  *         else:
  *             neighbours.push_back(0)
  *             if transition_func_cache.find(             # <<<<<<<<<<<<<<
@@ -2547,7 +2909,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         goto __pyx_L23;
       }
 
-      /* "CACompute.pyx":138
+      /* "CACompute.pyx":150
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  *             else:
  *                 if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
@@ -2558,7 +2920,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_4 = ((__pyx_v_ans == -1L) != 0);
         if (__pyx_t_4) {
 
-          /* "CACompute.pyx":139
+          /* "CACompute.pyx":151
  *             else:
  *                 if ans == -1: ans = transition_func_cache[
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]             # <<<<<<<<<<<<<<
@@ -2566,25 +2928,25 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *             if ans != 0:
  */
           try {
-            __pyx_t_12 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
+            __pyx_t_14 = std::pair<std::vector<int> ,int> (__pyx_v_neighbours, (__pyx_v_generations % __pyx_v_9CACompute_alternating_period2));
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 139, __pyx_L1_error)
+            __PYX_ERR(0, 151, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":138
+          /* "CACompute.pyx":150
  *                         pair[vector[int], int] (neighbours, generations % alternating_period2)] = ans
  *             else:
  *                 if ans == -1: ans = transition_func_cache[             # <<<<<<<<<<<<<<
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  */
-          __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_12]);
+          __pyx_v_ans = (__pyx_v_9CACompute_transition_func_cache[__pyx_t_14]);
         }
       }
       __pyx_L23:;
 
-      /* "CACompute.pyx":141
+      /* "CACompute.pyx":153
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  *             if ans != 0:             # <<<<<<<<<<<<<<
@@ -2594,7 +2956,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       __pyx_t_4 = ((__pyx_v_ans != 0) != 0);
       if (__pyx_t_4) {
 
-        /* "CACompute.pyx":142
+        /* "CACompute.pyx":154
  * 
  *             if ans != 0:
  *                 dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))             # <<<<<<<<<<<<<<
@@ -2602,14 +2964,14 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  * 
  */
         try {
-          __pyx_t_13 = std::pair<std::pair<int,int> ,int> (__pyx_v_coordinates, __pyx_v_ans);
+          __pyx_t_15 = std::pair<std::pair<int,int> ,int> (__pyx_v_coordinates, __pyx_v_ans);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 142, __pyx_L1_error)
+          __PYX_ERR(0, 154, __pyx_L1_error)
         }
-        (void)(__pyx_v_dict_grid.insert(__pyx_t_13));
+        (void)(__pyx_v_dict_grid.insert(__pyx_t_15));
 
-        /* "CACompute.pyx":143
+        /* "CACompute.pyx":155
  *             if ans != 0:
  *                 dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                 cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2618,7 +2980,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-        /* "CACompute.pyx":141
+        /* "CACompute.pyx":153
  *                     pair[vector[int], int] (neighbours, generations % alternating_period2)]
  * 
  *             if ans != 0:             # <<<<<<<<<<<<<<
@@ -2629,39 +2991,39 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     }
     __pyx_L18:;
 
-    /* "CACompute.pyx":80
+    /* "CACompute.pyx":89
  *         cells_changed.clear()
  * 
  *     for coordinates in cells_to_check:             # <<<<<<<<<<<<<<
- *         neighbours.clear()
- *         ans = -1
+ *         coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)
+ * 
  */
   }
 
-  /* "CACompute.pyx":145
+  /* "CACompute.pyx":157
  *                 cells_changed.insert(coordinates)
  * 
  *     return cells_changed, dict_grid             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_v_cells_changed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 145, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 145, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_6 = __pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(__pyx_v_dict_grid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_13 = PyTuple_New(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
   __Pyx_GIVEREF(__pyx_t_5);
-  PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5);
-  __Pyx_GIVEREF(__pyx_t_8);
-  PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_8);
+  PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_5);
+  __Pyx_GIVEREF(__pyx_t_6);
+  PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_t_6);
   __pyx_t_5 = 0;
-  __pyx_t_8 = 0;
-  __pyx_r = __pyx_t_7;
-  __pyx_t_7 = 0;
+  __pyx_t_6 = 0;
+  __pyx_r = __pyx_t_13;
+  __pyx_t_13 = 0;
   goto __pyx_L0;
 
-  /* "CACompute.pyx":51
- *     alternating_period2 = transFunc.alternating_period
+  /* "CACompute.pyx":60
+ *     bound_type = type1
  * 
  * cpdef compute(vector[pair[int, int]] neighbourhood,             # <<<<<<<<<<<<<<
  *               unordered_set[pair[int, int]] cells_changed,
@@ -2674,8 +3036,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_13);
   __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -2685,8 +3049,8 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9CACompute_3compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_9CACompute_3compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_9CACompute_5compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_9CACompute_5compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector<std::pair<int,int> >  __pyx_v_neighbourhood;
   std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed;
   std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid;
@@ -2724,29 +3088,29 @@ static PyObject *__pyx_pw_9CACompute_3compute(PyObject *__pyx_self, PyObject *__
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cells_changed)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 1); __PYX_ERR(0, 51, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 1); __PYX_ERR(0, 60, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_copy_grid)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 2); __PYX_ERR(0, 51, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 2); __PYX_ERR(0, 60, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dict_grid)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 3); __PYX_ERR(0, 51, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 3); __PYX_ERR(0, 60, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_generations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 4); __PYX_ERR(0, 51, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, 4); __PYX_ERR(0, 60, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 51, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 60, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -2757,34 +3121,34 @@ static PyObject *__pyx_pw_9CACompute_3compute(PyObject *__pyx_self, PyObject *__
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
-    __pyx_v_neighbourhood = __pyx_convert_vector_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
-    __pyx_v_cells_changed = __pyx_convert_unordered_set_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 52, __pyx_L3_error)
-    __pyx_v_copy_grid = __pyx_convert_unordered_map_from_py_std_3a__3a_pair_3c_int_2c_int_3e_____and_int(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L3_error)
-    __pyx_v_dict_grid = __pyx_convert_unordered_map_from_py_std_3a__3a_pair_3c_int_2c_int_3e_____and_int(values[3]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L3_error)
-    __pyx_v_generations = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_generations == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L3_error)
+    __pyx_v_neighbourhood = __pyx_convert_vector_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
+    __pyx_v_cells_changed = __pyx_convert_unordered_set_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L3_error)
+    __pyx_v_copy_grid = __pyx_convert_unordered_map_from_py_std_3a__3a_pair_3c_int_2c_int_3e_____and_int(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 62, __pyx_L3_error)
+    __pyx_v_dict_grid = __pyx_convert_unordered_map_from_py_std_3a__3a_pair_3c_int_2c_int_3e_____and_int(values[3]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 62, __pyx_L3_error)
+    __pyx_v_generations = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_generations == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 51, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 60, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9CACompute_2compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_cells_changed, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
+  __pyx_r = __pyx_pf_9CACompute_4compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_cells_changed, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9CACompute_2compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations) {
+static PyObject *__pyx_pf_9CACompute_4compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_cells_changed, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_cells_changed, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -2797,6 +3161,59 @@ static PyObject *__pyx_pf_9CACompute_2compute(CYTHON_UNUSED PyObject *__pyx_self
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.from_py":13
+ * 
+ * @cname("__pyx_convert_string_from_py_std__in_string")
+ * cdef string __pyx_convert_string_from_py_std__in_string(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t length
+ *     cdef const char* data = __Pyx_PyObject_AsStringAndSize(o, &length)
+ */
+
+static std::string __pyx_convert_string_from_py_std__in_string(PyObject *__pyx_v_o) {
+  Py_ssize_t __pyx_v_length;
+  char const *__pyx_v_data;
+  std::string __pyx_r;
+  __Pyx_RefNannyDeclarations
+  char const *__pyx_t_1;
+  __Pyx_RefNannySetupContext("__pyx_convert_string_from_py_std__in_string", 0);
+
+  /* "string.from_py":15
+ * cdef string __pyx_convert_string_from_py_std__in_string(object o) except *:
+ *     cdef Py_ssize_t length
+ *     cdef const char* data = __Pyx_PyObject_AsStringAndSize(o, &length)             # <<<<<<<<<<<<<<
+ *     return string(data, length)
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyObject_AsStringAndSize(__pyx_v_o, (&__pyx_v_length)); if (unlikely(__pyx_t_1 == ((char const *)NULL))) __PYX_ERR(1, 15, __pyx_L1_error)
+  __pyx_v_data = __pyx_t_1;
+
+  /* "string.from_py":16
+ *     cdef Py_ssize_t length
+ *     cdef const char* data = __Pyx_PyObject_AsStringAndSize(o, &length)
+ *     return string(data, length)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = std::string(__pyx_v_data, __pyx_v_length);
+  goto __pyx_L0;
+
+  /* "string.from_py":13
+ * 
+ * @cname("__pyx_convert_string_from_py_std__in_string")
+ * cdef string __pyx_convert_string_from_py_std__in_string(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t length
+ *     cdef const char* data = __Pyx_PyObject_AsStringAndSize(o, &length)
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("string.from_py.__pyx_convert_string_from_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_pretend_to_initialize(&__pyx_r);
+  __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -3262,6 +3679,301 @@ static std::unordered_map<std::pair<int,int> ,int>  __pyx_convert_unordered_map_
   return __pyx_r;
 }
 
+/* "pair.to_py":158
+ * 
+ * @cname("__pyx_convert_pair_to_py_int____int")
+ * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
+ *     return p.first, p.second
+ * 
+ */
+
+static PyObject *__pyx_convert_pair_to_py_int____int(std::pair<int,int>  const &__pyx_v_p) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py_int____int", 0);
+
+  /* "pair.to_py":159
+ * @cname("__pyx_convert_pair_to_py_int____int")
+ * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):
+ *     return p.first, p.second             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_p.first); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_p.second); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
+  __pyx_t_1 = 0;
+  __pyx_t_2 = 0;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
+  goto __pyx_L0;
+
+  /* "pair.to_py":158
+ * 
+ * @cname("__pyx_convert_pair_to_py_int____int")
+ * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
+ *     return p.first, p.second
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py_int____int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.to_py":31
+ * 
+ * @cname("__pyx_convert_PyObject_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyObject_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyObject_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &__pyx_v_s) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_PyObject_string_to_py_std__in_string", 0);
+
+  /* "string.to_py":32
+ * @cname("__pyx_convert_PyObject_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyObject_string_to_py_std__in_string(const string& s):
+ *     return __Pyx_PyObject_FromStringAndSize(s.data(), s.size())             # <<<<<<<<<<<<<<
+ * cdef extern from *:
+ *     cdef object __Pyx_PyUnicode_FromStringAndSize(const char*, size_t)
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_FromStringAndSize(__pyx_v_s.data(), __pyx_v_s.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 32, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "string.to_py":31
+ * 
+ * @cname("__pyx_convert_PyObject_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyObject_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyObject_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("string.to_py.__pyx_convert_PyObject_string_to_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.to_py":37
+ * 
+ * @cname("__pyx_convert_PyUnicode_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyUnicode_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyUnicode_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &__pyx_v_s) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_PyUnicode_string_to_py_std__in_string", 0);
+
+  /* "string.to_py":38
+ * @cname("__pyx_convert_PyUnicode_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyUnicode_string_to_py_std__in_string(const string& s):
+ *     return __Pyx_PyUnicode_FromStringAndSize(s.data(), s.size())             # <<<<<<<<<<<<<<
+ * cdef extern from *:
+ *     cdef object __Pyx_PyStr_FromStringAndSize(const char*, size_t)
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyUnicode_FromStringAndSize(__pyx_v_s.data(), __pyx_v_s.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "string.to_py":37
+ * 
+ * @cname("__pyx_convert_PyUnicode_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyUnicode_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyUnicode_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("string.to_py.__pyx_convert_PyUnicode_string_to_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.to_py":43
+ * 
+ * @cname("__pyx_convert_PyStr_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyStr_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyStr_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &__pyx_v_s) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_PyStr_string_to_py_std__in_string", 0);
+
+  /* "string.to_py":44
+ * @cname("__pyx_convert_PyStr_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyStr_string_to_py_std__in_string(const string& s):
+ *     return __Pyx_PyStr_FromStringAndSize(s.data(), s.size())             # <<<<<<<<<<<<<<
+ * cdef extern from *:
+ *     cdef object __Pyx_PyBytes_FromStringAndSize(const char*, size_t)
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyStr_FromStringAndSize(__pyx_v_s.data(), __pyx_v_s.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 44, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "string.to_py":43
+ * 
+ * @cname("__pyx_convert_PyStr_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyStr_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyStr_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("string.to_py.__pyx_convert_PyStr_string_to_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.to_py":49
+ * 
+ * @cname("__pyx_convert_PyBytes_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyBytes_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyBytes_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+static CYTHON_INLINE PyObject *__pyx_convert_PyBytes_string_to_py_std__in_string(std::string const &__pyx_v_s) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_PyBytes_string_to_py_std__in_string", 0);
+
+  /* "string.to_py":50
+ * @cname("__pyx_convert_PyBytes_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyBytes_string_to_py_std__in_string(const string& s):
+ *     return __Pyx_PyBytes_FromStringAndSize(s.data(), s.size())             # <<<<<<<<<<<<<<
+ * cdef extern from *:
+ *     cdef object __Pyx_PyByteArray_FromStringAndSize(const char*, size_t)
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyBytes_FromStringAndSize(__pyx_v_s.data(), __pyx_v_s.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 50, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "string.to_py":49
+ * 
+ * @cname("__pyx_convert_PyBytes_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyBytes_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyBytes_FromStringAndSize(s.data(), s.size())
+ * cdef extern from *:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("string.to_py.__pyx_convert_PyBytes_string_to_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "string.to_py":55
+ * 
+ * @cname("__pyx_convert_PyByteArray_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyByteArray_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyByteArray_FromStringAndSize(s.data(), s.size())
+ * 
+ */
+
+static CYTHON_INLINE PyObject *__pyx_convert_PyByteArray_string_to_py_std__in_string(std::string const &__pyx_v_s) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_PyByteArray_string_to_py_std__in_string", 0);
+
+  /* "string.to_py":56
+ * @cname("__pyx_convert_PyByteArray_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyByteArray_string_to_py_std__in_string(const string& s):
+ *     return __Pyx_PyByteArray_FromStringAndSize(s.data(), s.size())             # <<<<<<<<<<<<<<
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyByteArray_FromStringAndSize(__pyx_v_s.data(), __pyx_v_s.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 56, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "string.to_py":55
+ * 
+ * @cname("__pyx_convert_PyByteArray_string_to_py_std__in_string")
+ * cdef inline object __pyx_convert_PyByteArray_string_to_py_std__in_string(const string& s):             # <<<<<<<<<<<<<<
+ *     return __Pyx_PyByteArray_FromStringAndSize(s.data(), s.size())
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("string.to_py.__pyx_convert_PyByteArray_string_to_py_std__in_string", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "vector.to_py":60
  * 
  * @cname("__pyx_convert_vector_to_py_int")
@@ -3317,67 +4029,6 @@ static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &__pyx_v
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "pair.to_py":158
- * 
- * @cname("__pyx_convert_pair_to_py_int____int")
- * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
- *     return p.first, p.second
- * 
- */
-
-static PyObject *__pyx_convert_pair_to_py_int____int(std::pair<int,int>  const &__pyx_v_p) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py_int____int", 0);
-
-  /* "pair.to_py":159
- * @cname("__pyx_convert_pair_to_py_int____int")
- * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):
- *     return p.first, p.second             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_p.first); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 159, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_p.second); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 159, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 159, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_2);
-  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
-  __pyx_t_1 = 0;
-  __pyx_t_2 = 0;
-  __pyx_r = __pyx_t_3;
-  __pyx_t_3 = 0;
-  goto __pyx_L0;
-
-  /* "pair.to_py":158
- * 
- * @cname("__pyx_convert_pair_to_py_int____int")
- * cdef object __pyx_convert_pair_to_py_int____int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
- *     return p.first, p.second
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py_int____int", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3608,7 +4259,8 @@ static PyObject *__pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int
 
 static PyMethodDef __pyx_methods[] = {
   {"reload", (PyCFunction)__pyx_pw_9CACompute_1reload, METH_NOARGS, 0},
-  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9CACompute_3compute, METH_VARARGS|METH_KEYWORDS, 0},
+  {"set_bounds", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9CACompute_3set_bounds, METH_VARARGS|METH_KEYWORDS, 0},
+  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9CACompute_5compute, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 
@@ -3654,10 +4306,12 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_n_s_CAComputeParse_Bounds, __pyx_k_CAComputeParse_Bounds, sizeof(__pyx_k_CAComputeParse_Bounds), 0, 0, 1, 1},
   {&__pyx_n_s_alternating_period, __pyx_k_alternating_period, sizeof(__pyx_k_alternating_period), 0, 0, 1, 1},
   {&__pyx_n_s_cells_changed, __pyx_k_cells_changed, sizeof(__pyx_k_cells_changed), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_copy_grid, __pyx_k_copy_grid, sizeof(__pyx_k_copy_grid), 0, 0, 1, 1},
+  {&__pyx_n_s_correct_coor, __pyx_k_correct_coor, sizeof(__pyx_k_correct_coor), 0, 0, 1, 1},
   {&__pyx_n_s_depend_on_neighbours, __pyx_k_depend_on_neighbours, sizeof(__pyx_k_depend_on_neighbours), 0, 0, 1, 1},
   {&__pyx_n_s_dict_grid, __pyx_k_dict_grid, sizeof(__pyx_k_dict_grid), 0, 0, 1, 1},
   {&__pyx_n_s_generations, __pyx_k_generations, sizeof(__pyx_k_generations), 0, 0, 1, 1},
@@ -3672,6 +4326,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_transFunc, __pyx_k_transFunc, sizeof(__pyx_k_transFunc), 0, 0, 1, 1},
   {&__pyx_n_s_transition_func, __pyx_k_transition_func, sizeof(__pyx_k_transition_func), 0, 0, 1, 1},
+  {&__pyx_n_s_type1, __pyx_k_type1, sizeof(__pyx_k_type1), 0, 0, 1, 1},
+  {&__pyx_n_s_x, __pyx_k_x, sizeof(__pyx_k_x), 0, 0, 1, 1},
+  {&__pyx_n_s_y, __pyx_k_y, sizeof(__pyx_k_y), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
@@ -3983,20 +4640,41 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_transFunc, __pyx_t_1) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CACompute.pyx":42
+  /* "CACompute.pyx":36
+ * from libcpp.unordered_map cimport unordered_map
+ * from libcpp.unordered_set cimport unordered_set
+ * from CAComputeParse.Bounds import correct_coor             # <<<<<<<<<<<<<<
+ * 
+ * cdef extern from "compute.cpp":
+ */
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(__pyx_n_s_correct_coor);
+  __Pyx_GIVEREF(__pyx_n_s_correct_coor);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_correct_coor);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_CAComputeParse_Bounds, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_correct_coor); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_correct_coor, __pyx_t_1) < 0) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "CACompute.pyx":44
  * cdef unordered_map[pair[int, int], int] depends_cache
  * cdef map[pair[vector[int], int], int] transition_func_cache
  * cdef int alternating_period2 = transFunc.alternating_period             # <<<<<<<<<<<<<<
- * 
- * cpdef void reload():
+ * cdef int x_bound, y_bound
+ * cdef string bound_type
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_alternating_period); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_transFunc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_alternating_period); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_9CACompute_alternating_period2 = __pyx_t_3;
 
   /* "CACompute.pyx":1
@@ -4004,10 +4682,10 @@ if (!__Pyx_RefNanny) {
  * """
  * cdef extern from "Compute.cpp":
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "map.to_py":201
  * 
@@ -5046,6 +5724,20 @@ bad:
     Py_XDECREF(empty_list);
     Py_XDECREF(empty_dict);
     return module;
+}
+
+/* ImportFrom */
+static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
+    PyObject* value = __Pyx_PyObject_GetAttrStr(module, name);
+    if (unlikely(!value) && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        PyErr_Format(PyExc_ImportError,
+        #if PY_MAJOR_VERSION < 3
+            "cannot import name %.230s", PyString_AS_STRING(name));
+        #else
+            "cannot import name %S", name);
+        #endif
+    }
+    return value;
 }
 
 /* CLineInTraceback */

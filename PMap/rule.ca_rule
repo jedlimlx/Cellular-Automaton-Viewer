@@ -1,21 +1,21 @@
-Name: RULE_5_5
+Name: RULE_4_4
 
 Neighbourhood Range: 2
 
 Neighbourhood:
-1,2,3,2,1
-2,4,6,4,2
-3,6,9,6,3
-2,4,6,4,2
-1,2,3,2,1
+1,1,1,1,1
+1,0,1,0,1
+1,1,1,1,1
+1,0,1,0,1
+1,1,1,1,1
 
-State Weights: 0,1,0,0
+State Weights: 0,1
 
-Rulespace: Regenerating Generations
+Rulespace: Single State
 
-B/S Conditions: Range 2 Cross Isotropic Non-Totalistic
+B/S Conditions: Outer Totalistic
 
-Rulestring: rg4l1b2e3-a4u8s2hj34-qt5p6rb3-j5rs4t8
+Rulestring: B6,7,8,13S4-11
 
 Colour Palette:
 None

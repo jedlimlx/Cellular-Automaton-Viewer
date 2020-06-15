@@ -1,62 +1,51 @@
-import re
-rule_string = "(3,6,8)2,3/(3,5,6)2,6,7"
-
-birth = set([int(x) for x in re.findall("\((.*?)\)", rule_string.split("/")[1])[0].split(",")])
-survival = set([int(x) for x in re.findall("\((.*?)\)", rule_string.split("/")[0])[0].split(",")])
-
-other_birth = set([int(x) for x in re.sub("\(.*?\)", "", rule_string.split("/")[1]).split(",")])
-other_survival = set([int(x) for x in re.sub("\(.*?\)", "", rule_string.split("/")[0]).split(",")])
+# BSFKL
+birth = {4, 5, 8, 15, 16, 21}
+survival = {8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}
+forcing = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 21, 22, 23, 24}
+killing = {10, 13, 17, 19, 20, 23, 24}
+living = {0, 1, 2, 3, 4, 5, 6, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24}
 
 # Information about the Rule (Must be filled)
-n_states = 2  # Number of States
+n_states = 3  # Number of States
 alternating_period = 1  # For alternating rules / neighbourhoods
 colour_palette = None  # Colours of the different states
-rule_name = "Double_Rule_1"  # Rule Name
-
-
-legit_neighbourhood = [(1, 1), (1, -1), (-1, 1), (-1, -1),
-                       (1, 0), (0, 1), (-1, 0), (0, -1)]
-nonlegit_neighbourhood = []
-for i in legit_neighbourhood:
-    for j in legit_neighbourhood:
-        nonlegit_neighbourhood.append((i[0] + j[0], i[1] + j[1]))
-
-nonlegit_neighbourhood = sorted(list(set(nonlegit_neighbourhood)))
+rule_name = "BSFKLWeighted_Rule_2"  # Rule Name
 
 
 # Neighbourhood of the Rule (Relative Distance from Central Cell)
 def get_neighbourhood(generation):  # Note (y, x) not (x, y)
-    return nonlegit_neighbourhood
+    return [(1, -1), (1, 1), (-1, 1), (-1, -1),
+            (1, 0), (0, 1), (-1, 0), (0, -1),
+            (2, 0), (0, 2), (-2, 0), (0, -2)]
 
 
 # Transition Function of Rule, Last Element of Neighbours is the Central Cell
 def transition_func(neighbours, generation):
-    temp = []
-    processed = []
+    weights = [3, 3, 3, 3,
+               -1, -1, -1, -1,
+               2, 2, 2, 2]
+
+    n_living, n_destructive = 0, 0
     for i in range(len(neighbours) - 1):
-        temp.append(neighbours[i])
-        if i % 5 == 4:
-            processed.append(temp)
-            temp = []
-
-    n_birth = 0
-    n_survival = 0
-    for neighbour in legit_neighbourhood:
-        n = 0
-        for neighbour2 in legit_neighbourhood:
-            if processed[neighbour[0] + neighbour2[0] + 2][neighbour[1] + neighbour2[1] + 2] == 1:
-                n += 1
-
-        if n in other_birth: n_birth += 1
-        if n in other_survival: n_survival += 1
+        if neighbours[i] == 1:
+            n_living += weights[i]
+        elif neighbours[i] == 2:
+            n_destructive += weights[i]
 
     if neighbours[-1] == 1:
-        if n_survival in survival:
+        if n_destructive in killing:
+            return 0
+        elif n_living in survival:
             return 1
-        return 0
+        return 2
 
-    elif neighbours[-1] == 0:
-        if n_birth in birth:
+    elif neighbours[-1] == 2:
+        if n_living in living:
+            return 0
+        return 2
+
+    else:
+        if n_destructive in forcing and n_living in birth:
             return 1
         return 0
 

@@ -1,100 +1,54 @@
 {
     "UseParse": true,
-    "Isotropic": true,
-    "Rule Space": "Single State",
-    "B/S Conditions": "Range 2 Far Corners Isotropic Non-Totalistic",
-    "Rule String": "2-k34cij68/2a45ey78",
-    "Rule Name": "RULE",
-    "Random Bounds": {
-        "Rulestring Upper Bound": "",
-        "Rulestring Lower Bound": "",
-        "State Weights Upper Bound": "",
-        "State Weights Lower Bound": "",
-        "Neighbourhood Weights Upper Bound": "",
-        "Neighbourhood Weights Lower Bound": ""
+    "PMap Settings": {
+        "Soup Size": "50",
+        "Generations": "300",
+        "Number of Rules X": "5",
+        "Number of Rules Y": "5"
     },
-    "Neighbourhood Weights": [
-        [
-            "1",
-            "0",
-            "0",
-            "0",
-            "1"
-        ],
-        [
-            "0",
-            "0",
-            "1",
-            "0",
-            "0"
-        ],
-        [
-            "0",
-            "1",
-            "0",
-            "1",
-            "0"
-        ],
-        [
-            "0",
-            "0",
-            "1",
-            "0",
-            "0"
-        ],
-        [
-            "1",
-            "0",
-            "0",
-            "0",
-            "1"
-        ]
-    ],
     "Isotropic PMap": true,
-    "Rule Space PMap": "Regenerating Generations",
-    "B/S Conditions PMap": "Range 2 Cross Isotropic Non-Totalistic",
-    "Rule String PMap": "rg4l1b2e3-a4u8s2hj34-qt5p6rb3-\"['a', 'c', 'e', 'h', 'i', 'j'][x]\"5rs4\"['o', 'p', 'q', 'u', 'w', 't'][y]\"8",
+    "Rule Space PMap": "Single State",
+    "B/S Conditions PMap": "Outer Totalistic",
+    "Rule String PMap": "B6,7,8,\"x+9\"S4-\"y+7\"",
     "Neighbourhood Weights PMap": [
         [
             "1",
-            "2",
-            "3",
-            "2",
+            "1",
+            "1",
+            "1",
             "1"
         ],
         [
-            "2",
-            "4",
-            "6",
-            "4",
-            "2"
-        ],
-        [
-            "3",
-            "6",
-            "9",
-            "6",
-            "3"
-        ],
-        [
-            "2",
-            "4",
-            "6",
-            "4",
-            "2"
+            "1",
+            "0",
+            "1",
+            "0",
+            "1"
         ],
         [
             "1",
-            "2",
-            "3",
-            "2",
+            "1",
+            "1",
+            "1",
+            "1"
+        ],
+        [
+            "1",
+            "0",
+            "1",
+            "0",
+            "1"
+        ],
+        [
+            "1",
+            "1",
+            "1",
+            "1",
             "1"
         ]
     ],
     "State Weights PMap": [
         [
-            "0",
-            "1",
             "0",
             "0"
         ]
@@ -107,18 +61,5 @@
         "State Weights Lower Bound": "",
         "Neighbourhood Weights Upper Bound": "",
         "Neighbourhood Weights Lower Bound": ""
-    },
-    "PMap Settings": {
-        "Soup Size": "50",
-        "Generations": "500",
-        "Number of Rules X": "6",
-        "Number of Rules Y": "6"
-    },
-    "State Weights": [
-        [
-            "0",
-            "1",
-            "0"
-        ]
-    ]
+    }
 }

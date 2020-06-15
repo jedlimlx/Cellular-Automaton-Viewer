@@ -30,8 +30,10 @@ import transFunc
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
+from libcpp.string cimport string
 from libcpp.unordered_map cimport unordered_map
 from libcpp.unordered_set cimport unordered_set
+from CAComputeParse.Bounds import correct_coor
 
 cdef extern from "compute.cpp":
     pass
@@ -40,6 +42,8 @@ cdef extern from "compute.cpp":
 cdef unordered_map[pair[int, int], int] depends_cache
 cdef map[pair[vector[int], int], int] transition_func_cache
 cdef int alternating_period2 = transFunc.alternating_period
+cdef int x_bound, y_bound
+cdef string bound_type
 
 cpdef void reload():
     global depends_cache, transition_func_cache, alternating_period2
@@ -47,6 +51,11 @@ cpdef void reload():
     depends_cache.clear()
     transition_func_cache.clear()
     alternating_period2 = transFunc.alternating_period
+
+cpdef set_bounds(int x, int y, string type1):
+    global x_bound, y_bound, bound_type
+    x_bound, y_bound = x, y
+    bound_type = type1
 
 cpdef compute(vector[pair[int, int]] neighbourhood,
               unordered_set[pair[int, int]] cells_changed,
@@ -78,6 +87,8 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
         cells_changed.clear()
 
     for coordinates in cells_to_check:
+        coordinates = correct_coor(coordinates, bound_type, x_bound, y_bound)
+
         neighbours.clear()
         ans = -1
 
@@ -99,8 +110,9 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
 
         if ans == -1:
             for neighbour in neighbourhood:
-                coordinates2 = pair[int, int] (coordinates.first + neighbour.first,
-                                               coordinates.second + neighbour.second)
+                coordinates2 = correct_coor(pair[int, int] (coordinates.first + neighbour.first,
+                                                            coordinates.second + neighbour.second),
+                                            bound_type, x_bound, y_bound)
                 if copy_grid.find(coordinates2) != copy_grid.end():
                     neighbours.push_back(copy_grid[coordinates2])
                 else:

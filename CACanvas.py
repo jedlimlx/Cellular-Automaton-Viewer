@@ -7,6 +7,7 @@ import threading
 import traceback
 import importlib
 import os
+import re
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
@@ -29,6 +30,9 @@ logging.basicConfig(filename='log.log', level=logging.INFO)
 settings = json.load(open("settings.json", "r"))
 use_parse: bool = settings["UseParse"]
 
+compute.set_bounds(100, 100, b"#")
+parser.set_bounds(100, 100, b"#")
+
 tiling = "Square"
 if use_parse:
     RuleParser.load("rule.ca_rule")
@@ -40,8 +44,6 @@ else:
     num_states = transFunc.n_states
     ca_rule_name = transFunc.rule_name
     colours = transFunc.colour_palette
-
-parser.set_bounds(150, 150, b"T")
 
 
 class CACanvas(QWidget):
@@ -169,6 +171,11 @@ class CACanvas(QWidget):
 
         # Are grid lines enabled?
         self.grid_lines = False
+
+        # X and Y Bounds
+        self.x_bound = 100
+        self.y_bound = 100
+        self.bound_type = b"#"
 
         # Grid to Place Widgets
         grid = QGridLayout()
@@ -342,6 +349,11 @@ class CACanvas(QWidget):
         simulationThread.start()
 
     def add_cell(self, state: int, x: int, y: int, change_grid=True) -> None:
+        # Don't add the cell if it's outside the boundary
+        if (x > self.x_bound - 1 or y > self.y_bound - 1) and self.bound_type != b"#":
+            return None
+
+        # Raise an error if the state added is invalid
         if state > num_states - 1:
             raise IndexError
 
@@ -990,7 +1002,7 @@ class CACanvas(QWidget):
             print(traceback.format_exc())
 
     def reload_rule(self):
-        global use_parse, num_states, colours, ca_rule_name
+        global use_parse, num_states, colours, ca_rule_name, tiling
 
         # Reload File
         parser.load("rule.ca_rule")
@@ -1209,7 +1221,7 @@ class CACanvas(QWidget):
             # Removing Comments
             temp_rle: str = ""
             for i in rle.split("\n"):
-                if i[0] != "#":
+                if len(i) > 0 and i[0] != "#":
                     temp_rle += i + "\n"
 
             rle = temp_rle  # Reassign Value
@@ -1293,11 +1305,20 @@ class CACanvas(QWidget):
                 file.write(contents.split("**********")[0])
                 file.close()
 
+            # Offsets for Loading
+            offset_x = 100
+            offset_y = 100
+
             # Removing Comments
             temp_rle: str = ""
             for i in rle.split("\n"):
-                if i[0] != "#":
+                if len(i) > 0 and i[0] != "#":
                     temp_rle += i + "\n"
+
+                if "#CXRLE" in i:
+                    offset_x = int(i.split(",")[0][11:])
+                    offset_y = int(i.split(",")[1].split(" ")[0])
+                    self.generations = int(i.split(",")[1].split("=")[1])
 
             rle = temp_rle  # Reassign Value
 
@@ -1305,20 +1326,16 @@ class CACanvas(QWidget):
             grid: Dict[Tuple[int, int], int] = self.from_rle(rle)
             loaded_rule: bool = False
 
-            # Offsets for Loading
-            offset_x = 100
-            offset_y = 100
-
             rle_header: str = rle.split("\n")[0]
             pattern_rule_name: str = rle.split("\n")[0].split(":")[0].split(",")[-1].replace(" rule = ", "")
 
             # Settings Bounds from the RLE Header e.g. Life:T16,16
             if len(rle_header.split(":")) > 1:
-                parser.set_bounds(int(rle_header.split(":")[1].split(",")[0][1:]),
-                                  int(rle_header.split(":")[1].split(",")[1]),
-                                  rle_header.split(":")[1].split(",")[0][0].encode("utf-8"))
+                self.set_bounds(int(rle_header.split(":")[1].split(",")[0][1:]),
+                                int(rle_header.split(":")[1].split(",")[1]),
+                                rle_header.split(":")[1].split(",")[0][0].encode("utf-8"))
             else:
-                parser.set_bounds(100, 100, b"#")
+                self.set_bounds(100, 100, b"#")
 
             if pattern_rule_name != ca_rule_name and file_type == "RLE Files (*.rle)":
                 for i in os.listdir("RecordedRules"):
@@ -1429,6 +1446,37 @@ class CACanvas(QWidget):
 
         except Exception:
             pass
+
+    def set_bounds(self, x_bound: int, y_bound: int, bound_type: str):
+        if bound_type != b"#":
+            pen = QPen()
+
+            # Set Colour
+            pen.setColor(QColor(255, 255, 255))
+            pen.setWidth(self.cell_size)
+
+            painter = QPainter(self.label.pixmap())
+            painter.setPen(pen)
+
+            painter.drawLine(x_bound * self.cell_size, 0, x_bound * self.cell_size, y_bound * self.cell_size)
+            painter.drawLine(0, y_bound * self.cell_size, x_bound * self.cell_size, y_bound * self.cell_size)
+
+            painter.end()
+
+            # Update Everything
+            self.scroll_area.update()
+            self.label.update()
+            self.update()
+
+        self.x_bound = x_bound
+        self.y_bound = y_bound
+        self.bound_type = bound_type
+
+        # Settings Bounds in the Simulation Module
+        if use_parse:
+            parser.set_bounds(x_bound, y_bound, bound_type)
+        else:
+            compute.set_bounds(x_bound, y_bound, bound_type)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         if self.mode == "painting":

@@ -1,0 +1,21 @@
+Name: R2_FarCorners_INT_Rule_1
+
+Neighbourhood Range: 2
+
+Neighbourhood:
+1,0,0,0,1
+0,0,1,0,0
+0,1,0,1,0
+0,0,1,0,0
+1,0,0,0,1
+
+State Weights: 0,1
+
+Rulespace: Single State
+
+B/S Conditions: Range 2 Far Corners Isotropic Non-Totalistic
+
+Rulestring: 2-k34cij68/2a45ey78
+
+Colour Palette:
+None

@@ -1,21 +1,21 @@
-Name: R2_Cross_INT_Generations_Rule_1
+Name: RULE
 
 Neighbourhood Range: 2
 
 Neighbourhood:
 0,0,1,0,0
-0,0,1,0,0
+0,1,1,1,0
 1,1,0,1,1
-0,0,1,0,0
+0,1,1,1,0
 0,0,1,0,0
 
-State Weights: 0,1,0,0
+State Weights: 0,1,0,0,0
 
 Rulespace: Extended Generations
 
-B/S Conditions: Range 2 Cross Isotropic Non-Totalistic
+B/S Conditions: Outer Totalistic
 
-Rulestring: 2hj34-qt5p6/2e3-p4w8/1-2
+Rulestring: B3,5,10-12S3-4,10D1-1
 
 Colour Palette:
 None

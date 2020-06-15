@@ -9,17 +9,25 @@ def correct_coor(coordinate, bound_type, x_bound, y_bound):
         else:
             return coordinate[0] % y_bound, coordinate[1] % x_bound
     elif bound_type == b"K":  # Klein Bottle
-        if coordinate[0] == y_bound - 1 or coordinate[0] == 0:
-            return y_bound - coordinate[0] % y_bound, coordinate[1] % x_bound
-        return coordinate[0] % y_bound, coordinate[1] % x_bound
+        on_edge_x = coordinate[1] == x_bound or coordinate[1] == -1
+        return y_bound - coordinate[0] % y_bound if on_edge_x else coordinate[0] % y_bound, coordinate[1] % x_bound
     elif bound_type == b"C":  # Cross Surface
-        if (coordinate[0] == y_bound or coordinate[0] == -1) and \
-                (coordinate[1] == x_bound or coordinate[1] == -1):
-            return y_bound - coordinate[0] % y_bound, x_bound - coordinate[1] % x_bound
-        elif coordinate[0] == y_bound or coordinate[0] == -1:
-            return y_bound - coordinate[0] % y_bound, coordinate[1] % x_bound
-        elif coordinate[1] == x_bound or coordinate[1] == -1:
-            return coordinate
-        return coordinate[0] % y_bound, coordinate[1] % x_bound
+        on_edge_y = coordinate[0] == y_bound or coordinate[0] == -1
+        on_edge_x = coordinate[1] == x_bound or coordinate[1] == -1
+        return y_bound - coordinate[0] % y_bound if on_edge_x else coordinate[0] % y_bound, \
+               x_bound - coordinate[1] % x_bound if on_edge_y else coordinate[1] % x_bound
+    elif bound_type == b"S":  # Spherical by Bubblegum
+        on_edge_y = coordinate[0] == y_bound or coordinate[0] == -1
+        on_edge_x = coordinate[1] == x_bound or coordinate[1] == -1
+
+        remapped_x = x_bound * int(not 0 <= coordinate[0] < x_bound) + \
+                     (int(0 <= coordinate[0] < x_bound) - int(not 0 <= coordinate[0] < x_bound)) * (
+                             coordinate[0] % x_bound)
+        remapped_y = y_bound * int(not 0 <= coordinate[1] < y_bound) + \
+                     (int(0 <= coordinate[1] < y_bound) - int(not 0 <= coordinate[1] < y_bound)) * (
+                             coordinate[1] % y_bound)
+
+        return remapped_x if on_edge_x else coordinate[0], remapped_y if on_edge_y else coordinate[1]
+
     elif bound_type == b"P":  # Bounded Grid
         return 1000 if coordinate[0] > y_bound else coordinate[0], 1000 if coordinate[1] > x_bound else coordinate[1]
