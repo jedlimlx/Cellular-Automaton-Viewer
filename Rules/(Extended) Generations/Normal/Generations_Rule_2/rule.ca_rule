@@ -1,0 +1,23 @@
+Name: Generations_Rule_2
+
+Neighbourhood Range: 3
+
+Neighbourhood:
+0,0,0,1,0,0,0
+0,1,1,1,1,1,0
+0,1,1,1,1,1,0
+1,1,1,0,1,1,1
+0,1,1,1,1,1,0
+0,1,1,1,1,1,0
+0,0,0,1,0,0,0
+
+State Weights: 0,1,0,0
+
+Rulespace: Extended Generations
+
+B/S Conditions: Outer Totalistic
+
+Rulestring: 6,7,8,9,10/4,13/1-2
+
+Colour Palette:
+None

@@ -55,6 +55,14 @@ Note
 When you load a pattern, it does not necessarily mean that the corresponding rule is loaded. <br>
 You have to load the rule first. (Only true if you modified the rule or have not opened the rule before)
 
+Features
+=================================
+* Support for R1 Moore, R2 Cross, R2 Far Corners and R2 Von Neumann INT
+* Support for weighted Higher Range Outer-Totalistic (HROT) rules with arbitrary neighbourhoods
+* Support for 2 state, Extended Generations, BSFKL, Regenerating Generations and 3 state outer totalistic rulespaces
+* Support for agar searching
+* Support for hexagonal grid rendered as squares that are offset by 1/2 of a square
+
 Rule Format
 =================================
 Rules are defined as Python Code. A sample rule is found in Rules/transFuncTemplate.py<br>
@@ -67,7 +75,7 @@ Name: Hello World (Can be Anything you like)
 
 Neighbourhood Range: 2 (Can be Any Number, >3 gets slow)
 
-Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '-' below it and continue)
+Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '#' below it and continue)
 0,0,0,0,0
 0,1,1,1,0
 0,1,0,1,0
@@ -83,7 +91,6 @@ Neighbourhood: (Use Commas, Numbers are Weights, For Alternating Place '-' below
 State Weights: 0,1 -> Separate by Commas, For Alternating Put | (No Max, Don't Leave Spaces)
 
 Rulespace: BSFKL / Extended Generations / Outer Totalistic / Regenerating Generations / (B/M/S)*2
-Will Add 3-state Outer Totalistic Soon
 
 B/S Conditions: Outer Totalistic / Double Totalistic / Range 1 Moore Isotropic Non-Totalistic / Range 2 Cross Isotropic Non-Totalistic / Range 2 Von Neumann Isotropic Non-Totalistic / Range 2 Far Corners Isotropic Non-Totalistic
 
@@ -123,6 +130,32 @@ For every cell in cells_to_check<br>
 &nbsp;&nbsp;&nbsp;&nbsp;If it depends on neighbours<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get neighbours of the cell and pass to transition function<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Update Cells in the dictionary<br>
+
+Planned Additions
+================================
+* Better logging so that fixing bugs for other people isn't so painful
+* Render hexagonal grid as actual hexagons
+* Add triangular grids
+* Add deficient rules
+* Add hexagonal isotropic non-totalistic rules
+* Add knight life isotropic non-totalistic rules
+* Add 3 state isotropic non-totalistic rules
+* Add apgtable generators for BSFKL, Regenerating Generations Rulespaces and Outer Totalistic, Double Totalistic B/S Conditions
+* Add ability to filter repetitions in agar searches
+* Filter spaceship streams and oscillators in agar searches
+* Better cross-platform support
+* Make constructing stuff easier
+* Add lifelib Backend for Sssssssspppppppeeeeeeedddddddddd!!!!!!!!!!!
+* Support for oscillator / spaceship / backsearching through a lifesrc like algorithm (Probably write it as a standalone app with integration with CAViewer)
+
+
+Known Bugs
+================================
+* Select all function not working
+* Spherical bounded grid not working
+* Application may crash randomly (not often but it happens)
+* Make the application actually successfully run on some people's computers
+Also, how do you fix bugs that you can't replicate?
 
 Troubleshooting
 ================================

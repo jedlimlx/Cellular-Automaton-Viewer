@@ -13,6 +13,7 @@ from CACanvas import CACanvas
 from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog, \
     ParamMapDialog, AgarDialog
 from OCAgar import agar_search
+from APGTableGen import gen_apgtable
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)
@@ -41,8 +42,13 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
     # Get Soup Settings
     density: float = canvas.density
     symmetry: str = canvas.symmetry
+
+    # Get Other Settings
     max_speed: int = canvas.max_speed
     grid_lines: bool = canvas.grid_lines
+    x_bound: int = canvas.x_bound
+    y_bound: int = canvas.y_bound
+    bound_type: str = canvas.bound_type
 
     if restore_pattern:
         # Destroy Canvas
@@ -71,6 +77,7 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.max_speed = max_speed
         canvas.history = history
 
+        # Reconnect Signals
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
@@ -84,6 +91,9 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
 
         if grid_lines:  # Enabling Grid Lines if Necessary
             canvas.toggle_grid_lines()
+
+        # Run last so that the bound lines are not overwritten
+        canvas.set_bounds(x_bound, y_bound, bound_type)
     else:
         grid.removeWidget(canvas)
         canvas.setParent(None)
@@ -99,15 +109,20 @@ def change_zoom(new_cell_size: int, restore_pattern: bool = True, overwrite=None
         canvas.density = density
         canvas.symmetry = symmetry
         canvas.max_speed = max_speed
+
         if grid_lines:  # Enabling Grid Lines if Necessary
             canvas.toggle_grid_lines()
 
+        # Reconnect Signals
         canvas.zoom_in.connect(zoom_in)
         canvas.zoom_out.connect(zoom_out)
         canvas.reset.connect(lambda: change_zoom(cell_size, restore_pattern=False))
         canvas.reset_and_load.connect(lambda grid: change_zoom(cell_size, overwrite=grid))
         canvas.change_title.connect(set_title)
         if overwrite is not None: canvas.load_from_dict(overwrite, offset_x=offset_x, offset_y=offset_y)
+
+        # Run last so that the bound lines are not overwritten
+        canvas.set_bounds(x_bound, y_bound, bound_type)
 
     # Setting Title of Application
     window.setWindowTitle(f"Cellular Automaton Viewer [{cacanvas.ca_rule_name}, No Pattern, "
@@ -244,13 +259,25 @@ def back_to_gen(x):
 
 
 def agar():
-    agar = AgarDialog()
-    num_soups, x_bound, y_bound, bound_type = agar.get_results()
+    save_folder = QFileDialog.getExistingDirectory(None, "Select Directory")
 
-    x = lambda: agar_search(cacanvas.use_parse, x_bound, y_bound, num_soups, bound_type.encode("utf-8"))
+    agar_dialog = AgarDialog()
+    num_soups, x_bound, y_bound, bound_type = agar_dialog.get_results()
+
+    x = lambda: agar_search(cacanvas.use_parse, x_bound, y_bound, num_soups,
+                            bound_type.encode("utf-8"), save_folder)
 
     thread = threading.Thread(target=x)
     thread.start()
+
+
+def generate_apgtable():
+    file_name, _ = QFileDialog.getSaveFileName(caption="Save APGTable",
+                                               filter="Table Files (*.table)")
+    try:
+        gen_apgtable(file_name)
+    except FileNotFoundError:
+        pass
 
 
 app = QApplication(sys.argv)
@@ -405,6 +432,10 @@ geneascopy_action = QAction("Run Geneascopy")
 geneascopy_action.triggered.connect(geneascopy)
 data_menu.addAction(geneascopy_action)
 
+generate_apgtable_action = QAction("Generate APGTable")
+generate_apgtable_action.triggered.connect(generate_apgtable)
+data_menu.addAction(generate_apgtable_action)
+
 search_menu = menu.addMenu("Search")
 
 agar_action = QAction("Run Agar Search")
@@ -413,5 +444,6 @@ search_menu.addAction(agar_action)
 
 grid.addWidget(menu, 0, 0)
 
+# Start the Application
 window.show()
 sys.exit(app.exec_())

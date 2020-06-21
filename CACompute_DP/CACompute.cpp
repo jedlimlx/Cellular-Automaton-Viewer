@@ -4,15 +4,18 @@
 {
     "distutils": {
         "depends": [
-            "compute.cpp"
+            "CACompute_DP\\compute.cpp"
+        ],
+        "include_dirs": [
+            "CACompute_DP"
         ],
         "language": "c++",
-        "name": "CACompute",
+        "name": "CACompute_DP.CACompute",
         "sources": [
-            "CACompute.pyx"
+            "CACompute_DP\\CACompute.pyx"
         ]
     },
-    "module_name": "CACompute"
+    "module_name": "CACompute_DP.CACompute"
 }
 END: Cython Metadata */
 
@@ -25,7 +28,7 @@ END: Cython Metadata */
 #else
 #define CYTHON_ABI "0_29_13"
 #define CYTHON_HEX_VERSION 0x001D0DF0
-#define CYTHON_FUTURE_DIVISION 1
+#define CYTHON_FUTURE_DIVISION 0
 #include <stddef.h>
 #ifndef offsetof
   #define offsetof(type, member) ( (size_t) & ((type*)0) -> member )
@@ -620,8 +623,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__CACompute
-#define __PYX_HAVE_API__CACompute
+#define __PYX_HAVE__CACompute_DP__CACompute
+#define __PYX_HAVE_API__CACompute_DP__CACompute
 /* Early includes */
 #include "ios"
 #include "new"
@@ -841,7 +844,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "CACompute.pyx",
+  "CACompute_DP\\CACompute.pyx",
   "stringsource",
 };
 
@@ -1251,10 +1254,10 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'libcpp.vector' */
 
-/* Module declarations from 'CACompute' */
-static std::map<std::vector<int> ,std::vector<int> >  __pyx_v_9CACompute_DP;
-static int __pyx_v_9CACompute_alternating_period2;
-static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> > , std::vector<std::pair<int,int> > , std::unordered_set<std::pair<int,int> > , int, int, int, int, std::unordered_map<std::pair<int,int> ,int> , std::unordered_map<std::pair<int,int> ,int> , int, int __pyx_skip_dispatch); /*proto*/
+/* Module declarations from 'CACompute_DP.CACompute' */
+static std::map<std::vector<int> ,std::vector<int> >  __pyx_v_12CACompute_DP_9CACompute_DP;
+static int __pyx_v_12CACompute_DP_9CACompute_alternating_period2;
+static PyObject *__pyx_f_12CACompute_DP_9CACompute_compute(std::vector<std::pair<int,int> > , std::vector<std::pair<int,int> > , std::unordered_set<std::pair<int,int> > , int, int, int, int, std::unordered_map<std::pair<int,int> ,int> , std::unordered_map<std::pair<int,int> ,int> , int, int __pyx_skip_dispatch); /*proto*/
 static std::pair<int,int>  __pyx_convert_pair_from_py_int__and_int(PyObject *); /*proto*/
 static std::vector<std::pair<int,int> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(PyObject *); /*proto*/
 static std::unordered_set<std::pair<int,int> >  __pyx_convert_unordered_set_from_py_std_3a__3a_pair_3c_int_2c_int_3e___(PyObject *); /*proto*/
@@ -1263,11 +1266,11 @@ static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*pr
 static PyObject *__pyx_convert_pair_to_py_int____int(std::pair<int,int>  const &); /*proto*/
 static PyObject *__pyx_convert_unordered_set_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(std::unordered_set<std::pair<int,int> >  const &); /*proto*/
 static PyObject *__pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______int(std::unordered_map<std::pair<int,int> ,int>  const &); /*proto*/
-#define __Pyx_MODULE_NAME "CACompute"
-extern int __pyx_module_is_main_CACompute;
-int __pyx_module_is_main_CACompute = 0;
+#define __Pyx_MODULE_NAME "CACompute_DP.CACompute"
+extern int __pyx_module_is_main_CACompute_DP__CACompute;
+int __pyx_module_is_main_CACompute_DP__CACompute = 0;
 
-/* Implementation of 'CACompute' */
+/* Implementation of 'CACompute_DP.CACompute' */
 static PyObject *__pyx_builtin_range;
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
@@ -1312,11 +1315,11 @@ static PyObject *__pyx_n_s_transFunc;
 static PyObject *__pyx_n_s_transition_func;
 static PyObject *__pyx_n_s_upper_x;
 static PyObject *__pyx_n_s_upper_y;
-static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations); /* proto */
+static PyObject *__pyx_pf_12CACompute_DP_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations); /* proto */
 static PyObject *__pyx_int_0;
 /* Late includes */
 
-/* "CACompute.pyx":41
+/* "CACompute_DP/CACompute.pyx":41
  * cdef int alternating_period2 = alternating_period
  * 
  * cpdef compute(vector[pair[int, int]] neighbourhood, vector[pair[int, int]] DP_neighbourhood,             # <<<<<<<<<<<<<<
@@ -1324,8 +1327,8 @@ static PyObject *__pyx_int_0;
  *               int lower_x, int upper_x, int lower_y, int upper_y,
  */
 
-static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_12CACompute_DP_9CACompute_compute(std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations, CYTHON_UNUSED int __pyx_skip_dispatch) {
   std::vector<int>  __pyx_v_neighbours;
   std::vector<int>  __pyx_v_DP_result;
   std::vector<int>  __pyx_v_DP_neighbours;
@@ -1362,7 +1365,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   PyObject *__pyx_t_19 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "CACompute.pyx":50
+  /* "CACompute_DP/CACompute.pyx":50
  *     cdef vector[int] DP_result
  *     cdef vector[int] DP_neighbours
  *     neighbours.reserve(neighbourhood.size() + 1)             # <<<<<<<<<<<<<<
@@ -1371,7 +1374,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   __pyx_v_neighbours.reserve((__pyx_v_neighbourhood.size() + 1));
 
-  /* "CACompute.pyx":51
+  /* "CACompute_DP/CACompute.pyx":51
  *     cdef vector[int] DP_neighbours
  *     neighbours.reserve(neighbourhood.size() + 1)
  *     DP_result.reserve(neighbourhood.size() + 1)             # <<<<<<<<<<<<<<
@@ -1380,7 +1383,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   __pyx_v_DP_result.reserve((__pyx_v_neighbourhood.size() + 1));
 
-  /* "CACompute.pyx":52
+  /* "CACompute_DP/CACompute.pyx":52
  *     neighbours.reserve(neighbourhood.size() + 1)
  *     DP_result.reserve(neighbourhood.size() + 1)
  *     DP_neighbours.reserve(DP_neighbourhood.size() + 1)             # <<<<<<<<<<<<<<
@@ -1389,7 +1392,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   __pyx_v_DP_neighbours.reserve((__pyx_v_DP_neighbourhood.size() + 1));
 
-  /* "CACompute.pyx":54
+  /* "CACompute_DP/CACompute.pyx":54
  *     DP_neighbours.reserve(DP_neighbourhood.size() + 1)
  * 
  *     cdef vector[pair[int, int]] neighbourhood_with_centre = neighbourhood             # <<<<<<<<<<<<<<
@@ -1398,7 +1401,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   __pyx_v_neighbourhood_with_centre = __pyx_v_neighbourhood;
 
-  /* "CACompute.pyx":55
+  /* "CACompute_DP/CACompute.pyx":55
  * 
  *     cdef vector[pair[int, int]] neighbourhood_with_centre = neighbourhood
  *     neighbourhood_with_centre.push_back(pair[int, int] (0, 0))             # <<<<<<<<<<<<<<
@@ -1418,7 +1421,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     __PYX_ERR(0, 55, __pyx_L1_error)
   }
 
-  /* "CACompute.pyx":64
+  /* "CACompute_DP/CACompute.pyx":64
  *     cdef pair[int, int] neighbour, cell
  * 
  *     for cell in cells_changed:             # <<<<<<<<<<<<<<
@@ -1432,7 +1435,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     ++__pyx_t_2;
     __pyx_v_cell = __pyx_t_1;
 
-    /* "CACompute.pyx":65
+    /* "CACompute_DP/CACompute.pyx":65
  * 
  *     for cell in cells_changed:
  *         cells_to_check.insert(cell)             # <<<<<<<<<<<<<<
@@ -1441,7 +1444,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     (void)(__pyx_v_cells_to_check.insert(__pyx_v_cell));
 
-    /* "CACompute.pyx":64
+    /* "CACompute_DP/CACompute.pyx":64
  *     cdef pair[int, int] neighbour, cell
  * 
  *     for cell in cells_changed:             # <<<<<<<<<<<<<<
@@ -1450,24 +1453,24 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
   }
 
-  /* "CACompute.pyx":67
+  /* "CACompute_DP/CACompute.pyx":67
  *         cells_to_check.insert(cell)
  * 
  *     if alternating_period2 > 1:             # <<<<<<<<<<<<<<
  *         if generations % (alternating_period2 - 1) == 0:
  *             cells_changed.clear()
  */
-  __pyx_t_3 = ((__pyx_v_9CACompute_alternating_period2 > 1) != 0);
+  __pyx_t_3 = ((__pyx_v_12CACompute_DP_9CACompute_alternating_period2 > 1) != 0);
   if (__pyx_t_3) {
 
-    /* "CACompute.pyx":68
+    /* "CACompute_DP/CACompute.pyx":68
  * 
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:             # <<<<<<<<<<<<<<
  *             cells_changed.clear()
  *     else:
  */
-    __pyx_t_4 = (__pyx_v_9CACompute_alternating_period2 - 1);
+    __pyx_t_4 = (__pyx_v_12CACompute_DP_9CACompute_alternating_period2 - 1);
     if (unlikely(__pyx_t_4 == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "integer division or modulo by zero");
       __PYX_ERR(0, 68, __pyx_L1_error)
@@ -1475,7 +1478,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     __pyx_t_3 = ((__Pyx_mod_long(__pyx_v_generations, __pyx_t_4) == 0) != 0);
     if (__pyx_t_3) {
 
-      /* "CACompute.pyx":69
+      /* "CACompute_DP/CACompute.pyx":69
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:
  *             cells_changed.clear()             # <<<<<<<<<<<<<<
@@ -1484,7 +1487,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       __pyx_v_cells_changed.clear();
 
-      /* "CACompute.pyx":68
+      /* "CACompute_DP/CACompute.pyx":68
  * 
  *     if alternating_period2 > 1:
  *         if generations % (alternating_period2 - 1) == 0:             # <<<<<<<<<<<<<<
@@ -1493,7 +1496,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     }
 
-    /* "CACompute.pyx":67
+    /* "CACompute_DP/CACompute.pyx":67
  *         cells_to_check.insert(cell)
  * 
  *     if alternating_period2 > 1:             # <<<<<<<<<<<<<<
@@ -1503,7 +1506,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     goto __pyx_L5;
   }
 
-  /* "CACompute.pyx":71
+  /* "CACompute_DP/CACompute.pyx":71
  *             cells_changed.clear()
  *     else:
  *         cells_changed.clear()             # <<<<<<<<<<<<<<
@@ -1515,12 +1518,12 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   }
   __pyx_L5:;
 
-  /* "CACompute.pyx":73
+  /* "CACompute_DP/CACompute.pyx":73
  *         cells_changed.clear()
  * 
  *     for cell in cells_to_check:             # <<<<<<<<<<<<<<
- *         #if cells_checked.find(cell) != cells_checked.end():
- *         #    continue
+ *         if cells_checked.find(cell) != cells_checked.end():
+ *             continue
  */
   __pyx_t_2 = __pyx_v_cells_to_check.begin();
   for (;;) {
@@ -1529,8 +1532,36 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     ++__pyx_t_2;
     __pyx_v_cell = __pyx_t_1;
 
-    /* "CACompute.pyx":77
- *         #    continue
+    /* "CACompute_DP/CACompute.pyx":74
+ * 
+ *     for cell in cells_to_check:
+ *         if cells_checked.find(cell) != cells_checked.end():             # <<<<<<<<<<<<<<
+ *             continue
+ * 
+ */
+    __pyx_t_3 = ((__pyx_v_cells_checked.find(__pyx_v_cell) != __pyx_v_cells_checked.end()) != 0);
+    if (__pyx_t_3) {
+
+      /* "CACompute_DP/CACompute.pyx":75
+ *     for cell in cells_to_check:
+ *         if cells_checked.find(cell) != cells_checked.end():
+ *             continue             # <<<<<<<<<<<<<<
+ * 
+ *         for k in DP_neighbourhood:
+ */
+      goto __pyx_L7_continue;
+
+      /* "CACompute_DP/CACompute.pyx":74
+ * 
+ *     for cell in cells_to_check:
+ *         if cells_checked.find(cell) != cells_checked.end():             # <<<<<<<<<<<<<<
+ *             continue
+ * 
+ */
+    }
+
+    /* "CACompute_DP/CACompute.pyx":77
+ *             continue
  * 
  *         for k in DP_neighbourhood:             # <<<<<<<<<<<<<<
  *             coordinates2 = pair[int, int] (cell.first + k.first,
@@ -1543,7 +1574,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       ++__pyx_t_5;
       __pyx_v_k = __pyx_t_1;
 
-      /* "CACompute.pyx":78
+      /* "CACompute_DP/CACompute.pyx":78
  * 
  *         for k in DP_neighbourhood:
  *             coordinates2 = pair[int, int] (cell.first + k.first,             # <<<<<<<<<<<<<<
@@ -1558,7 +1589,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       }
       __pyx_v_coordinates2 = __pyx_t_1;
 
-      /* "CACompute.pyx":80
+      /* "CACompute_DP/CACompute.pyx":80
  *             coordinates2 = pair[int, int] (cell.first + k.first,
  *                                            cell.second + k.second)
  *             if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -1568,7 +1599,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
       __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates2) != __pyx_v_copy_grid.end()) != 0);
       if (__pyx_t_3) {
 
-        /* "CACompute.pyx":81
+        /* "CACompute_DP/CACompute.pyx":81
  *                                            cell.second + k.second)
  *             if copy_grid.find(coordinates2) != copy_grid.end():
  *                 DP_neighbours.push_back(copy_grid[coordinates2])             # <<<<<<<<<<<<<<
@@ -1582,17 +1613,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __PYX_ERR(0, 81, __pyx_L1_error)
         }
 
-        /* "CACompute.pyx":80
+        /* "CACompute_DP/CACompute.pyx":80
  *             coordinates2 = pair[int, int] (cell.first + k.first,
  *                                            cell.second + k.second)
  *             if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                 DP_neighbours.push_back(copy_grid[coordinates2])
  *             else:
  */
-        goto __pyx_L11;
+        goto __pyx_L12;
       }
 
-      /* "CACompute.pyx":83
+      /* "CACompute_DP/CACompute.pyx":83
  *                 DP_neighbours.push_back(copy_grid[coordinates2])
  *             else:
  *                 DP_neighbours.push_back(0)             # <<<<<<<<<<<<<<
@@ -1607,10 +1638,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __PYX_ERR(0, 83, __pyx_L1_error)
         }
       }
-      __pyx_L11:;
+      __pyx_L12:;
 
-      /* "CACompute.pyx":77
- *         #    continue
+      /* "CACompute_DP/CACompute.pyx":77
+ *             continue
  * 
  *         for k in DP_neighbourhood:             # <<<<<<<<<<<<<<
  *             coordinates2 = pair[int, int] (cell.first + k.first,
@@ -1618,38 +1649,38 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
     }
 
-    /* "CACompute.pyx":85
+    /* "CACompute_DP/CACompute.pyx":85
  *                 DP_neighbours.push_back(0)
  * 
  *         if DP.find(DP_neighbours) != DP.end():             # <<<<<<<<<<<<<<
  *             for i in range(DP[DP_neighbours].size()):
  *                 ans = DP[DP_neighbours][i]
  */
-    __pyx_t_3 = ((__pyx_v_9CACompute_DP.find(__pyx_v_DP_neighbours) != __pyx_v_9CACompute_DP.end()) != 0);
+    __pyx_t_3 = ((__pyx_v_12CACompute_DP_9CACompute_DP.find(__pyx_v_DP_neighbours) != __pyx_v_12CACompute_DP_9CACompute_DP.end()) != 0);
     if (__pyx_t_3) {
 
-      /* "CACompute.pyx":86
+      /* "CACompute_DP/CACompute.pyx":86
  * 
  *         if DP.find(DP_neighbours) != DP.end():
  *             for i in range(DP[DP_neighbours].size()):             # <<<<<<<<<<<<<<
  *                 ans = DP[DP_neighbours][i]
  *                 coordinates = pair[int, int] (cell.first + neighbourhood_with_centre[i].first,
  */
-      __pyx_t_6 = (__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours]).size();
+      __pyx_t_6 = (__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours]).size();
       __pyx_t_7 = __pyx_t_6;
       for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
         __pyx_v_i = __pyx_t_8;
 
-        /* "CACompute.pyx":87
+        /* "CACompute_DP/CACompute.pyx":87
  *         if DP.find(DP_neighbours) != DP.end():
  *             for i in range(DP[DP_neighbours].size()):
  *                 ans = DP[DP_neighbours][i]             # <<<<<<<<<<<<<<
  *                 coordinates = pair[int, int] (cell.first + neighbourhood_with_centre[i].first,
  *                                               cell.second + neighbourhood_with_centre[i].second)
  */
-        __pyx_v_ans = ((__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours])[__pyx_v_i]);
+        __pyx_v_ans = ((__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours])[__pyx_v_i]);
 
-        /* "CACompute.pyx":88
+        /* "CACompute_DP/CACompute.pyx":88
  *             for i in range(DP[DP_neighbours].size()):
  *                 ans = DP[DP_neighbours][i]
  *                 coordinates = pair[int, int] (cell.first + neighbourhood_with_centre[i].first,             # <<<<<<<<<<<<<<
@@ -1664,7 +1695,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         }
         __pyx_v_coordinates = __pyx_t_1;
 
-        /* "CACompute.pyx":90
+        /* "CACompute_DP/CACompute.pyx":90
  *                 coordinates = pair[int, int] (cell.first + neighbourhood_with_centre[i].first,
  *                                               cell.second + neighbourhood_with_centre[i].second)
  *                 if cells_checked.find(coordinates) == cells_checked.end():             # <<<<<<<<<<<<<<
@@ -1674,7 +1705,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_3 = ((__pyx_v_cells_checked.find(__pyx_v_coordinates) == __pyx_v_cells_checked.end()) != 0);
         if (__pyx_t_3) {
 
-          /* "CACompute.pyx":91
+          /* "CACompute_DP/CACompute.pyx":91
  *                                               cell.second + neighbourhood_with_centre[i].second)
  *                 if cells_checked.find(coordinates) == cells_checked.end():
  *                     cells_checked.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -1683,17 +1714,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
           (void)(__pyx_v_cells_checked.insert(__pyx_v_coordinates));
 
-          /* "CACompute.pyx":90
+          /* "CACompute_DP/CACompute.pyx":90
  *                 coordinates = pair[int, int] (cell.first + neighbourhood_with_centre[i].first,
  *                                               cell.second + neighbourhood_with_centre[i].second)
  *                 if cells_checked.find(coordinates) == cells_checked.end():             # <<<<<<<<<<<<<<
  *                     cells_checked.insert(coordinates)
  *                 else:
  */
-          goto __pyx_L15;
+          goto __pyx_L16;
         }
 
-        /* "CACompute.pyx":93
+        /* "CACompute_DP/CACompute.pyx":93
  *                     cells_checked.insert(coordinates)
  *                 else:
  *                     continue             # <<<<<<<<<<<<<<
@@ -1701,11 +1732,11 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  */
         /*else*/ {
-          goto __pyx_L13_continue;
+          goto __pyx_L14_continue;
         }
-        __pyx_L15:;
+        __pyx_L16:;
 
-        /* "CACompute.pyx":95
+        /* "CACompute_DP/CACompute.pyx":95
  *                     continue
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -1715,7 +1746,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) != __pyx_v_copy_grid.end()) != 0);
         if (__pyx_t_3) {
 
-          /* "CACompute.pyx":96
+          /* "CACompute_DP/CACompute.pyx":96
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  *                     if ans == 0 and dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
@@ -1726,14 +1757,14 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           if (__pyx_t_9) {
           } else {
             __pyx_t_3 = __pyx_t_9;
-            goto __pyx_L18_bool_binop_done;
+            goto __pyx_L19_bool_binop_done;
           }
           __pyx_t_9 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
           __pyx_t_3 = __pyx_t_9;
-          __pyx_L18_bool_binop_done:;
+          __pyx_L19_bool_binop_done:;
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":97
+            /* "CACompute_DP/CACompute.pyx":97
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  *                     if ans == 0 and dict_grid.find(coordinates) != dict_grid.end():
  *                         dict_grid.erase(coordinates)             # <<<<<<<<<<<<<<
@@ -1742,7 +1773,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":98
+            /* "CACompute_DP/CACompute.pyx":98
  *                     if ans == 0 and dict_grid.find(coordinates) != dict_grid.end():
  *                         dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -1751,17 +1782,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":96
+            /* "CACompute_DP/CACompute.pyx":96
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  *                     if ans == 0 and dict_grid.find(coordinates) != dict_grid.end():             # <<<<<<<<<<<<<<
  *                         dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  */
-            goto __pyx_L17;
+            goto __pyx_L18;
           }
 
-          /* "CACompute.pyx":99
+          /* "CACompute_DP/CACompute.pyx":99
  *                         dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -1771,7 +1802,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_ans != (__pyx_v_copy_grid[__pyx_v_coordinates])) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":100
+            /* "CACompute_DP/CACompute.pyx":100
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:
  *                         dict_grid[coordinates] = ans             # <<<<<<<<<<<<<<
@@ -1780,7 +1811,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
 
-            /* "CACompute.pyx":101
+            /* "CACompute_DP/CACompute.pyx":101
  *                     elif ans != copy_grid[coordinates]:
  *                         dict_grid[coordinates] = ans
  *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -1789,7 +1820,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":99
+            /* "CACompute_DP/CACompute.pyx":99
  *                         dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -1797,19 +1828,19 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                         cells_changed.insert(coordinates)
  */
           }
-          __pyx_L17:;
+          __pyx_L18:;
 
-          /* "CACompute.pyx":95
+          /* "CACompute_DP/CACompute.pyx":95
  *                     continue
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                     if ans == 0 and dict_grid.find(coordinates) != dict_grid.end():
  *                         dict_grid.erase(coordinates)
  */
-          goto __pyx_L16;
+          goto __pyx_L17;
         }
 
-        /* "CACompute.pyx":103
+        /* "CACompute_DP/CACompute.pyx":103
  *                         cells_changed.insert(coordinates)
  *                 else:
  *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))             # <<<<<<<<<<<<<<
@@ -1825,7 +1856,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           }
           (void)(__pyx_v_dict_grid.insert(__pyx_t_10));
 
-          /* "CACompute.pyx":104
+          /* "CACompute_DP/CACompute.pyx":104
  *                 else:
  *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                     cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -1834,7 +1865,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
           (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-          /* "CACompute.pyx":105
+          /* "CACompute_DP/CACompute.pyx":105
  *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                     cells_changed.insert(coordinates)
  *                     if coordinates.second < lower_x:             # <<<<<<<<<<<<<<
@@ -1844,7 +1875,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_coordinates.second < __pyx_v_lower_x) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":106
+            /* "CACompute_DP/CACompute.pyx":106
  *                     cells_changed.insert(coordinates)
  *                     if coordinates.second < lower_x:
  *                         lower_x = coordinates.second             # <<<<<<<<<<<<<<
@@ -1854,17 +1885,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_11 = __pyx_v_coordinates.second;
             __pyx_v_lower_x = __pyx_t_11;
 
-            /* "CACompute.pyx":105
+            /* "CACompute_DP/CACompute.pyx":105
  *                     dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                     cells_changed.insert(coordinates)
  *                     if coordinates.second < lower_x:             # <<<<<<<<<<<<<<
  *                         lower_x = coordinates.second
  *                     elif coordinates.second > upper_x:
  */
-            goto __pyx_L20;
+            goto __pyx_L21;
           }
 
-          /* "CACompute.pyx":107
+          /* "CACompute_DP/CACompute.pyx":107
  *                     if coordinates.second < lower_x:
  *                         lower_x = coordinates.second
  *                     elif coordinates.second > upper_x:             # <<<<<<<<<<<<<<
@@ -1874,7 +1905,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_coordinates.second > __pyx_v_upper_x) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":108
+            /* "CACompute_DP/CACompute.pyx":108
  *                         lower_x = coordinates.second
  *                     elif coordinates.second > upper_x:
  *                         upper_x = coordinates.second             # <<<<<<<<<<<<<<
@@ -1884,7 +1915,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_11 = __pyx_v_coordinates.second;
             __pyx_v_upper_x = __pyx_t_11;
 
-            /* "CACompute.pyx":107
+            /* "CACompute_DP/CACompute.pyx":107
  *                     if coordinates.second < lower_x:
  *                         lower_x = coordinates.second
  *                     elif coordinates.second > upper_x:             # <<<<<<<<<<<<<<
@@ -1892,9 +1923,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  * 
  */
           }
-          __pyx_L20:;
+          __pyx_L21:;
 
-          /* "CACompute.pyx":110
+          /* "CACompute_DP/CACompute.pyx":110
  *                         upper_x = coordinates.second
  * 
  *                     if coordinates.first < lower_y:             # <<<<<<<<<<<<<<
@@ -1904,7 +1935,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_coordinates.first < __pyx_v_lower_y) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":111
+            /* "CACompute_DP/CACompute.pyx":111
  * 
  *                     if coordinates.first < lower_y:
  *                         lower_y = coordinates.first             # <<<<<<<<<<<<<<
@@ -1914,17 +1945,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_11 = __pyx_v_coordinates.first;
             __pyx_v_lower_y = __pyx_t_11;
 
-            /* "CACompute.pyx":110
+            /* "CACompute_DP/CACompute.pyx":110
  *                         upper_x = coordinates.second
  * 
  *                     if coordinates.first < lower_y:             # <<<<<<<<<<<<<<
  *                         lower_y = coordinates.first
  *                     elif coordinates.first > upper_y:
  */
-            goto __pyx_L21;
+            goto __pyx_L22;
           }
 
-          /* "CACompute.pyx":112
+          /* "CACompute_DP/CACompute.pyx":112
  *                     if coordinates.first < lower_y:
  *                         lower_y = coordinates.first
  *                     elif coordinates.first > upper_y:             # <<<<<<<<<<<<<<
@@ -1934,7 +1965,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_coordinates.first > __pyx_v_upper_y) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":113
+            /* "CACompute_DP/CACompute.pyx":113
  *                         lower_y = coordinates.first
  *                     elif coordinates.first > upper_y:
  *                         upper_y = coordinates.first             # <<<<<<<<<<<<<<
@@ -1944,7 +1975,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_11 = __pyx_v_coordinates.first;
             __pyx_v_upper_y = __pyx_t_11;
 
-            /* "CACompute.pyx":112
+            /* "CACompute_DP/CACompute.pyx":112
  *                     if coordinates.first < lower_y:
  *                         lower_y = coordinates.first
  *                     elif coordinates.first > upper_y:             # <<<<<<<<<<<<<<
@@ -1952,23 +1983,23 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *         else:
  */
           }
-          __pyx_L21:;
+          __pyx_L22:;
         }
-        __pyx_L16:;
-        __pyx_L13_continue:;
+        __pyx_L17:;
+        __pyx_L14_continue:;
       }
 
-      /* "CACompute.pyx":85
+      /* "CACompute_DP/CACompute.pyx":85
  *                 DP_neighbours.push_back(0)
  * 
  *         if DP.find(DP_neighbours) != DP.end():             # <<<<<<<<<<<<<<
  *             for i in range(DP[DP_neighbours].size()):
  *                 ans = DP[DP_neighbours][i]
  */
-      goto __pyx_L12;
+      goto __pyx_L13;
     }
 
-    /* "CACompute.pyx":115
+    /* "CACompute_DP/CACompute.pyx":115
  *                         upper_y = coordinates.first
  *         else:
  *             DP_result.clear()             # <<<<<<<<<<<<<<
@@ -1978,7 +2009,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
     /*else*/ {
       __pyx_v_DP_result.clear();
 
-      /* "CACompute.pyx":116
+      /* "CACompute_DP/CACompute.pyx":116
  *         else:
  *             DP_result.clear()
  *             for neighbour in neighbourhood_with_centre:             # <<<<<<<<<<<<<<
@@ -1992,7 +2023,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         ++__pyx_t_5;
         __pyx_v_neighbour = __pyx_t_1;
 
-        /* "CACompute.pyx":117
+        /* "CACompute_DP/CACompute.pyx":117
  *             DP_result.clear()
  *             for neighbour in neighbourhood_with_centre:
  *                 neighbours.clear()             # <<<<<<<<<<<<<<
@@ -2001,7 +2032,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         __pyx_v_neighbours.clear();
 
-        /* "CACompute.pyx":119
+        /* "CACompute_DP/CACompute.pyx":119
  *                 neighbours.clear()
  * 
  *                 ans = -1             # <<<<<<<<<<<<<<
@@ -2010,7 +2041,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         __pyx_v_ans = -1;
 
-        /* "CACompute.pyx":120
+        /* "CACompute_DP/CACompute.pyx":120
  * 
  *                 ans = -1
  *                 coordinates = pair[int, int] (cell.first + neighbour.first,             # <<<<<<<<<<<<<<
@@ -2025,7 +2056,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         }
         __pyx_v_coordinates = __pyx_t_1;
 
-        /* "CACompute.pyx":123
+        /* "CACompute_DP/CACompute.pyx":123
  *                                               cell.second + neighbour.second)
  * 
  *                 if cells_checked.find(coordinates) == cells_checked.end():             # <<<<<<<<<<<<<<
@@ -2035,7 +2066,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_3 = ((__pyx_v_cells_checked.find(__pyx_v_coordinates) == __pyx_v_cells_checked.end()) != 0);
         if (__pyx_t_3) {
 
-          /* "CACompute.pyx":124
+          /* "CACompute_DP/CACompute.pyx":124
  * 
  *                 if cells_checked.find(coordinates) == cells_checked.end():
  *                     cells_checked.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2044,7 +2075,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
           (void)(__pyx_v_cells_checked.insert(__pyx_v_coordinates));
 
-          /* "CACompute.pyx":123
+          /* "CACompute_DP/CACompute.pyx":123
  *                                               cell.second + neighbour.second)
  * 
  *                 if cells_checked.find(coordinates) == cells_checked.end():             # <<<<<<<<<<<<<<
@@ -2053,7 +2084,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         }
 
-        /* "CACompute.pyx":126
+        /* "CACompute_DP/CACompute.pyx":126
  *                     cells_checked.insert(coordinates)
  * 
  *                 if copy_grid.find(coordinates) == copy_grid.end(): ans = depend_on_neighbours(0, generations)             # <<<<<<<<<<<<<<
@@ -2116,10 +2147,10 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_12); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           __pyx_v_ans = __pyx_t_11;
-          goto __pyx_L25;
+          goto __pyx_L26;
         }
 
-        /* "CACompute.pyx":127
+        /* "CACompute_DP/CACompute.pyx":127
  * 
  *                 if copy_grid.find(coordinates) == copy_grid.end(): ans = depend_on_neighbours(0, generations)
  *                 else: ans = depend_on_neighbours(copy_grid[coordinates], generations)             # <<<<<<<<<<<<<<
@@ -2186,9 +2217,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           __pyx_v_ans = __pyx_t_11;
         }
-        __pyx_L25:;
+        __pyx_L26:;
 
-        /* "CACompute.pyx":129
+        /* "CACompute_DP/CACompute.pyx":129
  *                 else: ans = depend_on_neighbours(copy_grid[coordinates], generations)
  * 
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2198,7 +2229,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_3 = ((__pyx_v_ans == -1L) != 0);
         if (__pyx_t_3) {
 
-          /* "CACompute.pyx":130
+          /* "CACompute_DP/CACompute.pyx":130
  * 
  *                 if ans == -1:
  *                     for k in neighbourhood:             # <<<<<<<<<<<<<<
@@ -2212,7 +2243,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             ++__pyx_t_18;
             __pyx_v_k = __pyx_t_1;
 
-            /* "CACompute.pyx":131
+            /* "CACompute_DP/CACompute.pyx":131
  *                 if ans == -1:
  *                     for k in neighbourhood:
  *                         coordinates2 = pair[int, int] (coordinates.first + k.first,             # <<<<<<<<<<<<<<
@@ -2227,7 +2258,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             }
             __pyx_v_coordinates2 = __pyx_t_1;
 
-            /* "CACompute.pyx":133
+            /* "CACompute_DP/CACompute.pyx":133
  *                         coordinates2 = pair[int, int] (coordinates.first + k.first,
  *                                                        coordinates.second + k.second)
  *                         if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -2237,7 +2268,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates2) != __pyx_v_copy_grid.end()) != 0);
             if (__pyx_t_3) {
 
-              /* "CACompute.pyx":134
+              /* "CACompute_DP/CACompute.pyx":134
  *                                                        coordinates.second + k.second)
  *                         if copy_grid.find(coordinates2) != copy_grid.end():
  *                             neighbours.push_back(copy_grid[coordinates2])             # <<<<<<<<<<<<<<
@@ -2251,17 +2282,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
                 __PYX_ERR(0, 134, __pyx_L1_error)
               }
 
-              /* "CACompute.pyx":133
+              /* "CACompute_DP/CACompute.pyx":133
  *                         coordinates2 = pair[int, int] (coordinates.first + k.first,
  *                                                        coordinates.second + k.second)
  *                         if copy_grid.find(coordinates2) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                             neighbours.push_back(copy_grid[coordinates2])
  *                         else:
  */
-              goto __pyx_L29;
+              goto __pyx_L30;
             }
 
-            /* "CACompute.pyx":136
+            /* "CACompute_DP/CACompute.pyx":136
  *                             neighbours.push_back(copy_grid[coordinates2])
  *                         else:
  *                             neighbours.push_back(0)             # <<<<<<<<<<<<<<
@@ -2276,9 +2307,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
                 __PYX_ERR(0, 136, __pyx_L1_error)
               }
             }
-            __pyx_L29:;
+            __pyx_L30:;
 
-            /* "CACompute.pyx":130
+            /* "CACompute_DP/CACompute.pyx":130
  * 
  *                 if ans == -1:
  *                     for k in neighbourhood:             # <<<<<<<<<<<<<<
@@ -2287,7 +2318,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
           }
 
-          /* "CACompute.pyx":129
+          /* "CACompute_DP/CACompute.pyx":129
  *                 else: ans = depend_on_neighbours(copy_grid[coordinates], generations)
  * 
  *                 if ans == -1:             # <<<<<<<<<<<<<<
@@ -2296,7 +2327,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
         }
 
-        /* "CACompute.pyx":138
+        /* "CACompute_DP/CACompute.pyx":138
  *                             neighbours.push_back(0)
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
@@ -2306,7 +2337,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
         __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) != __pyx_v_copy_grid.end()) != 0);
         if (__pyx_t_3) {
 
-          /* "CACompute.pyx":139
+          /* "CACompute_DP/CACompute.pyx":139
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  *                     neighbours.push_back(copy_grid[coordinates])             # <<<<<<<<<<<<<<
@@ -2320,7 +2351,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __PYX_ERR(0, 139, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":140
+          /* "CACompute_DP/CACompute.pyx":140
  *                 if copy_grid.find(coordinates) != copy_grid.end():
  *                     neighbours.push_back(copy_grid[coordinates])
  *                     if ans == -1: ans = transition_func(neighbours, generations)             # <<<<<<<<<<<<<<
@@ -2389,7 +2420,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_v_ans = __pyx_t_11;
           }
 
-          /* "CACompute.pyx":141
+          /* "CACompute_DP/CACompute.pyx":141
  *                     neighbours.push_back(copy_grid[coordinates])
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans == 0:             # <<<<<<<<<<<<<<
@@ -2399,7 +2430,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_ans == 0) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":142
+            /* "CACompute_DP/CACompute.pyx":142
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans == 0:
  *                         if dict_grid.find(coordinates) != dict_grid.end(): dict_grid.erase(coordinates)             # <<<<<<<<<<<<<<
@@ -2411,7 +2442,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
               (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
             }
 
-            /* "CACompute.pyx":143
+            /* "CACompute_DP/CACompute.pyx":143
  *                     if ans == 0:
  *                         if dict_grid.find(coordinates) != dict_grid.end(): dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2420,17 +2451,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":141
+            /* "CACompute_DP/CACompute.pyx":141
  *                     neighbours.push_back(copy_grid[coordinates])
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans == 0:             # <<<<<<<<<<<<<<
  *                         if dict_grid.find(coordinates) != dict_grid.end(): dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  */
-            goto __pyx_L32;
+            goto __pyx_L33;
           }
 
-          /* "CACompute.pyx":144
+          /* "CACompute_DP/CACompute.pyx":144
  *                         if dict_grid.find(coordinates) != dict_grid.end(): dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -2440,7 +2471,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_ans != (__pyx_v_copy_grid[__pyx_v_coordinates])) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":145
+            /* "CACompute_DP/CACompute.pyx":145
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:
  *                         dict_grid[coordinates] = ans             # <<<<<<<<<<<<<<
@@ -2449,7 +2480,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
 
-            /* "CACompute.pyx":146
+            /* "CACompute_DP/CACompute.pyx":146
  *                     elif ans != copy_grid[coordinates]:
  *                         dict_grid[coordinates] = ans
  *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2458,7 +2489,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":144
+            /* "CACompute_DP/CACompute.pyx":144
  *                         if dict_grid.find(coordinates) != dict_grid.end(): dict_grid.erase(coordinates)
  *                         cells_changed.insert(coordinates)
  *                     elif ans != copy_grid[coordinates]:             # <<<<<<<<<<<<<<
@@ -2466,19 +2497,19 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  *                         cells_changed.insert(coordinates)
  */
           }
-          __pyx_L32:;
+          __pyx_L33:;
 
-          /* "CACompute.pyx":138
+          /* "CACompute_DP/CACompute.pyx":138
  *                             neighbours.push_back(0)
  * 
  *                 if copy_grid.find(coordinates) != copy_grid.end():             # <<<<<<<<<<<<<<
  *                     neighbours.push_back(copy_grid[coordinates])
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  */
-          goto __pyx_L30;
+          goto __pyx_L31;
         }
 
-        /* "CACompute.pyx":148
+        /* "CACompute_DP/CACompute.pyx":148
  *                         cells_changed.insert(coordinates)
  *                 else:
  *                     neighbours.push_back(0)             # <<<<<<<<<<<<<<
@@ -2493,7 +2524,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __PYX_ERR(0, 148, __pyx_L1_error)
           }
 
-          /* "CACompute.pyx":149
+          /* "CACompute_DP/CACompute.pyx":149
  *                 else:
  *                     neighbours.push_back(0)
  *                     if ans == -1: ans = transition_func(neighbours, generations)             # <<<<<<<<<<<<<<
@@ -2562,7 +2593,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_v_ans = __pyx_t_11;
           }
 
-          /* "CACompute.pyx":150
+          /* "CACompute_DP/CACompute.pyx":150
  *                     neighbours.push_back(0)
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans != 0:             # <<<<<<<<<<<<<<
@@ -2572,7 +2603,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __pyx_t_3 = ((__pyx_v_ans != 0) != 0);
           if (__pyx_t_3) {
 
-            /* "CACompute.pyx":151
+            /* "CACompute_DP/CACompute.pyx":151
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans != 0:
  *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))             # <<<<<<<<<<<<<<
@@ -2587,7 +2618,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             }
             (void)(__pyx_v_dict_grid.insert(__pyx_t_10));
 
-            /* "CACompute.pyx":152
+            /* "CACompute_DP/CACompute.pyx":152
  *                     if ans != 0:
  *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                         cells_changed.insert(coordinates)             # <<<<<<<<<<<<<<
@@ -2596,7 +2627,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
             (void)(__pyx_v_cells_changed.insert(__pyx_v_coordinates));
 
-            /* "CACompute.pyx":153
+            /* "CACompute_DP/CACompute.pyx":153
  *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                         cells_changed.insert(coordinates)
  *                         if coordinates.second < lower_x:             # <<<<<<<<<<<<<<
@@ -2606,7 +2637,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_3 = ((__pyx_v_coordinates.second < __pyx_v_lower_x) != 0);
             if (__pyx_t_3) {
 
-              /* "CACompute.pyx":154
+              /* "CACompute_DP/CACompute.pyx":154
  *                         cells_changed.insert(coordinates)
  *                         if coordinates.second < lower_x:
  *                             lower_x = coordinates.second             # <<<<<<<<<<<<<<
@@ -2616,17 +2647,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
               __pyx_t_11 = __pyx_v_coordinates.second;
               __pyx_v_lower_x = __pyx_t_11;
 
-              /* "CACompute.pyx":153
+              /* "CACompute_DP/CACompute.pyx":153
  *                         dict_grid.insert(pair[pair[int, int], int] (coordinates, ans))
  *                         cells_changed.insert(coordinates)
  *                         if coordinates.second < lower_x:             # <<<<<<<<<<<<<<
  *                             lower_x = coordinates.second
  *                         elif coordinates.second > upper_x:
  */
-              goto __pyx_L36;
+              goto __pyx_L37;
             }
 
-            /* "CACompute.pyx":155
+            /* "CACompute_DP/CACompute.pyx":155
  *                         if coordinates.second < lower_x:
  *                             lower_x = coordinates.second
  *                         elif coordinates.second > upper_x:             # <<<<<<<<<<<<<<
@@ -2636,7 +2667,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_3 = ((__pyx_v_coordinates.second > __pyx_v_upper_x) != 0);
             if (__pyx_t_3) {
 
-              /* "CACompute.pyx":156
+              /* "CACompute_DP/CACompute.pyx":156
  *                             lower_x = coordinates.second
  *                         elif coordinates.second > upper_x:
  *                             upper_x = coordinates.second             # <<<<<<<<<<<<<<
@@ -2646,7 +2677,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
               __pyx_t_11 = __pyx_v_coordinates.second;
               __pyx_v_upper_x = __pyx_t_11;
 
-              /* "CACompute.pyx":155
+              /* "CACompute_DP/CACompute.pyx":155
  *                         if coordinates.second < lower_x:
  *                             lower_x = coordinates.second
  *                         elif coordinates.second > upper_x:             # <<<<<<<<<<<<<<
@@ -2654,9 +2685,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  * 
  */
             }
-            __pyx_L36:;
+            __pyx_L37:;
 
-            /* "CACompute.pyx":158
+            /* "CACompute_DP/CACompute.pyx":158
  *                             upper_x = coordinates.second
  * 
  *                         if coordinates.first < lower_y:             # <<<<<<<<<<<<<<
@@ -2666,7 +2697,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_3 = ((__pyx_v_coordinates.first < __pyx_v_lower_y) != 0);
             if (__pyx_t_3) {
 
-              /* "CACompute.pyx":159
+              /* "CACompute_DP/CACompute.pyx":159
  * 
  *                         if coordinates.first < lower_y:
  *                             lower_y = coordinates.first             # <<<<<<<<<<<<<<
@@ -2676,17 +2707,17 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
               __pyx_t_11 = __pyx_v_coordinates.first;
               __pyx_v_lower_y = __pyx_t_11;
 
-              /* "CACompute.pyx":158
+              /* "CACompute_DP/CACompute.pyx":158
  *                             upper_x = coordinates.second
  * 
  *                         if coordinates.first < lower_y:             # <<<<<<<<<<<<<<
  *                             lower_y = coordinates.first
  *                         elif coordinates.first > upper_y:
  */
-              goto __pyx_L37;
+              goto __pyx_L38;
             }
 
-            /* "CACompute.pyx":160
+            /* "CACompute_DP/CACompute.pyx":160
  *                         if coordinates.first < lower_y:
  *                             lower_y = coordinates.first
  *                         elif coordinates.first > upper_y:             # <<<<<<<<<<<<<<
@@ -2696,7 +2727,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
             __pyx_t_3 = ((__pyx_v_coordinates.first > __pyx_v_upper_y) != 0);
             if (__pyx_t_3) {
 
-              /* "CACompute.pyx":161
+              /* "CACompute_DP/CACompute.pyx":161
  *                             lower_y = coordinates.first
  *                         elif coordinates.first > upper_y:
  *                             upper_y = coordinates.first             # <<<<<<<<<<<<<<
@@ -2706,7 +2737,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
               __pyx_t_11 = __pyx_v_coordinates.first;
               __pyx_v_upper_y = __pyx_t_11;
 
-              /* "CACompute.pyx":160
+              /* "CACompute_DP/CACompute.pyx":160
  *                         if coordinates.first < lower_y:
  *                             lower_y = coordinates.first
  *                         elif coordinates.first > upper_y:             # <<<<<<<<<<<<<<
@@ -2714,9 +2745,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  * 
  */
             }
-            __pyx_L37:;
+            __pyx_L38:;
 
-            /* "CACompute.pyx":150
+            /* "CACompute_DP/CACompute.pyx":150
  *                     neighbours.push_back(0)
  *                     if ans == -1: ans = transition_func(neighbours, generations)
  *                     if ans != 0:             # <<<<<<<<<<<<<<
@@ -2725,9 +2756,9 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
           }
         }
-        __pyx_L30:;
+        __pyx_L31:;
 
-        /* "CACompute.pyx":163
+        /* "CACompute_DP/CACompute.pyx":163
  *                             upper_y = coordinates.first
  * 
  *                 DP_result.push_back(ans)             # <<<<<<<<<<<<<<
@@ -2741,7 +2772,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
           __PYX_ERR(0, 163, __pyx_L1_error)
         }
 
-        /* "CACompute.pyx":116
+        /* "CACompute_DP/CACompute.pyx":116
  *         else:
  *             DP_result.clear()
  *             for neighbour in neighbourhood_with_centre:             # <<<<<<<<<<<<<<
@@ -2750,27 +2781,28 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
  */
       }
 
-      /* "CACompute.pyx":165
+      /* "CACompute_DP/CACompute.pyx":165
  *                 DP_result.push_back(ans)
  * 
  *             DP[DP_neighbours] = DP_result             # <<<<<<<<<<<<<<
  * 
  *     return lower_x, upper_x, lower_y, upper_y, cells_changed, dict_grid
  */
-      (__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours]) = __pyx_v_DP_result;
+      (__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours]) = __pyx_v_DP_result;
     }
-    __pyx_L12:;
+    __pyx_L13:;
 
-    /* "CACompute.pyx":73
+    /* "CACompute_DP/CACompute.pyx":73
  *         cells_changed.clear()
  * 
  *     for cell in cells_to_check:             # <<<<<<<<<<<<<<
- *         #if cells_checked.find(cell) != cells_checked.end():
- *         #    continue
+ *         if cells_checked.find(cell) != cells_checked.end():
+ *             continue
  */
+    __pyx_L7_continue:;
   }
 
-  /* "CACompute.pyx":167
+  /* "CACompute_DP/CACompute.pyx":167
  *             DP[DP_neighbours] = DP_result
  * 
  *     return lower_x, upper_x, lower_y, upper_y, cells_changed, dict_grid             # <<<<<<<<<<<<<<
@@ -2812,7 +2844,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   __pyx_t_19 = 0;
   goto __pyx_L0;
 
-  /* "CACompute.pyx":41
+  /* "CACompute_DP/CACompute.pyx":41
  * cdef int alternating_period2 = alternating_period
  * 
  * cpdef compute(vector[pair[int, int]] neighbourhood, vector[pair[int, int]] DP_neighbourhood,             # <<<<<<<<<<<<<<
@@ -2829,7 +2861,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
   __Pyx_XDECREF(__pyx_t_16);
   __Pyx_XDECREF(__pyx_t_17);
   __Pyx_XDECREF(__pyx_t_19);
-  __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2838,8 +2870,8 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector<std::pair<int,int> >  __
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector<std::pair<int,int> >  __pyx_v_neighbourhood;
   std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood;
   std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed;
@@ -2975,24 +3007,24 @@ static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("compute", 1, 10, 10, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 41, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9CACompute_compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
+  __pyx_r = __pyx_pf_12CACompute_DP_9CACompute_compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations) {
+static PyObject *__pyx_pf_12CACompute_DP_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector<std::pair<int,int> >  __pyx_v_neighbourhood, std::vector<std::pair<int,int> >  __pyx_v_DP_neighbourhood, std::unordered_set<std::pair<int,int> >  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_copy_grid, std::unordered_map<std::pair<int,int> ,int>  __pyx_v_dict_grid, int __pyx_v_generations) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_12CACompute_DP_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3001,7 +3033,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3815,7 +3847,7 @@ static PyObject *__pyx_convert_unordered_map_to_py_std_3a__3a_pair_3c_int_2c_int
 }
 
 static PyMethodDef __pyx_methods[] = {
-  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9CACompute_1compute, METH_VARARGS|METH_KEYWORDS, 0},
+  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_12CACompute_DP_9CACompute_1compute, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 
@@ -4141,14 +4173,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_CACompute) {
+  if (__pyx_module_is_main_CACompute_DP__CACompute) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "CACompute")) {
-      if (unlikely(PyDict_SetItemString(modules, "CACompute", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "CACompute_DP.CACompute")) {
+      if (unlikely(PyDict_SetItemString(modules, "CACompute_DP.CACompute", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -4169,7 +4201,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "CACompute.pyx":33
+  /* "CACompute_DP/CACompute.pyx":33
  * from libcpp.vector cimport vector
  * 
  * from transFunc import transition_func, depend_on_neighbours, alternating_period             # <<<<<<<<<<<<<<
@@ -4187,7 +4219,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_alternating_period);
   __Pyx_GIVEREF(__pyx_n_s_alternating_period);
   PyList_SET_ITEM(__pyx_t_1, 2, __pyx_n_s_alternating_period);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_transFunc, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_transFunc, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_transition_func); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
@@ -4204,7 +4236,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CACompute.pyx":39
+  /* "CACompute_DP/CACompute.pyx":39
  * 
  * cdef map[vector[int], vector[int]] DP
  * cdef int alternating_period2 = alternating_period             # <<<<<<<<<<<<<<
@@ -4215,9 +4247,9 @@ if (!__Pyx_RefNanny) {
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_9CACompute_alternating_period2 = __pyx_t_3;
+  __pyx_v_12CACompute_DP_9CACompute_alternating_period2 = __pyx_t_3;
 
-  /* "CACompute.pyx":1
+  /* "CACompute_DP/CACompute.pyx":1
  * # distutils: language=c++             # <<<<<<<<<<<<<<
  * """
  * cdef extern from "Compute.cpp":
@@ -4243,11 +4275,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init CACompute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init CACompute_DP.CACompute", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init CACompute");
+    PyErr_SetString(PyExc_ImportError, "init CACompute_DP.CACompute");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

@@ -62,12 +62,12 @@ class Table(QWidget):
         elif current_text == "?":
             new_text = "1"
         else:
-            new_text = str((int(current_text) + 11) % 21 - 10)
+            new_text = str((int(current_text) + 11) % 21 - 10)  # Loop from -10 to 10
         self.num[i][j] = new_text
         self.sender().setText(new_text)
 
     def load_values(self, num):
-        self.num = num[:]
+        self.num = num[:]  # Deepcopy of num as lists are mutable
         for i in range(len(self.num)):
             for j in range(len(self.num[i])):
                 self.btns[i * len(self.num) + j].setText(self.num[i][j])
@@ -1284,7 +1284,7 @@ class AgarDialog(QDialog):
 
         # Spinbox for Number of Soups
         self.spinbox_num_soups = QSpinBox()
-        self.spinbox_num_soups.setMaximum(10000)
+        self.spinbox_num_soups.setMaximum(1000000)
         self.spinbox_num_soups.setMinimum(10)
         grid.addWidget(self.spinbox_num_soups)
 

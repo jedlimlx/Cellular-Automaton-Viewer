@@ -42,15 +42,26 @@ colour_palette_count: int = 0
 colour_palette = []
 parsing_colour_palette: bool = False
 
+neighbourhood = []
+neighbourhood_weights = []
+current_neighbourhood_weights = []
+neighbourhood_count: int = 0
+neighbourhood_range: int = 0
+parsing_neighbourhood: bool = False
+
+n_states: int = 0
 rule_name: str = ""
 tiling: str = "Square"
-n_states: int = 0
+bs_conditions: str = "Outer Totalistic"
+rulespace: str = "Single State"
+rule_string: List[str] = []
 state_weights: List[List[int]] = []
 
 
 def load(filename):
     global colour_palette, colour_palette_count, parsing_colour_palette, \
-        rule_name, n_states, state_weights, tiling
+        rule_name, n_states, state_weights, tiling, parsing_neighbourhood, neighbourhood, neighbourhood_weights, \
+        current_neighbourhood_weights, neighbourhood_count, neighbourhood_range, rule_string, rulespace, bs_conditions
     file = open(filename, "r")
     rule: str = file.read()
     colour_palette = []
@@ -70,6 +81,19 @@ def load(filename):
                 parsing_colour_palette = False
             continue
 
+        if "Neighbourhood:" in section:
+            neighbourhood_count = 0
+            parsing_neighbourhood = True
+            current_neighbourhood_weights = []
+            continue
+        elif parsing_neighbourhood:
+            current_neighbourhood_weights += [int(x) for x in section.split(",")]
+            neighbourhood_count += 1
+            if neighbourhood_count == neighbourhood_range * 2 + 1:
+                parsing_neighbourhood = False
+                neighbourhood_weights.append(current_neighbourhood_weights)
+            continue
+
         if "Name:" in section:
             rule_name = section.replace("Name: ", "")
         elif "State Weights:" in section:
@@ -78,3 +102,18 @@ def load(filename):
             n_states = len(state_weights[0])
         elif "Tiling:" in section:
             tiling = section.replace("Tiling: ", "")
+        elif "Neighbourhood Range:" in section:
+            neighbourhood_range = int(section.replace("Neighbourhood Range: ", ""))
+        elif "Rulestring:" in section:
+            rule_string = section.replace("Rulestring: ", "").split("|")
+        elif "Rulespace:" in section:
+            rulespace = section.replace("Rulespace: ", "")
+        elif "B/S Conditions:" in section:
+            bs_conditions = section.replace("B/S Conditions: ", "")
+
+    for j in range(len(neighbourhood_weights)):
+        neighbourhood.append([])
+        for i in range((2 * neighbourhood_range + 1) ** 2):
+            if neighbourhood_weights[j][i] != 0:
+                neighbourhood[j].append((i // (2 * neighbourhood_range + 1) - neighbourhood_range,
+                                         i % (2 * neighbourhood_range + 1) - neighbourhood_range))

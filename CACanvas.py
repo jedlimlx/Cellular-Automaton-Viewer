@@ -48,11 +48,11 @@ else:
 
 class CACanvas(QWidget):
     global use_parse
-    zoom_in = pyqtSignal()
-    zoom_out = pyqtSignal()
-    reset = pyqtSignal()
-    reset_and_load = pyqtSignal(dict, int, int)
-    change_title = pyqtSignal(str)
+    zoom_in = pyqtSignal()  # Zooming In
+    zoom_out = pyqtSignal()  # Zooming Out
+    reset = pyqtSignal()  # Reset grid without reloading pattern
+    reset_and_load = pyqtSignal(dict, int, int)  # Reset grid and reload pattern
+    change_title = pyqtSignal(str)  # Change title of the application
 
     def __init__(self, cell_size: int):
         super().__init__()
@@ -1028,6 +1028,7 @@ class CACanvas(QWidget):
                 self.recording = False  # Stop Recording
                 file_name, _ = QFileDialog.getSaveFileName(caption="Save *.gif File",
                                                            filter="GIF Files (*.gif)")
+                if file_name == "": return None  # Quit function if the file dialog is cancelled
 
                 gif_cell_size = QInputDialog.getInt(self, "Enter Cell Size of GIF", "Enter Cell Size of GIF:", 10, 1)
                 img_frames: List = [Image.fromarray(x.repeat(gif_cell_size[0], axis=0).repeat(gif_cell_size[0], axis=1))
@@ -1035,8 +1036,11 @@ class CACanvas(QWidget):
 
                 duration = QInputDialog.getInt(self, "Enter Duration between Frames (ms)",
                                                "Enter Duration between Frames (ms):", 20, 1)
+
                 img_frames[0].save(file_name, format='GIF', append_images=img_frames[1:],
                                    save_all=True, loop=0, duration=duration[0])
+
+                self.frames = []  # Reset the frames so they don't persist into next recording
             else:
                 self.btn_record.setIcon(QIcon("Icons/RecordIcon2.png"))
 
@@ -1452,7 +1456,7 @@ class CACanvas(QWidget):
             pen = QPen()
 
             # Set Colour
-            pen.setColor(QColor(255, 255, 255))
+            pen.setColor(QColor(150, 150, 150))
             pen.setWidth(self.cell_size)
 
             painter = QPainter(self.label.pixmap())
@@ -1491,7 +1495,7 @@ class CACanvas(QWidget):
             self.add_cell(self.current_state, new_x // self.cell_size, new_y // self.cell_size)
             self.history.append((self.generations, self.dict_grid))
 
-            logging.log(logging.INFO, f"Drawing at with state {self.current_state}" +
+            logging.log(logging.INFO, f"Drawing at with state {self.current_state} " +
                         f"{(new_x // self.cell_size, new_y // self.cell_size)}")
 
             # Update Everything

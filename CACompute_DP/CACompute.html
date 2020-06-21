@@ -412,7 +412,7 @@ body.cython { font-family: courier; font-size: 12; }
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_n_s_alternating_period);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_n_s_alternating_period);
   <span class='py_macro_api'>PyList_SET_ITEM</span>(__pyx_t_1, 2, __pyx_n_s_alternating_period);
-  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_transFunc, __pyx_t_1, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)</span>
+  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_transFunc, __pyx_t_1, -1);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = <span class='pyx_c_api'>__Pyx_ImportFrom</span>(__pyx_t_2, __pyx_n_s_transition_func);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)</span>
@@ -438,11 +438,11 @@ body.cython { font-family: courier; font-size: 12; }
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
   __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 39, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_9CACompute_alternating_period2 = __pyx_t_3;
+  __pyx_v_12CACompute_DP_9CACompute_alternating_period2 = __pyx_t_3;
 </pre><pre class="cython line score-0">&#xA0;<span class="">040</span>: </pre>
 <pre class="cython line score-120" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">041</span>: <span class="k">cpdef</span> <span class="nf">compute</span><span class="p">(</span><span class="n">vector</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="n">neighbourhood</span><span class="p">,</span> <span class="n">vector</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="n">DP_neighbourhood</span><span class="p">,</span></pre>
-<pre class='cython code score-120 '>static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_9CACompute_compute(std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_neighbourhood, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_DP_neighbourhood, std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_copy_grid, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_dict_grid, int __pyx_v_generations, CYTHON_UNUSED int __pyx_skip_dispatch) {
+<pre class='cython code score-120 '>static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_12CACompute_DP_9CACompute_compute(std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_neighbourhood, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_DP_neighbourhood, std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_copy_grid, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_dict_grid, int __pyx_v_generations, CYTHON_UNUSED int __pyx_skip_dispatch) {
   std::vector&lt;int&gt;  __pyx_v_neighbours;
   std::vector&lt;int&gt;  __pyx_v_DP_result;
   std::vector&lt;int&gt;  __pyx_v_DP_neighbours;
@@ -469,7 +469,7 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector&lt;std::pair&lt;int,int&
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_16);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_17);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_19);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
@@ -478,8 +478,8 @@ static PyObject *__pyx_f_9CACompute_compute(std::vector&lt;std::pair&lt;int,int&
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_12CACompute_DP_9CACompute_1compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_neighbourhood;
   std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_DP_neighbourhood;
   std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_changed;
@@ -615,23 +615,23 @@ static PyObject *__pyx_pw_9CACompute_1compute(PyObject *__pyx_self, PyObject *__
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("compute", 1, 10, 10, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 41, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9CACompute_compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
+  __pyx_r = __pyx_pf_12CACompute_DP_9CACompute_compute(__pyx_self, __pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_neighbourhood, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_DP_neighbourhood, std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_copy_grid, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_dict_grid, int __pyx_v_generations) {
+static PyObject *__pyx_pf_12CACompute_DP_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_neighbourhood, std::vector&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_DP_neighbourhood, std::unordered_set&lt;std::pair&lt;int,int&gt; &gt;  __pyx_v_cells_changed, int __pyx_v_lower_x, int __pyx_v_upper_x, int __pyx_v_lower_y, int __pyx_v_upper_y, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_copy_grid, std::unordered_map&lt;std::pair&lt;int,int&gt; ,int&gt;  __pyx_v_dict_grid, int __pyx_v_generations) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("compute", 0);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = __pyx_f_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)</span>
+  __pyx_t_1 = __pyx_f_12CACompute_DP_9CACompute_compute(__pyx_v_neighbourhood, __pyx_v_DP_neighbourhood, __pyx_v_cells_changed, __pyx_v_lower_x, __pyx_v_upper_x, __pyx_v_lower_y, __pyx_v_upper_y, __pyx_v_copy_grid, __pyx_v_dict_grid, __pyx_v_generations, 0);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -640,7 +640,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
   /* function exit code */
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("CACompute_DP.CACompute.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
@@ -698,13 +698,13 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>    (void)(__pyx_v_cells_to_check.insert(__pyx_v_cell));
 </pre><pre class="cython line score-0">&#xA0;<span class="">066</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">067</span>:     <span class="k">if</span> <span class="n">alternating_period2</span> <span class="o">&gt;</span> <span class="mf">1</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>  __pyx_t_3 = ((__pyx_v_9CACompute_alternating_period2 &gt; 1) != 0);
+<pre class='cython code score-0 '>  __pyx_t_3 = ((__pyx_v_12CACompute_DP_9CACompute_alternating_period2 &gt; 1) != 0);
   if (__pyx_t_3) {
 /* … */
     goto __pyx_L5;
   }
 </pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">068</span>:         <span class="k">if</span> <span class="n">generations</span> <span class="o">%</span> <span class="p">(</span><span class="n">alternating_period2</span> <span class="o">-</span> <span class="mf">1</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0</span><span class="p">:</span></pre>
-<pre class='cython code score-5 '>    __pyx_t_4 = (__pyx_v_9CACompute_alternating_period2 - 1);
+<pre class='cython code score-5 '>    __pyx_t_4 = (__pyx_v_12CACompute_DP_9CACompute_alternating_period2 - 1);
     if (unlikely(__pyx_t_4 == 0)) {
       <span class='py_c_api'>PyErr_SetString</span>(PyExc_ZeroDivisionError, "integer division or modulo by zero");
       <span class='error_goto'>__PYX_ERR(0, 68, __pyx_L1_error)</span>
@@ -730,10 +730,16 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
     ++__pyx_t_2;
     __pyx_v_cell = __pyx_t_1;
 /* … */
+    __pyx_L7_continue:;
   }
-</pre><pre class="cython line score-0">&#xA0;<span class="">074</span>:         <span class="c">#if cells_checked.find(cell) != cells_checked.end():</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">075</span>:         <span class="c">#    continue</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">076</span>: </pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">074</span>:         <span class="k">if</span> <span class="n">cells_checked</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span> <span class="o">!=</span> <span class="n">cells_checked</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
+<pre class='cython code score-0 '>    __pyx_t_3 = ((__pyx_v_cells_checked.find(__pyx_v_cell) != __pyx_v_cells_checked.end()) != 0);
+    if (__pyx_t_3) {
+/* … */
+    }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">075</span>:             <span class="k">continue</span></pre>
+<pre class='cython code score-0 '>      goto __pyx_L7_continue;
+</pre><pre class="cython line score-0">&#xA0;<span class="">076</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">077</span>:         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">DP_neighbourhood</span><span class="p">:</span></pre>
 <pre class='cython code score-0 '>    __pyx_t_5 = __pyx_v_DP_neighbourhood.begin();
     for (;;) {
@@ -756,7 +762,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>      __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates2) != __pyx_v_copy_grid.end()) != 0);
       if (__pyx_t_3) {
 /* … */
-        goto __pyx_L11;
+        goto __pyx_L12;
       }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">081</span>:                 <span class="n">DP_neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">copy_grid</span><span class="p">[</span><span class="n">coordinates2</span><span class="p">])</span></pre>
 <pre class='cython code score-0 '>        try {
@@ -775,21 +781,21 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           <span class='error_goto'>__PYX_ERR(0, 83, __pyx_L1_error)</span>
         }
       }
-      __pyx_L11:;
+      __pyx_L12:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">084</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">085</span>:         <span class="k">if</span> <span class="n">DP</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">DP_neighbours</span><span class="p">)</span> <span class="o">!=</span> <span class="n">DP</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
-<pre class='cython code score-0 '>    __pyx_t_3 = ((__pyx_v_9CACompute_DP.find(__pyx_v_DP_neighbours) != __pyx_v_9CACompute_DP.end()) != 0);
+<pre class='cython code score-0 '>    __pyx_t_3 = ((__pyx_v_12CACompute_DP_9CACompute_DP.find(__pyx_v_DP_neighbours) != __pyx_v_12CACompute_DP_9CACompute_DP.end()) != 0);
     if (__pyx_t_3) {
 /* … */
-      goto __pyx_L12;
+      goto __pyx_L13;
     }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">086</span>:             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DP</span><span class="p">[</span><span class="n">DP_neighbours</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">()):</span></pre>
-<pre class='cython code score-0 '>      __pyx_t_6 = (__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours]).size();
+<pre class='cython code score-0 '>      __pyx_t_6 = (__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours]).size();
       __pyx_t_7 = __pyx_t_6;
       for (__pyx_t_8 = 0; __pyx_t_8 &lt; __pyx_t_7; __pyx_t_8+=1) {
         __pyx_v_i = __pyx_t_8;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">087</span>:                 <span class="n">ans</span> <span class="o">=</span> <span class="n">DP</span><span class="p">[</span><span class="n">DP_neighbours</span><span class="p">][</span><span class="n">i</span><span class="p">]</span></pre>
-<pre class='cython code score-0 '>        __pyx_v_ans = ((__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours])[__pyx_v_i]);
+<pre class='cython code score-0 '>        __pyx_v_ans = ((__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours])[__pyx_v_i]);
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">088</span>:                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">neighbourhood_with_centre</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">,</span></pre>
 <pre class='cython code score-0 '>        try {
           __pyx_t_1 = std::pair&lt;int,int&gt; ((__pyx_v_cell.first + (__pyx_v_neighbourhood_with_centre[__pyx_v_i]).first), (__pyx_v_cell.second + (__pyx_v_neighbourhood_with_centre[__pyx_v_i]).second));
@@ -803,36 +809,36 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>        __pyx_t_3 = ((__pyx_v_cells_checked.find(__pyx_v_coordinates) == __pyx_v_cells_checked.end()) != 0);
         if (__pyx_t_3) {
 /* … */
-          goto __pyx_L15;
+          goto __pyx_L16;
         }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">091</span>:                     <span class="n">cells_checked</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>          (void)(__pyx_v_cells_checked.insert(__pyx_v_coordinates));
 </pre><pre class="cython line score-0">&#xA0;<span class="">092</span>:                 <span class="k">else</span><span class="p">:</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">093</span>:                     <span class="k">continue</span></pre>
 <pre class='cython code score-0 '>        /*else*/ {
-          goto __pyx_L13_continue;
+          goto __pyx_L14_continue;
         }
-        __pyx_L15:;
+        __pyx_L16:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">094</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">095</span>:                 <span class="k">if</span> <span class="n">copy_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">copy_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
 <pre class='cython code score-0 '>        __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) != __pyx_v_copy_grid.end()) != 0);
         if (__pyx_t_3) {
 /* … */
-          goto __pyx_L16;
+          goto __pyx_L17;
         }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">096</span>:                     <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="mf">0</span> <span class="ow">and</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
 <pre class='cython code score-0 '>          __pyx_t_9 = ((__pyx_v_ans == 0) != 0);
           if (__pyx_t_9) {
           } else {
             __pyx_t_3 = __pyx_t_9;
-            goto __pyx_L18_bool_binop_done;
+            goto __pyx_L19_bool_binop_done;
           }
           __pyx_t_9 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
           __pyx_t_3 = __pyx_t_9;
-          __pyx_L18_bool_binop_done:;
+          __pyx_L19_bool_binop_done:;
           if (__pyx_t_3) {
 /* … */
-            goto __pyx_L17;
+            goto __pyx_L18;
           }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">097</span>:                         <span class="n">dict_grid</span><span class="o">.</span><span class="n">erase</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>            (void)(__pyx_v_dict_grid.erase(__pyx_v_coordinates));
@@ -843,7 +849,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           if (__pyx_t_3) {
 /* … */
           }
-          __pyx_L17:;
+          __pyx_L18:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">100</span>:                         <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">ans</span></pre>
 <pre class='cython code score-0 '>            (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">101</span>:                         <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
@@ -864,7 +870,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>          __pyx_t_3 = ((__pyx_v_coordinates.second &lt; __pyx_v_lower_x) != 0);
           if (__pyx_t_3) {
 /* … */
-            goto __pyx_L20;
+            goto __pyx_L21;
           }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">106</span>:                         <span class="n">lower_x</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span></pre>
 <pre class='cython code score-0 '>            __pyx_t_11 = __pyx_v_coordinates.second;
@@ -874,7 +880,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           if (__pyx_t_3) {
 /* … */
           }
-          __pyx_L20:;
+          __pyx_L21:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">108</span>:                         <span class="n">upper_x</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span></pre>
 <pre class='cython code score-0 '>            __pyx_t_11 = __pyx_v_coordinates.second;
             __pyx_v_upper_x = __pyx_t_11;
@@ -883,7 +889,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>          __pyx_t_3 = ((__pyx_v_coordinates.first &lt; __pyx_v_lower_y) != 0);
           if (__pyx_t_3) {
 /* … */
-            goto __pyx_L21;
+            goto __pyx_L22;
           }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">111</span>:                         <span class="n">lower_y</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">first</span></pre>
 <pre class='cython code score-0 '>            __pyx_t_11 = __pyx_v_coordinates.first;
@@ -893,10 +899,10 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           if (__pyx_t_3) {
 /* … */
           }
-          __pyx_L21:;
+          __pyx_L22:;
         }
-        __pyx_L16:;
-        __pyx_L13_continue:;
+        __pyx_L17:;
+        __pyx_L14_continue:;
       }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">113</span>:                         <span class="n">upper_y</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">first</span></pre>
 <pre class='cython code score-0 '>            __pyx_t_11 = __pyx_v_coordinates.first;
@@ -994,7 +1000,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           __pyx_t_11 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_t_12); if (unlikely((__pyx_t_11 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(0, 126, __pyx_L1_error)</span>
           <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_12); __pyx_t_12 = 0;
           __pyx_v_ans = __pyx_t_11;
-          goto __pyx_L25;
+          goto __pyx_L26;
         }
 </pre><pre class="cython line score-53" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">127</span>:                 <span class="k">else</span><span class="p">:</span> <span class="n">ans</span> <span class="o">=</span> <span class="n">depend_on_neighbours</span><span class="p">(</span><span class="n">copy_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">],</span> <span class="n">generations</span><span class="p">)</span></pre>
 <pre class='cython code score-53 '>        /*else*/ {
@@ -1057,7 +1063,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_12); __pyx_t_12 = 0;
           __pyx_v_ans = __pyx_t_11;
         }
-        __pyx_L25:;
+        __pyx_L26:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">128</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">129</span>:                 <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="o">-</span><span class="mf">1</span><span class="p">:</span></pre>
 <pre class='cython code score-0 '>        __pyx_t_3 = ((__pyx_v_ans == -1L) != 0);
@@ -1086,7 +1092,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>            __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates2) != __pyx_v_copy_grid.end()) != 0);
             if (__pyx_t_3) {
 /* … */
-              goto __pyx_L29;
+              goto __pyx_L30;
             }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">134</span>:                             <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">copy_grid</span><span class="p">[</span><span class="n">coordinates2</span><span class="p">])</span></pre>
 <pre class='cython code score-0 '>              try {
@@ -1105,13 +1111,13 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
                 <span class='error_goto'>__PYX_ERR(0, 136, __pyx_L1_error)</span>
               }
             }
-            __pyx_L29:;
+            __pyx_L30:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">137</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">138</span>:                 <span class="k">if</span> <span class="n">copy_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">copy_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span></pre>
 <pre class='cython code score-0 '>        __pyx_t_3 = ((__pyx_v_copy_grid.find(__pyx_v_coordinates) != __pyx_v_copy_grid.end()) != 0);
         if (__pyx_t_3) {
 /* … */
-          goto __pyx_L30;
+          goto __pyx_L31;
         }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">139</span>:                     <span class="n">neighbours</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">copy_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">])</span></pre>
 <pre class='cython code score-0 '>          try {
@@ -1186,7 +1192,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>          __pyx_t_3 = ((__pyx_v_ans == 0) != 0);
           if (__pyx_t_3) {
 /* … */
-            goto __pyx_L32;
+            goto __pyx_L33;
           }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">142</span>:                         <span class="k">if</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">!=</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">end</span><span class="p">():</span> <span class="n">dict_grid</span><span class="o">.</span><span class="n">erase</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>            __pyx_t_3 = ((__pyx_v_dict_grid.find(__pyx_v_coordinates) != __pyx_v_dict_grid.end()) != 0);
@@ -1200,7 +1206,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
           if (__pyx_t_3) {
 /* … */
           }
-          __pyx_L32:;
+          __pyx_L33:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">145</span>:                         <span class="n">dict_grid</span><span class="p">[</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">ans</span></pre>
 <pre class='cython code score-0 '>            (__pyx_v_dict_grid[__pyx_v_coordinates]) = __pyx_v_ans;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">146</span>:                         <span class="n">cells_changed</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></pre>
@@ -1282,7 +1288,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 /* … */
           }
         }
-        __pyx_L30:;
+        __pyx_L31:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">151</span>:                         <span class="n">dict_grid</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">ans</span><span class="p">))</span></pre>
 <pre class='cython code score-0 '>            try {
               __pyx_t_10 = std::pair&lt;std::pair&lt;int,int&gt; ,int&gt; (__pyx_v_coordinates, __pyx_v_ans);
@@ -1297,7 +1303,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>            __pyx_t_3 = ((__pyx_v_coordinates.second &lt; __pyx_v_lower_x) != 0);
             if (__pyx_t_3) {
 /* … */
-              goto __pyx_L36;
+              goto __pyx_L37;
             }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">154</span>:                             <span class="n">lower_x</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span></pre>
 <pre class='cython code score-0 '>              __pyx_t_11 = __pyx_v_coordinates.second;
@@ -1307,7 +1313,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
             if (__pyx_t_3) {
 /* … */
             }
-            __pyx_L36:;
+            __pyx_L37:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">156</span>:                             <span class="n">upper_x</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">second</span></pre>
 <pre class='cython code score-0 '>              __pyx_t_11 = __pyx_v_coordinates.second;
               __pyx_v_upper_x = __pyx_t_11;
@@ -1316,7 +1322,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
 <pre class='cython code score-0 '>            __pyx_t_3 = ((__pyx_v_coordinates.first &lt; __pyx_v_lower_y) != 0);
             if (__pyx_t_3) {
 /* … */
-              goto __pyx_L37;
+              goto __pyx_L38;
             }
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">159</span>:                             <span class="n">lower_y</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">first</span></pre>
 <pre class='cython code score-0 '>              __pyx_t_11 = __pyx_v_coordinates.first;
@@ -1326,7 +1332,7 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
             if (__pyx_t_3) {
 /* … */
             }
-            __pyx_L37:;
+            __pyx_L38:;
 </pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">161</span>:                             <span class="n">upper_y</span> <span class="o">=</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">first</span></pre>
 <pre class='cython code score-0 '>              __pyx_t_11 = __pyx_v_coordinates.first;
               __pyx_v_upper_y = __pyx_t_11;
@@ -1340,9 +1346,9 @@ static PyObject *__pyx_pf_9CACompute_compute(CYTHON_UNUSED PyObject *__pyx_self,
         }
 </pre><pre class="cython line score-0">&#xA0;<span class="">164</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">165</span>:             <span class="n">DP</span><span class="p">[</span><span class="n">DP_neighbours</span><span class="p">]</span> <span class="o">=</span> <span class="n">DP_result</span></pre>
-<pre class='cython code score-0 '>      (__pyx_v_9CACompute_DP[__pyx_v_DP_neighbours]) = __pyx_v_DP_result;
+<pre class='cython code score-0 '>      (__pyx_v_12CACompute_DP_9CACompute_DP[__pyx_v_DP_neighbours]) = __pyx_v_DP_result;
     }
-    __pyx_L12:;
+    __pyx_L13:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">166</span>: </pre>
 <pre class="cython line score-20" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">167</span>:     <span class="k">return</span> <span class="n">lower_x</span><span class="p">,</span> <span class="n">upper_x</span><span class="p">,</span> <span class="n">lower_y</span><span class="p">,</span> <span class="n">upper_y</span><span class="p">,</span> <span class="n">cells_changed</span><span class="p">,</span> <span class="n">dict_grid</span></pre>
 <pre class='cython code score-20 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);

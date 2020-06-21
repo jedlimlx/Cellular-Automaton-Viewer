@@ -1,11 +1,13 @@
 Name: Life
 
-Neighbourhood Range: 1
+Neighbourhood Range: 2
 
 Neighbourhood:
-1,1,1
-1,0,1
-1,1,1
+0,0,1,0,0
+0,1,0,1,0
+1,0,0,0,1
+0,1,0,1,0
+0,0,1,0,0
 
 State Weights: 0,1
 

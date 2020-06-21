@@ -1,8 +1,9 @@
-import bisect
+import time
 import copy
 import importlib
 import random
-from typing import List
+import RuleParser
+from typing import Dict
 
 import CACompute.CACompute as compute
 import CAComputeParse.CACompute as parser
@@ -27,16 +28,21 @@ def make_hash(o):
     return hash(freeze(o))
 
 
-def to_rle(dict_grid) -> str:
+def to_rle(dict_grid, use_parse: bool, bound_x: int, bound_y: int, bound_type: str) -> str:
     if len(dict_grid) == 0: return "EMPTY"
+
+    y_bound = min([k[0] for k in dict_grid]), max([k[0] for k in dict_grid])
+    x_bound = min([k[1] for k in dict_grid]), max([k[1] for k in dict_grid])
     
     # RLE Header
-    header: str = f"x = 0, y = 0, rule = Life\n"
+    header: str = f"x = {x_bound[1] - x_bound[0]}, y = {y_bound[1] - y_bound[0]}, rule = " \
+                  f"{RuleParser.rule_name if use_parse else transFunc.rule_name}:" \
+                  f"{bound_type.decode('utf-8')}{bound_x},{bound_y}\n"
     rle: str = ""
 
     # First add all data into the string
-    for y in range(min([k[0] for k in dict_grid]), max([k[0] for k in dict_grid])):
-        for x in range(min([k[1] for k in dict_grid]), max([k[1] for k in dict_grid])):
+    for y in range(y_bound[1] - y_bound[0]):
+        for x in range(x_bound[1] - x_bound[0]):
             if (y, x) in dict_grid:
                 rle += str(chr(64 + dict_grid[(y, x)]))
             else:
@@ -70,8 +76,9 @@ def to_rle(dict_grid) -> str:
     return header + rle_final + "!"
 
 
-def agar_search(use_parse: bool, bound_x: int, bound_y: int, num_soups: int, bound_type: str):
-    print("Starting search...")
+def agar_search(use_parse: bool, bound_x: int, bound_y: int, num_soups: int, bound_type: str, folder_location: str):
+    print("Starting agar search...")
+    print(f"On {bound_type.decode('utf-8')}{bound_x},{bound_y}")
     num_agars = {}
 
     if use_parse:
@@ -81,18 +88,21 @@ def agar_search(use_parse: bool, bound_x: int, bound_y: int, num_soups: int, bou
         importlib.reload(transFunc)
         compute.set_bounds(bound_x, bound_y, bound_type)
 
+    start_time = time.time()
     for i in range(num_soups):
+        if i % 200 == 0 and i != 0: print(f"{i} soups completed, {i / (time.time() - start_time)} soups/s")
+
         dict_grid = {}
         for x in range(bound_x + 1):
             for y in range(bound_y + 1):
-                if random.randint(0, 1):
+                if random.randint(0, 100) > 50:
                     dict_grid[(y, x)] = 1  # Generating Random Soup
 
+        # Initialising Variables
         generation: int = 0
         init_pat = copy.deepcopy(dict_grid)
         cells_changed = dict_grid.keys()
-        hash_list: List[int] = []
-        generation_lst: List[int] = []
+        hash_dict: Dict[int, int] = {}
         while True:
             # Running Simulation
             if use_parse:
@@ -102,22 +112,23 @@ def agar_search(use_parse: bool, bound_x: int, bound_y: int, num_soups: int, bou
                                                            cells_changed, dict_grid, dict_grid, generation)
             generation += 1
 
-            grid_hash = make_hash(dict_grid)
-            index = bisect.bisect_left(hash_list, grid_hash)
+            grid_hash = make_hash(dict_grid)  # Hash the pattern
+            if grid_hash in hash_dict: break  # Break if the pattern is periodic
 
-            # Break from loop if pattern becomes periodic
-            if len(hash_list) > index and hash_list[index] == grid_hash: break
+            hash_dict[grid_hash] = generation  # Add hash & generation to the dictionary
 
-            # Add pattern to hash_list and keep track of what generation it is in
-            hash_list = hash_list[:index] + [grid_hash]
-            generation_lst = generation_lst[:index] + [generation]
-
-        period = generation - generation_lst[index]
+        period = generation - hash_dict[grid_hash]
         if period > 1:
-            print(f"Period {period}")
-            print(to_rle(init_pat))
-            print(to_rle(dict_grid))
-            print("=" * 20)
+            # Write Agar to File
+            file = open(f"{folder_location}/P{period}_{num_agars[period] if period in num_agars else 1}.rle", "w+")
+            file.write(to_rle(dict_grid, use_parse, bound_x, bound_y, bound_type))
+            file.close()
+
+            # Write Predecessor to File
+            file = open(f"{folder_location}/P{period}_Predecessor_"
+                        f"{num_agars[period] if period in num_agars else 1}.rle", "w+")
+            file.write(to_rle(init_pat, use_parse, bound_x, bound_y, bound_type))
+            file.close()
 
             if period in num_agars:
                 num_agars[period] += 1
@@ -128,7 +139,9 @@ def agar_search(use_parse: bool, bound_x: int, bound_y: int, num_soups: int, bou
     total_num = 0
     for i in sorted(num_agars.keys()):
         # 's' if num_agars[i] > 1 else '' to prevent grammar errors
-        print(f"{num_agars[i]} period {i} agar{'s' if num_agars[i] > 1 else ''}")
+        print(f"{num_agars[i]} P{i} agar{'s' if num_agars[i] > 1 else ''}")
         total_num += num_agars[i]
 
-    print(f"{total_num} agar{'s' if num_agars[i] > 1 else ''} found in total")
+    print("="*20)
+    print(f"{total_num} agar{'s' if total_num > 1 else ''} found in total")
+    print(f"Search took {time.time() - start_time}s")
