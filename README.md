@@ -61,7 +61,7 @@ Features
 * Support for weighted Higher Range Outer-Totalistic (HROT) rules with arbitrary neighbourhoods
 * Support for 2 state, Extended Generations, BSFKL, Regenerating Generations and 3 state outer totalistic rulespaces
 * Support for agar searching
-* Support for hexagonal grid rendered as squares that are offset by 1/2 of a square
+* Support for hexagonal grid
 
 Rule Format
 =================================
@@ -133,26 +133,25 @@ For every cell in cells_to_check<br>
 
 Planned Additions
 ================================
+* Allow both letters and slashes in rulestrings
 * Better logging so that fixing bugs for other people isn't so painful
-* Render hexagonal grid as actual hexagons
 * Add triangular grids
 * Add deficient rules
 * Add hexagonal isotropic non-totalistic rules
-* Add knight life isotropic non-totalistic rules
 * Add 3 state isotropic non-totalistic rules
-* Add apgtable generators for BSFKL, Regenerating Generations Rulespaces and Outer Totalistic, Double Totalistic B/S Conditions
-* Add ability to filter repetitions in agar searches
+* Add apgtable generators for (B/M/S)*2 Rulespace and Weighted Outer Totalistic, Double Totalistic B/S Conditions
 * Filter spaceship streams and oscillators in agar searches
 * Better cross-platform support
 * Make constructing stuff easier
 * Add lifelib Backend for Sssssssspppppppeeeeeeedddddddddd!!!!!!!!!!!
-* Support for oscillator / spaceship / backsearching through a lifesrc like algorithm (Probably write it as a standalone app with integration with CAViewer)
-
 
 Known Bugs
 ================================
 * Select all function not working
 * Spherical bounded grid not working
+* Agar period detection and repeat detection is slight buggy
+* Opening a bounded grid pattern when a bounded grid is loaded doesn't work
+* Pasting in hexagonal grids isn't working as intended
 * Application may crash randomly (not often but it happens)
 * Make the application actually successfully run on some people's computers
 Also, how do you fix bugs that you can't replicate?

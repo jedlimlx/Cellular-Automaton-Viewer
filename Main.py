@@ -6,14 +6,13 @@ import traceback
 from PyQt5.Qt import QIcon, QAction
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QMenuBar, QFileDialog
 
-import Geneascopy as genscope
-import ParamMap as param_map
+from libs import Geneascopy as genscope, ParamMap as param_map
 import CACanvas as cacanvas
 from CACanvas import CACanvas
 from Dialogs import SoupSettings, SettingZoom, SimulationSettings, RandomRuleDialog, GeneascopyDialog, \
     ParamMapDialog, AgarDialog
-from OCAgar import agar_search
-from APGTableGen import gen_apgtable
+from libs.OCAgar import agar_search
+from libs.APGTableGen import gen_apgtable
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 logging.log(logging.INFO, "=" * 10 + "APPLICATION STARTING" + "=" * 10)

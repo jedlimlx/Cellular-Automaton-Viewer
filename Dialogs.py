@@ -333,7 +333,8 @@ class RandomRuleDialog(QDialog):
                              "Range 1 Moore Isotropic Non-Totalistic",
                              "Range 2 Cross Isotropic Non-Totalistic",
                              "Range 2 Von Neumann Isotropic Non-Totalistic",
-                             "Range 2 Far Corners Isotropic Non-Totalistic"]
+                             "Range 2 Far Corners Isotropic Non-Totalistic",
+                             "Range 2 Knight Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
@@ -499,7 +500,8 @@ class RandomRuleDialog(QDialog):
                 bsconditions == "Range 1 Moore Isotropic Non-Totalistic" or \
                 bsconditions == "Range 2 Cross Isotropic Non-Totalistic" or \
                 bsconditions == "Range 2 Von Neumann Isotropic Non-Totalistic" or \
-                bsconditions == "Range 2 Far Corners Isotropic Non-Totalistic":
+                bsconditions == "Range 2 Far Corners Isotropic Non-Totalistic" or  \
+                bsconditions == "Range 2 Knight Isotropic Non-Totalistic":
             self.neighbourhood_table.hide()
             self.isotropic_check_box.hide()
         else:
@@ -523,12 +525,19 @@ class RandomRuleDialog(QDialog):
                                             ["0", "1", "0", "1", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "0", "0", "0"]]
-        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Cross Isotropic Non-Totalistic":
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 2 Cross Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"],
                                             ["1", "1", "0", "1", "1"],
                                             ["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+                "Range 2 Knight Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "1", "0", "1", "0"],
+                                            ["1", "0", "0", "0", "1"],
+                                            ["0", "0", "0", "0", "0"],
+                                            ["1", "0", "0", "0", "1"],
+                                            ["0", "1", "0", "1", "0"]]
         elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
                 "Range 2 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
@@ -785,7 +794,8 @@ class ParamMapDialog(QDialog):
                              "Range 1 Moore Isotropic Non-Totalistic",
                              "Range 2 Cross Isotropic Non-Totalistic",
                              "Range 2 Von Neumann Isotropic Non-Totalistic",
-                             "Range 2 Far Corners Isotropic Non-Totalistic"]
+                             "Range 2 Far Corners Isotropic Non-Totalistic",
+                             "Range 2 Knight Isotropic Non-Totalistic"]
         self.combo_box_bsconditions = QComboBox()  # Choose B/S Conditions
         self.combo_box_bsconditions.addItems(self.bsconditions)
         self.combo_box_bsconditions.currentTextChanged.connect(self.change_bsconditions)
@@ -1037,12 +1047,19 @@ class ParamMapDialog(QDialog):
                                             ["0", "1", "0", "1", "0"],
                                             ["0", "1", "1", "1", "0"],
                                             ["0", "0", "0", "0", "0"]]
-        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 1 Cross Isotropic Non-Totalistic":
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == "Range 2 Cross Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"],
                                             ["1", "1", "0", "1", "1"],
                                             ["0", "0", "1", "0", "0"],
                                             ["0", "0", "1", "0", "0"]]
+        elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
+                "Range 2 Knight Isotropic Non-Totalistic":
+            self.neighbourhood_table.num = [["0", "1", "0", "1", "0"],
+                                            ["1", "0", "0", "0", "1"],
+                                            ["0", "0", "0", "0", "0"],
+                                            ["1", "0", "0", "0", "1"],
+                                            ["0", "1", "0", "1", "0"]]
         elif self.bsconditions[self.combo_box_bsconditions.currentIndex()] == \
                 "Range 2 Von Neumann Isotropic Non-Totalistic":
             self.neighbourhood_table.num = [["0", "0", "1", "0", "0"],

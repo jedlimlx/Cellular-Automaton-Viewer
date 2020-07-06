@@ -1,0 +1,19 @@
+Name: R1_Moore_INT_BSFKL_Rule_1
+
+Neighbourhood Range: 1
+
+Neighbourhood:
+1,1,1
+1,0,1
+1,1,1
+
+State Weights: 0,1,1
+
+Rulespace: BSFKL
+
+B/S Conditions: Range 1 Moore Isotropic Non-Totalistic
+
+Rulestring: 2-an34y5/23-q4eik78/01e2-a357/6/0123ace45
+
+Colour Palette:
+None

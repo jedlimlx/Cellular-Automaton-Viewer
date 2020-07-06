@@ -7,12 +7,12 @@ import threading
 import traceback
 import importlib
 import os
-import re
+import math
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
 
-import RuleParser
+from libs import RuleParser
 import transFunc
 import CACompute.CACompute as compute
 import CAComputeParse.CACompute as parser
@@ -20,10 +20,24 @@ import numpy as np
 import pyperclip
 from PIL import Image
 from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon
+from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon, QPolygonF
+from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand, QInputDialog
 
-from Identity import identify, reload
+from libs.Identity import identify, reload
+
+
+def create_polygon(n: int, r: float, s: float, dx: float, dy: float):
+    polygon = QPolygonF()
+    w = 360 / n  # angle per step
+    for i in range(n):  # add the points of polygon
+        t = w * i + s
+        x = r * math.cos(math.radians(t))
+        y = r * math.sin(math.radians(t))
+        polygon.append(QPointF(x + dx, y + dy))
+
+    return polygon
+
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 
@@ -348,7 +362,7 @@ class CACanvas(QWidget):
         simulationThread = threading.Thread(target=self.run_simulation)
         simulationThread.start()
 
-    def add_cell(self, state: int, x: int, y: int, change_grid=True) -> None:
+    def add_cell(self, state: int, x: int, y: int, change_grid=True, hex_coordinate=True) -> None:
         # Don't add the cell if it's outside the boundary
         if (x > self.x_bound - 1 or y > self.y_bound - 1) and self.bound_type != b"#":
             return None
@@ -358,14 +372,17 @@ class CACanvas(QWidget):
             raise IndexError
 
         if change_grid:
+            if not hex_coordinate and tiling == "Hexagonal": coordinate = (y, x + y // 2)
+            else: coordinate = (y, x)
+
             # Add Cells to cells_changed
-            self.cells_changed.add((y, x))
+            self.cells_changed.add(coordinate)
 
             # Add Cell to Dictionary
             if state > 0:
-                self.dict_grid[(y, x)] = state
-            elif (y, x) in self.dict_grid:
-                self.dict_grid.pop((y, x))
+                self.dict_grid[coordinate] = state
+            elif coordinate in self.dict_grid:
+                self.dict_grid.pop(coordinate)
 
             # Record Population Change
             try:
@@ -380,10 +397,11 @@ class CACanvas(QWidget):
             self.upper_y = max(self.upper_y, y)
 
         pen = QPen()
-        if self.grid_lines:
-            pen.setWidth(self.cell_size - 1)
-        else:
-            pen.setWidth(self.cell_size)
+        if tiling != "Hexagonal":
+            if self.grid_lines:
+                pen.setWidth(self.cell_size - 1)
+            else:
+                pen.setWidth(self.cell_size)
 
         # Set Colour
         pen.setColor(QColor(self.colour_palette[state][0],
@@ -393,11 +411,20 @@ class CACanvas(QWidget):
         painter = QPainter(self.label.pixmap())
         painter.setPen(pen)
 
-        # Draws the cell as cell_size * cells_size squares
+        # Draws the cell as cell_size * cells_size squares / cell_size diameter hexagon
         if tiling == "Hexagonal":
-            painter.drawPoint(x * self.cell_size - y % 2 * self.cell_size // 2, y * self.cell_size)
+            if hex_coordinate:  # Are the input coordinates pixel or axial
+                painter.drawPolygon(create_polygon(6, self.cell_size // 2, 30,
+                                                   x * self.cell_size - y * self.cell_size // 2,
+                                                   y * self.cell_size))
+            else:
+                painter.drawPolygon(create_polygon(6, self.cell_size // 2, 30,
+                                                   x * self.cell_size - y % 2 * self.cell_size // 2,
+                                                   y * self.cell_size))
         elif tiling == "Square":
             painter.drawPoint(x * self.cell_size, y * self.cell_size)
+        elif tiling == "Q0FWaWV3ZXI=":
+            painter.drawPolygon(create_polygon(6, self.cell_size, 0, x * self.cell_size, y * self.cell_size))
 
         painter.end()
 
@@ -475,7 +502,7 @@ class CACanvas(QWidget):
                                               upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
                             else:
                                 self.add_cell(0, x, y)
-                                self.add_cell(0, upper_x + lower_x - x - 2, upper_y + lower_y - y - 2)
+                                self.add_cell(0, upper_x + lower_x - x - 2, upper_y + lower_y - y - 2,)
 
                 elif self.symmetry == "D2_x":
                     for x in range(lower_x, upper_x):  # D2_x symmetry is a square
@@ -884,6 +911,10 @@ class CACanvas(QWidget):
 
         lower_y, upper_y = sorted([(self.origin.y() + y_offset) // self.cell_size,
                                    (self.selection_release.y() + y_offset) // self.cell_size])
+        if tiling == "Hexagonal":
+            lower_x = lower_x + lower_y // 2
+            upper_x = upper_x + upper_y // 2
+
         return lower_x, upper_x, lower_y, upper_y
 
     def save_pattern(self) -> None:
@@ -1492,7 +1523,8 @@ class CACanvas(QWidget):
             new_y: int = self.scroll_area.verticalScrollBar().value() + event.y()
 
             # Add Cell to Grid and Canvas
-            self.add_cell(self.current_state, new_x // self.cell_size, new_y // self.cell_size)
+            self.add_cell(self.current_state, new_x // self.cell_size, new_y // self.cell_size,
+                          hex_coordinate=False)
             self.history.append((self.generations, self.dict_grid))
 
             logging.log(logging.INFO, f"Drawing at with state {self.current_state} " +

@@ -1,3 +1,60 @@
 {
-    "UseParse": true
+    "UseParse": true,
+    "Isotropic": true,
+    "Rule Space": "Extended Generations",
+    "B/S Conditions": "Range 2 Knight Isotropic Non-Totalistic",
+    "Rule String": "3678/2-j3h45/1-1",
+    "Neighbourhood Weights": [
+        [
+            "0",
+            "1",
+            "0",
+            "1",
+            "0"
+        ],
+        [
+            "1",
+            "0",
+            "0",
+            "0",
+            "1"
+        ],
+        [
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+        ],
+        [
+            "1",
+            "0",
+            "0",
+            "0",
+            "1"
+        ],
+        [
+            "0",
+            "1",
+            "0",
+            "1",
+            "0"
+        ]
+    ],
+    "Rule Name": "RULE",
+    "Random Bounds": {
+        "Rulestring Upper Bound": "",
+        "Rulestring Lower Bound": "",
+        "State Weights Upper Bound": "",
+        "State Weights Lower Bound": "",
+        "Neighbourhood Weights Upper Bound": "",
+        "Neighbourhood Weights Lower Bound": ""
+    },
+    "State Weights": [
+        [
+            "0",
+            "1",
+            "0"
+        ]
+    ]
 }
