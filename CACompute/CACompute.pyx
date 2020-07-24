@@ -81,7 +81,7 @@ cpdef compute(vector[pair[int, int]] neighbourhood,
         cells_to_check.insert(coor)
 
     if alternating_period2 > 1:
-        if generations % (alternating_period2 - 1) == 0:
+        if generations % alternating_period2 == 0:
             cells_changed.clear()
     else:
         cells_changed.clear()

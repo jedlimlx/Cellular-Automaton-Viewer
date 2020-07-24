@@ -7,7 +7,7 @@ import importlib
 import time
 import numpy as np
 import CACompute.CACompute as compute
-import CAComputeParse.CACompute as parser
+import CAComputeParse.CAComputeParse as parser
 from typing import Dict, Tuple
 from PyQt5.QtWidgets import QMessageBox
 

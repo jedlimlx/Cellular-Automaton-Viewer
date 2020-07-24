@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from PIL import Image
 
-import CAComputeParse.CACompute as parser
+import CAComputeParse.CAComputeParse as parser
 from libs import RuleParser
 
 

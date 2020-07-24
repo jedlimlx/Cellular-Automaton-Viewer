@@ -8,7 +8,7 @@ from libs import RuleParser
 from typing import Dict, List, Set
 
 import CACompute.CACompute as compute
-import CAComputeParse.CACompute as parser
+import CAComputeParse.CAComputeParse as parser
 
 import transFunc
 

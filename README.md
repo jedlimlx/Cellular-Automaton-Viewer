@@ -2,6 +2,9 @@
 Installation
 =================================
 For Windows, you can skip this step. <br>
+But if you get the error `ImportError: DLL load failed: The specified module could not be found.`
+You will have to install a C++ compiler and rebuild with cython.
+
 For Linux, run the following commands (credit to martin.novy) <br>
 ```
 /usr/bin/sudo  apt install  python3-pyqt5  python3-pyperclip  python3-numpy python3-pil
@@ -9,24 +12,13 @@ For Linux, run the following commands (credit to martin.novy) <br>
 
 cd CAViewer/
 
-cd CACompute
-touch __init__.py
-cp -i Compute.cpp compute.cpp
-python3  setup.py --help
 python3  setup.py build_ext --inplace
-cd ..
-
-cd CAComputeParse/
-touch __init__.py
-cp -i Compute.cpp compute.cpp
-python3  setup.py build_ext --inplace
-cd ..
-
 
 #export DISPLAY=:0
 python3   Main.py 
 ```
 
+On Mac, you will also need to recompile with clang.
 
 Instructions
 =================================

@@ -7,7 +7,7 @@
 
 namespace std {
   template <>
-  struct hash<pair<int, int>>
+  struct hash<pair<int, int> >
   {
     std::size_t operator()(const pair<int, int>& p) const
     {
@@ -29,7 +29,7 @@ struct compute_return {
     unordered_map<ii, int> dict_grid;
 } return_val;
 
-compute_return compute(vector<pair<int, int>> neighbourhood, bool first, unordered_set<ii> cells_changed,
+compute_return compute(vector<pair<int, int> > neighbourhood, bool first, unordered_set<ii> cells_changed,
            int lower_x, int upper_x, int lower_y, int upper_y, unordered_map<ii, int> copy_grid,
            unordered_map<ii, int> dict_grid) {
 

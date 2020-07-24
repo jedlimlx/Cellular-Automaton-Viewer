@@ -5,7 +5,7 @@ from typing import Dict, Tuple
 from Dialogs import IdentityDialog
 
 import CACompute.CACompute as compute
-import CAComputeParse.CACompute as parser
+import CAComputeParse.CAComputeParse as parser
 
 offset_x, offset_y = 0, 0
 oscillate_in_bounds = False  # Check for Guns

@@ -1,29 +1,29 @@
-import json
 import copy
+import importlib
+import json
 import logging
+import math
+import os
 import random
 import sys
 import threading
 import traceback
-import importlib
-import os
-import math
 from functools import partial
 from time import sleep, time
 from typing import Dict, Tuple, Set, List
 
-from libs import RuleParser
-import transFunc
-import CACompute.CACompute as compute
-import CAComputeParse.CACompute as parser
 import numpy as np
 import pyperclip
 from PIL import Image
 from PyQt5.Qt import pyqtSignal, QRect, QSize, QPoint, QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon, QPolygonF
 from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QPainter, QColor, QPixmap, QPen, QMouseEvent, QIcon, QPolygonF
 from PyQt5.QtWidgets import QLabel, QWidget, QGridLayout, QScrollArea, QPushButton, QRubberBand, QInputDialog
 
+import CACompute.CACompute as compute
+import CAComputeParse.CAComputeParse as parser
+import transFunc
+from libs import RuleParser
 from libs.Identity import identify, reload
 
 
