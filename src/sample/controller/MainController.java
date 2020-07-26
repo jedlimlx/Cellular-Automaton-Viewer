@@ -12,8 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import sample.controller.dialogs.RuleDialog;
-import sample.model.*;
 import sample.model.Cell;
+import sample.model.*;
 import sample.model.rules.HROT;
 import sample.model.search.RuleSearch;
 
@@ -40,6 +40,9 @@ public class MainController {
 
     @FXML
     private ImageView recordingImage;
+
+    @FXML
+    private ImageView playButtonImage;
 
     private boolean currentlySelecting = false;
     private Coordinate startSelection;  // The start of the selection
@@ -262,26 +265,23 @@ public class MainController {
     @FXML // Updates cells
     public void updateCells() {
         simulator.step();
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Only update cells that changed (for speed)
-                    for (Coordinate cell: simulator.getCellsChanged()) {
-                        setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
-                    }
+        Platform.runLater(() -> {
+            try {
+                // Only update cells that changed (for speed)
+                for (Coordinate cell: simulator.getCellsChanged()) {
+                    setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
-                catch (ConcurrentModificationException exception) { // Catch an exception that probably won't happen
-                    System.out.println("ConcurrentModificationException caught in updateCells method!");
-                    simulationRunning = false;  // Pause the simulation
-                }
-
-                // Update the variable to say that the visualisation is done
-                visualisationDone = true;
-
-                // Update with new generation
-                statusLabel.setText("Generation: " + simulator.getGeneration());
             }
+            catch (ConcurrentModificationException exception) { // Catch an exception that probably won't happen
+                System.out.println("ConcurrentModificationException caught in updateCells method!");
+                simulationRunning = false;  // Pause the simulation
+            }
+
+            // Update the variable to say that the visualisation is done
+            visualisationDone = true;
+
+            // Update with new generation
+            statusLabel.setText("Generation: " + simulator.getGeneration());
         });
 
         // Add to the gif if the recording is on
@@ -293,6 +293,7 @@ public class MainController {
 
     // Runs simulation
     public void runSimulation() {
+        int num = 1;
         while (true) {
             if (simulationRunning) {
                 updateCells();
@@ -305,6 +306,20 @@ public class MainController {
 
                 visualisationDone = false;
             }
+            else {
+                int finalNum = num;
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                                "/sample/view/icon/GliderPlayBtn" + (finalNum + 1) + ".png")));
+                    }
+                });
+
+                num++;
+                num %= 4;  // Cycle from 1 - 4
+                wait(75);
+            }
 
             wait(1);
         }
@@ -312,7 +327,15 @@ public class MainController {
 
     @FXML  // Toggles simulation on and off
     public void toggleSimulation() {
-        simulationRunning = !simulationRunning;
+        simulationRunning = !simulationRunning;  // Toggle the simulation
+        if (!simulationRunning) {  // Changing the icon
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/sample/view/icon/GliderPlayBtn1.png")));
+        }
+        else {
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/sample/view/icon/StopButtonEater.png")));
+        }
     }
 
     @FXML  // Change mode to drawing
@@ -450,8 +473,10 @@ public class MainController {
 
     @FXML // Toggles the recording
     public void toggleRecording() {
-        if (recording) {  // TODO (Improve recording)
-            // recordingImage.setImage(new Image(getClass().getResourceAsStream("src/view/icon/RecordLogo.png")));
+        if (recording) {
+            // Change icon for recording
+            recordingImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/sample/view/icon/RecordLogo.png")));
 
             FileChooser fileChooser = new FileChooser();  // Find out where to save the *.gif
             fileChooser.setTitle("Save *.gif");
@@ -480,11 +505,18 @@ public class MainController {
             }
         }
         else {
-            // recordingImage.setImage(new Image(getClass().getResourceAsStream("src/view/icon/RecordIcon2.png")));
+            // Change icon for recording
+            recordingImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/sample/view/icon/RecordIcon2.png")));
             giffer = new Giffer();  // Initialise the giffer object
         }
 
         recording = !recording;
+    }
+
+    @FXML // Closes the application
+    public void closeApplication() {
+        Platform.exit();
     }
 
     // Handles the key pressed event

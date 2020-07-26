@@ -6,22 +6,14 @@ import java.util.ArrayList;
 public class NeighbourhoodGenerator {
     public static Coordinate[] generateFromSymbol(char symbol, int range) {
         switch (symbol) {
-            case 'A':
-                return generateAsterisk(range);
-            case 'B':
-                return generateCheckerboard(range);
-            case 'C':
-                return generateCircular(range);
-            case 'H':
-                return generateHexagonal(range);
-            case 'N':
-                return generateVonNeumann(range);
-            case 'X':
-                return generateSaltire(range);
-            case '2':
-                return generateEuclidean(range);
-            case '3':
-                return generateTripod(range);
+            case 'A': return generateAsterisk(range);
+            case 'B': return generateCheckerboard(range);
+            case 'C': return generateCircular(range);
+            case 'H': return generateHexagonal(range);
+            case 'N': return generateVonNeumann(range);
+            case 'X': return generateSaltire(range);
+            case '2': return generateEuclidean(range);
+            case '3': return generateTripod(range);
             case '*': return generateStar(range);
             case '+': return generateCross(range);
             case '#': return generateHash(range);
@@ -232,17 +224,13 @@ public class NeighbourhoodGenerator {
         // Convert to binary
         String flattenedNeighbourhood = new BigInteger(CoordCA, 16).toString(2);
 
-        StringBuilder correctedNeighbourhood = new StringBuilder();  // Make it the correct length
-        correctedNeighbourhood.append("0".repeat(Math.max(0, 24 - flattenedNeighbourhood.length())));
-        correctedNeighbourhood.append(flattenedNeighbourhood);
-
-        flattenedNeighbourhood = correctedNeighbourhood.toString();  // Replace it with the corrected one
+        flattenedNeighbourhood = "0".repeat(Math.max(0, 24 - flattenedNeighbourhood.length())) +
+                flattenedNeighbourhood;  // Replace it with the corrected one
 
         ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         for (int i = -range; i < range + 1; i++) {
             for (int j = -range; j < range + 1; j++) {
-                if (i == 0 && j == 0) {
-                } else {
+                if (i != 0 || j != 0) {
                     int index = (i + range) * (2 * range + 1) + (j + range);
                     if ((i == 0 && j > 0) || i > 0) {
                         if (flattenedNeighbourhood.charAt(index - 1) == '1') {
