@@ -16,7 +16,6 @@ Then, compile to a *.jar using FakeMain.java.
 For more detailed steps, look for a tutorial on how to compile JavaFX programs, 
 such as this [one](https://medium.com/@vinayprabhu19/creating-executable-javafx-application-part-2-c98cfa65801e). <br>
 
-
 What is this?
 =============
 CAViewer is a cellular automaton simulation program written in Java.
@@ -60,21 +59,24 @@ The generation of the pattern is shown.
 
 Keyboard Shortcuts
 ------------------
-*Space* - Step 1 Generation <br>
-*Enter* - Toggle Simulation <br>
-*Delete* - Deletes cells <br>
-*Ctrl + C* - Copy Pattern to RLE (without header) <br>
-*Ctrl + V* - Paste Pattern (requires that an area is already selected) <br>
+<kbd>Space</kbd> - Step 1 Generation <br>
+<kbd>Enter</kbd> - Toggle Simulation <br>
+<kbd>Delete</kbd> - Deletes cells <br>
+<kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE (without header) <br>
+<kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
 
-TODO
-----
-- [ ] Add tooltips
+GUI TODO List
+-------------
+- [x] Add tooltips
+- [ ] Add button to view search results and save to a file
 - [ ] Add menu buttons for delete, paste, copy and cut cells
 - [ ] Add menu button for new pattern
 - [ ] Add menu button to open rules & patterns
+- [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
 - [ ] Add a way to view output from search programs
 - [ ] Add help information to the about button
+- [ ] Custom key binds
 
 Editing Features
 ================
@@ -84,15 +86,18 @@ Editing Features
 - [x] Copy Cells to RLE (without header)
 - [x] Flip Horizontally / Vertically
 - [ ] Rotate Clockwise / Counter-Clockwise
+- [ ] Nudging up / down / left / right
 - [ ] Pasting Cells from RLE
 - [ ] Invert Cells
 - [ ] Undo & Redo
 - [ ] Select All
 - [ ] Reset Pattern to Generation 0
 - [ ] More Random Soup Symmetries
+- [ ] Simulate in selection
+- [ ] Simulate outside selection
 
 Supported / Planned Rulespaces
-====================
+==============================
 - [x] 2 State Higher Range Outer Totalistic (HROT)
 - [ ] Integer HROT
 - [ ] HROT BSFKL
@@ -102,8 +107,6 @@ Supported / Planned Rulespaces
 - [ ] 3-state HROT
 - [ ] Deficient HROT
 - [ ] Primodia
-
-
 - [ ] 2 State Isotropic Non-Totalistic (INT)
 - [ ] INT BSFKL
 - [ ] INT Generations
@@ -111,37 +114,17 @@ Supported / Planned Rulespaces
 - [ ] INT Regenerating Generations
 - [ ] 3-state INT
 - [ ] Deficient INT
-
-
 - [ ] Naive Rules
-
-
 - [ ] Alternating Rules
-
-
 - [ ] Second Order Rules
-
-
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
-
-
 - [ ] Cyclic CA
-
-
 - [ ] Langton's Ant / Turnmites
-
-
 - [ ] Block CA
 - [ ] Margolous
-
-
 - [ ] 1D CA
-
-
 - [ ] Golly Ruletrees
 - [ ] Golly Ruletables
-
-
 - [ ] Square Cell Ruletables
 
 Supported / Planned INT Neighbourhoods
@@ -156,8 +139,37 @@ Supported / Planned INT Neighbourhoods
 - [ ] Range 2 Cross Isotropic Non-Totalistic
 - [ ] Range 3 Cross Isotropic Non-Totalistic
 
+Modifying the Application
+=========================
+Follow the instructions above and download Java & JavaFX.
+If you want to modify the GUI of the main windows, you will also require 
+[SceneBuilder](https://gluonhq.com/products/scene-builder/).
+
+Modifying the GUI
+-----------------
+CAViewer uses the MVC or Model, View, Controller framework. <br>
+Model contains the classes the run the simulation as well as search programs. <br>
+Controller contains the event handling classes and the dialogs. <br>
+View contains the resources needed to render the application such as the *.fxml files and icons. <br>
+
+main.fxml contains the GUI of the main window. Open it in Scene Builder to modify it. <br>
+Events from main.fxml are handled by MainController.java. See the comments in MainController.java for more details<br>
+
+Adding custom rule families
+---------------------------
+All custom rules families will inherit from the abstract RuleFamily class in RuleFamily.java.
+
+Documentation
+=============
+- [x] GUI
+- [ ] Custom rule families
+- [ ] Custom symmetries
+- [ ] Custom neighbourhoods
+- [ ] Custom search programs
+
 Long-term TODO List
 ===================
+- [ ] Custom search programs
 - [ ] Add Unit Tests
 - [ ] Bounded Grids
 - [ ] Agar Search Program
@@ -166,10 +178,11 @@ Long-term TODO List
 - [ ] Hexagonal Rendering
 - [ ] Implement a faster algorithm (QuickLife, HashLife...)
 - [ ] Accept some LifeViewer commands like STEP & RANDOMISE
+- [ ] Scripting in Python?
 
 Known Bugs
 ==========
-- [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)
 - [ ] RLEs are pasted rotated (fix is trivial, I just haven't done it)
 - [ ] Cells are randomly not evaluated
 - [ ] HROT B0 isn't working as intended
+- [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

@@ -47,7 +47,10 @@
                         <Image url="@icon/GliderPlayBtn1.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
+               </graphic>
+               <tooltip>
+                  <Tooltip text="Run Simulation" />
+               </tooltip></Button>
             <Button mnemonicParsing="false" onAction="#drawingMode">
                <graphic>
                   <ImageView fx:id="drawingMode" fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
@@ -56,6 +59,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Draw Cells" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#panMode">
                <font>
@@ -68,6 +74,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Pan" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#selectionMode">
                <graphic>
@@ -77,6 +86,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Select Cells" />
+               </tooltip>
             </Button>
         </items>
       </ToolBar>
@@ -90,6 +102,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Generate Random Soup" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#flipHorizontalHandler">
                <graphic>
@@ -99,6 +114,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Flip Horizontally" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#flipVerticalHandler">
                <graphic>
@@ -108,6 +126,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Flip Vertically" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#rotateCWHandler">
                <graphic>
@@ -117,6 +138,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Rotate Clockwise" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#rotateCCWHandler">
                <graphic>
@@ -126,6 +150,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Rotate Counter-Clockwise" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#toggleRecording">
                <graphic>
@@ -135,11 +162,17 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="Record Pattern to *.gif" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#identifySelection" text="?">
                <font>
                   <Font size="12.0" />
                </font>
+               <tooltip>
+                  <Tooltip text="Identify Pattern" />
+               </tooltip>
             </Button>
          </items></ToolBar>
       <Label fx:id="statusLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" text="Generation: 0" VBox.vgrow="ALWAYS">
