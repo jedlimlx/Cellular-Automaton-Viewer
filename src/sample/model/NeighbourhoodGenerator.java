@@ -3,17 +3,25 @@ package sample.model;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-public class NeighbourhoodGenerator {  // TODO (Add Hexagonal (H))
+public class NeighbourhoodGenerator {
     public static Coordinate[] generateFromSymbol(char symbol, int range) {
         switch (symbol) {
-            case 'A': return generateAsterisk(range);
-            case 'B': return generateCheckerboard(range);
-            case 'C': return generateCircular(range);
-            case 'H': return generateHexagonal(range);
-            case 'N': return generateVonNeumann(range);
-            case 'X': return generateSaltire(range);
-            case '2': return generateEuclidean(range);
-            case '3': return generateTripod(range);
+            case 'A':
+                return generateAsterisk(range);
+            case 'B':
+                return generateCheckerboard(range);
+            case 'C':
+                return generateCircular(range);
+            case 'H':
+                return generateHexagonal(range);
+            case 'N':
+                return generateVonNeumann(range);
+            case 'X':
+                return generateSaltire(range);
+            case '2':
+                return generateEuclidean(range);
+            case '3':
+                return generateTripod(range);
             case '*': return generateStar(range);
             case '+': return generateCross(range);
             case '#': return generateHash(range);
@@ -56,10 +64,9 @@ public class NeighbourhoodGenerator {  // TODO (Add Hexagonal (H))
         for (int i = -range; i < range + 1; i++) {
             for (int j = -range; j < range + 1; j++) {
                 // Ignore center cell and cells whose coordinate sum >range
-                if ((i == 0 && j == 0))
-                    continue;
+                if ((i == 0 && j == 0)) continue;
 
-                if (i > 0) {
+                if (i >= 0 && j >= 0 || i <= 0 && j <= 0 || i <= range + j && j < 0 || i >= -(range - j) && j > 0) {
                     neighbourhood.add(new Coordinate(i, j));
                 }
             }
@@ -223,15 +230,19 @@ public class NeighbourhoodGenerator {  // TODO (Add Hexagonal (H))
     // Get Neighbourhood from CoordCA Format
     public static Coordinate[] fromCoordCA(String CoordCA, int range) {
         // Convert to binary
-        // TODO (Fix issues with shorter rulestrings)
         String flattenedNeighbourhood = new BigInteger(CoordCA, 16).toString(2);
 
-        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        StringBuilder correctedNeighbourhood = new StringBuilder();  // Make it the correct length
+        correctedNeighbourhood.append("0".repeat(Math.max(0, 24 - flattenedNeighbourhood.length())));
+        correctedNeighbourhood.append(flattenedNeighbourhood);
 
+        flattenedNeighbourhood = correctedNeighbourhood.toString();  // Replace it with the corrected one
+
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         for (int i = -range; i < range + 1; i++) {
             for (int j = -range; j < range + 1; j++) {
-                if (i == 0 && j == 0) { }
-                else {
+                if (i == 0 && j == 0) {
+                } else {
                     int index = (i + range) * (2 * range + 1) + (j + range);
                     if ((i == 0 && j > 0) || i > 0) {
                         if (flattenedNeighbourhood.charAt(index - 1) == '1') {
