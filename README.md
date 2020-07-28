@@ -25,13 +25,15 @@ The Menu Bar
 *Close* - Closes the application <br> 
 
 **Edit Menu**: <br>
-*Delete* - Doesn't do anything yet <br>
+*Copy* - Copies selected cells to an RLE
+*Paste* - Pastes the cells that are stored as an RLE on the clipboard
+*Delete* - Deletes the selected cells <br>
 
-**Search**: <br>
+**Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
 *Run Rule Search* - Starts a search program that randomly enumerates rules to find spaceships & oscillators <br>
 
-**Help**:<br>
+**Help Menu**:<br>
 *About* - Doesn't do anything yet <br>
 
 The Tools Bar
@@ -56,16 +58,16 @@ Keyboard Shortcuts
 <kbd>Space</kbd> - Step 1 Generation <br>
 <kbd>Enter</kbd> - Toggle Simulation <br>
 <kbd>Delete</kbd> - Deletes cells <br>
-<kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE (without header) <br>
+<kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE <br>
 <kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
 
 GUI TODO List
 -------------
 - [x] Add tooltips
-- [ ] Add button to view search results and save to a file
-- [ ] Add menu buttons for delete, paste, copy and cut cells
+- [x] Add menu buttons for delete, paste, copy and cut cells
 - [ ] Add menu button for new pattern
 - [ ] Add menu button to open rules & patterns
+- [ ] Add button to view search results and save to a file
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
 - [ ] Add a way to view output from search programs
@@ -77,7 +79,7 @@ Editing Features
 - [x] Drawing Cells
 - [x] Selecting Cells
 - [x] Delete Cells
-- [x] Copy Cells to RLE (without header)
+- [x] Copy Cells to RLE
 - [x] Flip Horizontally / Vertically
 - [ ] Rotate Clockwise / Counter-Clockwise
 - [ ] Nudging up / down / left / right
@@ -181,7 +183,7 @@ Long-term TODO List
 
 Known Bugs
 ==========
-- [ ] RLEs are pasted rotated (fix is trivial, I just haven't done it)
-- [ ] Cells are randomly not evaluated
+- [x] RLEs are pasted rotated (Fixed)
 - [ ] HROT B0 isn't working as intended
+- [ ] Cells are randomly not evaluated
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

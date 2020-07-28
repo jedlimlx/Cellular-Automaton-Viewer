@@ -518,6 +518,64 @@ public class MainController {
         Platform.exit();
     }
 
+    @FXML // Pastes the RLE from the clipboard
+    public void pasteRLE() {
+        // TODO (Make pasting nicer)
+        final Clipboard clipboard = Clipboard.getSystemClipboard();
+        String RLE = clipboard.getString();
+
+        // Parsing code - Removes headers, comments
+        StringBuilder rleFinal = new StringBuilder();
+        String[] tokens = RLE.split("\n");
+
+        for (String token: tokens) {
+            if (!(token.charAt(0) == '#') && !(token.charAt(0) == 'x')) {  // Check for comment & header
+                rleFinal.append(token);
+            }
+        }
+
+        simulator.fromRLE(rleFinal.toString(), startSelection);  // Insert the cells
+        renderCells(startSelection, endSelection);  // Render the cells
+    }
+
+    @FXML // Copies the currently selected cells to the clipboard
+    public void copyCells() {
+        if (mode == Mode.SELECTING) {
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+
+            // Add header & comments
+            String rle = simulator.toRLE(startSelection, endSelection);
+            StringBuilder rleFinal = new StringBuilder();
+
+            // Adding comments
+            for (String comments: ((RuleFamily) simulator.getRule()).generateComments()) {
+                rleFinal.append(comments).append("\n");
+            }
+
+            // Adding header
+            rleFinal.append("x = ").append(endSelection.getX() - startSelection.getX()).
+                    append(", y = ").append(endSelection.getY() - startSelection.getY()).
+                    append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
+            rleFinal.append(rle);
+
+            content.putString(rleFinal.toString());
+            clipboard.setContent(content);
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("No area selected!");
+            alert.setContentText("No area has been selected!");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML // Deletes the cells in the selection
+    public void deleteCells() {
+        simulator.clearCells(startSelection, endSelection);
+        renderCells(startSelection, endSelection);
+    }
+
     // Handles the key pressed event
     public void keyPressedHandler(KeyEvent event) {
         event.consume();  // Only this method applies
@@ -532,30 +590,15 @@ public class MainController {
         }
         // Delete cells
         else if (event.getCode().equals(KeyCode.DELETE)) {
-            simulator.clearCells(startSelection, endSelection);
-            renderCells(startSelection, endSelection);
+            deleteCells();
         }
         // Ctrl + C to copy
         else if (event.getCode().equals(KeyCode.C) && event.isControlDown()) { // TODO (Add headers)
-            if (mode == Mode.SELECTING) {
-                final Clipboard clipboard = Clipboard.getSystemClipboard();
-                final ClipboardContent content = new ClipboardContent();
-                content.putString(simulator.toRLE(startSelection, endSelection));
-                clipboard.setContent(content);
-            }
-            else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("No area selected!");
-                alert.setContentText("No area has been selected!");
-                alert.showAndWait();
-            }
+            copyCells();
         }
         // Ctrl + V to paste
         else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
-            // TODO (Parse RLE for headers and comments, make pasting nicer)
-            final Clipboard clipboard = Clipboard.getSystemClipboard();
-            simulator.fromRLE(clipboard.getString(), startSelection);  // Insert the cells
-            renderCells(startSelection, endSelection);  // Render the cells
+            pasteRLE();
         }
     }
 

@@ -1,7 +1,5 @@
 package sample.model;
 
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -148,8 +146,8 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     public String toRLE(Coordinate startCoordinate, Coordinate endCoordinate) {
         // First, add characters to a string
         ArrayList<Character> rleArray = new ArrayList<>();
-        for (int x = startCoordinate.getX(); x < endCoordinate.getX(); x++) {
-            for (int y = startCoordinate.getY(); y < endCoordinate.getY(); y++) {
+        for (int y = startCoordinate.getY(); y < endCoordinate.getY(); y++) {
+            for (int x = startCoordinate.getX(); x < endCoordinate.getX(); x++) {
                 if (getCell(x, y) == 0) {
                     rleArray.add('.');
                 }
