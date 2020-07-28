@@ -8,13 +8,7 @@ CAViewer v2 is written in Java.<br>
 You will need the Java Runtime Environment / Java Development Kit to run the *.jar file.<br>
 If you use Windows, you can use the *.exe file that doesn't need Java.<br>
 
-Compiling from source
-=====================
-CAViewer v2 uses JavaFX. You will need to download JavaFX from https://gluonhq.com/products/javafx/. <br>
-Then, compile to a *.jar using FakeMain.java.
-
-For more detailed steps, look for a tutorial on how to compile JavaFX programs, 
-such as this [one](https://medium.com/@vinayprabhu19/creating-executable-javafx-application-part-2-c98cfa65801e). <br>
+See [MODIFY.md](MODIFY.md) for instructions on how to build the application from source and how to modify it.
 
 What is this?
 =============
@@ -98,13 +92,24 @@ Editing Features
 
 Supported / Planned Rulespaces
 ==============================
-- [x] 2 State Higher Range Outer Totalistic (HROT)
-- [ ] Integer HROT
+- [ ] 2 State Higher Range Outer Totalistic (HROT)
+    - [ ] B0 rules
+    - [x] Weighted rules
+    - [x] Apgtable Generation for non-B0 rules
+    - [x] Apgtable Generation for B0 rules
+    - [ ] Apgtable Generation for weighted rules
 - [ ] HROT BSFKL
 - [ ] HROT Generations
+    - [] B0 Rules
+    - [] State Weights
+    - [] Neighbourhood Weights
+    - [] Apgtable Generation for non-B0 rules
+    - [] Apgtable Generation for rules with neighbourhood weights
+    - [] Apgtable Generation for rules with both state weights & neighbourhood weights
 - [ ] HROT Extended Generations
 - [ ] HROT Regenerating Generations
 - [ ] 3-state HROT
+- [ ] Integer HROT
 - [ ] Deficient HROT
 - [ ] Primodia
 - [ ] 2 State Isotropic Non-Totalistic (INT)
@@ -139,43 +144,37 @@ Supported / Planned INT Neighbourhoods
 - [ ] Range 2 Cross Isotropic Non-Totalistic
 - [ ] Range 3 Cross Isotropic Non-Totalistic
 
-Modifying the Application
-=========================
-Follow the instructions above and download Java & JavaFX.
-If you want to modify the GUI of the main windows, you will also require 
-[SceneBuilder](https://gluonhq.com/products/scene-builder/).
-
-Modifying the GUI
------------------
-CAViewer uses the MVC or Model, View, Controller framework. <br>
-Model contains the classes the run the simulation as well as search programs. <br>
-Controller contains the event handling classes and the dialogs. <br>
-View contains the resources needed to render the application such as the *.fxml files and icons. <br>
-
-main.fxml contains the GUI of the main window. Open it in Scene Builder to modify it. <br>
-Events from main.fxml are handled by MainController.java. See the comments in MainController.java for more details<br>
-
-Adding custom rule families
----------------------------
-All custom rules families will inherit from the abstract RuleFamily class in RuleFamily.java.
-
-Documentation
-=============
-- [x] GUI
-- [ ] Custom rule families
-- [ ] Custom symmetries
-- [ ] Custom neighbourhoods
-- [ ] Custom search programs
+Supported / Planned Named HROT Neighbourhoods
+=============================================
+- [x] Asterisk (A)
+- [x] Checkerboard (B)
+- [x] Aligned Checkerboard (b)
+- [x] Circular (C)
+- [ ] Triangular Neighbourhood on Triangular Grid (D)
+- [x] Gaussian Weighted Neighbourhood (G)
+- [x] Hexagonal (H)
+- [x] Moore (M)
+- [x] Von Neumann (N)
+- [x] Saltire (X)
+- [x] Euclidean (2)
+- [x] Tripod (3)
+- [ ] Hexagram (6)
+- [x] Star (*)
+- [x] Cross (+)
+- [x] Hash (#)
+- [ ] Triangular Neighbourhood on Hexagonal Grid (T)
 
 Long-term TODO List
 ===================
 - [ ] Custom search programs
+- [ ] Move stuff to the wiki
 - [ ] Add Unit Tests
 - [ ] Bounded Grids
+- [ ] Triangular Rules
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
-- [ ] Triangular Rules
 - [ ] Hexagonal Rendering
+- [ ] Triangular Rendering
 - [ ] Implement a faster algorithm (QuickLife, HashLife...)
 - [ ] Accept some LifeViewer commands like STEP & RANDOMISE
 - [ ] Scripting in Python?

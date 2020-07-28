@@ -15,13 +15,13 @@ public class HROT extends RuleFamily {
     private Coordinate[] neighbourhood;
     private int[] weights;
 
-    private final String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
-    private final String moore = "([BS]([0-8]+)?/?[BS]([0-8]+)?+|[BS]?([0-8]+)?/[BS]?([0-8]+)?)";
-    private final String vonNeumann = "([BS]([0-4]+)?/?[BS]([0-4]+)?|[BS]?([0-4]+)?/[BS]?([0-4]+)?)V";
-    private final String hexagonal = "([BS]([0-6]+)?/?[BS]([0-6]+)?|[BS]?([0-6]+)?/[BS]?([0-6]+)?)H";
-    private final String higherRangePredefined = "R[0-9]+,C[0|2],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",N[ABCHMNX23*+#]";
-    private final String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
+    private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
+    private final static String moore = "([BS]([0-8]+)?/?[BS]([0-8]+)?+|[BS]?([0-8]+)?/[BS]?([0-8]+)?)";
+    private final static String vonNeumann = "([BS]([0-4]+)?/?[BS]([0-4]+)?|[BS]?([0-4]+)?/[BS]?([0-4]+)?)V";
+    private final static String hexagonal = "([BS]([0-6]+)?/?[BS]([0-6]+)?|[BS]?([0-6]+)?/[BS]?([0-6]+)?)H";
+    private final static String higherRangePredefined = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" + hrotTransitions +
+            ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
+    private final static String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
             ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
 
     public HROT(String rulestring) {
@@ -76,8 +76,11 @@ public class HROT extends RuleFamily {
         else if (rulestring.matches(higherRangePredefined)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            char neighbourhoodSymbol = Utils.matchRegex("N[ABCHMNX23*+#]", rulestring, 0).charAt(1);
+            char neighbourhoodSymbol = Utils.matchRegex("N["+
+                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0).charAt(1);
+
             neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
+            weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -163,6 +166,7 @@ public class HROT extends RuleFamily {
 
     @Override
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
+        // TODO (Fine tune the RNG function more)
         if (minRule instanceof HROT && maxRule instanceof HROT) {
             Random random = new Random();
 
@@ -204,7 +208,7 @@ public class HROT extends RuleFamily {
     }
 
     @Override
-    public boolean generateApgtable(File file) {
+    public boolean generateApgtable(File file) throws UnsupportedOperationException {
         try {
             // Open the file
             FileWriter writer = new FileWriter(file);
@@ -273,37 +277,43 @@ public class HROT extends RuleFamily {
                 for (int i = 0; i < neighbourhood.length; i++) {
                     writer.write("any" + i + ",");
                 }
-                writer.write("0");
 
             }
             else {
-                // Writing variables for death transitions
-                writer.write("# Variables for Death Transitions\n");
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    writer.write("var any" + i + " = {0, 1}\n");
+                if (weights == null) {
+                    // Writing variables for death transitions
+                    writer.write("# Variables for Death Transitions\n");
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        writer.write("var any" + i + " = {0, 1}\n");
+                    }
+
+                    // Write in birth transitions
+                    writer.write("\n# Birth Transitions\n");
+                    for (int transition: birth) {
+                        writer.write("0," + ApgtableGenerator.generateOT(neighbourhood, transition) + "1\n");
+                    }
+
+                    // Write in survival transitions
+                    writer.write("\n# Survival Transitions\n");
+                    for (int transition: survival) {
+                        writer.write("1," + ApgtableGenerator.generateOT(neighbourhood, transition) + "1\n");
+                    }
+
+                    // Write in death transitions
+                    writer.write("\n# Death Transitions\n");
+
+                    writer.write("1,");
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        writer.write("any" + i + ",");
+                    }
+                }
+                else {
+                    throw new UnsupportedOperationException(
+                            "Weighted APGTable generation is not supported for HROT Rules yet.");
                 }
 
-                // Write in birth transitions
-                writer.write("\n# Birth Transitions\n");
-                for (int transition: birth) {
-                    writer.write("0," + ApgtableGenerator.generateOT(neighbourhood, transition) + "1\n");
-                }
-
-                // Write in survival transitions
-                writer.write("\n# Survival Transitions\n");
-                for (int transition: survival) {
-                    writer.write("1," + ApgtableGenerator.generateOT(neighbourhood, transition) + "1\n");
-                }
-
-                // Write in death transitions
-                writer.write("\n# Death Transitions\n");
-
-                writer.write("1,");
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    writer.write("any" + i + ",");
-                }
-                writer.write("0");
             }
+            writer.write("0");
 
             // Closing the file
             writer.close();
@@ -315,13 +325,13 @@ public class HROT extends RuleFamily {
     }
 
     @Override
-    public boolean generateCARule(File file) {
-        return false;  // TODO (Complete code to generate *.ca_rule)
+    public String[] generateComments() {
+        return new String[0];  // TODO (Generate RLE Comments)
     }
 
     @Override
-    public boolean loadCARule(File file) {
-        return false;  // TODO (Complete code to load *.ca_rule)
+    public void loadComments(String[] comments) {
+        // TODO (Load RLE Comments)
     }
 
     @Override  // Accessors

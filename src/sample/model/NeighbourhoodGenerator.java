@@ -4,11 +4,15 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 public class NeighbourhoodGenerator {
+    // Modify to add new symbols for new neighbourhoods
+    public static String neighbourhoodSymbols = "ABbCGHMNX23*+#";
     public static Coordinate[] generateFromSymbol(char symbol, int range) {
-        switch (symbol) {
+        switch (symbol) {  // Add new neighbourhood types as cases here
             case 'A': return generateAsterisk(range);
             case 'B': return generateCheckerboard(range);
+            case 'b': return generateAlignedCheckerboard(range);
             case 'C': return generateCircular(range);
+            case 'G': return generateGaussianNeighbourhood(range);
             case 'H': return generateHexagonal(range);
             case 'N': return generateVonNeumann(range);
             case 'X': return generateSaltire(range);
@@ -18,6 +22,12 @@ public class NeighbourhoodGenerator {
             case '+': return generateCross(range);
             case '#': return generateHash(range);
             default: return generateMoore(range);
+        }
+    }
+    public static int[] generateWeightsFromSymbol(char symbol, int range) {
+        switch (symbol) {  // Add new weighted neighbourhood types as cases here
+            case 'G': return generateGaussian(range);
+            default: return null;
         }
     }
 
@@ -174,6 +184,21 @@ public class NeighbourhoodGenerator {
         return toArray(neighbourhood);
     }
 
+    public static Coordinate[] generateAlignedCheckerboard(int range) {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        for (int i = -range; i < range + 1; i++) {
+            for (int j = -range; j < range + 1; j++) {
+                if (i == 0 && j == 0) continue;  // Ignore center cell
+
+                if (Math.abs(i) % 2 == Math.abs(j) % 2) {
+                    neighbourhood.add(new Coordinate(i, j));
+                }
+            }
+        }
+
+        return toArray(neighbourhood);
+    }
+
     public static Coordinate[] generateTripod(int range) {
         ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         for (int i = -range; i < range + 1; i++) {
@@ -206,6 +231,28 @@ public class NeighbourhoodGenerator {
         }
 
         return toArray(neighbourhood);
+    }
+
+    public static Coordinate[] generateGaussianNeighbourhood(int range) {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        for (int i = -range; i < range + 1; i++) {
+            for (int j = -range; j < range + 1; j++) {
+                neighbourhood.add(new Coordinate(i, j));
+            }
+        }
+
+        return toArray(neighbourhood);
+    }
+
+    public static int[] generateGaussian(int range) {
+        int[] weights = new int[(2 * range + 1) * (2 * range + 1)];
+        Coordinate[] neighbourhood = generateGaussianNeighbourhood(range);
+        for (int i = 0; i < neighbourhood.length; i++) {
+            weights[i] = (range + 1 - Math.abs(neighbourhood[i].getX())) *
+                    (range + 1 - Math.abs(neighbourhood[i].getY()));
+        }
+
+        return weights;
     }
 
     // Convert cell list to array

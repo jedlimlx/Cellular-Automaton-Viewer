@@ -443,8 +443,7 @@ public class MainController {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error in generating APGTable");
                 alert.setHeaderText("APGTable generation is not supported by this rule / rulespace!");
-                alert.setContentText("The rule / rulespace selected does not support APGTable generation." +
-                        "If you require this feature, please request it or write it yourself");
+                alert.setContentText(exception.getMessage());
                 alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
                 alert.showAndWait();
             }
