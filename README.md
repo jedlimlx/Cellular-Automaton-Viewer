@@ -99,15 +99,15 @@ Supported / Planned Rulespaces
     - [x] Weighted rules
     - [x] Apgtable Generation for non-B0 rules
     - [x] Apgtable Generation for B0 rules
-    - [ ] Apgtable Generation for weighted rules
+    - [x] Apgtable Generation for weighted rules
 - [ ] HROT BSFKL
 - [ ] HROT Generations
-    - [] B0 Rules
-    - [] State Weights
-    - [] Neighbourhood Weights
-    - [] Apgtable Generation for non-B0 rules
-    - [] Apgtable Generation for rules with neighbourhood weights
-    - [] Apgtable Generation for rules with both state weights & neighbourhood weights
+    - [ ] B0 Rules
+    - [ ] State Weights
+    - [ ] Neighbourhood Weights
+    - [ ] Apgtable Generation for non-B0 rules
+    - [ ] Apgtable Generation for rules with neighbourhood weights
+    - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
 - [ ] HROT Extended Generations
 - [ ] HROT Regenerating Generations
 - [ ] 3-state HROT

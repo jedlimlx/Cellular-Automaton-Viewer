@@ -5,9 +5,7 @@ import sample.model.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
 public class HROT extends RuleFamily {
     private final HashSet<Integer> birth;
@@ -225,7 +223,10 @@ public class HROT extends RuleFamily {
             writer.write("neighborhood:[(0, 0), " + neighbourhoodString.substring(1,
                     neighbourhoodString.length() - 1) + ", (0, 0)]\n");  // Add the (0, 0) at the front and back
 
-            writer.write("symmetries:permute\n\n");
+            if (weights == null)
+                writer.write("symmetries:permute\n\n");
+            else
+                writer.write("symmetries:none\n\n");  // Use none symmetry for HROT
 
             if (alternatingPeriod == 2) {  // For B0 rules
                 // Writing variables for any state
@@ -280,13 +281,13 @@ public class HROT extends RuleFamily {
 
             }
             else {
-                if (weights == null) {
-                    // Writing variables for death transitions
-                    writer.write("# Variables for Death Transitions\n");
-                    for (int i = 0; i < neighbourhood.length; i++) {
-                        writer.write("var any" + i + " = {0, 1}\n");
-                    }
+                // Writing variables for death transitions
+                writer.write("# Variables for Death Transitions\n");
+                for (int i = 0; i < neighbourhood.length; i++) {
+                    writer.write("var any" + i + " = {0, 1}\n");
+                }
 
+                if (weights == null) {
                     // Write in birth transitions
                     writer.write("\n# Birth Transitions\n");
                     for (int transition: birth) {
@@ -298,18 +299,43 @@ public class HROT extends RuleFamily {
                     for (int transition: survival) {
                         writer.write("1," + ApgtableGenerator.generateOT(neighbourhood, transition) + "1\n");
                     }
-
-                    // Write in death transitions
-                    writer.write("\n# Death Transitions\n");
-
-                    writer.write("1,");
-                    for (int i = 0; i < neighbourhood.length; i++) {
-                        writer.write("any" + i + ",");
-                    }
                 }
                 else {
-                    throw new UnsupportedOperationException(
-                            "Weighted APGTable generation is not supported for HROT Rules yet.");
+                    Hashtable<Integer, ArrayList<String>> transitions =  // Generate all possible transitions
+                            ApgtableGenerator.generateWeightedTransitions(neighbourhood, weights);
+
+                    // Write in birth transitions
+                    writer.write("\n# Birth Transitions\n");
+                    for (int transition: birth) {
+                        for (String string: transitions.get(transition)) {
+                            writer.write("0,");
+                            for (int i = 0; i < string.length(); i++) {
+                                writer.write(string.charAt(i) + ",");
+                            }
+                            writer.write("1\n");
+                        }
+                    }
+
+                    // Write in survival transitions
+                    writer.write("\n# Survival Transitions\n");
+                    for (int transition: survival) {
+                        for (String string: transitions.get(transition)) {
+                            writer.write("1,");
+                            for (int i = 0; i < string.length(); i++) {
+                                writer.write(string.charAt(i) + ",");
+                            }
+                            writer.write("1\n");
+                        }
+                    }
+
+                }
+
+                // Write in death transitions
+                writer.write("\n# Death Transitions\n");
+
+                writer.write("1,");
+                for (int i = 0; i < neighbourhood.length; i++) {
+                    writer.write("any" + i + ",");
                 }
 
             }
