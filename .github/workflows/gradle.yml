@@ -25,6 +25,11 @@ jobs:
       run: chmod +x gradlew
     - name: Build Gradle
       run: ./gradlew build
+    - name: Build Executable with JLink & JPackage
+      run: ./gradlew jpackage
+    - shell: bash
+      run: |
+        ls -R
     - name: Upload the Executable
       uses: actions/upload-artifact@v2
       with:
@@ -44,6 +49,8 @@ jobs:
         java-package: jdk+fx
     - name: Build Gradle
       run: ./gradlew build
+    - name: Build Executable with JLink & JPackage
+      run: ./gradlew jpackage
     - name: Upload the Executable
       uses: actions/upload-artifact@v2
       with:
@@ -65,6 +72,8 @@ jobs:
       run: chmod +x gradlew
     - name: Build Gradle
       run: ./gradlew build
+    - name: Build Executable with JLink & JPackage
+      run: ./gradlew jpackage
     - shell: bash
       run: |
         ls -R
@@ -96,4 +105,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: CAViewer.jar
-          path: ./build/libs/CAViewer.jar
+          path: ./build/libs/Cellular-Automaton-Viewer.jar
