@@ -24,14 +24,16 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build Gradle
-      run: ./gradlew build
+      run: ./gradlew build --build-file build2.gradle
     - name: Build Fat Cross-Platform Jar with Gradle
-      run: ./gradlew jar
+      run: ./gradlew jar --build-file build2.gradle
     - name: Upload a the Fat Cross-Platform Jar Artifact
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer.jar
         path: build/libs/CAViewer.jar
+    - name: Build Gradle
+      run: ./gradlew build
     - name: Build Executable with JLink & JPackage
       run: ./gradlew jpackage
     - name: Upload a the Executable
