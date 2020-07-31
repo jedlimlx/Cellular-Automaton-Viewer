@@ -38,7 +38,6 @@ jlink {
     }
 
     jpackage {
-        jpackageHome = 'JAVA_HOME'
         outputDir = 'jpackage'
         imageName = 'CAViewer'
         skipInstaller = true
