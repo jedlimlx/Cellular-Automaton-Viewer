@@ -11,6 +11,8 @@ CAViewer v2 is written in Java.<br>
 You will need the Java Runtime Environment / Java Development Kit to run the *.jar file.<br>
 If you use Windows, you can use the *.exe file that doesn't need Java.<br>
 
+Note that this *.jar runs on the Java Runtime Environment / Java Development Kit 11 and above.
+
 See [MODIFY.md](MODIFY.md) for instructions on how to build the application from source and how to modify it.
 
 What is this?
