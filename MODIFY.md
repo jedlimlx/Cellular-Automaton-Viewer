@@ -2,15 +2,24 @@
 
 Compiling from source
 =====================
-CAViewer v2 uses JavaFX. You will need to download JavaFX from https://gluonhq.com/products/javafx/. <br>
-Then, compile to a *.jar using FakeMain.java.
+CAViewer v2 uses JavaFX and Gradle.
 
-For more detailed steps, look for a tutorial on how to compile JavaFX programs, 
-such as this [one](https://medium.com/@vinayprabhu19/creating-executable-javafx-application-part-2-c98cfa65801e). <br>
+To run the application, you will need to install Gradle.
+Then run, `gradlew run`.
+
+To build a cross-platform fat jar, run `gradlew jar`. <br>
+The jar will be generated in build/libs. This jar will be able to run on Linux, Mac and Windows. <br>
+
+To build a platform dependent exectuable, run `gradlew jpackage`. <br>
+Note that you will have to go into [build.gradle](build.gradle) and change *jpackageHome* to a OpenJDK 14 or higher Java installation. <br>
+Afterwards, the exectuable will be generated in build/jpackage. <br>
+
+Changing *skipInstaller* from *false* to *true* will generate an installer instead.
+On Windows, this will require that you have the [WiX Toolset](https://wixtoolset.org/) installed.
 
 Modifying the Application
 =========================
-Follow the instructions above and download Java & JavaFX.
+Follow the instructions above and make sure gradle is installed.
 If you want to modify the GUI of the main windows, you will also require 
 [SceneBuilder](https://gluonhq.com/products/scene-builder/).
 
@@ -27,7 +36,7 @@ Events from main.fxml are handled by MainController.java. See the comments in Ma
 Adding custom rule families
 ---------------------------
 All custom rules families will inherit from the abstract RuleFamily class in 
-[RuleFamily.java](src/sample/model/RuleFamily.java).
+[RuleFamily.java](src/main/java/sample/model/RuleFamily.java).
 
 The rule families must use rulestrings to store data. 
 They will need to generate regexes to help differentiate them from other rules families<br>
@@ -68,7 +77,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 }
 ```
 
-as well as these methods from the abstract [Rule.java](src/sample/model/Rule.java).
+as well as these methods from the abstract [Rule.java](src/main/java/sample/model/Rule.java).
 ```java
 public abstract class Rule {
     public abstract Coordinate[] getNeighbourhood(int generation);
@@ -80,9 +89,9 @@ public abstract class Rule {
 }
 ```
 
-For example, take a look at the rule families found [here](src/sample/model/rules).
+For example, take a look at the rule families found [here](src/main/java/sample/model/rules).
 
-Then, create a rule dialog that extends from the abstract [RuleWidget.java](src/sample/controller/dialogs/RuleWidget.java).
+Then, create a rule dialog that extends from the abstract [RuleWidget.java](src/main/java/sample/controller/dialogs/RuleWidget.java).
 
 It will need to implement the following method which updates the *ruleFamily* attribute with the relevant information.
 ```java
@@ -93,12 +102,12 @@ public abstract class RuleWidget extends GridPane {
 ```
 
 You may also add other widgets as part of this rule dialog. Some useful predefined widgets would be:
-- [x] [NeighbourhoodSelector.java](src/sample/controller/NeighbourhoodSelector.java)
+- [x] [NeighbourhoodSelector.java](src/main/java/sample/controller/NeighbourhoodSelector.java)
 - [ ] State Weights Selector
 
 Adding custom neighbourhoods types
 ----------------------------------
-1. Add a generator function in [NeighbourhoodGenerator.java](src/sample/model/NeighbourhoodGenerator.java). 
+1. Add a generator function in [NeighbourhoodGenerator.java](src/main/java/sample/model/NeighbourhoodGenerator.java). 
 It should generate an array of Coordinates.
 2. Add a new case in the switch in the *generateFromSymbol* method.
 3. If the neighbourhood has weights, add another generator function for the weights. 
