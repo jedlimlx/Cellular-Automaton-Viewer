@@ -1,4 +1,7 @@
-# Cellular-Automaton-Viewer
+# Cellular-Automaton-Viewer [![Builds badge]][Builds link]
+
+[Builds badge]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg "Download latest build"
+[Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22
 
 See python branch for CAViewer v1.
 

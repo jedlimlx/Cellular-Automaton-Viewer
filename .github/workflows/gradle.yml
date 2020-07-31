@@ -31,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer.jar
-        path: build/libs/CAViewer.jar
+        path: /build/libs/CAViewer.jar
     - name: Build Gradle
       run: ./gradlew build
     - name: Build Executable with JLink & JPackage
@@ -40,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer
-        path: build/jpackage/CAViewer
+        path: /build/jpackage/CAViewer
 
   windows:
     name: Build on Windows
@@ -84,4 +84,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer
-        path: build/jpackage/CAViewer
+        path: /build/jpackage/CAViewer
