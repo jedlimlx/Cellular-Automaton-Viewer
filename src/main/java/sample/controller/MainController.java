@@ -12,15 +12,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import sample.controller.dialogs.RuleDialog;
+import sample.controller.dialogs.RuleWidget;
 import sample.model.Cell;
 import sample.model.*;
 import sample.model.rules.HROT;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainController {
     @FXML
@@ -190,6 +195,10 @@ public class MainController {
 
     // Function to set cell at (x, y) to a certain state
     public void setCell(int x, int y, int state) {
+        setCell(x, y, state, true);
+    }
+
+    public void setCell(int x, int y, int state, boolean updateSimulator) {
         // Bring selection rectangle to the front
         if (mode == Mode.SELECTING) {
             selectionRectangle.toFront();
@@ -228,6 +237,15 @@ public class MainController {
         }
     }
 
+    // Renders all cells
+    public void renderCells() {
+        for (Coordinate coordinate: simulator) {
+            setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE,
+                    simulator.getCell(coordinate),false);
+        }
+    }
+
+    // Renders cells between the start and end coordinate
     public void renderCells(Coordinate startSelection, Coordinate endSelection) {
         for (int i = startSelection.getX(); i < endSelection.getX(); i++) {
             for (int j = startSelection.getY(); j < endSelection.getY(); j++) {
@@ -518,6 +536,99 @@ public class MainController {
         Platform.exit();
     }
 
+    @FXML // Creates a new pattern
+    public void newPattern() {
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+        for (Coordinate coordinate: simulator) {
+            coordinates.add(coordinate);
+        }
+
+        // Avoiding ConcurrentModificationException
+        for (Coordinate coordinate: coordinates) {
+            setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE, 0);
+        }
+    }
+
+    @FXML // Loads the pattern from the RLE file
+    public void openPattern() {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open pattern file");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                    "RLE Files (*.rle)", "*.rle"));
+            File file = fileChooser.showOpenDialog(null);
+
+            Scanner scanner = new Scanner(file);
+            ArrayList<String> tokens = new ArrayList<>();
+
+            while (scanner.hasNextLine()) {  // Getting all text from scanner
+                tokens.add(scanner.nextLine());
+            }
+
+            scanner.close();  // Close the scanner object
+
+            String rulestring = "";
+            Pattern rulestringRegex = Pattern.compile("rule = \\S+");
+            ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
+
+            // Parsing code - Removes headers, comments
+            StringBuilder rleFinal = new StringBuilder();
+            for (String token: tokens) {
+                if (token.charAt(0) == '#') {  // Check for comment
+                    comments.add(token);
+                }
+                else if (token.charAt(0) == 'x') {  // Check for header
+                    Matcher rulestringMatcher = rulestringRegex.matcher(token);
+                    if (rulestringMatcher.find()) {
+                        rulestring = rulestringMatcher.group().substring(7);
+                    }
+                }
+                else {
+                    rleFinal.append(token);
+                }
+            }
+
+            // Identify the rule family based on regex
+            boolean found = false;
+            for (RuleWidget widget: dialog.getRuleWidgets()) {
+                for (String regex: widget.getRuleFamily().getRegex()) {
+                    if (rulestring.matches(regex)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // Completely break out of the loop
+                if (found) {
+                    simulator.setRule(widget.getRuleFamily());
+                    break;
+                }
+            }
+
+            // Set the rulestring
+            ((RuleFamily) simulator.getRule()).setRulestring(rulestring);
+
+            // Generate the additional information from comments
+            String[] commentsArray = new String[comments.size()];
+            for (int i = 0; i < commentsArray.length; i++) {
+                commentsArray[i] = comments.get(i);
+            }
+
+            ((RuleFamily) simulator.getRule()).loadComments(commentsArray);
+
+            newPattern();  // Clear all cells
+            simulator.fromRLE(rleFinal.toString(), new Coordinate(1024, 1024));  // Insert the new cells
+            renderCells();  // Render the new cells
+        }
+        catch (IOException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error reading pattern file");
+            alert.setHeaderText("There was an error reading the pattern file!");
+            alert.setContentText(exception.getMessage());
+            alert.showAndWait();
+        }
+    }
+
     @FXML // Pastes the RLE from the clipboard
     public void pasteRLE() {
         // TODO (Make pasting nicer)
@@ -549,8 +660,11 @@ public class MainController {
             StringBuilder rleFinal = new StringBuilder();
 
             // Adding comments
-            for (String comments: ((RuleFamily) simulator.getRule()).generateComments()) {
-                rleFinal.append(comments).append("\n");
+            String[] comments = ((RuleFamily) simulator.getRule()).generateComments();
+            if (comments != null) {
+                for (String comment: comments) {
+                    rleFinal.append(comment).append("\n");
+                }
             }
 
             // Adding header

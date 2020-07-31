@@ -26,6 +26,8 @@ The GUI is made with JavaFX.
 The Menu Bar
 -----------
 **File Menu**: <br>
+*New Pattern* - Creates a new pattern
+*Open Pattern* - Opens a pattern file
 *New Rule* - Opens the rule dialog to make a new rule <br>
 *Close* - Closes the application <br> 
 
@@ -70,12 +72,12 @@ GUI TODO List
 -------------
 - [x] Add tooltips
 - [x] Add menu buttons for delete, paste, copy and cut cells
-- [ ] Add menu button for new pattern
-- [ ] Add menu button to open rules & patterns
+- [x] Add menu button for new pattern
+- [x] Add menu button to open rules & patterns
+- [ ] Add menu button to save patterns
 - [ ] Add button to view search results and save to a file
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
-- [ ] Add a way to view output from search programs
 - [ ] Add help information to the about button
 - [ ] Custom key binds
 

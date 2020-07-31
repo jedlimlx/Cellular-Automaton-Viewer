@@ -89,8 +89,9 @@ public class HROT extends RuleFamily {
         else if (rulestring.matches(higherRangeCustom)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String CoordCA = Utils.matchRegex("N@[A-Fa-f0-9]+", rulestring, 0).substring(2);
-            neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
+            String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
+            if (CoordCA.length() > 0)
+                neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -352,12 +353,63 @@ public class HROT extends RuleFamily {
 
     @Override
     public String[] generateComments() {
-        return new String[0];  // TODO (Generate RLE Comments)
+        if (rulestring.charAt(rulestring.length() - 1) == '@') {
+            int range = 0;
+            ArrayList<Coordinate> neighbourhoodList = new ArrayList<>();
+            for (Coordinate coordinate: neighbourhood) {
+                neighbourhoodList.add(coordinate);
+                range = Math.max(range, Math.max(Math.abs(coordinate.getX()), Math.abs(coordinate.getY())));
+            }
+
+            String[] comments = new String[2 * range + 1];  // The array of RLE comments
+            for (int i = -range; i <= range; i++) {
+                comments[i + range] = "#C ";
+                for (int j = -range; j <= range; j++) {
+                    int index = neighbourhoodList.indexOf(new Coordinate(i, j));
+                    if (index != -1) {
+                        comments[i + range] += weights[index];
+                    }
+                    else {
+                        comments[i + range] += 0;
+                    }
+                    comments[i + range] += " ";
+                }
+            }
+
+            return comments;
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public void loadComments(String[] comments) {
-        // TODO (Load RLE Comments)
+        int range = comments.length / 2;
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        ArrayList<Integer> weights = new ArrayList<>();
+
+        for (int j = 0; j < comments.length; j++) {  // Parsing comments for the neighbourhood
+            String[] tokens = comments[j].split(" ");
+            for (int i = 1; i < tokens.length; i++) {
+                if (!tokens[i].equals("0")) {
+                    neighbourhood.add(new Coordinate(i - 1 - range, j - range));
+                    weights.add(Integer.parseInt(tokens[i]));
+                }
+            }
+        }
+
+        // Converting to arrays because java is annoying
+        int[] weightsArray = new int[weights.size()];
+        Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
+        for (int i = 0; i < weights.size(); i++) {
+            weightsArray[i] = weights.get(i);
+            neighbourhoodArray[i] = neighbourhood.get(i);
+        }
+
+        // Setting weights and neighbourhood
+        setWeights(weightsArray);
+        setNeighbourhood(neighbourhoodArray);
     }
 
     @Override  // Accessors

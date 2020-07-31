@@ -35,6 +35,8 @@ sourceSets {
 mainClassName = "sample.Main"
 
 jar {
+    sourceCompatibility = 11
+    targetCompatibility = 11
     manifest {
         attributes 'Main-Class': 'sample.FakeMain'
     }

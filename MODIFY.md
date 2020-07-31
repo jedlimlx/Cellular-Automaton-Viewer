@@ -5,17 +5,15 @@ Compiling from source
 CAViewer v2 uses JavaFX and Gradle.
 
 To run the application without the executables, you will first need to install the JDK. <br>
-Afterwards run, `gradlew build` & `gradlew build --build-file build2.gradle`. <br>
-Then run, `gradlew run`.
 
-To build a cross-platform fat jar, run `gradlew jar --build-file build2.gradle`. <br>
+To build a cross-platform fat jar, run `gradlew build --build-file build2.gradle`. <br>
 The jar will be generated in build/libs. This jar will be able to run on Linux, Mac and Windows. <br>
 
-To build a platform dependent exectuable, run `gradlew jpackage`. <br>
+To build a platform dependent exectuable, run `gradlew build`. <br>
 Note that this requires JDK 14 or higher. <br>
 Afterwards, the exectuable will be generated in build/jpackage. <br>
 
-Changing *skipInstaller* from *false* to *true* will generate an installer instead.
+Changing *skipInstaller* from *true* to *false* will generate an installer instead.
 On Windows, this will require that you have the [WiX Toolset](https://wixtoolset.org/) installed.
 
 Modifying the Application

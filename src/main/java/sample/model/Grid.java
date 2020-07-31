@@ -44,7 +44,7 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Clears all cells withnin the coordinate specified
+    // Clears all cells within the coordinate specified
     public void clearCells(Coordinate start, Coordinate end) {
         for (int x = start.getX(); x < end.getX() + 1; x++) {
             for (int y = start.getY(); y < end.getY() + 1; y++) {

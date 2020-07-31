@@ -153,4 +153,8 @@ public class RuleDialog extends Dialog {
             return null;
         }
     }
+
+    public RuleWidget[] getRuleWidgets() {
+        return ruleWidgets;
+    }
 }

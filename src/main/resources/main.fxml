@@ -11,6 +11,9 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" onAction="#newPattern" text="New Pattern" />
+                  <MenuItem mnemonicParsing="false" onAction="#openPattern" text="Open Pattern" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#startRuleDialog" text="New Rule" />
                   <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />
             </items>
