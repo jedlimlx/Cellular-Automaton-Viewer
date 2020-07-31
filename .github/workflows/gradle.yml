@@ -45,7 +45,7 @@ jobs:
         java-version: 14
         java-package: jdk+fx
     - name: Build Gradle
-        run: ./gradlew build --build-file build2.gradle
+      run: ./gradlew build --build-file build2.gradle
     - name: Build Fat Cross-Platform Jar with Gradle
       run: ./gradlew jar --build-file build2.gradle
     - name: Upload a the Fat Cross-Platform Jar Artifact
