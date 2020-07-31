@@ -24,15 +24,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build Gradle
-      run: ./gradlew build --build-file build2.gradle
-    - name: Build Fat Cross-Platform Jar with Gradle
-      run: ./gradlew jar --build-file build2.gradle
-    - name: Upload a the Fat Cross-Platform Jar Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: CAViewer.jar
-        path: /build/libs/CAViewer.jar
-    - name: Build Gradle
       run: ./gradlew build
     - name: Build Executable with JLink & JPackage
       run: ./gradlew jpackage
@@ -40,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer
-        path: /build/jpackage/CAViewer
+        path: ./build/jpackage/CAViewer
 
   windows:
     name: Build on Windows
@@ -52,7 +43,16 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 14
-        java-package: jdk+fx 
+        java-package: jdk+fx
+    - name: Build Gradle
+        run: ./gradlew build --build-file build2.gradle
+    - name: Build Fat Cross-Platform Jar with Gradle
+      run: ./gradlew jar --build-file build2.gradle
+    - name: Upload a the Fat Cross-Platform Jar Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: CAViewer.jar
+        path: build/libs/CAViewer.jar
     - name: Build Gradle
       run: ./gradlew build
     - name: Build Executable with JLink & JPackage
@@ -84,4 +84,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer
-        path: /build/jpackage/CAViewer
+        path: ./build/jpackage/CAViewer
