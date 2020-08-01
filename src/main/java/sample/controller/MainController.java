@@ -19,6 +19,7 @@ import sample.model.rules.HROT;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -534,6 +535,61 @@ public class MainController {
     @FXML // Closes the application
     public void closeApplication() {
         Platform.exit();
+    }
+
+    @FXML // Saves the pattern
+    public void savePattern() {
+        // Get the file to save the pattern in
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save *.rle file");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                "RLE Files (*.rle)", "*.rle"));
+        File file = fileChooser.showSaveDialog(null);
+
+        // Updating the bounds
+        simulator.updateBounds();
+
+        // Add header & comments
+        String rle = simulator.toRLE(simulator.getBounds().getKey(), simulator.getBounds().getValue());
+        StringBuilder rleFinal = new StringBuilder();
+
+        // Adding comments
+        String[] comments = ((RuleFamily) simulator.getRule()).generateComments();
+        if (comments != null) {
+            for (String comment: comments) {
+                rleFinal.append(comment).append("\n");
+            }
+        }
+
+        // Adding header
+        rleFinal.append("x = ").append(endSelection.getX() - startSelection.getX()).
+                append(", y = ").append(endSelection.getY() - startSelection.getY()).
+                append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
+        rleFinal.append(rle);
+
+        try {
+            // Writing to the file
+            FileWriter writer = new FileWriter(file);
+            writer.write(rleFinal.toString());
+            writer.close();
+
+            // Tell the user the operation was successful
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Operation successful!");
+            alert.setHeaderText("The operation was successful!");
+            alert.setContentText("The operation was successful. " +
+                    "The pattern has been saved to " + file.getAbsolutePath() + ".");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+            alert.showAndWait();
+
+        }
+        catch (IOException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Writing to pattern file");
+            alert.setHeaderText("An error occuring when writing to the pattern file!");
+            alert.setContentText(exception.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML // Creates a new pattern

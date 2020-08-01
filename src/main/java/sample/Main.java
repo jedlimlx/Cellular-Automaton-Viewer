@@ -18,6 +18,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/main.fxml")),
                 700, 650, true, SceneAntialiasing.DISABLED);
+        scene.getStylesheets().add("/style.css");
 
         stage.setScene(scene);
         stage.setTitle("Cellular Automaton Viewer");

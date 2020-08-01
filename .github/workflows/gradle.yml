@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CAViewer-MacOS
-        path: ./build/jpackage/CAViewer
+        path: ./build/image/CAViewer.app
 
   cross-platform:
     name: Build the Cross-Platform Fat Jar

@@ -385,31 +385,33 @@ public class HROT extends RuleFamily {
 
     @Override
     public void loadComments(String[] comments) {
-        int range = comments.length / 2;
-        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
-        ArrayList<Integer> weights = new ArrayList<>();
+        if (comments.length > 0) {  // Check if there are even any comments
+            int range = comments.length / 2;
+            ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+            ArrayList<Integer> weights = new ArrayList<>();
 
-        for (int j = 0; j < comments.length; j++) {  // Parsing comments for the neighbourhood
-            String[] tokens = comments[j].split(" ");
-            for (int i = 1; i < tokens.length; i++) {
-                if (!tokens[i].equals("0")) {
-                    neighbourhood.add(new Coordinate(i - 1 - range, j - range));
-                    weights.add(Integer.parseInt(tokens[i]));
+            for (int j = 0; j < comments.length; j++) {  // Parsing comments for the neighbourhood
+                String[] tokens = comments[j].split(" ");
+                for (int i = 1; i < tokens.length; i++) {
+                    if (!tokens[i].equals("0")) {
+                        neighbourhood.add(new Coordinate(i - 1 - range, j - range));
+                        weights.add(Integer.parseInt(tokens[i]));
+                    }
                 }
             }
-        }
 
-        // Converting to arrays because java is annoying
-        int[] weightsArray = new int[weights.size()];
-        Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
-        for (int i = 0; i < weights.size(); i++) {
-            weightsArray[i] = weights.get(i);
-            neighbourhoodArray[i] = neighbourhood.get(i);
-        }
+            // Converting to arrays because java is annoying
+            int[] weightsArray = new int[weights.size()];
+            Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
+            for (int i = 0; i < weights.size(); i++) {
+                weightsArray[i] = weights.get(i);
+                neighbourhoodArray[i] = neighbourhood.get(i);
+            }
 
-        // Setting weights and neighbourhood
-        setWeights(weightsArray);
-        setNeighbourhood(neighbourhoodArray);
+            // Setting weights and neighbourhood
+            setWeights(weightsArray);
+            setNeighbourhood(neighbourhoodArray);
+        }
     }
 
     @Override  // Accessors

@@ -1,4 +1,4 @@
-# Cellular-Automaton-Viewer [![Builds badge]][Builds link]
+# CAViewer [![Builds badge]][Builds link]
 
 [Builds badge]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg "Download latest build"
 [Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22
@@ -9,7 +9,10 @@ Installation
 ============
 CAViewer v2 is written in Java.<br>
 You will need the Java Runtime Environment / Java Development Kit to run the *.jar file.<br>
-If you use Windows, you can use the *.exe file that doesn't need Java.<br>
+
+If you can't use Java, download the precompiled binaries 
+[here](https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22). <br>
+On Linux and Mac, the binary may not be exectuable by default so run `chmod +x CAViewer`.
 
 Note that this *.jar runs on the Java Runtime Environment / Java Development Kit 11 and above.
 
@@ -26,8 +29,8 @@ The GUI is made with JavaFX.
 The Menu Bar
 -----------
 **File Menu**: <br>
-*New Pattern* - Creates a new pattern
-*Open Pattern* - Opens a pattern file
+*New Pattern* - Creates a new pattern <br>
+*Open Pattern* - Opens a pattern file <br>
 *New Rule* - Opens the rule dialog to make a new rule <br>
 *Close* - Closes the application <br> 
 
@@ -74,7 +77,7 @@ GUI TODO List
 - [x] Add menu buttons for delete, paste, copy and cut cells
 - [x] Add menu button for new pattern
 - [x] Add menu button to open rules & patterns
-- [ ] Add menu button to save patterns
+- [x] Add menu button to save patterns
 - [ ] Add button to view search results and save to a file
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
@@ -191,6 +194,7 @@ Long-term TODO List
 Known Bugs
 ==========
 - [x] RLEs are pasted rotated (Fixed)
+- [x] Open pattern is bugged
 - [ ] HROT B0 isn't working as intended
 - [ ] Cells are randomly not evaluated
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

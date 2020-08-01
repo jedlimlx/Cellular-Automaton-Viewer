@@ -13,6 +13,7 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#newPattern" text="New Pattern" />
                   <MenuItem mnemonicParsing="false" onAction="#openPattern" text="Open Pattern" />
+                  <MenuItem mnemonicParsing="false" onAction="#savePattern" text="Save Pattern" />
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#startRuleDialog" text="New Rule" />
                   <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />

@@ -1,5 +1,7 @@
 package sample.model;
 
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,10 +10,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
+    private Coordinate startCoordinate, endCoordinate;
     private final HashMap<Coordinate, Integer> dictionary;
 
     public Grid() {
         this.dictionary = new HashMap<>();
+        this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
 
     public Grid(HashMap<Coordinate, Integer> dictionary) {
@@ -29,12 +34,7 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     }
 
     public void setCell(int x, int y, int state) {
-        if (state == 0) {
-            dictionary.remove(new Coordinate(x, y));
-        }
-        else {
-            dictionary.put(new Coordinate(x, y), state);
-        }
+        setCell(new Coordinate(x, y), state);
     }
 
     // Insert cells at coordinate specified
@@ -79,6 +79,26 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
 
         return grid;
+    }
+
+    // Updates the bounds of the grid
+    public void updateBounds() {
+        for (Coordinate coordinate: this) {
+            // Updating the bounds
+            if (coordinate.getX() < startCoordinate.getX())
+                startCoordinate = new Coordinate(coordinate.getX(), startCoordinate.getY());
+            else if (coordinate.getY() < startCoordinate.getY())
+                startCoordinate = new Coordinate(startCoordinate.getX(), coordinate.getY());
+            else if (coordinate.getX() > endCoordinate.getX())
+                endCoordinate = new Coordinate(coordinate.getX(), endCoordinate.getY());
+            else if (coordinate.getY() > endCoordinate.getY())
+                endCoordinate = new Coordinate(endCoordinate.getX(), coordinate.getY());
+        }
+    }
+
+    // Gets the bounds of the grid
+    public Pair<Coordinate, Coordinate> getBounds() {
+        return new Pair<>(startCoordinate, endCoordinate);
     }
 
     // Converts the pattern into an array of coordinates
@@ -212,7 +232,7 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
                     case 'o':
                         setCell(x++, y, 1); break;
                     default:
-                        setCell(x++, y, (int) lastChar - 1); break;
+                        setCell(x++, y, (int) lastChar - 64); break;
                 }
             }
         }
