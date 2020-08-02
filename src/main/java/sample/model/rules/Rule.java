@@ -1,6 +1,8 @@
-package sample.model;
+package sample.model.rules;
 
 import javafx.scene.paint.Color;
+import sample.model.Coordinate;
+import sample.model.Grid;
 
 import java.util.HashSet;
 

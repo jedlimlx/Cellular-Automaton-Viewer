@@ -1,7 +1,13 @@
 package sample.model;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import javafx.util.Pair;
+import sample.model.patterns.Oscillator;
+import sample.model.patterns.Pattern;
+import sample.model.patterns.Spaceship;
+import sample.model.rules.Rule;
+import sample.model.rules.RuleFamily;
+
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Simulator extends Grid {
@@ -43,63 +49,51 @@ public class Simulator extends Grid {
     }
 
     // Identification functions
-    public String identify() {
+    public Pattern identify() {
         return identify(5000);
     }
 
-    public String identify(int maxPeriod) {  // TODO (Identification for puffers, rakes and replicators)
-        boolean found;
-        int period = 0, displacementX = 0, displacementY = 0;
+    public Pattern identify(int maxPeriod) {  // TODO (Identification for guns, puffers, rakes and replicators)
+        // Hash map to store hashes among other things
+        updateBounds();
 
-        Grid grid = super.deepCopy();  // Make a deep copy for reference
+        HashMap<Integer, Object[]> hashMap = new HashMap<>();
+        hashMap.put(this.hashCode(), new Object[]{generation, size(), getBounds()});
 
-        Coordinate[] originalGridArray = grid.toArray();  // Converting to array
-        Arrays.sort(originalGridArray);  // Sorting the array
+        // The pattern
+        Pattern pattern = null;
 
         for (int i = 0; i < maxPeriod; i++) {
             step();
 
-            Coordinate[] gridArray = this.toArray();
-            Arrays.sort(gridArray);  // Sorting the array
-            if (gridArray.length == 0)
-                return "Still Life";
+            int hash = this.hashCode();  // Compute the hash
+            if (hashMap.containsKey(hash)) {
+                if ((int) hashMap.get(hash)[1] != size())
+                    continue;
 
-            // Initialise variables
-            found = true;
-            displacementX = originalGridArray[0].getX() - gridArray[0].getX();
-            displacementY = originalGridArray[0].getY() - gridArray[0].getY();
-
-            if (grid.size() == this.size()) {  // Check for population periodicity
-                for (Coordinate cell: originalGridArray) {
-                    if (grid.getCell(cell) != this.getCell(
-                            cell.add(new Coordinate(-displacementX, -displacementY)))) {
-                        found = false;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    period = i + 1;
-                    break;
-                }
-            }
-        }
-
-        if (period > 0) {  // If your period is 0, nothing was found
-            if (displacementX == 0 && displacementY == 0) {  // Checking if it is stationary
-                if (period == 1) {
-                    return "Still Life";
+                if (getBounds().equals(hashMap.get(hash)[2])) {  // Checking for movement
+                    pattern = new Oscillator((Rule) ((RuleFamily) rule).clone(), this.deepCopy(),
+                            generation - (int) hashMap.get(hash)[0]);
                 }
                 else {
-                    return "P" + period + " Oscillator";
+                    // Calculates the displacement (I hate casting)
+                    int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getX() -
+                            getBounds().getKey().getX();
+                    int displacementY = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getY() -
+                            getBounds().getKey().getY();
+
+                    pattern = new Spaceship((Rule) ((RuleFamily) rule).clone(), this.deepCopy(),
+                            generation - (int) hashMap.get(hash)[0],
+                            displacementX, displacementY);
                 }
+                break;
             }
             else {
-                return "(" + displacementX + ", " + displacementY + ")c/" + period;
+                hashMap.put(hash, new Object[]{generation, size(), getBounds()});
             }
         }
 
-        return "Identification Failed :(";
+        return pattern;
     }
 
     // Step 1 generation

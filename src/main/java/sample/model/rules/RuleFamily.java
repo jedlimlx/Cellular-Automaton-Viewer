@@ -1,4 +1,4 @@
-package sample.model;
+package sample.model.rules;
 
 import java.io.File;
 
@@ -35,7 +35,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     // Generates comments that will be placed in the RLE
     // These comments represent additional information that is not stored in the rulestring (e.g. weights)
-    // Returned array to be something like {"#C 1 2 3 2 1", "#C 2 4 6 4 2"}
+    // Returned array to be something like {"#R 1 2 3 2 1", "#R 2 4 6 4 2"}
     // If there isn't anything to add, just return null
     public abstract String[] generateComments();
 

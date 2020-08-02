@@ -83,15 +83,25 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
 
     // Updates the bounds of the grid
     public void updateBounds() {
+        if (size() == 0) {  // Check for empty grid
+            startCoordinate = new Coordinate(0, 0);
+            endCoordinate = new Coordinate(0, 0);
+            return;
+        }
+
+        // Set to maximum possible values
+        startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
+
         for (Coordinate coordinate: this) {
             // Updating the bounds
             if (coordinate.getX() < startCoordinate.getX())
                 startCoordinate = new Coordinate(coordinate.getX(), startCoordinate.getY());
-            else if (coordinate.getY() < startCoordinate.getY())
+            if (coordinate.getY() < startCoordinate.getY())
                 startCoordinate = new Coordinate(startCoordinate.getX(), coordinate.getY());
-            else if (coordinate.getX() > endCoordinate.getX())
+            if (coordinate.getX() > endCoordinate.getX())
                 endCoordinate = new Coordinate(coordinate.getX(), endCoordinate.getY());
-            else if (coordinate.getY() > endCoordinate.getY())
+            if (coordinate.getY() > endCoordinate.getY())
                 endCoordinate = new Coordinate(endCoordinate.getX(), coordinate.getY());
         }
     }
@@ -251,6 +261,69 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     // Size of the grid
     public int size() {
         return dictionary.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Grid that = (Grid) o;
+        return that.hashCode() == this.hashCode();  // TODO (Check for collisions)
+    }
+
+    @Override  // Independent of translation
+    public int hashCode() {
+        // TODO (Copy Golly's Hash Function)
+        updateBounds();
+
+        /*
+        int GSF_hash(int x, int y, int wd, int ht)
+        {
+            // calculate a hash value for pattern in given rect
+            int hash = 31415962;
+            int right = x + wd - 1;
+            int bottom = y + ht - 1;
+            int cx, cy;
+            int v = 0;
+            lifealgo* curralgo = currlayer->algo;
+            bool multistate = curralgo->NumCellStates() > 2;
+
+            for ( cy=y; cy<=bottom; cy++ ) {
+                int yshift = cy - y;
+                for ( cx=x; cx<=right; cx++ ) {
+                    int skip = curralgo->nextcell(cx, cy, v);
+                    if (skip >= 0) {
+                        // found next live cell in this row (v is >= 1 if multistate)
+                        cx += skip;
+                        if (cx <= right) {
+                            // need to use a good hash function for patterns like AlienCounter.rle
+                            hash = (hash * 1000003) ^ yshift;
+                            hash = (hash * 1000003) ^ (cx - x);
+                            if (multistate) hash = (hash * 1000003) ^ v;
+                        }
+                    } else {
+                        cx = right;  // done this row
+                    }
+                }
+            }
+
+            return hash;
+        }
+         */
+
+        int hash = 31415962;
+        for (int y = startCoordinate.getY(); y < endCoordinate.getY(); y++) {
+            int yShift = y - startCoordinate.getY();
+            for (int x = startCoordinate.getX(); x < endCoordinate.getX(); x++) {
+                if (getCell(x, y) > 0) {
+                    hash = (hash * 1000003) ^ yShift;
+                    hash = (hash * 1000003) ^ (x - startCoordinate.getX());
+                    hash = (hash * 1000003) ^ getCell(x, y);
+                }
+            }
+        }
+
+        return hash;
     }
 
     @Override  // Implementing these methods allow it to be used in a for each loop

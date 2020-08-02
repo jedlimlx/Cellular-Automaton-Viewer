@@ -1,10 +1,7 @@
 package sample.controller.dialogs;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import sample.model.RuleFamily;
+import sample.model.rules.RuleFamily;
 
 public abstract class RuleWidget extends GridPane {
     protected RuleFamily ruleFamily;

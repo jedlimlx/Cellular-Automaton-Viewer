@@ -6,7 +6,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.stage.Window;
-import sample.model.RuleFamily;
+import sample.model.rules.RuleFamily;
 
 public class RuleDialog extends Dialog {
     private RuleFamily chosenRuleFamily;

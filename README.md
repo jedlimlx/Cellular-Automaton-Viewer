@@ -24,19 +24,20 @@ CAViewer is a cellular automaton simulation program written in Java.
 
 The GUI
 =======
-The GUI is made with JavaFX.
+The GUI is made with JavaFX & Scene Builder.
 
 The Menu Bar
 -----------
 **File Menu**: <br>
 *New Pattern* - Creates a new pattern <br>
 *Open Pattern* - Opens a pattern file <br>
+*Save Pattern* - Saves the pattern to a file <br>
 *New Rule* - Opens the rule dialog to make a new rule <br>
 *Close* - Closes the application <br> 
 
 **Edit Menu**: <br>
-*Copy* - Copies selected cells to an RLE
-*Paste* - Pastes the cells that are stored as an RLE on the clipboard
+*Copy* - Copies selected cells to an RLE <br>
+*Paste* - Pastes the cells that are stored as an RLE on the clipboard <br>
 *Delete* - Deletes the selected cells <br>
 
 **Search Menu**: <br>
@@ -68,6 +69,11 @@ Keyboard Shortcuts
 <kbd>Space</kbd> - Step 1 Generation <br>
 <kbd>Enter</kbd> - Toggle Simulation <br>
 <kbd>Delete</kbd> - Deletes cells <br>
+
+<kbd>Ctrl</kbd> + <kbd>N</kbd> - New Pattern <br>
+<kbd>Ctrl</kbd> + <kbd>O</kbd> - Open Pattern <br>
+<kbd>Ctrl</kbd> + <kbd>S</kbd> - Save Pattern to File <br>
+
 <kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE <br>
 <kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
 
@@ -104,34 +110,37 @@ Editing Features
 
 Supported / Planned Rulespaces
 ==============================
-- [ ] 2 State Higher Range Outer Totalistic (HROT)
-    - [ ] B0 rules
-    - [x] Weighted rules
-    - [x] Apgtable Generation for non-B0 rules
-    - [x] Apgtable Generation for B0 rules
-    - [x] Apgtable Generation for weighted rules
-- [ ] HROT BSFKL
-- [ ] HROT Generations
-    - [ ] B0 Rules
-    - [ ] State Weights
-    - [ ] Neighbourhood Weights
-    - [ ] Apgtable Generation for non-B0 rules
-    - [ ] Apgtable Generation for rules with neighbourhood weights
-    - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
-- [ ] HROT Extended Generations
-- [ ] HROT Regenerating Generations
-- [ ] 3-state HROT
-- [ ] Integer HROT
-- [ ] Deficient HROT
+- [ ] Higher Range Outer Totalistic (HROT)
+    - [ ] 2 State HROT
+        - [ ] B0 rules
+        - [x] Weighted rules
+        - [x] Apgtable Generation for non-B0 rules
+        - [x] Apgtable Generation for B0 rules
+        - [x] Apgtable Generation for weighted rules
+    - [ ] HROT BSFKL
+    - [ ] HROT Generations
+        - [ ] B0 Rules
+        - [ ] State Weights
+        - [ ] Neighbourhood Weights
+        - [ ] Apgtable Generation for non-B0 rules
+        - [ ] Apgtable Generation for rules with neighbourhood weights
+        - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
+    - [ ] HROT Extended Generations
+    - [ ] HROT Regenerating Generations
+    - [ ] 3-state HROT
+    - [ ] Integer HROT
+    - [ ] Deficient HROT
+- [ ] Isotropic Non-Totalistic (INT)
+    - [ ] 2 State INT
+    - [ ] INT BSFKL
+    - [ ] INT Generations
+    - [ ] INT Extended Generations
+    - [ ] INT Regenerating Generations
+    - [ ] 3-state INT
+    - [ ] Deficient INT
 - [ ] Primodia
-- [ ] 2 State Isotropic Non-Totalistic (INT)
-- [ ] INT BSFKL
-- [ ] INT Generations
-- [ ] INT Extended Generations
-- [ ] INT Regenerating Generations
-- [ ] 3-state INT
-- [ ] Deficient INT
 - [ ] Naive Rules
+    - [ ] Custom Reading Orders
 - [ ] Alternating Rules
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
@@ -185,6 +194,7 @@ Long-term TODO List
 - [ ] Triangular Rules
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
+- [ ] Methuselah Search Program
 - [ ] Hexagonal Rendering
 - [ ] Triangular Rendering
 - [ ] Implement a faster algorithm (QuickLife, HashLife...)
@@ -194,7 +204,8 @@ Long-term TODO List
 Known Bugs
 ==========
 - [x] RLEs are pasted rotated (Fixed)
-- [x] Open pattern is bugged
+- [x] Open pattern is bugged (Fixed)
+- [ ] Keyboard shortcuts only work when the ScrollPane is in focus
 - [ ] HROT B0 isn't working as intended
 - [ ] Cells are randomly not evaluated
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

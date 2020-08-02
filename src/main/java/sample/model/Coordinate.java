@@ -22,6 +22,10 @@ public class Coordinate implements Comparable<Coordinate> {
         return new Coordinate(this.x + coordinate.x, this.y + coordinate.y);
     }
 
+    public Coordinate subtract(Coordinate coordinate) {
+        return new Coordinate(this.x - coordinate.x, this.y - coordinate.y);
+    }
+
     @Override
     public int compareTo(Coordinate o) {
         if (this.x == o.x) {

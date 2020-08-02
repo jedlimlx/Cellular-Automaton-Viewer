@@ -16,6 +16,7 @@ import sample.controller.dialogs.RuleWidget;
 import sample.model.Cell;
 import sample.model.*;
 import sample.model.rules.HROT;
+import sample.model.rules.RuleFamily;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
@@ -483,9 +484,17 @@ public class MainController {
         simulator.insertCells(this.simulator.getCells(startSelection, endSelection),
                 new Coordinate(0, 0));
 
+        // Results of the identification
+        sample.model.patterns.Pattern results = simulator.identify();
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Identification results");
-        alert.setHeaderText(simulator.identify());
+
+        if (results != null)
+            alert.setHeaderText(results.toString());
+        else
+            alert.setHeaderText("Identification Failed :(");
+
         alert.showAndWait();
     }
 
@@ -630,7 +639,7 @@ public class MainController {
             // Parsing code - Removes headers, comments
             StringBuilder rleFinal = new StringBuilder();
             for (String token: tokens) {
-                if (token.charAt(0) == '#') {  // Check for comment
+                if (token.startsWith("#R")) {  // Check for comment
                     comments.add(token);
                 }
                 else if (token.charAt(0) == 'x') {  // Check for header
@@ -639,7 +648,7 @@ public class MainController {
                         rulestring = rulestringMatcher.group().substring(7);
                     }
                 }
-                else {
+                else if (token.charAt(0) != '#') {  // Not a comment
                     rleFinal.append(token);
                 }
             }
@@ -769,6 +778,18 @@ public class MainController {
         // Ctrl + V to paste
         else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
             pasteRLE();
+        }
+        // Ctrl + O to open pattern
+        else if (event.getCode().equals(KeyCode.O) && event.isControlDown()) {
+            openPattern();
+        }
+        // Ctrl + S to save pattern
+        else if (event.getCode().equals(KeyCode.S) && event.isControlDown()) {
+            savePattern();
+        }
+        // Ctrl + N for new pattern
+        else if (event.getCode().equals(KeyCode.N) && event.isControlDown()) {
+            newPattern();
         }
     }
 
