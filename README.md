@@ -112,8 +112,8 @@ Editing Features
 Supported / Planned Rulespaces
 ==============================
 - [ ] Higher Range Outer Totalistic (HROT)
-    - [ ] 2 State HROT
-        - [ ] B0 rules
+    - [x] 2 State HROT
+        - [x] B0 rules
         - [x] Weighted rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for B0 rules
@@ -208,7 +208,7 @@ Known Bugs
 ==========
 - [x] RLEs are pasted rotated (Fixed)
 - [x] Open pattern is bugged (Fixed)
+- [x] HROT B0 isn't working as intended (Fixed)
 - [ ] Keyboard shortcuts only work when the ScrollPane is in focus
-- [ ] HROT B0 isn't working as intended
 - [ ] Cells are randomly not evaluated
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

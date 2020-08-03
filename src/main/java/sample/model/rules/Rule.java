@@ -43,23 +43,26 @@ public abstract class Rule {
 
         // Generate set of cells to run update function on
         // Use a set to avoid duplicates
-        for (Coordinate cell: cellsChanged) {
-            for (Coordinate neighbour: neighbourhood) {
-                cellsToCheck.add(cell.add(neighbour));
-            }
-            cellsToCheck.add(cell);
-        }
-
-        // Clear the cells changed
-        // TODO (Fix the mess that is B0 rules)
-        if (alternatingPeriod > 1) {
-            if (generation % (alternatingPeriod + 1) == 0) {
-                cellsChanged.clear();
+        if (alternatingPeriod == 1) {
+            for (Coordinate cell: cellsChanged) {
+                for (Coordinate neighbour: neighbourhood) {
+                    cellsToCheck.add(cell.add(neighbour));
+                }
+                cellsToCheck.add(cell);
             }
         }
         else {
-            cellsChanged.clear();
+            // TODO (Optimise alternating rules code)
+            for (Coordinate cell: grid) {  // Check all alive cell if alternating period >1
+                for (Coordinate neighbour: neighbourhood) {
+                    cellsToCheck.add(cell.add(neighbour));
+                }
+                cellsToCheck.add(cell);
+            }
         }
+
+        // Clear the cells changed
+        cellsChanged.clear();
 
         int[] neighbours;
         int neighbourhood_size = neighbourhood.length, new_state, prev_state;
