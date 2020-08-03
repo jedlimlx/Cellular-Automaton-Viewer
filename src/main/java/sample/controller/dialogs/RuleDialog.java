@@ -18,7 +18,8 @@ public class RuleDialog extends Dialog {
     private final ComboBox ruleFamilyCombobox;
 
     // Array to store rule widgets
-    private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog()};
+    private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(),
+            new HROTGenerationsDialog()};
 
     public RuleDialog(String promptText) {
         super();

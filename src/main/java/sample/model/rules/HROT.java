@@ -1,11 +1,17 @@
 package sample.model.rules;
 
-import sample.model.*;
+import sample.model.ApgtableGenerator;
+import sample.model.Coordinate;
+import sample.model.NeighbourhoodGenerator;
+import sample.model.Utils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 public class HROT extends RuleFamily {
     private final HashSet<Integer> birth;
@@ -165,41 +171,9 @@ public class HROT extends RuleFamily {
 
     @Override
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
-        // TODO (Fine tune the RNG function more)
         if (minRule instanceof HROT && maxRule instanceof HROT) {
-            Random random = new Random();
-
-            // Clear the current birth and survival
-            birth.clear();
-            survival.clear();
-
-            // Adding compulsory transitions
-            birth.addAll(((HROT) minRule).getBirth());
-            survival.addAll(((HROT) minRule).getSurvival());
-
-            // Remove compulsory transitions
-            // Deep copy to avoid affecting the original object
-            HashSet<Integer> optionalBirths = (HashSet<Integer>) ((HROT) maxRule).getBirth().clone();
-            optionalBirths.removeAll(((HROT) minRule).getBirth());
-
-            HashSet<Integer> optionalSurvival = (HashSet<Integer>) ((HROT) maxRule).getSurvival().clone();
-            optionalBirths.removeAll(((HROT) minRule).getSurvival());
-
-            // Add to rule at random
-            // TODO (Improve RNG function)
-            int transitionProbability = random.nextInt(500) + 250;
-            for (int transition: optionalBirths) {
-                if (random.nextInt(1000) > transitionProbability) {
-                    birth.add(transition);
-                }
-            }
-
-            // Add to rule at random
-            for (int transition: optionalSurvival) {
-                if (random.nextInt(1000) > transitionProbability) {
-                    survival.add(transition);
-                }
-            }
+            Utils.randomiseTransitions(birth, ((HROT) minRule).birth, ((HROT) maxRule).birth);
+            Utils.randomiseTransitions(survival, ((HROT) minRule).survival, ((HROT) maxRule).survival);
         }
         else {
             throw new IllegalArgumentException("The rule families selected have to be the same!");
@@ -338,7 +312,6 @@ public class HROT extends RuleFamily {
                 for (int i = 0; i < neighbourhood.length; i++) {
                     writer.write("any" + i + ",");
                 }
-
             }
             writer.write("0");
 
@@ -363,7 +336,7 @@ public class HROT extends RuleFamily {
 
             String[] comments = new String[2 * range + 1];  // The array of RLE comments
             for (int i = -range; i <= range; i++) {
-                comments[i + range] = "#C ";
+                comments[i + range] = "#R ";
                 for (int j = -range; j <= range; j++) {
                     int index = neighbourhoodList.indexOf(new Coordinate(i, j));
                     if (index != -1) {

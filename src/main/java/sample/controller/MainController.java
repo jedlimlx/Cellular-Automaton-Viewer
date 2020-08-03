@@ -15,7 +15,7 @@ import sample.controller.dialogs.RuleDialog;
 import sample.controller.dialogs.RuleWidget;
 import sample.model.Cell;
 import sample.model.*;
-import sample.model.rules.HROT;
+import sample.model.rules.HROTGenerations;
 import sample.model.rules.RuleFamily;
 import sample.model.search.RuleSearch;
 
@@ -79,7 +79,7 @@ public class MainController {
         mode = Mode.DRAWING;
 
         // Create simulator object
-        simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
+        simulator = new Simulator(new HROTGenerations("R2,C2,S6-9,B7-8,NM"));
         setCell(0, 0, 0);
 
         // Create selection rectangle and set properties

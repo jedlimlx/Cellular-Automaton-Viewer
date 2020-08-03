@@ -68,20 +68,27 @@ public class Simulator extends Grid {
 
             int hash = this.hashCode();  // Compute the hash
             if (hashMap.containsKey(hash)) {
-                if ((int) hashMap.get(hash)[1] != size())
+                // Calculates the displacement between the first 2 bounds
+                int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getX() -
+                        getBounds().getKey().getX();
+                int displacementY = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getY() -
+                        getBounds().getKey().getY();
+
+                // Calculates the displacement between the other 2 bounds
+                int displacementX2 = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue()).getX() -
+                        getBounds().getValue().getX();
+                int displacementY2 = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue()).getY() -
+                        getBounds().getValue().getY();
+
+                if ((int) hashMap.get(hash)[1] != size() || displacementX != displacementX2 ||
+                        displacementY != displacementY2)
                     continue;
 
-                if (getBounds().equals(hashMap.get(hash)[2])) {  // Checking for movement
+                if (displacementX == 0 && displacementY == 0) {  // Checking for movement
                     pattern = new Oscillator((Rule) ((RuleFamily) rule).clone(), this.deepCopy(),
                             generation - (int) hashMap.get(hash)[0]);
                 }
                 else {
-                    // Calculates the displacement (I hate casting)
-                    int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getX() -
-                            getBounds().getKey().getX();
-                    int displacementY = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getKey()).getY() -
-                            getBounds().getKey().getY();
-
                     pattern = new Spaceship((Rule) ((RuleFamily) rule).clone(), this.deepCopy(),
                             generation - (int) hashMap.get(hash)[0],
                             displacementX, displacementY);

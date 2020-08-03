@@ -2,6 +2,7 @@ package sample.model;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,5 +88,28 @@ public class Utils {
             rulestring.append(",");
 
         return rulestring.toString();
+    }
+
+    public static void randomiseTransitions(HashSet<Integer> transitions, HashSet<Integer> minTransitions,
+                                     HashSet<Integer> maxTransitions) {
+        Random random = new Random();
+
+        // Clear existing transtions
+        transitions.clear();
+
+        // Adding compulsory transitions
+        transitions.addAll(minTransitions);
+
+        // Remove compulsory transitions
+        maxTransitions.removeAll(minTransitions);
+
+        // Add to rule at random
+        // TODO (Improve RNG function)
+        int transitionProbability = random.nextInt(500) + 250;
+        for (int transition: maxTransitions) {
+            if (random.nextInt(1000) > transitionProbability) {
+                transitions.add(transition);
+            }
+        }
     }
 }

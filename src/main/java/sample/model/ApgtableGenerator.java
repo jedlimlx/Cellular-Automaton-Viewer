@@ -8,20 +8,32 @@ public class ApgtableGenerator {
         return generateOT(neighbourhood, transition, 1);
     }
 
-    public static String generateOT(Coordinate[] neighbourhood, int transition, int state) {
+    public static String generateOT(Coordinate[] neighbourhood, int transition,
+                                    String alive, String dead,
+                                    boolean incrementAlive, boolean incrementDead) {
         StringBuilder transitionString = new StringBuilder();
         for (int i = 0; i < neighbourhood.length; i++) {
             if (i < transition) {
-                transitionString.append(state).append(",");
+                transitionString.append(alive);
+                if (incrementAlive)  // Check if the alive variable should incremented
+                    transitionString.append(i);
             }
             else {
-                transitionString.append("0,");
+                transitionString.append(dead);
+                if (incrementDead)  // Check if the dead variable should incremented
+                    transitionString.append(i);
             }
+
+            transitionString.append(",");
         }
 
         return transitionString.toString();
     }
 
+    public static String generateOT(Coordinate[] neighbourhood, int transition, int state) {
+        return generateOT(neighbourhood, transition, "" + state, "" + 0,
+                false, false);
+    }
 
     public static Hashtable<Integer, ArrayList<String>> generateWeightedTransitions(Coordinate[] neighbourhood, int[] weights) {
         Hashtable<Integer, ArrayList<String>> transitions = new Hashtable<>();  // TODO (Add caching)

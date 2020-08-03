@@ -1,6 +1,6 @@
 # CAViewer [![Builds badge]][Builds link]
 
-[Builds badge]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg "Download latest build"
+[Builds badge]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg?event=push
 [Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22
 
 See python branch for CAViewer v1.
@@ -85,6 +85,7 @@ GUI TODO List
 - [x] Add menu button to open rules & patterns
 - [x] Add menu button to save patterns
 - [ ] Add button to view search results and save to a file
+- [ ] Add grid lines
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
 - [ ] Add help information to the about button
@@ -121,9 +122,9 @@ Supported / Planned Rulespaces
     - [ ] HROT Generations
         - [ ] B0 Rules
         - [ ] State Weights
-        - [ ] Neighbourhood Weights
-        - [ ] Apgtable Generation for non-B0 rules
-        - [ ] Apgtable Generation for rules with neighbourhood weights
+        - [x] Neighbourhood Weights
+        - [x] Apgtable Generation for non-B0 rules
+        - [x] Apgtable Generation for rules with neighbourhood weights
         - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
     - [ ] HROT Extended Generations
     - [ ] HROT Regenerating Generations
@@ -174,8 +175,10 @@ Supported / Planned Named HROT Neighbourhoods
 - [ ] Triangular Neighbourhood on Triangular Grid (D)
 - [x] Gaussian Weighted Neighbourhood (G)
 - [x] Hexagonal (H)
+- [ ] Triangular Moore (L)
 - [x] Moore (M)
 - [x] Von Neumann (N)
+- [ ] Triangular Neighbourhood on Hexagonal Grid (T)
 - [x] Saltire (X)
 - [x] Euclidean (2)
 - [x] Tripod (3)
@@ -183,7 +186,6 @@ Supported / Planned Named HROT Neighbourhoods
 - [x] Star (*)
 - [x] Cross (+)
 - [x] Hash (#)
-- [ ] Triangular Neighbourhood on Hexagonal Grid (T)
 
 Long-term TODO List
 ===================
@@ -192,14 +194,15 @@ Long-term TODO List
 - [ ] Add Unit Tests
 - [ ] Bounded Grids
 - [ ] Triangular Rules
+- [ ] Command Line Interface
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
 - [ ] Methuselah Search Program
 - [ ] Hexagonal Rendering
 - [ ] Triangular Rendering
-- [ ] Implement a faster algorithm (QuickLife, HashLife...)
 - [ ] Accept some LifeViewer commands like STEP & RANDOMISE
 - [ ] Scripting in Python?
+- [ ] Implement a faster algorithm (QuickLife, HashLife...)
 
 Known Bugs
 ==========

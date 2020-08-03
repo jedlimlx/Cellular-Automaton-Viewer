@@ -23,10 +23,11 @@ public abstract class Rule {
 
     // Generate colour palette
     public Color getColor(int state) {
+        if (state == 0) {
+            return Color.rgb(0, 0, 0);
+        }
+
         if (numStates == 2) {  // Get correct colour
-            if (state == 0) {
-                return Color.rgb(0, 0, 0);
-            }
             return Color.rgb(255, 255, 255);
         }
         else {
