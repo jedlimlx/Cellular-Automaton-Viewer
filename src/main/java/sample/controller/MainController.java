@@ -314,6 +314,7 @@ public class MainController {
     // Runs simulation
     public void runSimulation() {
         int num = 1;
+
         while (true) {
             if (simulationRunning) {
                 updateCells();
@@ -755,9 +756,9 @@ public class MainController {
         renderCells(startSelection, endSelection);
     }
 
-    // Handles the key pressed event
+    // Handles the keyboard shortcuts
     public void keyPressedHandler(KeyEvent event) {
-        event.consume();  // Only this method applies
+        event.consume();  // No one touches this but me
 
         // Enter to toggle simulation
         if (event.getCode().equals(KeyCode.ENTER)) {
@@ -772,12 +773,17 @@ public class MainController {
             deleteCells();
         }
         // Ctrl + C to copy
-        else if (event.getCode().equals(KeyCode.C) && event.isControlDown()) { // TODO (Add headers)
+        else if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
             copyCells();
         }
         // Ctrl + V to paste
         else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
             pasteRLE();
+        }
+        // Ctrl + X to cut
+        else if (event.getCode().equals(KeyCode.X) && event.isControlDown()) {
+            copyCells();
+            deleteCells();
         }
         // Ctrl + O to open pattern
         else if (event.getCode().equals(KeyCode.O) && event.isControlDown()) {
@@ -790,6 +796,30 @@ public class MainController {
         // Ctrl + N for new pattern
         else if (event.getCode().equals(KeyCode.N) && event.isControlDown()) {
             newPattern();
+        }
+        // Ctrl + R to start rule dialog
+        else if (event.getCode().equals(KeyCode.R) && event.isControlDown()) {
+            startRuleDialog();
+        }
+        // Ctrl + 5 for random soup
+        else if (event.getCode().equals(KeyCode.DIGIT5) && event.isControlDown()) {
+            generateRandomSoup();
+        }
+        // X to flip horizontally
+        else if (event.getCode().equals(KeyCode.X)) {
+            flipHorizontalHandler();
+        }
+        // Y to flip vertically
+        else if (event.getCode().equals(KeyCode.Y)) {
+            flipVerticalHandler();
+        }
+        // > to rotate clockwise
+        else if (event.getCode().equals(KeyCode.PERIOD) && event.isShiftDown()) {
+            rotateCWHandler();
+        }
+        // < to rotate counter-clockwise
+        else if (event.getCode().equals(KeyCode.COMMA) && event.isShiftDown()) {
+            rotateCCWHandler();
         }
     }
 

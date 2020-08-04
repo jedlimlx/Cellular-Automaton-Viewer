@@ -75,7 +75,16 @@ Keyboard Shortcuts
 <kbd>Ctrl</kbd> + <kbd>S</kbd> - Save Pattern to File <br>
 
 <kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE <br>
+<kbd>Ctrl</kbd> + <kbd>X</kbd> - Cut Pattern (Copy + Delete) <br>
 <kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
+
+<kbd>Ctrl</kbd> + <kbd>R</kbd> - Change Rule <br>
+<kbd>Ctrl</kbd> + <kbd>5</kbd> - Generate Random Soup <br>
+
+<kbd>X</kbd> - Flip Selection Horizontally <br>
+<kbd>Y</kbd> - Flip Selection Vertically <br>
+<kbd>></kbd> - Rotate Clockwise <br>
+<kbd><</kbd> - Rotate Counter-Clockwise <br>
 
 GUI TODO List
 -------------

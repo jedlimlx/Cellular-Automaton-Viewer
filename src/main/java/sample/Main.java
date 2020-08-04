@@ -16,8 +16,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/main.fxml")),
-                700, 650, true, SceneAntialiasing.DISABLED);
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(),700, 650, true, SceneAntialiasing.DISABLED);
         scene.getStylesheets().add("/style.css");
 
         stage.setScene(scene);
