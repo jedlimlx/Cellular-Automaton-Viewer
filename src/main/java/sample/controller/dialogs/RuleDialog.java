@@ -2,6 +2,7 @@ package sample.controller.dialogs;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -50,6 +51,12 @@ public class RuleDialog extends Dialog {
         rulestringField.setPromptText(promptText);
         rulestringField.textProperty().addListener((observable, oldValue, newValue) ->
                 rulestringFieldChanged());  // Listen for changes to the text and update the combobox
+
+        rulestringField.setOnKeyPressed(event -> {  // Enter as a substitute for okay
+            if (event.getCode().equals(KeyCode.ENTER)) {
+                confirmRule();
+            }
+        });
 
         grid.add(rulestringField, 0, 2);
 

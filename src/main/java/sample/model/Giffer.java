@@ -16,8 +16,12 @@ public class Giffer {  // TODO (Add more options to giffer)
     // Array to store the images
     private final ArrayList<BufferedImage> images;
 
-    public Giffer() {
+    private final int CELL_SIZE, TIME_BETWEEN_FRAMES;
+
+    public Giffer(int CELL_SIZE, int TIME_BETWEEN_FRAMES) {
         images = new ArrayList<>();
+        this.CELL_SIZE = CELL_SIZE;
+        this.TIME_BETWEEN_FRAMES = TIME_BETWEEN_FRAMES;
     }
 
     public void addGrid(Coordinate startCoordinate, Coordinate endCoordinate,
@@ -25,13 +29,20 @@ public class Giffer {  // TODO (Add more options to giffer)
         int width = endCoordinate.getX() - startCoordinate.getX();
         int height = endCoordinate.getY() - startCoordinate.getY();
 
-        WritableImage image = new WritableImage(width, height);
+        WritableImage image = new WritableImage(width * CELL_SIZE, height * CELL_SIZE);
         PixelWriter pixelWriter = image.getPixelWriter();
+
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
             for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
                 try {
-                    pixelWriter.setColor(x - startCoordinate.getX(), y - startCoordinate.getY(),
-                            rule.getColor(pattern.getCell(x, y)));
+                    // Each cell is now CELL_SIZE * CELL_SIZE
+                    for (int imgX = 0; imgX < CELL_SIZE; imgX++) {
+                        for (int imgY = 0; imgY < CELL_SIZE; imgY++) {
+                            pixelWriter.setColor((x - startCoordinate.getX()) * CELL_SIZE + imgX,
+                                    (y - startCoordinate.getY()) * CELL_SIZE + imgY,
+                                    rule.getColor(pattern.getCell(x, y)));
+                        }
+                    }
                 }
                 catch (IndexOutOfBoundsException ignored) {}  // Ignore cells that are outside of the bounds
             }
@@ -50,7 +61,7 @@ public class Giffer {  // TODO (Add more options to giffer)
 
             // Create a gif sequence with the type of the first image which loop continuously
             GifSequenceWriter writer = new GifSequenceWriter(output, firstImage.getType(),
-                    50, true);
+                    TIME_BETWEEN_FRAMES, true);
 
             // Write the first image to the sequence
             writer.writeToSequence(firstImage);
@@ -64,7 +75,6 @@ public class Giffer {  // TODO (Add more options to giffer)
             return true;
         }
         catch (IOException exception) {
-            System.out.print("FASFFS");
             return false;
         }
     }

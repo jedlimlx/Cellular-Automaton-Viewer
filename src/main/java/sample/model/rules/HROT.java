@@ -20,9 +20,9 @@ public class HROT extends RuleFamily {
     private int[] weights;
 
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
-    private final static String moore = "([BS]([0-8]+)?/?[BS]([0-8]+)?+|[BS]?([0-8]+)?/[BS]?([0-8]+)?)";
-    private final static String vonNeumann = "([BS]([0-4]+)?/?[BS]([0-4]+)?|[BS]?([0-4]+)?/[BS]?([0-4]+)?)V";
-    private final static String hexagonal = "([BS]([0-6]+)?/?[BS]([0-6]+)?|[BS]?([0-6]+)?/[BS]?([0-6]+)?)H";
+    private final static String moore = "([BSbs]([0-8]+)?/?[BS]([0-8]+)?+|[BSbs]?([0-8]+)?/[BSbs]?([0-8]+)?)";
+    private final static String vonNeumann = "([BSbs]([0-4]+)?/?[BS]([0-4]+)?|[BSbs]?([0-4]+)?/[BSbs]?([0-4]+)?)V";
+    private final static String hexagonal = "([BSbs]([0-6]+)?/?[BS]([0-6]+)?|[BSbs]?([0-6]+)?/[BSbs]?([0-6]+)?)H";
     private final static String higherRangePredefined = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" + hrotTransitions +
             ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +

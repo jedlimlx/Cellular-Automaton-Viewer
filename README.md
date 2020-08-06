@@ -154,10 +154,11 @@ Supported / Planned Rulespaces
 - [ ] Alternating Rules
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
-- [ ] Cyclic CA
+- [ ] MCell Cyclic CA
+- [ ] Yoel's Cyclic CA
 - [ ] Langton's Ant / Turnmites
 - [ ] Block CA
-- [ ] Margolous
+- [ ] Margolus
 - [ ] 1D CA
 - [ ] Golly Ruletrees
 - [ ] Golly Ruletables
@@ -218,6 +219,6 @@ Known Bugs
 - [x] RLEs are pasted rotated (Fixed)
 - [x] Open pattern is bugged (Fixed)
 - [x] HROT B0 isn't working as intended (Fixed)
-- [ ] Keyboard shortcuts only work when the ScrollPane is in focus
+- [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
 - [ ] Cells are randomly not evaluated
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

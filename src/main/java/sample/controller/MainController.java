@@ -11,6 +11,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import sample.controller.dialogs.GifferDialog;
 import sample.controller.dialogs.RuleDialog;
 import sample.controller.dialogs.RuleWidget;
 import sample.model.Cell;
@@ -57,6 +58,7 @@ public class MainController {
     private Rectangle selectionRectangle;  // Rectangle that represents selection box
 
     private final RuleDialog dialog = new RuleDialog();  // Dialog to set rule
+    private final GifferDialog gifferDialog = new GifferDialog();
 
     private Mode mode;  // Mode (Drawing, Selecting, Panning)
     private Simulator simulator;  // Simulator to simulate rule
@@ -536,7 +538,10 @@ public class MainController {
             // Change icon for recording
             recordingImage.setImage(new Image(getClass().getResourceAsStream(
                     "/icon/RecordIcon2.png")));
-            giffer = new Giffer();  // Initialise the giffer object
+
+            // Get giffer from the dialog
+            gifferDialog.showAndWait();
+            giffer = gifferDialog.getGiffer();
         }
 
         recording = !recording;
