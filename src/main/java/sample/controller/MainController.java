@@ -12,21 +12,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import sample.controller.dialogs.GifferDialog;
-import sample.controller.dialogs.RuleDialog;
-import sample.controller.dialogs.RuleWidget;
+import sample.controller.dialogs.rule.RuleDialog;
+import sample.controller.dialogs.rule.RuleWidget;
+import sample.controller.dialogs.search.RuleSearchParametersDialog;
+import sample.controller.dialogs.search.RuleSearchResultsDialog;
 import sample.model.Cell;
 import sample.model.*;
-import sample.model.rules.HROTGenerations;
+import sample.model.rules.HROT;
 import sample.model.rules.RuleFamily;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +80,7 @@ public class MainController {
         mode = Mode.DRAWING;
 
         // Create simulator object
-        simulator = new Simulator(new HROTGenerations("R2,C2,S6-9,B7-8,NM"));
+        simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
         setCell(0, 0, 0);
 
         // Create selection rectangle and set properties
@@ -119,6 +118,9 @@ public class MainController {
         Thread simulationThread = new Thread(this::runSimulation);
         simulationThread.setDaemon(true);
         simulationThread.start();
+
+        // Setting the rule of the rule dialog
+        dialog.setRule((RuleFamily) simulator.getRule());
     }
 
     @FXML // Handle the mouse dragged events
@@ -391,45 +393,17 @@ public class MainController {
 
     @FXML // Starts the rule search dialog
     public void startRuleSearchDialog() {
-        // TODO (Write a custom dialog)
-        RuleFamily minRule, maxRule;
+        // Dialog to get the search parameters
+        RuleSearchParametersDialog parametersDialog =
+                new RuleSearchParametersDialog(simulator.getCells(startSelection, endSelection));
+        parametersDialog.showAndWait();
 
-        RuleDialog minRuleDialog = new RuleDialog("Enter Min Rule");
-        minRuleDialog.showAndWait();  // Start dialog to get min rule
+        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn;t cancelled
+            RuleSearch ruleSearch = new RuleSearch(parametersDialog.getSearchParameters());
+            ruleSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
 
-        // Check if the user actually hit `Confirm Rule`
-        if (minRuleDialog.getRule() != null) {
-            minRule = minRuleDialog.getRule();
-        }
-        else {
-            return;
-        }
-
-        RuleDialog maxRuleDialog = new RuleDialog("Enter Max Rule");
-        maxRuleDialog.showAndWait();  // Start dialog to get the max rule
-
-        // Check if the user actually hit `Confirm Rule`
-        if (maxRuleDialog.getRule() != null) {
-            maxRule = maxRuleDialog.getRule();
-        }
-        else {
-            return;
-        }
-
-        try {
-            RuleSearch ruleSearch = new RuleSearch(simulator.getCells(startSelection, endSelection),
-                    minRule, maxRule);
-
-            // Run in a seperate thread
-            Thread thread = new Thread(() -> ruleSearch.search(1000000));
-            thread.setDaemon(true);
-            thread.start();
-        }
-        catch (IllegalArgumentException exception) {  // Ensure that the 2 rules have the same rulefamily
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText(exception.getMessage());
-            alert.showAndWait();
+            RuleSearchResultsDialog resultsDialog = new RuleSearchResultsDialog(this, ruleSearch);
+            resultsDialog.show();
         }
     }
 
@@ -493,10 +467,22 @@ public class MainController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Identification results");
 
-        if (results != null)
+        if (results != null) {
             alert.setHeaderText(results.toString());
-        else
+
+            // Additional Information
+            StringBuilder contentString = new StringBuilder();
+            Map<String, String> additionalInfo = results.additionalInfo();
+            for (String string: additionalInfo.keySet()) {
+                contentString.append(string).append(": ").append(additionalInfo.get(string)).append("\n");
+            }
+
+            alert.setContentText(contentString.toString());
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+        }
+        else {
             alert.setHeaderText("Identification Failed :(");
+        }
 
         alert.showAndWait();
     }
@@ -552,20 +538,87 @@ public class MainController {
         Platform.exit();
     }
 
-    @FXML // Saves the pattern
-    public void savePattern() {
-        // Get the file to save the pattern in
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save *.rle file");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                "RLE Files (*.rle)", "*.rle"));
-        File file = fileChooser.showSaveDialog(null);
+    // Loads the pattern based on an RLE
+    public void loadPattern(String RLE) {
+        String[] tokens = RLE.split("\n");  // Split by new line
+        loadPattern(tokens);
+    }
 
-        // Updating the bounds
-        simulator.updateBounds();
+    public void loadPattern(String[] tokens) {
+        String rulestring = "";
+        Pattern rulestringRegex = Pattern.compile("rule = \\S+");
+        ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
 
+        // Parsing code - Removes headers, comments
+        StringBuilder rleFinal = new StringBuilder();
+        for (String token: tokens) {
+            if (token.startsWith("#R")) {  // Check for comment
+                comments.add(token);
+            }
+            else if (token.charAt(0) == 'x') {  // Check for header
+                Matcher rulestringMatcher = rulestringRegex.matcher(token);
+                if (rulestringMatcher.find()) {
+                    rulestring = rulestringMatcher.group().substring(7);
+                }
+            }
+            else if (token.charAt(0) != '#') {  // Not a comment
+                rleFinal.append(token);
+            }
+        }
+
+        // Identify the rule family based on regex
+        boolean found = false;
+        for (RuleWidget widget: dialog.getRuleWidgets()) {
+            for (String regex: widget.getRuleFamily().getRegex()) {
+                if (rulestring.matches(regex)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // Completely break out of the loop
+            if (found) {
+                simulator.setRule(widget.getRuleFamily());
+                break;
+            }
+        }
+
+        // Set the rulestring
+        ((RuleFamily) simulator.getRule()).setRulestring(rulestring);
+
+        // Generate the additional information from comments
+        String[] commentsArray = new String[comments.size()];
+        for (int i = 0; i < commentsArray.length; i++) {
+            commentsArray[i] = comments.get(i);
+        }
+
+        ((RuleFamily) simulator.getRule()).loadComments(commentsArray);
+
+        newPattern();  // Clear all cells
+        simulator.fromRLE(rleFinal.toString(), new Coordinate(1024, 1024));  // Insert the new cells
+        renderCells();  // Render the new cells
+
+        // Move to the center of the ScrollPane
+        scrollPane.setHvalue(0.5);
+        scrollPane.setVvalue(0.5);
+
+        // Setting the rule of the rule dialog
+        dialog.setRule((RuleFamily) simulator.getRule());
+    }
+
+    public void loadPattern(ArrayList<String> tokens) {
+        String[] tokensArray = new String[tokens.size()];
+        for (int i = 0; i < tokens.size(); i++) {
+            tokensArray[i] = tokens.get(i);
+        }
+
+        loadPattern(tokensArray);
+    }
+
+    // Returns the RLE of the pattern
+    public String saveRLE() {
         // Add header & comments
-        String rle = simulator.toRLE(simulator.getBounds().getKey(), simulator.getBounds().getValue());
+        String rle = simulator.toRLE(startSelection, endSelection);
         StringBuilder rleFinal = new StringBuilder();
 
         // Adding comments
@@ -582,10 +635,22 @@ public class MainController {
                 append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
         rleFinal.append(rle);
 
+        return rleFinal.toString();
+    }
+
+    @FXML // Saves the pattern
+    public void savePattern() {
+        // Get the file to save the pattern in
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save *.rle file");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                "RLE Files (*.rle)", "*.rle"));
+        File file = fileChooser.showSaveDialog(null);
+
         try {
             // Writing to the file
             FileWriter writer = new FileWriter(file);
-            writer.write(rleFinal.toString());
+            writer.write(saveRLE());
             writer.close();
 
             // Tell the user the operation was successful
@@ -638,58 +703,7 @@ public class MainController {
 
             scanner.close();  // Close the scanner object
 
-            String rulestring = "";
-            Pattern rulestringRegex = Pattern.compile("rule = \\S+");
-            ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
-
-            // Parsing code - Removes headers, comments
-            StringBuilder rleFinal = new StringBuilder();
-            for (String token: tokens) {
-                if (token.startsWith("#R")) {  // Check for comment
-                    comments.add(token);
-                }
-                else if (token.charAt(0) == 'x') {  // Check for header
-                    Matcher rulestringMatcher = rulestringRegex.matcher(token);
-                    if (rulestringMatcher.find()) {
-                        rulestring = rulestringMatcher.group().substring(7);
-                    }
-                }
-                else if (token.charAt(0) != '#') {  // Not a comment
-                    rleFinal.append(token);
-                }
-            }
-
-            // Identify the rule family based on regex
-            boolean found = false;
-            for (RuleWidget widget: dialog.getRuleWidgets()) {
-                for (String regex: widget.getRuleFamily().getRegex()) {
-                    if (rulestring.matches(regex)) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                // Completely break out of the loop
-                if (found) {
-                    simulator.setRule(widget.getRuleFamily());
-                    break;
-                }
-            }
-
-            // Set the rulestring
-            ((RuleFamily) simulator.getRule()).setRulestring(rulestring);
-
-            // Generate the additional information from comments
-            String[] commentsArray = new String[comments.size()];
-            for (int i = 0; i < commentsArray.length; i++) {
-                commentsArray[i] = comments.get(i);
-            }
-
-            ((RuleFamily) simulator.getRule()).loadComments(commentsArray);
-
-            newPattern();  // Clear all cells
-            simulator.fromRLE(rleFinal.toString(), new Coordinate(1024, 1024));  // Insert the new cells
-            renderCells();  // Render the new cells
+            loadPattern(tokens);  // Loads the pattern
         }
         catch (IOException exception) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -726,25 +740,7 @@ public class MainController {
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent content = new ClipboardContent();
 
-            // Add header & comments
-            String rle = simulator.toRLE(startSelection, endSelection);
-            StringBuilder rleFinal = new StringBuilder();
-
-            // Adding comments
-            String[] comments = ((RuleFamily) simulator.getRule()).generateComments();
-            if (comments != null) {
-                for (String comment: comments) {
-                    rleFinal.append(comment).append("\n");
-                }
-            }
-
-            // Adding header
-            rleFinal.append("x = ").append(endSelection.getX() - startSelection.getX()).
-                    append(", y = ").append(endSelection.getY() - startSelection.getY()).
-                    append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
-            rleFinal.append(rle);
-
-            content.putString(rleFinal.toString());
+            content.putString(saveRLE());
             clipboard.setContent(content);
         }
         else {
@@ -789,6 +785,13 @@ public class MainController {
         else if (event.getCode().equals(KeyCode.X) && event.isControlDown()) {
             copyCells();
             deleteCells();
+        }
+        // Ctrl + Shift + O to load pattern from clipboard
+        else if (event.getCode().equals(KeyCode.O) && event.isShiftDown() && event.isControlDown()) {
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            String RLE = clipboard.getString();
+
+            loadPattern(RLE);
         }
         // Ctrl + O to open pattern
         else if (event.getCode().equals(KeyCode.O) && event.isControlDown()) {
@@ -835,5 +838,10 @@ public class MainController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    // Accessor
+    public Simulator getSimulator() {
+        return simulator;
     }
 }

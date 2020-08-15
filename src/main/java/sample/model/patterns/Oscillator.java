@@ -4,7 +4,8 @@ import sample.model.Coordinate;
 import sample.model.Grid;
 import sample.model.rules.Rule;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Oscillator extends Pattern {
     int period;
@@ -26,9 +27,14 @@ public class Oscillator extends Pattern {
     }
 
     @Override
-    public HashMap<String, String> additionalInfo() {
-        HashMap<String, String> information = new HashMap<>();
+    public Map<String, String> additionalInfo() {
+        LinkedHashMap<String, String> information = new LinkedHashMap<>();
         information.put("Period", "" + period);
+
+        if (minRule != null && maxRule != null) {
+            information.put("Minimum Rule", "" + minRule);
+            information.put("Maximum Rule", "" + maxRule);
+        }
 
         return information;
     }

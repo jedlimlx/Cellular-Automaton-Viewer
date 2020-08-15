@@ -1,0 +1,8 @@
+#R 0 0 1 0 0 
+#R 0 1 2 1 0 
+#R 1 2 0 2 1 
+#R 0 1 2 1 0 
+#R 0 0 1 0 0 
+#C 2c/8d
+x = 9, y = 9, rule = Life
+o$bo$3bo3bo$2bo5bo4$2bo$3bo!

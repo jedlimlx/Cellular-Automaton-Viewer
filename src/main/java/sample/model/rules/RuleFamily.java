@@ -1,5 +1,8 @@
 package sample.model.rules;
 
+import org.javatuples.Pair;
+import sample.model.Grid;
+
 import java.io.File;
 
 public abstract class RuleFamily extends Rule implements Cloneable {
@@ -27,11 +30,36 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     // Randomise rule between minimum and maximum rules
     // Throw IllegalArgumentException if the rule families are not the correct type
-    public abstract void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException;
+    public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException, UnsupportedOperationException {
+
+    }
+
+    // Returns the minimum & maximum rule of the provided evolutionary sequence
+    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
+                "this rule family");
+    }
+
+    // Between checks if the rule is in between 2 min, max rules
+    public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException,
+            UnsupportedOperationException {
+        throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
+                "this rule family");
+    }
+
+    // Checks if the inputted rules are valid minimum and maximum rules
+    public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
+        throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
+                "this rule family");
+    }
 
     // Output false if not successful, true if successful
     // Generates apgtable for apgsearch to use
-    public abstract boolean generateApgtable(File file) throws UnsupportedOperationException;
+    // Override if you want to support apgtable generation for this rule family
+    // Throw UnsupportedOperationException if apgtable generation for that specific rule is unsupported
+    public boolean generateApgtable(File file) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Apgtable generation is not supported for this rule family");
+    }
 
     // Generates comments that will be placed in the RLE
     // These comments represent additional information that is not stored in the rulestring (e.g. weights)
@@ -52,5 +80,10 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     public String getRulestring() {
         return rulestring;
+    }
+
+    @Override
+    public String toString() {
+        return getRulestring();
     }
 }

@@ -1,11 +1,8 @@
 package sample.model;
 
-import javafx.util.Pair;
+import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -176,8 +173,8 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     public String toRLE(Coordinate startCoordinate, Coordinate endCoordinate) {
         // First, add characters to a string
         ArrayList<Character> rleArray = new ArrayList<>();
-        for (int y = startCoordinate.getY(); y < endCoordinate.getY(); y++) {
-            for (int x = startCoordinate.getX(); x < endCoordinate.getX(); x++) {
+        for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
+            for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
                 if (getCell(x, y) == 0) {
                     rleArray.add('.');
                 }
@@ -211,6 +208,12 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
 
         // Finish off the encoding
         return rleString.toString();
+    }
+
+    // Converts the entire pattern to RLE
+    public String toRLE() {
+        updateBounds();
+        return toRLE(startCoordinate, endCoordinate);
     }
 
     // Load a pattern from the RLE format
@@ -263,12 +266,30 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return dictionary.size();
     }
 
+    public boolean slowEquals(Grid grid, int displacementX, int displacementY) {
+        Coordinate[] gridArray1 = grid.toArray();
+        Coordinate[] gridArray2 = this.toArray();
+
+        // Sorting so that the displacements will line up
+        Arrays.sort(gridArray1);
+        Arrays.sort(gridArray2);
+
+        for (int i = 0; i < size(); i++) {
+            if (gridArray1[i].subtract(gridArray2[i]).getX() != displacementX ||
+                    gridArray1[i].subtract(gridArray2[i]).getY() != displacementY) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Grid that = (Grid) o;
-        return that.hashCode() == this.hashCode();  // TODO (Check for collisions)
+        return that.hashCode() == this.hashCode();
     }
 
     @Override  // Independent of translation
@@ -312,9 +333,9 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
          */
 
         int hash = 31415962;
-        for (int y = startCoordinate.getY(); y < endCoordinate.getY(); y++) {
+        for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
             int yShift = y - startCoordinate.getY();
-            for (int x = startCoordinate.getX(); x < endCoordinate.getX(); x++) {
+            for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
                 if (getCell(x, y) > 0) {
                     hash = (hash * 1000003) ^ yShift;
                     hash = (hash * 1000003) ^ (x - startCoordinate.getX());

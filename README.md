@@ -16,7 +16,7 @@ On Linux and Mac, the binary may not be exectuable by default so run `chmod +x C
 
 Note that this *.jar runs on the Java Runtime Environment / Java Development Kit 11 and above.
 
-See [MODIFY.md](MODIFY.md) for instructions on how to build the application from source and how to modify it.
+See the wiki for instructions on how to build the application from source and how to modify it.
 
 What is this?
 =============
@@ -121,9 +121,11 @@ Editing Features
 Supported / Planned Rulespaces
 ==============================
 - [ ] Higher Range Outer Totalistic (HROT)
-    - [x] 2 State HROT
+    - [ ] 2 State HROT
         - [x] B0 rules
         - [x] Weighted rules
+        - [x] CoordCA Format (Custom Neighbourhoods)
+        - [ ] LifeViewer Format (Weighted Neighbourhoods)
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for weighted rules
@@ -132,6 +134,7 @@ Supported / Planned Rulespaces
         - [ ] B0 Rules
         - [ ] State Weights
         - [x] Neighbourhood Weights
+        - [ ] LifeViewer Format (Weighted Neighbourhoods, State Weights)
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for rules with neighbourhood weights
         - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
@@ -197,21 +200,40 @@ Supported / Planned Named HROT Neighbourhoods
 - [x] Cross (+)
 - [x] Hash (#)
 
-Long-term TODO List
+Search Programs
 ===================
-- [ ] Custom search programs
-- [ ] Move stuff to the wiki
-- [ ] Add Unit Tests
-- [ ] Bounded Grids
-- [ ] Triangular Rules
-- [ ] Command Line Interface
+- [ ] Rule Search Program
+    - [ ] More high tech repetition detection function
+    - [ ] Identification for linear growth patterns, replicators
+    - [ ] Fine tune RNG function manually
+    - [ ] Fine tune RNG function via genetic algorithms
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
 - [ ] Methuselah Search Program
+
+Long-term TODO List
+===================
+- [x] Custom search programs
+- [x] Move stuff to the wiki
+- [ ] Command Line Interface
+    - [ ] Simulation
+    - [ ] Search Programs
+    - [ ] Random Soup Generation
+- [ ] Add Unit Tests
+    - [x] Write the first one
+    - [ ] Rule Families
+    - [ ] Simulator
+    - [ ] Identification
+    - [ ] GUI
+- [ ] Bounded Grids
+    - [ ] Torus
+    - [ ] Klein Bottle & Cross Surface
+    - [ ] Spherical
+- [ ] Triangular Rules
 - [ ] Hexagonal Rendering
 - [ ] Triangular Rendering
 - [ ] Accept some LifeViewer commands like STEP & RANDOMISE
-- [ ] Scripting in Python?
+- [ ] Scripting in Python via Jython?
 - [ ] Implement a faster algorithm (QuickLife, HashLife...)
 
 Known Bugs
@@ -220,5 +242,5 @@ Known Bugs
 - [x] Open pattern is bugged (Fixed)
 - [x] HROT B0 isn't working as intended (Fixed)
 - [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
-- [ ] Cells are randomly not evaluated
+- [x] Rule Dialog don't show the most updated rule (Fixed)
 - [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)

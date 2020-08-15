@@ -1,8 +1,0 @@
-#R 0 0 1 0 0 
-#R 0 1 2 1 0 
-#R 1 2 0 2 1 
-#R 0 1 2 1 0 
-#R 0 0 1 0 0
-#C P6 Oscillator
-x = 4, y = 4, rule = R2,C2,S2-3,B4,7-8,N@
-ob2o$o2bo2$2b2o!

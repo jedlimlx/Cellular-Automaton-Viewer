@@ -1,0 +1,8 @@
+#R 0 0 1 0 0 
+#R 0 1 2 1 0 
+#R 1 2 0 2 1 
+#R 0 1 2 1 0 
+#R 0 0 1 0 0
+#C P3 Oscillator
+x = 6, y = 7, rule = R2,C2,S2-3,B4,7-8,N@
+o$o$5bo$o3bo$5bo$o$o!

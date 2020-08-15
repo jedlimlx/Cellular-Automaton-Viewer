@@ -3,6 +3,7 @@ package sample.model;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,7 +42,6 @@ public class Utils {
             }
         }
     }
-
 
     public static String canoniseTransitions(HashSet<Integer> transitions) {
         Object[] array = transitions.toArray();
@@ -91,8 +91,12 @@ public class Utils {
     }
 
     public static void randomiseTransitions(HashSet<Integer> transitions, HashSet<Integer> minTransitions,
-                                     HashSet<Integer> maxTransitions) {
+                                            HashSet<Integer> maxTransitions) {
         Random random = new Random();
+
+        // Use a deepcopy
+        minTransitions = new HashSet<>(minTransitions);
+        maxTransitions = new HashSet<>(maxTransitions);
 
         // Clear existing transtions
         transitions.clear();
@@ -111,5 +115,16 @@ public class Utils {
                 transitions.add(transition);
             }
         }
+    }
+
+    public static boolean checkSubset(Set<Integer> subset, Set<Integer> superset) {
+        // Ensure subset is a subset of superset
+        for (var transition: subset) {
+            if (!superset.contains(transition)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

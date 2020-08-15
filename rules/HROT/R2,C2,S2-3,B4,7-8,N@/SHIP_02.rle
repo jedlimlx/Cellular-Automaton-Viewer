@@ -1,8 +1,0 @@
-#R 0 0 1 0 0 
-#R 0 1 2 1 0 
-#R 1 2 0 2 1 
-#R 0 1 2 1 0 
-#R 0 0 1 0 0
-#C 4c/16d
-x = 16, y = 16, rule = R2,C2,S2-3,B4,7-8,N@
-2bo$3bo4$3bo4b3o$bo5bob2o$obo4b2obo$bo5b3o4$10bo3bo$8bo6bo$7bobo$8bo!

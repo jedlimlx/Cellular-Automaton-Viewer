@@ -3,11 +3,12 @@ package sample.controller.dialogs;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Window;
 import sample.model.Giffer;
 
 public class GifferDialog extends Dialog {
-    private Spinner<Integer> spinnerTiming;
-    private Spinner<Integer> spinnerCellSize;
+    private final Spinner<Integer> spinnerTiming;
+    private final Spinner<Integer> spinnerCellSize;
 
     private Giffer giffer;
 
@@ -51,6 +52,10 @@ public class GifferDialog extends Dialog {
         Button confirmButton = new Button("Confirm Settings");
         confirmButton.setOnAction(event -> confirmSettings());
         grid.add(confirmButton, 0, 4);
+
+        // Allows closing with close button
+        Window window = super.getDialogPane().getScene().getWindow();
+        window.setOnCloseRequest(event -> window.hide());
 
         // Setting the grid pane as the main content
         super.getDialogPane().setContent(grid);

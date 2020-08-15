@@ -1,5 +1,6 @@
 package sample.model.rules;
 
+import org.javatuples.Pair;
 import sample.model.*;
 
 import java.io.File;
@@ -17,8 +18,8 @@ public class HROTGenerations extends RuleFamily {
     private int[] weights;
 
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
-    private final static String higherRangePredefined = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" + hrotTransitions +
-            ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
+    private final static String higherRangePredefined = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" +
+            hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
             ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
 
@@ -126,10 +127,123 @@ public class HROTGenerations extends RuleFamily {
         if (minRule instanceof HROTGenerations && maxRule instanceof HROTGenerations) {
             Utils.randomiseTransitions(birth, ((HROTGenerations) minRule).birth, ((HROTGenerations) maxRule).birth);
             Utils.randomiseTransitions(survival, ((HROTGenerations) minRule).survival, ((HROTGenerations) maxRule).survival);
+
+            rulestring = canonise(rulestring);  // Reload the rulestring with the new birth / survival conditions
         }
         else {
             throw new IllegalArgumentException("The rule families selected have to be the same!");
         }
+    }
+
+    @Override
+    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) {
+        HashSet<Integer> minBirth = new HashSet<>();
+        HashSet<Integer> maxBirth = new HashSet<>();
+        HashSet<Integer> minSurvival = new HashSet<>();
+        HashSet<Integer> maxSurvival = new HashSet<>();
+
+        // Determine maximum neighbourhood count
+        int neighbourhoodCount = 0;
+        if (weights != null) {
+            for (int weight: weights) {
+                if (weight > 0)
+                    neighbourhoodCount += weight;
+            }
+        }
+        else {
+            neighbourhoodCount = neighbourhood.length;
+        }
+
+        // Populate maxBirth & maxSurvival with numbers from 0 - max neighbour sum
+        for (int i = 0; i < neighbourhoodCount + 1; i++) {
+            maxBirth.add(i);
+            maxSurvival.add(i);
+        }
+
+        // Running through every generation and check what transitions are required
+        for (int i = 0; i < grids.length - 1; i++) {
+            grids[i].updateBounds();  // Getting the bounds of the grid
+            Pair<Coordinate, Coordinate> bounds = grids[i].getBounds();
+
+            int sum;  // Neighbourhood sum
+            Coordinate coordinate;  // Current coordinate
+            for (int x = bounds.getValue0().getX() - 5; x < bounds.getValue1().getX() + 5; x++) {
+                for (int y = bounds.getValue0().getY() - 5; y < bounds.getValue1().getY() + 5; y++) {
+                    sum = 0;
+                    coordinate = new Coordinate(x, y);
+
+                    // Skip this part if its a dying cell
+                    if (grids[i].getCell(coordinate) > 1) {
+                        continue;
+                    }
+
+                    // Computes the neighbourhood sum for every cell
+                    for (int j = 0; j < neighbourhood.length; j++) {
+                        if (weights == null) {
+                            if (grids[i].getCell(coordinate.add(neighbourhood[j])) == 1)
+                                sum += 1;
+                        }
+                        else {
+                            if (grids[i].getCell(coordinate.add(neighbourhood[j])) == 1)
+                                sum += weights[j];
+                        }
+                    }
+
+                    // Determining the required birth / survival condition
+                    int currentCell = grids[i].getCell(coordinate);
+                    int nextCell = grids[i + 1].getCell(coordinate);
+
+                    if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
+                        minBirth.add(sum);
+                    }
+                    else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
+                        maxBirth.remove(sum);
+                    }
+                    else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
+                        minSurvival.add(sum);
+                    }
+                    else if (currentCell == 1 && nextCell == 2) {  // No Survival (1 -> 2)
+                        maxSurvival.remove(sum);
+                    }
+                }
+            }
+        }
+
+        // Construct the new rules and return them
+        HROTGenerations minRule = (HROTGenerations) this.clone();
+        minRule.setBirth(minBirth);
+        minRule.setSurvival(minSurvival);
+
+        HROTGenerations maxRule = (HROTGenerations) this.clone();
+        maxRule.setBirth(maxBirth);
+        maxRule.setSurvival(maxSurvival);
+
+        return new Pair<>(minRule, maxRule);
+    }
+
+    @Override
+    public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
+        if (validMinMax(minRule, maxRule)) {
+            // Checking that this rule is a superset of minRule and a subset of maxRule
+            return Utils.checkSubset(((HROTGenerations) minRule).getBirth(), this.getBirth()) &&
+                    Utils.checkSubset(((HROTGenerations) minRule).getSurvival(), this.getSurvival()) &&
+                    Utils.checkSubset(this.getBirth(), ((HROTGenerations) maxRule).getBirth()) &&
+                    Utils.checkSubset(this.getSurvival(), ((HROTGenerations) maxRule).getSurvival());
+        }
+        else {
+            throw new IllegalArgumentException("Invalid minimum and maximum rules!");
+        }
+    }
+
+    @Override
+    public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
+        if (minRule instanceof HROTGenerations && maxRule instanceof HROTGenerations) {
+            // Checks that the birth & survival of the min rule are a subset of the birth & survival of the max rule
+            return Utils.checkSubset(((HROTGenerations) minRule).getBirth(), ((HROTGenerations) maxRule).getBirth()) &&
+                    Utils.checkSubset(((HROTGenerations) minRule).getSurvival(), ((HROTGenerations) maxRule).getSurvival());
+        }
+
+        return false;
     }
 
     @Override
@@ -336,6 +450,22 @@ public class HROTGenerations extends RuleFamily {
     }
 
     // Mutators
+    public void setBirth(HashSet<Integer> birth) {
+        this.birth.clear();
+        this.birth.addAll(birth);
+
+        // Updating rulestring
+        this.rulestring = canonise(rulestring);
+    }
+
+    public void setSurvival(HashSet<Integer> survival) {
+        this.survival.clear();
+        this.survival.addAll(survival);
+
+        // Updating rulestring
+        this.rulestring = canonise(rulestring);
+    }
+
     public void setNeighbourhood(Coordinate[] neighbourhood) {
         this.neighbourhood = neighbourhood;
     }

@@ -5,189 +5,164 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controller.MainController">
-   <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#newPattern" text="New Pattern" />
-                  <MenuItem mnemonicParsing="false" onAction="#openPattern" text="Open Pattern" />
-                  <MenuItem mnemonicParsing="false" onAction="#savePattern" text="Save Pattern" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#startRuleDialog" text="New Rule" />
-                  <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#copyCells" text="Copy" />
-                  <MenuItem mnemonicParsing="false" onAction="#pasteRLE" text="Paste" />
-              <MenuItem mnemonicParsing="false" onAction="#deleteCells" text="Delete" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Search">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#generateAPGTable" text="Generate APGTable" />
-                  <MenuItem mnemonicParsing="false" onAction="#startRuleSearchDialog" text="Run Rule Search" />
-              </items>
-            </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <ScrollPane fx:id="scrollPane" onScroll="#changeZoomHandler" prefHeight="400.0" prefWidth="600.0" style="-fx-background: black;" VBox.vgrow="ALWAYS">
-         <content>
-            <Pane fx:id="drawingPane" onMouseDragged="#mouseDraggedHandler" onMousePressed="#mouseDragStartHandler" onMouseReleased="#mouseDragDoneHandler" prefHeight="4096.0" prefWidth="4096.0" style="-fx-background-color: black;" />
-         </content>
-      </ScrollPane>
-      <ToolBar prefWidth="600.0">
-        <items>
-          <Button fx:id="startSimulationButton" mnemonicParsing="false" onAction="#toggleSimulation">
-               <graphic>
-                  <ImageView fx:id="playButtonImage" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/GliderPlayBtn1.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Run Simulation" />
-               </tooltip></Button>
-            <Button mnemonicParsing="false" onAction="#drawingMode">
-               <graphic>
-                  <ImageView fx:id="drawingMode" fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/PaintBrush.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Draw Cells" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#panMode">
-               <font>
-                  <Font size="12.0" />
-               </font>
-               <graphic>
-                  <ImageView fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/Hand.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Pan" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#selectionMode">
-               <graphic>
-                  <ImageView fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/SelectionIcon.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Select Cells" />
-               </tooltip>
-            </Button>
-        </items>
-      </ToolBar>
-      <ToolBar fx:id="secondaryToolbar" prefWidth="200.0">
-         <items>
-            <Button mnemonicParsing="false" onAction="#generateRandomSoup">
-               <graphic>
-                  <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/RandomSoupIcon.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Generate Random Soup" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#flipHorizontalHandler">
-               <graphic>
-                  <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipHorizontalHandler" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/FlipHorizontal.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Flip Horizontally" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#flipVerticalHandler">
-               <graphic>
-                  <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipVerticalHandler" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/FlipVertical.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Flip Vertically" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#rotateCWHandler">
-               <graphic>
-                  <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/RotateCW.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Rotate Clockwise" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#rotateCCWHandler">
-               <graphic>
-                  <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/RotateCCW.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Rotate Counter-Clockwise" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#toggleRecording">
-               <graphic>
-                  <ImageView fx:id="recordingImage" fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icon/RecordLogo.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="Record Pattern to *.gif" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#identifySelection" text="?">
-               <font>
-                  <Font size="12.0" />
-               </font>
-               <tooltip>
-                  <Tooltip text="Identify Pattern" />
-               </tooltip>
-            </Button>
-         </items></ToolBar>
-      <Label fx:id="statusLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" text="Generation: 0" VBox.vgrow="ALWAYS">
-         <font>
-            <Font size="12.0" />
-         </font>
-         <VBox.margin>
-            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-         </VBox.margin>
-      </Label>
-   </children>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="sample.controller.MainController">
+    <MenuBar>
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" onAction="#newPattern" text="New Pattern"/>
+            <MenuItem mnemonicParsing="false" onAction="#openPattern" text="Open Pattern"/>
+            <MenuItem mnemonicParsing="false" onAction="#savePattern" text="Save Pattern"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" onAction="#startRuleDialog" text="New Rule"/>
+            <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false" onAction="#copyCells" text="Copy"/>
+            <MenuItem mnemonicParsing="false" onAction="#pasteRLE" text="Paste"/>
+            <MenuItem mnemonicParsing="false" onAction="#deleteCells" text="Delete"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Search">
+            <MenuItem mnemonicParsing="false" onAction="#generateAPGTable" text="Generate APGTable"/>
+            <MenuItem mnemonicParsing="false" onAction="#startRuleSearchDialog" text="Run Rule Search"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem mnemonicParsing="false" text="About"/>
+        </Menu>
+    </MenuBar>
+    <ScrollPane fx:id="scrollPane" onScroll="#changeZoomHandler" prefHeight="400.0" prefWidth="600.0"
+                style="-fx-background: black;" VBox.vgrow="ALWAYS">
+        <Pane fx:id="drawingPane" onMouseDragged="#mouseDraggedHandler" onMousePressed="#mouseDragStartHandler"
+              onMouseReleased="#mouseDragDoneHandler" prefHeight="4096.0" prefWidth="4096.0"
+              style="-fx-background-color: black;"/>
+    </ScrollPane>
+    <ToolBar prefWidth="600.0">
+        <Button fx:id="startSimulationButton" mnemonicParsing="false" onAction="#toggleSimulation">
+            <graphic>
+                <ImageView fx:id="playButtonImage" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="@icon/GliderPlayBtn1.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Run Simulation"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#drawingMode">
+            <graphic>
+                <ImageView fx:id="drawingMode" fitHeight="17.0" fitWidth="26.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="@icon/PaintBrush.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Draw Cells"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#panMode">
+            <font>
+                <Font size="12.0"/>
+            </font>
+            <graphic>
+                <ImageView fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/Hand.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Pan"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#selectionMode">
+            <graphic>
+                <ImageView fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/SelectionIcon.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Select Cells"/>
+            </tooltip>
+        </Button>
+    </ToolBar>
+    <ToolBar fx:id="secondaryToolbar" prefWidth="200.0">
+        <Button mnemonicParsing="false" onAction="#generateRandomSoup">
+            <graphic>
+                <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/RandomSoupIcon.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Generate Random Soup"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#flipHorizontalHandler">
+            <graphic>
+                <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipHorizontalHandler"
+                           pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/FlipHorizontal.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Flip Horizontally"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#flipVerticalHandler">
+            <graphic>
+                <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipVerticalHandler"
+                           pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/FlipVertical.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Flip Vertically"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#rotateCWHandler">
+            <graphic>
+                <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/RotateCW.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Rotate Clockwise"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#rotateCCWHandler">
+            <graphic>
+                <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@icon/RotateCCW.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Rotate Counter-Clockwise"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#toggleRecording">
+            <graphic>
+                <ImageView fx:id="recordingImage" fitHeight="15.0" fitWidth="200.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <Image url="@icon/RecordLogo.png"/>
+                </ImageView>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Record Pattern to *.gif"/>
+            </tooltip>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#identifySelection" text="?">
+            <font>
+                <Font size="12.0"/>
+            </font>
+            <tooltip>
+                <Tooltip text="Identify Pattern"/>
+            </tooltip>
+        </Button>
+    </ToolBar>
+    <Label fx:id="statusLabel" maxWidth="1.7976931348623157E308" prefHeight="17.0" text="Generation: 0"
+           VBox.vgrow="ALWAYS">
+        <font>
+          <Font size="12.0"/>
+        </font>
+        <VBox.margin>
+          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0"/>
+        </VBox.margin>
+    </Label>
 </VBox>

@@ -1,5 +1,7 @@
 # Modifying CAViewer
 
+Note that this contains outdated information.
+
 Compiling from source
 =====================
 CAViewer v2 uses JavaFX and Gradle.
@@ -67,8 +69,11 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     // Output false if not successful, true if successful
     // Generates apgtable for apgsearch to use
-    // Throw UnsupportedOperationException if this operation is not supported
-    public abstract boolean generateApgtable(File file) throws UnsupportedOperationException;
+    // Override if you want to support apgtable generation for this rule family
+    // Throw UnsupportedOperationException if apgtable generation for that specific rule is unsupported
+    public boolean generateApgtable(File file) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Apgtable generation is not supported for this rule family");
+    }
 
     // Generates comments that will be placed in the RLE
     // These comments represent additional information that is not stored in the rulestring (e.g. weights)

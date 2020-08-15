@@ -1,0 +1,8 @@
+#R 0 0 1 0 0 
+#R 0 1 2 1 0 
+#R 1 2 0 2 1 
+#R 0 1 2 1 0 
+#R 0 0 1 0 0
+#C P14 Oscillator
+x = 11, y = 4, rule = R2,C2,S2-3,B4,7-8,N@
+2o7b2o$2b2o3b2o2$2bo5bo!

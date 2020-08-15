@@ -7,45 +7,81 @@ import sample.model.patterns.Pattern;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
-public class RuleSearch {
-    private final Grid targetPattern;
-    private Simulator simulator;
-    private final RuleFamily minRule;
-    private final RuleFamily maxRule;
-    private final int MAX_PERIOD;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 
-    public RuleSearch(Grid pattern, RuleFamily minRule, RuleFamily maxRule) {
-        this(pattern, minRule, maxRule, 50);
-    }
+public class RuleSearch extends SearchProgram {
+    private HashSet<String> known;
 
-    public RuleSearch(Grid pattern, RuleFamily minRule, RuleFamily maxRule, int MAX_PERIOD) {
-        this.minRule = minRule;
-        this.maxRule = maxRule;
-        this.targetPattern = pattern.deepCopy();
-        this.MAX_PERIOD = MAX_PERIOD;
+    public RuleSearch(SearchParameters parameters) {
+        super(parameters);
+
+        if (!(parameters instanceof RuleSearchParameters)) {
+            throw new IllegalArgumentException("SearchParameters must be of type RuleSearchParameters");
+        }
     }
 
     public void search(int numRules) {
-        // TODO (Improve output format)
+        // TODO (Implement a more high-tech repetition checker)
+        // TODO (Do whatever WildMyron says that searchPatt-matchPatt does with the min / max rule)
+
+        Simulator simulator;
+        RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
+
+        known = new HashSet<>();  // Hash set to store known things
+        searchResults = new ArrayList<>(); // Initialise search results
+
         for (int i = 0; i < numRules; i++) {
             // Create a new simulator object each time
-            simulator = new Simulator((Rule) minRule.clone());
-            simulator.insertCells(targetPattern, new Coordinate(0, 0));
+            simulator = new Simulator((Rule) searchParameters.getMinRule().clone());
+            simulator.insertCells(searchParameters.getTargetPattern(), new Coordinate(0, 0));
 
             // Randomise the rule
-            ((RuleFamily) simulator.getRule()).randomise(minRule, maxRule);
+            ((RuleFamily) simulator.getRule()).randomise(
+                    searchParameters.getMinRule(), searchParameters.getMaxRule());
 
             // Identify the object
-            Pattern result = simulator.identify(MAX_PERIOD);
-            if (result != null && !result.toString().equals("Still Life")) {
-                System.out.println(result);
-                System.out.println(((RuleFamily) simulator.getRule()).canonise(minRule.getRulestring()));
+            Pattern result = simulator.identify(searchParameters.getMaxPeriod(), true, 40);
+            if (result != null && !result.toString().equals("Still Life") && !known.contains(result.toString())) {
+                add(searchResults, result);
+                add(known, result.toString());  // To avoid duplicate speeds & whatnot
             }
 
-            // Update user on the number of rules checked
-            if (i % 100 == 0) {
-                System.out.println(i + " rules checked!");
+            synchronized (this) {  // To avoid race conditions
+                numSearched++;
             }
+        }
+    }
+
+    @Override
+    public boolean writeToFile(File file) {
+        try {
+            FileWriter writer = new FileWriter(file);
+
+            // Writing the search parameters
+            RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
+            writer.write("# Running search with " + searchParameters.getTargetPattern().toRLE() + "\n");
+            writer.write("# Max Period: " + searchParameters.getMaxPeriod() + "\n");
+            writer.write("# Min Rule: " + searchParameters.getMinRule() + "\n");
+            writer.write("# Max Rule: " + searchParameters.getMaxRule() + "\n");
+            writer.write("Pattern,Rule,Min Rule,Max Rule\n");
+
+            for (Grid grid: searchResults) {   // Writing each pattern into the file
+                Pattern pattern = (Pattern) grid;
+                writer.write("\"" + pattern + "\",\"" + ((RuleFamily) pattern.getRule()).getRulestring() + "\",\"" +
+                        pattern.getMinRule().getRulestring() + "\",\"" +
+                        pattern.getMaxRule().getRulestring() + "\"\n");
+            }
+
+            // Close the file
+            writer.close();
+            return true;
+        }
+        catch (IOException exception) {
+            return false;
         }
     }
 }
