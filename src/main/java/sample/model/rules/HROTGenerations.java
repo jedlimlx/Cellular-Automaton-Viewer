@@ -159,10 +159,8 @@ public class HROTGenerations extends RuleFamily {
 
     @Override
     public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) {
-        HashSet<Integer> minBirth = new HashSet<>();
-        HashSet<Integer> maxBirth = new HashSet<>();
-        HashSet<Integer> minSurvival = new HashSet<>();
-        HashSet<Integer> maxSurvival = new HashSet<>();
+        HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
+        HashSet<Integer> minSurvival = new HashSet<>(), maxSurvival = new HashSet<>();
 
         // Determine maximum neighbourhood count
         int neighbourhoodCount = 0;

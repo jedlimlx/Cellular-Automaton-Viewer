@@ -199,7 +199,7 @@ Supported / Planned Named HROT Neighbourhoods
 - [x] Cross (+)
 - [x] Hash (#)
 - [x] CoordCA Format (Custom Neighbourhoods @)
-- [ ] LifeViewer Format (Weighted Neighbourhoods W)
+- [x] LifeViewer Format (Weighted Neighbourhoods W)
 - [ ] LifeViewer Format (State Weights W)
 
 Search Programs
@@ -245,4 +245,5 @@ Known Bugs
 - [x] HROT B0 isn't working as intended (Fixed)
 - [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
 - [x] Rule Dialog don't show the most updated rule (Fixed)
-- [x] ConcurrentModificationException is thrown (Fixed)
+- [ ] ConcurrentModificationException is thrown
+- [ ] Step with space causes some cells to be rendered incorrectly

@@ -205,11 +205,13 @@ public class HROT extends RuleFamily {
     }
 
     @Override
-    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) {
-        HashSet<Integer> minBirth = new HashSet<>();
-        HashSet<Integer> maxBirth = new HashSet<>();
-        HashSet<Integer> minSurvival = new HashSet<>();
-        HashSet<Integer> maxSurvival = new HashSet<>();
+    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) throws UnsupportedOperationException {
+        if (birth.contains(0)) {
+            throw new UnsupportedOperationException("B0 rules do not support minimum and maximum rules!");
+        }
+
+        HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
+        HashSet<Integer> minSurvival = new HashSet<>(), maxSurvival = new HashSet<>();
 
         // Determine maximum neighbourhood count
         int neighbourhoodCount = 0;

@@ -299,9 +299,14 @@ public class MainController {
                     setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
             }
-            catch (ConcurrentModificationException exception) { // Catch an exception that probably won't happen
-                System.out.println("ConcurrentModificationException caught in updateCells method!");
+            catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                 simulationRunning = false;  // Pause the simulation
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("ConcurrentModificationException cause in updateCells.");
+                alert.setContentText("Please report this as a bug.");
+                alert.showAndWait();
             }
 
             // Update the variable to say that the visualisation is done
