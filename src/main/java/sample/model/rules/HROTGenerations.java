@@ -22,6 +22,8 @@ public class HROTGenerations extends RuleFamily {
             hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
             ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
+    private final static String higherRangeWeightedCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
+            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
     public HROTGenerations(String rulestring) {
         // Initialise variables
@@ -37,7 +39,7 @@ public class HROTGenerations extends RuleFamily {
     }
 
     @Override
-    public void fromRulestring(String rulestring) {
+    public void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
         birth.clear();
         survival.clear();
@@ -75,9 +77,27 @@ public class HROTGenerations extends RuleFamily {
             Utils.getTransitionsFromStringWithCommas(survival,
                     Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
+        else if (rulestring.matches(higherRangeWeightedCustom)) {
+            // Generate Neighbourhood
+            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
+            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
 
-        if (birth.contains(0)) {
-            alternatingPeriod = 2;
+            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
+                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
+            neighbourhood = neighbourhoodAndWeights.getValue0();
+            weights = neighbourhoodAndWeights.getValue1();
+
+            // Set the number of states
+            numStates = Integer.parseInt(Utils.matchRegex("C[0-9]+", rulestring, 0).substring(1));
+
+            // Get transitions
+            Utils.getTransitionsFromStringWithCommas(birth,
+                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
+            Utils.getTransitionsFromStringWithCommas(survival,
+                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
+        }
+        else {
+            throw new IllegalArgumentException("This rulestring is invalid!");
         }
     }
 
@@ -106,17 +126,19 @@ public class HROTGenerations extends RuleFamily {
 
     @Override
     public String[] getRegex() {
-        return new String[]{higherRangeCustom, higherRangePredefined};
+        return new String[]{higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
     }
 
     @Override
     public String getDescription() {
         return "This implements the Higher Range Outer Totalistic (HROT) generations rulespace.\n" +
                 "It supports arbitrary neighbourhoods via the CoordCA format (Specify with N@).\n" +
-                "B0 support and state weight suppport is planned.\n\n" +
+                "It supports arbitary weighted neighbourhoods via the LifeViewer format (Specify with NW)\n" +
+                "B0 support and state weight support is planned.\n\n" +
                 "The format is as follows:\n" +
                 "R<range>,C<numStates>,S<survival>,B<birth>,N@<CoordCA> or\n" +
-                "R<range>,C<numStates>,S<survival>,B<birth>,N<ABCHMNX23*+#>\n\n" +
+                "R<range>,C<numStates>,S<survival>,B<birth>," +
+                "N<" + NeighbourhoodGenerator.neighbourhoodSymbols + ">\n\n" +
                 "Examples:\n" +
                 "R1,C2,S1-2,B3-4,NM (Frogs)\n" +
                 "R2,C2,S1-2,B3-4,N@22A544 (Skew Frogs)";

@@ -1,5 +1,7 @@
 package sample.model;
 
+import org.javatuples.Pair;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 
@@ -268,6 +270,10 @@ public class NeighbourhoodGenerator {
 
     // Get Neighbourhood from CoordCA Format
     public static Coordinate[] fromCoordCA(String CoordCA, int range) {
+        if (CoordCA.matches("[A-Fa-f0-9]+")) {
+            throw new IllegalArgumentException("Invalid character in CoordCA neighbourhood specification.");
+        }
+
         // Convert to binary
         String flattenedNeighbourhood = new BigInteger(CoordCA, 16).toString(2);
 
@@ -294,5 +300,55 @@ public class NeighbourhoodGenerator {
         }
 
         return toArray(neighbourhood);
+    }
+
+    // Get Neighbourhood Weights from LifeViewer Format
+    public static Pair<Coordinate[], int[]> getNeighbourhoodWeights(String LifeViewer, int range)
+            throws IllegalArgumentException {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        ArrayList<Integer> weights = new ArrayList<>();
+        if (!LifeViewer.matches("[A-Fa-f0-9]+")) {
+            throw new IllegalArgumentException("Invalid character in neighbourhood weights specification.");
+        }
+
+        if (LifeViewer.length() == Math.pow(2 * range + 1, 2)) {
+            int weight;
+            for (int i = 0; i < LifeViewer.length(); i++) {
+                weight = Integer.parseInt(new BigInteger(LifeViewer.charAt(i) + "", 16).toString(10));
+                if (weight >= 8) {  // Negative weight
+                    weights.add(weight - 8);
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1) - range, i / (2 * range + 1) - range));
+                }
+                else if (weight != 0){
+                    weights.add(weight);
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1) - range, i / (2 * range + 1) - range));
+                }
+            }
+        }
+        else if (LifeViewer.length() == Math.pow(2 * range + 1, 2) * 2) {
+            int weight;
+            for (int i = 0; i < LifeViewer.length(); i++) {
+                weight = Integer.parseInt(new BigInteger(LifeViewer.charAt(i) + "", 16).toString(10));
+                if (weight >= 128) {  // Negative weight
+                    weights.add(weight - 128);
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1), i / (2 * range + 1)));
+                }
+                else if (weight != 0){
+                    weights.add(weight);
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1), i / (2 * range + 1)));
+                }
+            }
+        }
+        else {
+            throw new IllegalArgumentException("Weighted neighbourhood string must be of length " +
+                    Math.pow(2 * range + 1, 2) + " or " + Math.pow(2 * range + 1, 2) * 2);
+        }
+
+        return new Pair<>(toArray(neighbourhood), weights.stream().mapToInt(i -> i).toArray());
+    }
+
+    // Get State Weights from LifeViewer Format
+    public static int[] getStateWeights(String LifeViewer, int range) {
+        return null;  // TODO (Finish state weights)
     }
 }

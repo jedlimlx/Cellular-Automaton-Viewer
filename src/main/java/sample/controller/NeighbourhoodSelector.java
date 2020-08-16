@@ -2,6 +2,11 @@ package sample.controller;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import org.javatuples.Pair;
+import sample.model.Coordinate;
+
+import java.util.ArrayList;
+
 public class NeighbourhoodSelector extends GridPane {
     private final int[][] weights;
     private final int RANGE;
@@ -52,7 +57,41 @@ public class NeighbourhoodSelector extends GridPane {
         }
     }
 
-    public int[][] getWeights() {
-        return weights;
+    public Pair<Coordinate[], int[]> getNeighbourhoodAndWeights() {
+        // Getting neighbourhood and weights
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        ArrayList<Integer> weights = new ArrayList<>();
+        for (int i = 0; i < 2 * 2 + 1; i++) {
+            for (int j = 0; j < 2 * 2 + 1; j++) {
+                if (this.weights[i][j] != 0) {
+                    neighbourhood.add(new Coordinate(i - 2, j - 2));
+                    weights.add(this.weights[i][j]);
+                }
+            }
+        }
+
+        if (!neighbourhood.isEmpty()) {
+            boolean weightsNeeded = false;
+
+            // Converting to array
+            Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
+            int[] weightsArray = new int[weights.size()];
+            for (int i = 0; i < weights.size(); i++) {
+                weightsArray[i] = weights.get(i);
+                neighbourhoodArray[i] = neighbourhood.get(i);
+
+                // Check if weights are needed
+                if (weights.get(i) != 0 && weights.get(i) != 1)
+                    weightsNeeded = true;
+            }
+
+            // Checking if weights are needed (if there are weight that are not 1 & 0)
+            if (weightsNeeded)
+                return new Pair<>(neighbourhoodArray, weightsArray);
+            else
+                return new Pair<>(neighbourhoodArray, null);
+        }
+
+        return null;
     }
 }

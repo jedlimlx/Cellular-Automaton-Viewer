@@ -25,6 +25,8 @@ public class HROT extends RuleFamily {
             hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
             ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
+    private final static String higherRangeWeightedCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
+            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
     public HROT(String rulestring) {
         // Initialise variables
@@ -40,7 +42,7 @@ public class HROT extends RuleFamily {
     }
 
     @Override
-    public void fromRulestring(String rulestring) {
+    public void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
         birth.clear();
         survival.clear();
@@ -103,10 +105,30 @@ public class HROT extends RuleFamily {
             Utils.getTransitionsFromStringWithCommas(survival,
                     Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
+        else if (rulestring.matches(higherRangeWeightedCustom)) {
+            // Generate Neighbourhood
+            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
+            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
 
-        if (birth.contains(0)) {
-            alternatingPeriod = 2;
+            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
+                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
+            neighbourhood = neighbourhoodAndWeights.getValue0();
+            weights = neighbourhoodAndWeights.getValue1();
+
+            // Get transitions
+            Utils.getTransitionsFromStringWithCommas(birth,
+                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
+            Utils.getTransitionsFromStringWithCommas(survival,
+                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
+        else {
+            throw new IllegalArgumentException("This rulestring is invalid!");
+        }
+
+        if (birth.contains(0)) // B0 rules
+            alternatingPeriod = 2;
+        else
+            alternatingPeriod = 1;
     }
 
     @Override
@@ -130,7 +152,8 @@ public class HROT extends RuleFamily {
                 rulestringBuilder.append("H");
             }
         } // Using HROT notation
-        else if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined)) {
+        else if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
+                rulestring.matches(higherRangeWeightedCustom)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,C[0|2],", rulestring, 0));
 
             // Adding Survival
@@ -149,7 +172,8 @@ public class HROT extends RuleFamily {
 
     @Override
     public String[] getRegex() {
-        return new String[]{moore, vonNeumann, hexagonal, higherRangeCustom, higherRangePredefined};
+        return new String[]{moore, vonNeumann, hexagonal,
+                higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
     }
 
     @Override
@@ -159,7 +183,7 @@ public class HROT extends RuleFamily {
                 "It supports B0 rules via emulation by alternating rules.\n\n" +
                 "The format is as follows:\n" +
                 "R<range>,C2,S<survival>,B<birth>,N@<CoordCA> or\n" +
-                "R<range>,C2,S<survival>,B<birth>,N<ABCHMNX23*+#>\n\n" +
+                "R<range>,C2,S<survival>,B<birth>,N<" + NeighbourhoodGenerator.neighbourhoodSymbols + ">\n\n" +
                 "Examples:\n" +
                 "B36/S23 (High Life)\n" +
                 "B2/S34H (Hexagonal Life)\n" +

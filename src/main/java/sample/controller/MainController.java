@@ -104,6 +104,9 @@ public class MainController {
         scrollPane.setHvalue(0.5);
         scrollPane.setVvalue(0.5);
 
+        // Setting the scroll pane in focus
+        scrollPane.requestFocus();
+
         // Add buttons to the secondary toolbar
         for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
             int index = i;
@@ -417,23 +420,26 @@ public class MainController {
                         "Apgtable Files (*.table)", "*.table"));
                 File file = fileChooser.showSaveDialog(null);
 
-                if (!((RuleFamily) simulator.getRule()).generateApgtable(file)) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error in generating APGTable");
-                    alert.setHeaderText("The operation was unsuccessful.");
-                    alert.setContentText("The operation was unsuccessful. " +
-                            "If you suspect a bug, please report it.");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                    alert.showAndWait();
-                }
-                else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Operation successful!");
-                    alert.setHeaderText("The operation was successful.");
-                    alert.setContentText("The operation was successful. " +
-                            "The apgtable has been saved to " + file.getAbsolutePath() + ".");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                    alert.showAndWait();
+                // If operation is cancelled
+                if (file != null) {
+                    if (!((RuleFamily) simulator.getRule()).generateApgtable(file)) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error in generating APGTable");
+                        alert.setHeaderText("The operation was unsuccessful.");
+                        alert.setContentText("The operation was unsuccessful. " +
+                                "If you suspect a bug, please report it.");
+                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                        alert.showAndWait();
+                    }
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Operation successful!");
+                        alert.setHeaderText("The operation was successful.");
+                        alert.setContentText("The operation was successful. " +
+                                "The apgtable has been saved to " + file.getAbsolutePath() + ".");
+                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                        alert.showAndWait();
+                    }
                 }
             }
             catch (UnsupportedOperationException exception) {
@@ -500,6 +506,10 @@ public class MainController {
                     "GIF Files (*.gif)", "*.gif"));
 
             File file = fileChooser.showSaveDialog(null);
+            if (file == null) {  // Quit if the operation is cancelled
+                recording = !recording;
+                return;
+            }
 
             if (!giffer.toGIF(file)) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -768,6 +778,7 @@ public class MainController {
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {
             updateCells();
+            visualisationDone = false;
         }
         // Delete cells
         else if (event.getCode().equals(KeyCode.DELETE)) {

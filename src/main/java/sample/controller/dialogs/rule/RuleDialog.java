@@ -95,7 +95,18 @@ public class RuleDialog extends Dialog {
         RuleWidget ruleWidget = ruleWidgets[index];
 
         // Update the rule in the rule widget
-        ruleWidget.updateRule(rulestringField.getText());
+        try {
+            ruleWidget.updateRule(rulestringField.getText());
+        }
+        catch (IllegalArgumentException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("This rulestring is invalid!");
+            alert.setContentText(exception.getMessage() + "\nIf you suspect this is a bug, please report it!");
+            alert.showAndWait();
+            return;
+        }
+
         chosenRuleFamily = ruleWidget.getRuleFamily();
 
         // Canonise the rulestring in the text field

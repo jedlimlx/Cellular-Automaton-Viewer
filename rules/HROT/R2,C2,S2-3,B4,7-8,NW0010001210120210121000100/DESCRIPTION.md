@@ -1,3 +1,5 @@
+## DuopletLife
+
 A weird rule with an overabundance of P2 duoplets.
 
 Has some oscillators as well as a [2c/8d], [4c/16d], [c/13o] spaceships and a [5c/10d duoplet puffer](PUFF_01.rle).

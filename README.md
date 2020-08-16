@@ -1,7 +1,7 @@
-# CAViewer [![Builds badge]][Builds link]
+# CAViewer [![Build CAViewer]][Builds link]
 
-[Builds badge]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg?event=push
-[Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22
+[Build CAViewer]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg
+[Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer
 
 See python branch for CAViewer v1.
 
@@ -20,7 +20,8 @@ See the wiki for instructions on how to build the application from source and ho
 
 What is this?
 =============
-CAViewer is a cellular automaton simulation program written in Java.
+CAViewer is a cellular automaton simulation program written in Java <br>
+It aims to support rulespaces unsupported by other CA simulation programs such as Golly and LifeViewer.
 
 The GUI
 =======
@@ -77,6 +78,7 @@ Keyboard Shortcuts
 <kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Pattern to RLE <br>
 <kbd>Ctrl</kbd> + <kbd>X</kbd> - Cut Pattern (Copy + Delete) <br>
 <kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
+<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd> - Load Pattern from Clipboard <br>
 
 <kbd>Ctrl</kbd> + <kbd>R</kbd> - Change Rule <br>
 <kbd>Ctrl</kbd> + <kbd>5</kbd> - Generate Random Soup <br>
@@ -93,7 +95,7 @@ GUI TODO List
 - [x] Add menu button for new pattern
 - [x] Add menu button to open rules & patterns
 - [x] Add menu button to save patterns
-- [ ] Add button to view search results and save to a file
+- [x] Add button to view search results and save to a file
 - [ ] Add grid lines
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
@@ -121,11 +123,9 @@ Editing Features
 Supported / Planned Rulespaces
 ==============================
 - [ ] Higher Range Outer Totalistic (HROT)
-    - [ ] 2 State HROT
+    - [x] 2 State HROT
         - [x] B0 rules
         - [x] Weighted rules
-        - [x] CoordCA Format (Custom Neighbourhoods)
-        - [ ] LifeViewer Format (Weighted Neighbourhoods)
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for weighted rules
@@ -134,7 +134,6 @@ Supported / Planned Rulespaces
         - [ ] B0 Rules
         - [ ] State Weights
         - [x] Neighbourhood Weights
-        - [ ] LifeViewer Format (Weighted Neighbourhoods, State Weights)
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for rules with neighbourhood weights
         - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
@@ -199,6 +198,9 @@ Supported / Planned Named HROT Neighbourhoods
 - [x] Star (*)
 - [x] Cross (+)
 - [x] Hash (#)
+- [x] CoordCA Format (Custom Neighbourhoods @)
+- [ ] LifeViewer Format (Weighted Neighbourhoods W)
+- [ ] LifeViewer Format (State Weights W)
 
 Search Programs
 ===================
@@ -243,4 +245,4 @@ Known Bugs
 - [x] HROT B0 isn't working as intended (Fixed)
 - [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
 - [x] Rule Dialog don't show the most updated rule (Fixed)
-- [ ] ConcurrentModificationException is thrown (solution is to restart application if it happens until its fixed)
+- [x] ConcurrentModificationException is thrown (Fixed)
