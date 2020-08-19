@@ -40,7 +40,7 @@ public class Giffer {  // TODO (Add more options to giffer)
                         for (int imgY = 0; imgY < CELL_SIZE; imgY++) {
                             pixelWriter.setColor((x - startCoordinate.getX()) * CELL_SIZE + imgX,
                                     (y - startCoordinate.getY()) * CELL_SIZE + imgY,
-                                    rule.getColor(pattern.getCell(x, y)));
+                                    rule.getColour(pattern.getCell(x, y)));
                         }
                     }
                 }

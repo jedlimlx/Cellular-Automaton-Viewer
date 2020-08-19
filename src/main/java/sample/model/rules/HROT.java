@@ -17,6 +17,8 @@ public class HROT extends RuleFamily {
     private Coordinate[] neighbourhood;
     private int[] weights;
 
+    private int maxNeighbourhoodCount;
+
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
     private final static String moore = "([BSbs]([0-8]+)?/?[BS]([0-8]+)?+|[BSbs]?([0-8]+)?/[BSbs]?([0-8]+)?)";
     private final static String vonNeumann = "([BSbs]([0-4]+)?/?[BS]([0-4]+)?|[BSbs]?([0-4]+)?/[BSbs]?([0-4]+)?)V";
@@ -129,6 +131,18 @@ public class HROT extends RuleFamily {
             alternatingPeriod = 2;
         else
             alternatingPeriod = 1;
+
+        // Determine maximum neighbourhood count
+        maxNeighbourhoodCount = 0;
+        if (weights != null) {
+            for (int weight: weights) {
+                if (weight > 0)
+                    maxNeighbourhoodCount += weight;
+            }
+        }
+        else {
+            maxNeighbourhoodCount = neighbourhood.length;
+        }
     }
 
     @Override
@@ -213,20 +227,8 @@ public class HROT extends RuleFamily {
         HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
         HashSet<Integer> minSurvival = new HashSet<>(), maxSurvival = new HashSet<>();
 
-        // Determine maximum neighbourhood count
-        int neighbourhoodCount = 0;
-        if (weights != null) {
-            for (int weight: weights) {
-                if (weight > 0)
-                    neighbourhoodCount += weight;
-            }
-        }
-        else {
-            neighbourhoodCount = neighbourhood.length;
-        }
-
         // Populate maxBirth & maxSurvival with numbers from 0 - max neighbour sum
-        for (int i = 0; i < neighbourhoodCount + 1; i++) {
+        for (int i = 0; i < maxNeighbourhoodCount + 1; i++) {
             maxBirth.add(i);
             maxSurvival.add(i);
         }
@@ -333,46 +335,111 @@ public class HROT extends RuleFamily {
 
             if (alternatingPeriod == 2) {  // For B0 rules
                 // Writing variables for any state
-                writer.write("# Variables to represent any state\n");
+                writer.write("# Variables for Death Transitions\n");
                 for (int i = 0; i < neighbourhood.length; i++) {
                     writer.write("var any" + i + " = {0, 1, 2}\n");
                 }
 
-                // Represents the inverted neighbour counts
-                writer.write("\n# Inverted Birth Transitions\n");
-                for (int i = 0; i < neighbourhood.length + 1; i++) {
-                    if (!birth.contains(i)) {
-                        writer.write("0," + ApgtableGenerator.generateOT(neighbourhood, i) + "2\n");
+                if (weights == null) {
+                    // Represents the inverted neighbour counts
+                    writer.write("\n# Inverted Birth Transitions\n");
+                    for (int i = 0; i < neighbourhood.length + 1; i++) {
+                        if (!birth.contains(i)) {
+                            writer.write("0," + ApgtableGenerator.generateOT(neighbourhood, i) + "2\n");
+                        }
+                    }
+
+                    writer.write("\n# Inverted Survival Transitions\n");
+                    for (int i = 0; i < neighbourhood.length + 1; i++) {
+                        if (!survival.contains(i)) {
+                            writer.write("1," + ApgtableGenerator.generateOT(neighbourhood, i) + "2\n");
+                        }
+                    }
+
+                    // Death Transitions
+                    writer.write("\n# Death Transitions\n");
+                    writer.write("1,");
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        writer.write("any" + i + ",");
+                    }
+                    writer.write("0\n");
+
+                    // Write in (Smax - survival) transitions
+                    writer.write("\n# (Smax - survival) Transitions\n");
+                    for (int transition: survival) {
+                        writer.write("0," + ApgtableGenerator.generateOT(neighbourhood,
+                                neighbourhood.length - transition, 2) + "1\n");
+                    }
+
+                    // Write in (Smax - birth) transitions
+                    writer.write("\n# (Smax - birth) Transitions\n");
+                    for (int transition: birth) {
+                        writer.write("2," + ApgtableGenerator.generateOT(neighbourhood,
+                                neighbourhood.length - transition, 2) + "1\n");
                     }
                 }
+                else {
+                    Hashtable<Integer, ArrayList<String>> transitions =  // Generate all possible transitions
+                            ApgtableGenerator.generateWeightedTransitions(neighbourhood, weights);
 
-                writer.write("\n# Inverted Survival Transitions\n");
-                for (int i = 0; i < neighbourhood.length + 1; i++) {
-                    if (!survival.contains(i)) {
-                        writer.write("1," + ApgtableGenerator.generateOT(neighbourhood, i) + "2\n");
+                    // Represents the inverted neighbour counts
+                    writer.write("\n# Inverted Birth Transitions\n");
+                    for (int transition = 0; transition <= maxNeighbourhoodCount; transition++) {
+                        if (!birth.contains(transition)) {
+                            for (String string: transitions.get(transition)) {
+                                writer.write("0,");
+                                for (int i = 0; i < string.length(); i++) {
+                                    writer.write(string.charAt(i) + ",");
+                                }
+                                writer.write("2\n");
+                            }
+                        }
                     }
-                }
 
-                // Death Transitions
-                writer.write("\n# Death Transitions\n");
-                writer.write("1,");
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    writer.write("any" + i + ",");
-                }
-                writer.write("0\n");
+                    writer.write("\n# Inverted Survival Transitions\n");
+                    for (int transition = 0; transition <= maxNeighbourhoodCount; transition++) {
+                        if (!survival.contains(transition)) {
+                            for (String string: transitions.get(transition)) {
+                                writer.write("1,");
+                                for (int i = 0; i < string.length(); i++) {
+                                    writer.write(string.charAt(i) + ",");
+                                }
+                                writer.write("2\n");
+                            }
+                        }
+                    }
 
-                // Write in (Smax - survival) transitions
-                writer.write("\n# (Smax - survival) Transitions\n");
-                for (int transition: survival) {
-                    writer.write("0," + ApgtableGenerator.generateOT(neighbourhood,
-                            neighbourhood.length - transition, 2) + "1\n");
-                }
+                    // Death Transitions
+                    writer.write("\n# Death Transitions\n");
+                    writer.write("1,");
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        writer.write("any" + i + ",");
+                    }
+                    writer.write("0\n");
 
-                // Write in (Smax - birth) transitions
-                writer.write("\n# (Smax - birth) Transitions\n");
-                for (int transition: birth) {
-                    writer.write("2," + ApgtableGenerator.generateOT(neighbourhood,
-                            neighbourhood.length - transition, 2) + "1\n");
+                    // Write in (Smax - survival) transitions
+                    writer.write("\n# (Smax - survival) Transitions\n");
+                    for (int transition: survival) {
+                        for (String string: transitions.get(maxNeighbourhoodCount - transition)) {
+                            writer.write("0,");
+                            for (int i = 0; i < string.length(); i++) {
+                                writer.write((string.charAt(i) == '0' ? "0" : "2") + ",");
+                            }
+                            writer.write("1\n");
+                        }
+                    }
+
+                    // Write in (Smax - birth) transitions
+                    writer.write("\n# (Smax - birth) Transitions\n");
+                    for (int transition: birth) {
+                        for (String string: transitions.get(maxNeighbourhoodCount - transition)) {
+                            writer.write("2,");
+                            for (int i = 0; i < string.length(); i++) {
+                                writer.write((string.charAt(i) == '0' ? "0" : "2") + ",");
+                            }
+                            writer.write("1\n");
+                        }
+                    }
                 }
 
                 // Death Transitions
@@ -381,7 +448,6 @@ public class HROT extends RuleFamily {
                 for (int i = 0; i < neighbourhood.length; i++) {
                     writer.write("any" + i + ",");
                 }
-
             }
             else {
                 // Writing variables for death transitions
@@ -430,7 +496,6 @@ public class HROT extends RuleFamily {
                             writer.write("1\n");
                         }
                     }
-
                 }
 
                 // Write in death transitions
@@ -598,10 +663,10 @@ public class HROT extends RuleFamily {
             }
             else {
                 // Swap Smax - birth and Smax - survival
-                if (cellState == 1 && birth.contains(neighbourhood.length - sum)) {
+                if (cellState == 1 && birth.contains(maxNeighbourhoodCount - sum)) {
                     return 1;
                 }
-                else if (cellState == 0 && survival.contains(neighbourhood.length - sum)) {
+                else if (cellState == 0 && survival.contains(maxNeighbourhoodCount - sum)) {
                     return 1;
                 }
             }

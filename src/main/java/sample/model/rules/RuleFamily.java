@@ -5,72 +5,124 @@ import sample.model.Grid;
 
 import java.io.File;
 
+/**
+ * Represents a family of rules or a rulespace
+ * @author Lemon41625
+ */
 public abstract class RuleFamily extends Rule implements Cloneable {
     protected String name;
     protected String rulestring;
 
-    // Child class must implement
-    // Loads the rulestring
+    /**
+     * Loads the rule's parameters from a rulestring
+     * @param rulestring The rulestring of the rule (eg. B3/S23, R2,C2,S5-9,B7-8,NM)
+     * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
+     */
     public abstract void fromRulestring(String rulestring);
 
-    // Canonises the rulestring
+    /**
+     * Canonises the inputted rulestring with the currently loaded parameters.
+     * @param rulestring The rulestring to canonised
+     * @return Canonised rulestring
+     */
     public abstract String canonise(String rulestring);
 
-    // Sets the rulestring
+    /**
+     * Sets the rulestring of the rule family to the inputted value
+     * @param rulestring Rulestring of the rule
+     */
     public void setRulestring(String rulestring) {
         fromRulestring(rulestring);
         this.rulestring = canonise(rulestring);
     }
 
-    // Returns the regexes to identify the rule family
+    /**
+     * The regexes that will match a valid rulestring
+     * @return An array of regexes that will match a valid rulestring
+     */
     public abstract String[] getRegex();
 
-    // Get description of this rule family
+    /**
+     * Returns a plain text description of the rule family to be displayed in the Rule Dialog
+     * @return Description of the rule family
+     */
     public abstract String getDescription();
 
-    // Randomise rule between minimum and maximum rules
-    // Throw IllegalArgumentException if the rule families are not the correct type
+    /**
+     * Randomise the parameters of the current rule to be between minimum and maximum rules
+     * Used in CAViewer's rule search program
+     * @param minRule The minimum rule for randomisation
+     * @param maxRule The maximum rule for randomisation
+     * @throws IllegalArgumentException Thrown if the minimum and maximum rules are invalid
+     * @throws UnsupportedOperationException Thrown if the specific rule does not support randomisation
+     */
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException, UnsupportedOperationException {
 
     }
 
-    // Returns the minimum & maximum rule of the provided evolutionary sequence
+    /**
+     * Returns the minimum and maximum rule of the provided evolutionary sequence
+     * @param grids An array of grids representing the evolutionary sequence
+     * @return A pair containing the min rule as the first value and the max rule as the second value
+     * @throws UnsupportedOperationException Thrown if the specific rule does not support minimum and maximum rules
+     */
     public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
                 "this rule family");
     }
 
-    // Between checks if the rule is in between 2 min, max rules
+    /**
+     * Checks if the current rule is between the given minimum and maximum rules
+     * @param minRule The minimum rule
+     * @param maxRule The maximum rule
+     * @return True if the current rule is between minimum and maximum rules and false
+     * if the current rule is not between the minimum and maximum rules
+     * @throws IllegalArgumentException Thrown if the minimum rule and maximum rule are invalid
+     * @throws UnsupportedOperationException Thrown if the current rule does not support minimum and maximum rules
+     */
     public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException,
             UnsupportedOperationException {
         throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
                 "this rule family");
     }
 
-    // Checks if the inputted rules are valid minimum and maximum rules
+    /**
+     * The check
+     * @param minRule The minimum rule to check
+     * @param maxRule The maximum rule to check
+     * @return True if the minimum and maximum rules are valid and false if the minimum and maximum rules are not valid
+     */
     public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
         throw new UnsupportedOperationException("Minimum and maximum rules are not supported for " +
                 "this rule family");
     }
 
-    // Output false if not successful, true if successful
-    // Generates apgtable for apgsearch to use
-    // Override if you want to support apgtable generation for this rule family
-    // Throw UnsupportedOperationException if apgtable generation for that specific rule is unsupported
+    /**
+     * Generates an apgtable for apgsearch to use
+     * @param file The file to save the apgtable in
+     * @return True if the operation was successful, false otherwise
+     * @throws UnsupportedOperationException Thrown if apgtable generation for that specific rule is not supported
+     */
     public boolean generateApgtable(File file) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Apgtable generation is not supported for this rule family");
     }
 
-    // Generates comments that will be placed in the RLE
-    // These comments represent additional information that is not stored in the rulestring (e.g. weights)
-    // Returned array to be something like {"#R 1 2 3 2 1", "#R 2 4 6 4 2"}
-    // If there isn't anything to add, just return null
+    /**
+     * Generates comments that will be placed in the RLE.
+     * These comments represent additional information that is not stored in the rulestring (e.g. weights)
+     * @return An array of comments each starting with "#R" (eg. {"#R 1 2 3 2 1", "#R 2 4 6 4 2"}).
+     * If no additional information needs to be added return null or an empty string array.
+     */
     public abstract String[] generateComments();
 
-    // Loads the RLE comments that are generated by generateComments
+    /**
+     * Loads the additional information stored in the comments generated by generateComments
+     * An empty array maybe passed in (meaning no comments)
+     * @param comments The comments from the RLE (all starting with #R)
+     */
     public abstract void loadComments(String[] comments);
 
-    @Override  // Clones the object
+    @Override
     public abstract Object clone();
 
     // Accessor

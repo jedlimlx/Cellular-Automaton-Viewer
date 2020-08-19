@@ -222,19 +222,20 @@ public class MainController {
             cell.setY(y);
             cell.setWidth(CELL_SIZE);
             cell.setHeight(CELL_SIZE);
-            cell.setFill(simulator.getRule().getColor(state));
+            cell.setFill(simulator.getRule().getColour(state));
 
             // Add cell to pane and cell list
             drawingPane.getChildren().add(cell);
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
         else if (prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            prevCell.getRectangle().setFill(simulator.getRule().getColor(state));
+            prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
             prevCell.setState(state);
         }
 
         // Add cell to simulator
-        simulator.setCell(x / CELL_SIZE, y / CELL_SIZE, state);
+        if (updateSimulator)
+            simulator.setCell(x / CELL_SIZE, y / CELL_SIZE, state);
     }
 
     public void insertCells(Grid cellsToInsert, int x, int y) {
@@ -291,13 +292,20 @@ public class MainController {
 
     @FXML // Updates cells
     public void updateCells() {
+        long startTime = System.currentTimeMillis();
         simulator.step();
+        System.out.println("Simulation:" + (System.currentTimeMillis() - startTime));
+
         Platform.runLater(() -> {
             try {
+                long startTime2 = System.currentTimeMillis();
+
                 // Only update cells that changed (for speed)
                 for (Coordinate cell: simulator.getCellsChanged()) {
                     setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
+
+                System.out.println("Visualisation:" + (System.currentTimeMillis() - startTime2));
             }
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                 simulationRunning = false;  // Pause the simulation

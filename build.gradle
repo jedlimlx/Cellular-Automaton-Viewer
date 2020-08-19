@@ -1,3 +1,6 @@
+import org.gradle.nativeplatform.platform.OperatingSystem
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id 'java'
     id 'application'
@@ -51,5 +54,34 @@ jlink {
         imageName = 'CAViewer'
         skipInstaller = true
         installerName = 'CAViewer'
+    }
+}
+
+task generateKeystore() {
+    doLast {
+        def dName = /CN=CAViewer, OU=CAViewer, O=CAViewer, L=Singapore, S=Singapore, C=SG/
+        def keytoolCommand = /keytool -genkeypair -keyalg RSA -keysize 2048 -sigalg SHA1withRSA -dname "$dName" -validity 365 -keystore key.keystore -storepass password2020/
+        println keytoolCommand
+
+        def output = keytoolCommand.execute().toString()
+        println output
+    }
+}
+
+task zip() {
+    doLast {
+        OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
+        if (os.macOsX) {
+            def buildFolder = "build/jpackage/CAViewer.app"
+
+            def command = "jar -cfM CAViewer.zip $buildFolder"
+            command.execute()
+        }
+        else {
+            def buildFolder = "build/jpackage/CAViewer"
+
+            def command = "jar -cfM CAViewer.zip $buildFolder"
+            command.execute()
+        }
     }
 }

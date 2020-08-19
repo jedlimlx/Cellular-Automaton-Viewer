@@ -6,23 +6,44 @@ import sample.model.Grid;
 
 import java.util.HashSet;
 
+/**
+ * Represents a single rule
+ * @author Lemon41625
+ */
 public abstract class Rule {
     protected int numStates, alternatingPeriod;
 
-    // Child class must implement
+    /**
+     * This method returns the neighbourhood of a given cell at a certain generation
+     * @param generation The generation of the simulation
+     * @return A list of Coordinates that represent the neighbourhood
+     */
     public abstract Coordinate[] getNeighbourhood(int generation);
+
+    /**
+     * This method represents the transition function of the rule
+     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
+     * @param cellState The current state of the cell
+     * @param generations The current generation of the simulation
+     * @return The state of the cell in the next generation
+     */
     public abstract int transitionFunc(int[] neighbours, int cellState, int generations);
 
     // Accessors
     public int getAlternatingPeriod() {
         return alternatingPeriod;
     }
+
     public int getNumStates() {
         return numStates;
     }
 
-    // Generate colour palette
-    public Color getColor(int state) {
+    /**
+     * Returns the colour of a cell of the provided state
+     * @param state The state of the cell
+     * @return The colour of the cell
+     */
+    public Color getColour(int state) {
         if (state == 0) {
             return Color.rgb(0, 0, 0);
         }
@@ -35,7 +56,12 @@ public abstract class Rule {
         }
     }
 
-    // Method to step forward one generation
+    /**
+     * Steps the grid provided forward one generation
+     * @param grid The grid that will be stepped forward one generation
+     * @param cellsChanged The cells that changed in the previous generation
+     * @param generation The current generation of the simulation
+     */
     public void step(Grid grid, HashSet<Coordinate> cellsChanged, int generation) {
         Grid gridCopy = grid.deepCopy();
         HashSet<Coordinate> cellsToCheck = new HashSet<>();
