@@ -10,7 +10,14 @@ import java.io.File;
  * @author Lemon41625
  */
 public abstract class RuleFamily extends Rule implements Cloneable {
+    /**
+     * Name of the Rule Family (displayed in the RuleDialog)
+     */
     protected String name;
+
+    /**
+     * Rulestring of the Rule Family
+     */
     protected String rulestring;
 
     /**
@@ -62,6 +69,8 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     /**
      * Returns the minimum and maximum rule of the provided evolutionary sequence
+     * A child class the implements this method is compatible with CAViewer's rule search program
+     * If you're lazy, just return the min and max rule as the same rule
      * @param grids An array of grids representing the evolutionary sequence
      * @return A pair containing the min rule as the first value and the max rule as the second value
      * @throws UnsupportedOperationException Thrown if the specific rule does not support minimum and maximum rules
@@ -73,6 +82,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
     /**
      * Checks if the current rule is between the given minimum and maximum rules
+     * A child class the implements this method is compatible with CAViewer's rule search program
      * @param minRule The minimum rule
      * @param maxRule The maximum rule
      * @return True if the current rule is between minimum and maximum rules and false
@@ -87,7 +97,8 @@ public abstract class RuleFamily extends Rule implements Cloneable {
     }
 
     /**
-     * The check
+     * Checks if the minimum rule and maximum rules provided are valid
+     * A child class the implements this method is compatible with CAViewer's rule search program
      * @param minRule The minimum rule to check
      * @param maxRule The maximum rule to check
      * @return True if the minimum and maximum rules are valid and false if the minimum and maximum rules are not valid
@@ -122,14 +133,25 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      */
     public abstract void loadComments(String[] comments);
 
+    /**
+     * Clones the object
+     * @return A deepcopy of the object
+     */
     @Override
     public abstract Object clone();
 
-    // Accessor
+    /**
+     * Gets the name of the rule
+     * @return Name of the rule
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Gets the rulestring of the rule
+     * @return Rulestring of the rule
+     */
     public String getRulestring() {
         return rulestring;
     }

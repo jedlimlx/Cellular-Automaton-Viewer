@@ -229,8 +229,15 @@ public class MainController {
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
         else if (prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
-            prevCell.setState(state);
+            if (state == 0 && cellList.size() > 500) {
+                // Destroy the cell object (remove all references to it so it is garbage collected)
+                removeCellObject(x, y);
+                drawingPane.getChildren().remove(prevCell.getRectangle());
+            }
+            else {
+                prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
+                prevCell.setState(state);
+            }
         }
 
         // Add cell to simulator
@@ -292,20 +299,14 @@ public class MainController {
 
     @FXML // Updates cells
     public void updateCells() {
-        long startTime = System.currentTimeMillis();
         simulator.step();
-        System.out.println("Simulation:" + (System.currentTimeMillis() - startTime));
 
         Platform.runLater(() -> {
             try {
-                long startTime2 = System.currentTimeMillis();
-
                 // Only update cells that changed (for speed)
                 for (Coordinate cell: simulator.getCellsChanged()) {
                     setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
-
-                System.out.println("Visualisation:" + (System.currentTimeMillis() - startTime2));
             }
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                 simulationRunning = false;  // Pause the simulation

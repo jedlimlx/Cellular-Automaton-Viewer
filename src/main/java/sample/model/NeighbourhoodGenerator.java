@@ -270,7 +270,7 @@ public class NeighbourhoodGenerator {
 
     // Get Neighbourhood from CoordCA Format
     public static Coordinate[] fromCoordCA(String CoordCA, int range) {
-        if (CoordCA.matches("[A-Fa-f0-9]+")) {
+        if (!CoordCA.matches("[A-Fa-f0-9]+")) {
             throw new IllegalArgumentException("Invalid character in CoordCA neighbourhood specification.");
         }
 
@@ -348,7 +348,7 @@ public class NeighbourhoodGenerator {
     }
 
     // Get State Weights from LifeViewer Format
-    public static int[] getStateWeights(String LifeViewer, int range) {
+    public static int[] getStateWeights(String LifeViewer) {
         return null;  // TODO (Finish state weights)
     }
 }

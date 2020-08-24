@@ -10,16 +10,23 @@ import sample.model.rules.RuleFamily;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Simulator extends Grid {
     private int generation;
     private Rule rule;
-    private final HashSet<Coordinate> cellsChanged;
+    private final Set<Coordinate> cellsChanged;
+    private final ArrayList<Set<Coordinate>> cellsChangedArray;
 
     public Simulator(Rule rule) {
         this.rule = rule;
         this.generation = 0;
         this.cellsChanged = new HashSet<>();
+        this.cellsChangedArray = new ArrayList<>();
+
+        for (int i = 0; i < rule.getAlternatingPeriod(); i++) {
+            cellsChangedArray.add(new HashSet<>());
+        }
     }
 
     // Accessor
@@ -31,15 +38,20 @@ public class Simulator extends Grid {
         return generation;
     }
 
-    public HashSet<Coordinate> getCellsChanged() {
-        return cellsChanged;
+    public Set<Coordinate> getCellsChanged() {
+        return cellsChangedArray.get(0);
     }
 
     // Mutators
     public void setRule(Rule rule) {
+        cellsChangedArray.clear();  // Changing length to alternating period of the rule
+        for (int i = 0; i < rule.getAlternatingPeriod(); i++) {
+            cellsChangedArray.add(new HashSet<>());
+        }
+
         // If the rule changes, you have to re-evaluate each cell
         for (Coordinate cell: this) {
-            cellsChanged.add(cell);
+            cellsChangedArray.get(0).add(cell);
         }
 
         this.rule = rule;
@@ -153,19 +165,19 @@ public class Simulator extends Grid {
 
     // Step 1 generation
     public void step() {
-        rule.step(super.shallowCopy(), cellsChanged, generation);
+        rule.step(super.shallowCopy(), cellsChangedArray, generation);
         generation += 1;
     }
 
     @Override // Adds cell to grid and to cells changed
     public void setCell(Coordinate coordinate, int state) {
         super.setCell(coordinate, state);
-        cellsChanged.add(coordinate);
+        cellsChangedArray.get(0).add(coordinate);
     }
 
     @Override
     public void setCell(int x, int y, int state) {
         super.setCell(x, y, state);
-        cellsChanged.add(new Coordinate(x, y));
+        cellsChangedArray.get(0).add(new Coordinate(x, y));
     }
 }

@@ -1,0 +1,10 @@
+module:CAViewer
+sample
+sample.controller
+sample.controller.dialogs
+sample.controller.dialogs.rule
+sample.controller.dialogs.search
+sample.model
+sample.model.patterns
+sample.model.rules
+sample.model.search

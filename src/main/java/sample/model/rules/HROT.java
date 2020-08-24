@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+/**
+ * Represents the 2-state HROT rule family
+ * @author Lemon41625
+ */
 public class HROT extends RuleFamily {
     private final HashSet<Integer> birth;
     private final HashSet<Integer> survival;
@@ -30,6 +34,11 @@ public class HROT extends RuleFamily {
     private final static String higherRangeWeightedCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
             ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
+    /**
+     * Creates a 2-state HROT rule with the given rulestring
+     * @param rulestring The rulestring of the 2-state HROT rule to be created
+     * @throws IllegalArgumentException Thrown if the rulestring is invalid
+     */
     public HROT(String rulestring) {
         // Initialise variables
         numStates = 2;
@@ -43,6 +52,11 @@ public class HROT extends RuleFamily {
         setRulestring(rulestring);
     }
 
+    /**
+     * Loads the rule's parameters from a rulestring
+     * @param rulestring The rulestring of the HROT rule (eg. B3/S23, R2,C2,S6-9,B7-8,NM)
+     * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
+     */
     @Override
     public void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
@@ -145,6 +159,11 @@ public class HROT extends RuleFamily {
         }
     }
 
+    /**
+     * Canonises the inputted rulestring with the currently loaded parameters.
+     * @param rulestring The rulestring to canonised
+     * @return Canonised rulestring
+     */
     @Override
     public String canonise(String rulestring) {
         // Define Regexes
@@ -184,12 +203,20 @@ public class HROT extends RuleFamily {
         return newRulestring;
     }
 
+    /**
+     * The regexes that will match a valid rulestring
+     * @return An array of regexes that will match a valid rulestring
+     */
     @Override
     public String[] getRegex() {
         return new String[]{moore, vonNeumann, hexagonal,
                 higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
     }
 
+    /**
+     * Returns a plain text description of the 2-state HROT rule family to be displayed in the Rule Dialog
+     * @return Description of the 2-state HROT rule family
+     */
     @Override
     public String getDescription() {
         return "This implements the 2 state Higher Range Outer Totalistic (HROT) rulespace.\n" +
@@ -205,6 +232,13 @@ public class HROT extends RuleFamily {
                 "R2,C2,S2-3,B3,N@891891 (Far Corners Life)";
     }
 
+    /**
+     * Randomise the parameters of the current rule to be between minimum and maximum rules
+     * Used in CAViewer's rule search program
+     * @param minRule The minimum rule for randomisation
+     * @param maxRule The maximum rule for randomisation
+     * @throws IllegalArgumentException Thrown if the minimum and maximum rules are invalid
+     */
     @Override
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
         if (validMinMax(minRule, maxRule)) {
@@ -218,6 +252,12 @@ public class HROT extends RuleFamily {
         }
     }
 
+    /**
+     * Returns the minimum and maximum rule of the provided evolutionary sequence
+     * @param grids An array of grids representing the evolutionary sequence
+     * @return A pair containing the min rule as the first value and the max rule as the second value
+     * @throws UnsupportedOperationException Thrown if the rule is a B0 rule
+     */
     @Override
     public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) throws UnsupportedOperationException {
         if (birth.contains(0)) {
@@ -285,6 +325,14 @@ public class HROT extends RuleFamily {
         return new Pair<>(minRule, maxRule);
     }
 
+    /**
+     * Checks if the current rule is between the given minimum and maximum rules
+     * @param minRule The minimum rule
+     * @param maxRule The maximum rule
+     * @return True if the current rule is between minimum and maximum rules and false
+     * if the current rule is not between the minimum and maximum rules
+     * @throws IllegalArgumentException Thrown if the minimum rule and maximum rule are invalid
+     */
     @Override
     public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
         if (validMinMax(minRule, maxRule)) {
@@ -299,6 +347,12 @@ public class HROT extends RuleFamily {
         }
     }
 
+    /**
+     * Checks if the minimum rule and maximum rules provided are valid
+     * @param minRule The minimum rule to check
+     * @param maxRule The maximum rule to check
+     * @return True if the minimum and maximum rules are valid and false if the minimum and maximum rules are not valid
+     */
     @Override
     public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
         if (minRule instanceof HROT && maxRule instanceof HROT) {
@@ -310,6 +364,11 @@ public class HROT extends RuleFamily {
         return false;
     }
 
+    /**
+     * Generates an apgtable for apgsearch to use
+     * @param file The file to save the apgtable in
+     * @return True if the operation was successful, false otherwise
+     */
     @Override
     public boolean generateApgtable(File file) {
         try {
@@ -517,6 +576,13 @@ public class HROT extends RuleFamily {
         }
     }
 
+    /**
+     * Generates comments that will be placed in the RLE.
+     * These comments represent weights.
+     * They are only generated if the neighbourhood specifier is N@ with no additional hex digits
+     * @return An array of comments each starting with "#R" (eg. {"#R 1 2 3 2 1", "#R 2 4 6 4 2"}).
+     * If no additional information needs to be added return null or an empty string array.
+     */
     @Override
     public String[] generateComments() {
         if (rulestring.charAt(rulestring.length() - 1) == '@') {
@@ -549,6 +615,10 @@ public class HROT extends RuleFamily {
         }
     }
 
+    /**
+     * Loads the weights stored in the comments generated by generateComments
+     * @param comments The comments from the RLE (all starting with #R)
+     */
     @Override
     public void loadComments(String[] comments) {
         if (comments.length > 0) {  // Check if there are even any comments
@@ -580,24 +650,44 @@ public class HROT extends RuleFamily {
         }
     }
 
-    @Override  // Accessors
+    /**
+     * This method returns the neighbourhood of a given cell at a certain generation
+     * @param generation The generation of the simulation
+     * @return A list of Coordinates that represent the neighbourhood
+     */
+    @Override
     public Coordinate[] getNeighbourhood(int generation) {
         return neighbourhood;
     }
 
+    /**
+     * Gets the weights of the rule
+     * @return Weights of the rule
+     */
     public int[] getWeights() {
         return weights;
     }
 
+    /**
+     * The birth conditions of the rule (e.g. {2, 3})
+     * @return Birth conditions of the rule
+     */
     public HashSet<Integer> getBirth() {
         return birth;
     }
 
+    /**
+     * The survival conditions of the rule (e.g. {2, 3})
+     * @return Survival conditions of the rule
+     */
     public HashSet<Integer> getSurvival() {
         return survival;
     }
 
-    // Mutators
+    /**
+     * Sets the birth conditions of the rule
+     * @param birth Birth conditions of the rule
+     */
     public void setBirth(HashSet<Integer> birth) {
         this.birth.clear();
         this.birth.addAll(birth);
@@ -606,6 +696,10 @@ public class HROT extends RuleFamily {
         this.rulestring = canonise(rulestring);
     }
 
+    /**
+     * Sets the survival conditions of the rule
+     * @param survival Birth conditions of the rule
+     */
     public void setSurvival(HashSet<Integer> survival) {
         this.survival.clear();
         this.survival.addAll(survival);
@@ -614,15 +708,27 @@ public class HROT extends RuleFamily {
         this.rulestring = canonise(rulestring);
     }
 
+    /**
+     * Sets the neighbourhood of the rule
+     * @param neighbourhood Neighbourhood of the rule
+     */
     public void setNeighbourhood(Coordinate[] neighbourhood) {
         this.neighbourhood = neighbourhood;
     }
 
+    /**
+     * Sets the weights of the rule
+     * @param weights Weights of the rule
+     */
     public void setWeights(int[] weights) {
         this.weights = weights;
     }
 
-    @Override  // Clones the object
+    /**
+     * Clones the rule
+     * @return Returns a deep copy of the HROT rule
+     */
+    @Override
     public Object clone() {
         HROT newRule = new HROT(rulestring);
         newRule.setWeights(getWeights());
@@ -631,7 +737,14 @@ public class HROT extends RuleFamily {
         return newRule;
     }
 
-    @Override  // Transition function
+    /**
+     * This method represents the transition function of the rule
+     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
+     * @param cellState The current state of the cell
+     * @param generations The current generation of the simulation
+     * @return The state of the cell in the next generation
+     */
+    @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations) {
         int sum = 0;
         for (int i = 0; i < neighbours.length; i++) {

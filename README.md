@@ -208,7 +208,8 @@ Search Programs
     - [ ] More high tech repetition detection function
     - [ ] Identification for linear growth patterns, replicators
     - [ ] Fine tune RNG function manually
-    - [ ] Fine tune RNG function via genetic algorithms
+    - [ ] Fine tune RNG function via genetic algorithms?
+    - [ ] Object seperation?
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
 - [ ] Methuselah Search Program

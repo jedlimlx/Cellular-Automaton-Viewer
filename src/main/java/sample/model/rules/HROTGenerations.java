@@ -6,11 +6,12 @@ import sample.model.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.*;
 
+/**
+ * Represents the HROT Generations rule family
+ * @author Lemon41625
+ */
 public class HROTGenerations extends RuleFamily {
     private final HashSet<Integer> birth;
     private final HashSet<Integer> survival;
@@ -25,6 +26,11 @@ public class HROTGenerations extends RuleFamily {
     private final static String higherRangeWeightedCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
             ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
+    /**
+     * Creates a HROT Generations rule with the given rulestring
+     * @param rulestring The rulestring of the HROT Generations rule to be created
+     * @throws IllegalArgumentException Thrown if the rulestring is invalid
+     */
     public HROTGenerations(String rulestring) {
         // Initialise variables
         numStates = 2;
@@ -38,6 +44,11 @@ public class HROTGenerations extends RuleFamily {
         setRulestring(rulestring);
     }
 
+    /**
+     * Loads the rule's parameters from a rulestring
+     * @param rulestring The rulestring of the HROT Generations rule (eg. R1,C3,S1-2,B3-4,NM)
+     * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
+     */
     @Override
     public void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
@@ -101,6 +112,11 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
+    /**
+     * Canonises the inputted rulestring with the currently loaded parameters.
+     * @param rulestring The rulestring to canonised
+     * @return Canonised rulestring
+     */
     @Override
     public String canonise(String rulestring) {
         // Define Regexes
@@ -124,11 +140,19 @@ public class HROTGenerations extends RuleFamily {
         return newRulestring;
     }
 
+    /**
+     * The regexes that will match a valid rulestring
+     * @return An array of regexes that will match a valid rulestring
+     */
     @Override
     public String[] getRegex() {
         return new String[]{higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
     }
 
+    /**
+     * Returns a plain text description of the HROT Generations rule family to be displayed in the Rule Dialog
+     * @return Description of the HROT Generations rule family
+     */
     @Override
     public String getDescription() {
         return "This implements the Higher Range Outer Totalistic (HROT) generations rulespace.\n" +
@@ -144,6 +168,13 @@ public class HROTGenerations extends RuleFamily {
                 "R2,C2,S1-2,B3-4,N@22A544 (Skew Frogs)";
     }
 
+    /**
+     * Randomise the parameters of the current rule to be between minimum and maximum rules
+     * Used in CAViewer's rule search program
+     * @param minRule The minimum rule for randomisation
+     * @param maxRule The maximum rule for randomisation
+     * @throws IllegalArgumentException Thrown if the minimum and maximum rules are invalid
+     */
     @Override
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
         if (minRule instanceof HROTGenerations && maxRule instanceof HROTGenerations) {
@@ -157,6 +188,11 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
+    /**
+     * Returns the minimum and maximum rule of the provided evolutionary sequence
+     * @param grids An array of grids representing the evolutionary sequence
+     * @return A pair containing the min rule as the first value and the max rule as the second value
+     */
     @Override
     public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) {
         HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
@@ -241,6 +277,14 @@ public class HROTGenerations extends RuleFamily {
         return new Pair<>(minRule, maxRule);
     }
 
+    /**
+     * Checks if the current rule is between the given minimum and maximum rules
+     * @param minRule The minimum rule
+     * @param maxRule The maximum rule
+     * @return True if the current rule is between minimum and maximum rules and false
+     * if the current rule is not between the minimum and maximum rules
+     * @throws IllegalArgumentException Thrown if the minimum rule and maximum rule are invalid
+     */
     @Override
     public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
         if (validMinMax(minRule, maxRule)) {
@@ -255,6 +299,12 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
+    /**
+     * Checks if the minimum rule and maximum rules provided are valid
+     * @param minRule The minimum rule to check
+     * @param maxRule The maximum rule to check
+     * @return True if the minimum and maximum rules are valid and false if the minimum and maximum rules are not valid
+     */
     @Override
     public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
         if (minRule instanceof HROTGenerations && maxRule instanceof HROTGenerations) {
@@ -266,8 +316,13 @@ public class HROTGenerations extends RuleFamily {
         return false;
     }
 
+    /**
+     * Generates an apgtable for apgsearch to use
+     * @param file The file to save the apgtable in
+     * @return True if the operation was successful, false otherwise
+     */
     @Override
-    public boolean generateApgtable(File file) throws UnsupportedOperationException {
+    public boolean generateApgtable(File file) {
         try {
             FileWriter writer = new FileWriter(file);
 
@@ -389,6 +444,13 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
+    /**
+     * Generates comments that will be placed in the RLE.
+     * These comments represent weights.
+     * They are only generated if the neighbourhood specifier is N@ with no additional hex digits
+     * @return An array of comments each starting with "#R" (eg. {"#R 1 2 3 2 1", "#R 2 4 6 4 2"}).
+     * If no additional information needs to be added return null or an empty string array.
+     */
     @Override
     public String[] generateComments() {
         if (rulestring.charAt(rulestring.length() - 1) == '@') {
@@ -421,6 +483,10 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
+    /**
+     * Loads the weights stored in the comments generated by generateComments
+     * @param comments The comments from the RLE (all starting with #R)
+     */
     @Override
     public void loadComments(String[] comments) {
         if (comments.length > 0) {  // Check if there are even any comments
@@ -452,24 +518,44 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
-    @Override  // Accessors
+    /**
+     * This method returns the neighbourhood of a given cell at a certain generation
+     * @param generation The generation of the simulation
+     * @return A list of Coordinates that represent the neighbourhood
+     */
+    @Override
     public Coordinate[] getNeighbourhood(int generation) {
         return neighbourhood;
     }
 
+    /**
+     * Gets the weights of the rule
+     * @return Weights of the rule
+     */
     public int[] getWeights() {
         return weights;
     }
 
+    /**
+     * The birth conditions of the rule (e.g. {2, 3})
+     * @return Birth conditions of the rule
+     */
     public HashSet<Integer> getBirth() {
         return birth;
     }
 
+    /**
+     * The survival conditions of the rule (e.g. {2, 3})
+     * @return Survival conditions of the rule
+     */
     public HashSet<Integer> getSurvival() {
         return survival;
     }
 
-    // Mutators
+    /**
+     * Sets the birth conditions of the rule
+     * @param birth Birth conditions of the rule
+     */
     public void setBirth(HashSet<Integer> birth) {
         this.birth.clear();
         this.birth.addAll(birth);
@@ -478,6 +564,10 @@ public class HROTGenerations extends RuleFamily {
         this.rulestring = canonise(rulestring);
     }
 
+    /**
+     * Sets the survival conditions of the rule
+     * @param survival Birth conditions of the rule
+     */
     public void setSurvival(HashSet<Integer> survival) {
         this.survival.clear();
         this.survival.addAll(survival);
@@ -486,15 +576,27 @@ public class HROTGenerations extends RuleFamily {
         this.rulestring = canonise(rulestring);
     }
 
+    /**
+     * Sets the neighbourhood of the rule
+     * @param neighbourhood Neighbourhood of the rule
+     */
     public void setNeighbourhood(Coordinate[] neighbourhood) {
         this.neighbourhood = neighbourhood;
     }
 
+    /**
+     * Sets the weights of the rule
+     * @param weights Weights of the rule
+     */
     public void setWeights(int[] weights) {
         this.weights = weights;
     }
 
-    @Override  // Clones the object
+    /**
+     * Clones the rule
+     * @return Returns a deep copy of the HROT rule
+     */
+    @Override
     public Object clone() {
         HROTGenerations newRule = new HROTGenerations(rulestring);
         newRule.setWeights(getWeights());
@@ -503,7 +605,14 @@ public class HROTGenerations extends RuleFamily {
         return newRule;
     }
 
-    @Override  // Transition function
+    /**
+     * This method represents the transition function of the rule
+     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
+     * @param cellState The current state of the cell
+     * @param generations The current generation of the simulation
+     * @return The state of the cell in the next generation
+     */
+    @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations) {
         int sum = 0;
         for (int i = 0; i < neighbours.length; i++) {
@@ -531,46 +640,70 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
-    @Override
-    public void step(Grid grid, HashSet<Coordinate> cellsChanged, int generation) {
+    /**
+     * Steps the grid provided forward one generation
+     * An optimisation is implemented that is specific to generations rules
+     * @param grid The grid that will be stepped forward one generation
+     * @param cellsChanged An array of sets that contains the cells the changed in the previous generations.
+     *                     The first entry will contains the cells that changed in the previous generation
+     *                     and the next entry will contain the cells that changed the previous previous generation
+     *                     and so on. It should be the same length as the alternating period of the rule
+     * @param generation The current generation of the simulation
+     * @throws IllegalArgumentException Thrown if the length of cellsChanged is not the same as the alternating period
+     */
+    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation)
+            throws IllegalArgumentException {
+        if (cellsChanged.size() != alternatingPeriod)
+            throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
+
         Grid gridCopy = grid.deepCopy();
         HashSet<Coordinate> cellsToCheck = new HashSet<>();
         Coordinate[] neighbourhood = getNeighbourhood(generation);
 
         // Generate set of cells to run update function on
         // Use a set to avoid duplicates
-        for (Coordinate cell: cellsChanged) {
-            for (Coordinate neighbour: neighbourhood) {
-                cellsToCheck.add(cell.add(neighbour));
+        for (Set<Coordinate> cellSet: cellsChanged) {
+            for (Coordinate cell: cellSet) {
+                for (Coordinate neighbour: neighbourhood) {
+                    cellsToCheck.add(cell.add(neighbour));
+                }
+                cellsToCheck.add(cell);
             }
-            cellsToCheck.add(cell);
         }
 
-        // Clear the cells changed
-        cellsChanged.clear();
-
         int[] neighbours;
-        int neighbourhood_size = neighbourhood.length, new_state, prev_state;
+        int newState, prevState;
         for (Coordinate cell: cellsToCheck) {
-            prev_state = gridCopy.getCell(cell);
+            prevState = gridCopy.getCell(cell);
 
-            if (prev_state <= 1) {
+            if (prevState < 2) {  // Dying cells don't depend on neighbours
                 // Getting neighbour states
-                neighbours = new int[neighbourhood_size];
-                for (int i = 0; i < neighbourhood_size; i++) {
+                neighbours = new int[neighbourhood.length];
+                for (int i = 0; i < neighbourhood.length; i++) {
                     neighbours[i] = gridCopy.getCell(cell.add(neighbourhood[i]));
                 }
 
                 // Call the transition function on the new state
-                new_state = transitionFunc(neighbours, prev_state, generation);
+                newState = transitionFunc(neighbours, prevState, generation);
             }
-            else {  // Slight optimisation specific to generations rules
-                new_state = (prev_state + 1) % numStates;
+            else {
+                newState = (prevState + 1) % numStates;
             }
 
-            if (new_state != prev_state) {
-                cellsChanged.add(cell);
-                grid.setCell(cell, new_state);
+            if (newState != prevState) {
+                cellsChanged.get(0).add(cell);
+                grid.setCell(cell, newState);
+            }
+            else {
+                for (int i = 0; i < alternatingPeriod; i++) {
+                    if (cellsChanged.get(i).contains(cell)) {
+                        cellsChanged.get(i).remove(cell);
+
+                        // Move the cell forward into the next entry until it can't be moved forward anymore
+                        if (i < alternatingPeriod - 1) cellsChanged.get(i + 1).add(cell);
+                        break;
+                    }
+                }
             }
         }
     }
