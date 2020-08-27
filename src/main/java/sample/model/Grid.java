@@ -7,27 +7,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
+    private int background;
+
     private Coordinate startCoordinate, endCoordinate;
     private final HashMap<Coordinate, Integer> dictionary;
 
     public Grid() {
+        this.background = 0;
         this.dictionary = new HashMap<>();
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
 
     public Grid(HashMap<Coordinate, Integer> dictionary) {
+        this.background = 0;
         this.dictionary = (HashMap<Coordinate, Integer>) dictionary.clone();
+        this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
 
     // Setting state of the cell at (x, y)
     public void setCell(Coordinate coordinate, int state) {
-        if (state == 0) {
+        state = convertCell(state);
+
+        if (state == 0)
             dictionary.remove(coordinate);
-        }
-        else {
+        else
             dictionary.put(coordinate, state);
-        }
     }
 
     public void setCell(int x, int y, int state) {
@@ -53,12 +59,11 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     // Get the state of the cell at (x, y)
     public int getCell(Coordinate coordinate) {
         Integer state = dictionary.get(coordinate);
-        return Objects.requireNonNullElse(state, 0);
+        return convertCell(Objects.requireNonNullElse(state, 0));
     }
 
     public int getCell(int x, int y) {
-        Integer state = dictionary.get(new Coordinate(x, y));
-        return Objects.requireNonNullElse(state, 0);
+        return getCell(new Coordinate(x, y));
     }
 
     // Get all the cells in the pattern
@@ -207,7 +212,8 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
 
         // Finish off the encoding
-        return rleString.toString();
+        // Don't forget the '!'
+        return rleString.toString() + "!";
     }
 
     // Converts the entire pattern to RLE
@@ -365,5 +371,18 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     @Override
     public Iterator<Coordinate> iterator() {
         return dictionary.keySet().iterator();
+    }
+
+    public void setBackground(int background) {
+        this.background = background;
+    }
+
+    public int convertCell(int state) {
+        if (state == background)
+            return 0;
+        else if (state == 0)
+            return background;
+        else
+            return state;
     }
 }

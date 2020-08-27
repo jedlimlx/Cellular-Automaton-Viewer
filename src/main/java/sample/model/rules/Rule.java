@@ -14,6 +14,14 @@ import java.util.Set;
  */
 public abstract class Rule {
     /**
+     * A list of backgrounds to be used for B0 rules.
+     * Example:
+     * A 3-state generations B0 rule without Smax would have a background of {0, 1, 2}.
+     * A non-B0 rule would have a background of {0}.
+     */
+    protected int[] background;
+
+    /**
      * Number of states in the rule
      */
     protected int numStates;
@@ -111,11 +119,14 @@ public abstract class Rule {
             // Getting neighbour states
             neighbours = new int[neighbourhood.length];
             for (int i = 0; i < neighbourhood.length; i++) {
-                neighbours[i] = gridCopy.getCell(cell.add(neighbourhood[i]));
+                // Converting based on background
+                neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
             }
 
             // Call the transition function on the new state
-            newState = transitionFunc(neighbours, prevState, generation);
+            // Don't forget to convert back to the current background
+            newState = convertState(transitionFunc(neighbours,
+                    convertState(prevState, generation), generation), generation + 1);
             if (newState != prevState) {
                 cellsChanged.get(0).add(cell);
                 grid.setCell(cell, newState);
@@ -133,7 +144,7 @@ public abstract class Rule {
             }
         }
 
-        /*
+        /* Old code
         int[] neighbours;
         int prevState, newState;
         Coordinate neighbour;
@@ -186,5 +197,22 @@ public abstract class Rule {
             }
         }
          */
+    }
+
+    /**
+     * Convert the cell state based on the background
+     * Used to simulate B0 rules
+     * @param state The current state of the cell
+     * @param generation The generation of the simulation
+     * @return Returns the new cell state
+     */
+    public int convertState(int state, int generation) {
+        // 0 <-> background
+        if (state == 0)
+            return background[Math.floorMod(generation, background.length)];
+        else if (state == background[Math.floorMod(generation, background.length)])
+            return 0;
+        else
+            return state;
     }
 }

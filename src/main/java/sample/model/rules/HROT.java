@@ -16,11 +16,31 @@ import java.util.Hashtable;
  * @author Lemon41625
  */
 public class HROT extends RuleFamily {
+    /**
+     * The birth conditions of the HROT rule
+     */
     private final HashSet<Integer> birth;
+
+    /**
+     * The survival conditions of the HROT rule
+     */
     private final HashSet<Integer> survival;
+
+    /**
+     * The neighbourhood of the HROT rule
+     */
     private Coordinate[] neighbourhood;
+
+    /**
+     * The neighbourhood weights of the HROT rule.
+     * For example, {1, 2, 1, 2, 0, 2, 1, 2, 1}
+     */
     private int[] weights;
 
+    /**
+     * The maximum possible neighbourhood count.
+     * Used for B0 and min, max rule generation.
+     */
     private int maxNeighbourhoodCount;
 
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
@@ -141,11 +161,6 @@ public class HROT extends RuleFamily {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
 
-        if (birth.contains(0)) // B0 rules
-            alternatingPeriod = 2;
-        else
-            alternatingPeriod = 1;
-
         // Determine maximum neighbourhood count
         maxNeighbourhoodCount = 0;
         if (weights != null) {
@@ -156,6 +171,23 @@ public class HROT extends RuleFamily {
         }
         else {
             maxNeighbourhoodCount = neighbourhood.length;
+        }
+
+        // Handling B0
+        if (birth.contains(0)) {
+            // Checking for Smax
+            if (survival.contains(maxNeighbourhoodCount)) {
+                background = new int[]{1};
+                alternatingPeriod = 1;
+            }
+            else {
+                background = new int[]{0, 1};
+                alternatingPeriod = 2;
+            }
+        }
+        else {
+            background = new int[]{0};
+            alternatingPeriod = 1;
         }
     }
 
@@ -256,14 +288,9 @@ public class HROT extends RuleFamily {
      * Returns the minimum and maximum rule of the provided evolutionary sequence
      * @param grids An array of grids representing the evolutionary sequence
      * @return A pair containing the min rule as the first value and the max rule as the second value
-     * @throws UnsupportedOperationException Thrown if the rule is a B0 rule
      */
     @Override
-    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) throws UnsupportedOperationException {
-        if (birth.contains(0)) {
-            throw new UnsupportedOperationException("B0 rules do not support minimum and maximum rules!");
-        }
-
+    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids)  {
         HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
         HashSet<Integer> minSurvival = new HashSet<>(), maxSurvival = new HashSet<>();
 
@@ -309,8 +336,14 @@ public class HROT extends RuleFamily {
                     else if (currentCell == 1 && nextCell == 0) {  // No Survival (1 -> 0)
                         maxSurvival.remove(sum);
                     }
+
+                    System.out.print(grids[i].getCell(coordinate));
                 }
+
+                System.out.println();
             }
+
+            System.out.println("=======================");
         }
 
         // Construct the new rules and return them
@@ -756,34 +789,13 @@ public class HROT extends RuleFamily {
             }
         }
 
-        if (alternatingPeriod == 1) { // Not B0
-            if (cellState == 1 && survival.contains(sum)) {  // Check Survival
-                return 1;
-            }
-            else if (cellState == 0 && birth.contains(sum)) {  // Check Birth
-                return 1;
-            }
+        if (cellState == 1 && survival.contains(sum)) {  // Check Survival
+            return 1;
         }
-        else {
-            if (generations % 2 == 0) {
-                // Inverted neighbour counts
-                if (cellState == 1 && !survival.contains(sum)) {
-                    return 1;
-                }
-                else if (cellState == 0 && !birth.contains(sum)) {
-                    return 1;
-                }
-            }
-            else {
-                // Swap Smax - birth and Smax - survival
-                if (cellState == 1 && birth.contains(maxNeighbourhoodCount - sum)) {
-                    return 1;
-                }
-                else if (cellState == 0 && survival.contains(maxNeighbourhoodCount - sum)) {
-                    return 1;
-                }
-            }
+        else if (cellState == 0 && birth.contains(sum)) {  // Check Birth
+            return 1;
         }
+
         return 0;
     }
 }

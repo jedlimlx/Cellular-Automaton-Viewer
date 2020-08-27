@@ -15,13 +15,11 @@ import java.util.Set;
 public class Simulator extends Grid {
     private int generation;
     private Rule rule;
-    private final Set<Coordinate> cellsChanged;
     private final ArrayList<Set<Coordinate>> cellsChangedArray;
 
     public Simulator(Rule rule) {
         this.rule = rule;
         this.generation = 0;
-        this.cellsChanged = new HashSet<>();
         this.cellsChangedArray = new ArrayList<>();
 
         for (int i = 0; i < rule.getAlternatingPeriod(); i++) {
@@ -94,7 +92,8 @@ public class Simulator extends Grid {
             step();
 
             int hash = this.hashCode();  // Compute the hash
-            if (hashMap.containsKey(hash)) {
+            if (hashMap.containsKey(hash) && generation % rule.getAlternatingPeriod() ==
+                    initialGeneration % rule.getAlternatingPeriod()) {
                 // Calculates the displacement between the first 2 bounds
                 int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue0()).getX() -
                         getBounds().getValue0().getX();
@@ -135,7 +134,10 @@ public class Simulator extends Grid {
             else {
                 // Adding to the grids list
                 Grid deepCopy = this.deepCopy();
-                grids.add(deepCopy);
+                
+                Grid deepCopy2 = deepCopy.deepCopy();  // Accounting for B0 rules
+                deepCopy2.setBackground(rule.convertState(0, generation));
+                grids.add(deepCopy2);
 
                 // Adding to the hashmap
                 hashMap.put(hash, new Object[]{generation, size(), getBounds(), deepCopy});

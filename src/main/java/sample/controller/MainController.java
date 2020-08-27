@@ -107,6 +107,27 @@ public class MainController {
         // Setting the scroll pane in focus
         scrollPane.requestFocus();
 
+        // Load the correct number of state buttons
+        reloadStateButtons();
+
+        // Start Simulation Thread
+        Thread simulationThread = new Thread(this::runSimulation);
+        simulationThread.setDaemon(true);
+        simulationThread.start();
+
+        // Setting the rule of the rule dialog
+        dialog.setRule((RuleFamily) simulator.getRule());
+    }
+
+    @FXML
+    public void reloadStateButtons() {
+        for (Button button: stateButtons) {
+            secondaryToolbar.getItems().remove(button);
+        }
+
+        // Clearing stateButtons
+        stateButtons.clear();
+
         // Add buttons to the secondary toolbar
         for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
             int index = i;
@@ -116,14 +137,6 @@ public class MainController {
             stateButtons.add(stateButton);
             secondaryToolbar.getItems().add(stateButton);
         }
-
-        // Start Simulation Thread
-        Thread simulationThread = new Thread(this::runSimulation);
-        simulationThread.setDaemon(true);
-        simulationThread.start();
-
-        // Setting the rule of the rule dialog
-        dialog.setRule((RuleFamily) simulator.getRule());
     }
 
     @FXML // Handle the mouse dragged events
@@ -299,7 +312,12 @@ public class MainController {
 
     @FXML // Updates cells
     public void updateCells() {
-        simulator.step();
+        try {
+            simulator.step();
+        }
+        catch (ConcurrentModificationException exception) {
+            return;
+        }
 
         Platform.runLater(() -> {
             try {
@@ -405,6 +423,9 @@ public class MainController {
         // Check if the user actually hit `Confirm Rule`
         if (dialog.getRule() != null) {
             simulator.setRule(dialog.getRule());
+
+            // Reload the number of state buttons
+            reloadStateButtons();
         }
     }
 
@@ -480,12 +501,13 @@ public class MainController {
         Simulator simulator = new Simulator(this.simulator.getRule());
         simulator.insertCells(this.simulator.getCells(startSelection, endSelection),
                 new Coordinate(0, 0));
+        simulator.setGeneration(this.simulator.getGeneration());  // Ensure the generation is the same
 
         // Results of the identification
         sample.model.patterns.Pattern results = simulator.identify();
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Identification results");
+        alert.setTitle("Identification Results");
 
         if (results != null) {
             alert.setHeaderText(results.toString());
@@ -551,6 +573,12 @@ public class MainController {
 
             // Get giffer from the dialog
             gifferDialog.showAndWait();
+
+            // Check if the operation was cancelled
+            if (gifferDialog.getResult() == Boolean.FALSE) {
+                return;
+            }
+
             giffer = gifferDialog.getGiffer();
         }
 
@@ -592,6 +620,7 @@ public class MainController {
 
         // Identify the rule family based on regex
         boolean found = false;
+        RuleFamily rule = null;
         for (RuleWidget widget: dialog.getRuleWidgets()) {
             for (String regex: widget.getRuleFamily().getRegex()) {
                 if (rulestring.matches(regex)) {
@@ -602,21 +631,24 @@ public class MainController {
 
             // Completely break out of the loop
             if (found) {
-                simulator.setRule(widget.getRuleFamily());
+                widget.getRuleFamily().setRulestring(rulestring);
+                rule = widget.getRuleFamily();
                 break;
             }
         }
 
-        // Set the rulestring
-        ((RuleFamily) simulator.getRule()).setRulestring(rulestring);
+        if (rule != null) {
+            // Generate the additional information from comments
+            String[] commentsArray = new String[comments.size()];
+            for (int i = 0; i < commentsArray.length; i++) {
+                commentsArray[i] = comments.get(i);
+            }
 
-        // Generate the additional information from comments
-        String[] commentsArray = new String[comments.size()];
-        for (int i = 0; i < commentsArray.length; i++) {
-            commentsArray[i] = comments.get(i);
+            rule.loadComments(commentsArray);
+
+            // Set the rulestring
+            simulator.setRule(rule);
         }
-
-        ((RuleFamily) simulator.getRule()).loadComments(commentsArray);
 
         newPattern();  // Clear all cells
         simulator.fromRLE(rleFinal.toString(), new Coordinate(1024, 1024));  // Insert the new cells
@@ -628,6 +660,9 @@ public class MainController {
 
         // Setting the rule of the rule dialog
         dialog.setRule((RuleFamily) simulator.getRule());
+
+        // Reloading the state buttons to state the number of states
+        reloadStateButtons();
     }
 
     public void loadPattern(ArrayList<String> tokens) {
@@ -863,10 +898,5 @@ public class MainController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    // Accessor
-    public Simulator getSimulator() {
-        return simulator;
     }
 }

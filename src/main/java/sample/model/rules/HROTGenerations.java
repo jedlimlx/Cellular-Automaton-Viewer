@@ -13,10 +13,32 @@ import java.util.*;
  * @author Lemon41625
  */
 public class HROTGenerations extends RuleFamily {
+    /**
+     * The birth conditions of the HROT generations rule
+     */
     private final HashSet<Integer> birth;
+
+    /**
+     * The survival conditions of the HROT generations rule
+     */
     private final HashSet<Integer> survival;
+
+    /**
+     * The neighbourhood of the HROT generations rule
+     */
     private Coordinate[] neighbourhood;
+
+    /**
+     * The neighbourhood weights of the HROT generations rule.
+     * For example, {1, 2, 1, 2, 0, 2, 1, 2, 1}
+     */
     private int[] weights;
+
+    /**
+     * The maximum possible neighbourhood count.
+     * Used for B0 and min, max rule generation.
+     */
+    private int maxNeighbourhoodCount;
 
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
     private final static String higherRangePredefined = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" +
@@ -110,6 +132,41 @@ public class HROTGenerations extends RuleFamily {
         else {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
+
+        // Determine maximum neighbourhood count
+        maxNeighbourhoodCount = 0;
+        if (weights != null) {
+            for (int weight: weights) {
+                if (weight > 0)
+                    maxNeighbourhoodCount += weight;
+            }
+        }
+        else {
+            maxNeighbourhoodCount = neighbourhood.length;
+        }
+
+        // Handling B0 Rules
+        if (birth.contains(0)) {
+            // Checking for Smax
+            if (survival.contains(maxNeighbourhoodCount)) {
+                background = new int[]{1};
+                alternatingPeriod = 1;
+            }
+            else {
+                // Background -> {0, 1, 2, ...}
+                background = new int[numStates];
+                for (int i = 0; i < numStates; i++) {
+                    background[i] = i;
+                }
+
+                // Setting the alternating period
+                alternatingPeriod = numStates;
+            }
+        }
+        else {
+            background = new int[]{0};
+            alternatingPeriod = 1;
+        }
     }
 
     /**
@@ -198,20 +255,8 @@ public class HROTGenerations extends RuleFamily {
         HashSet<Integer> minBirth = new HashSet<>(), maxBirth = new HashSet<>();
         HashSet<Integer> minSurvival = new HashSet<>(), maxSurvival = new HashSet<>();
 
-        // Determine maximum neighbourhood count
-        int neighbourhoodCount = 0;
-        if (weights != null) {
-            for (int weight: weights) {
-                if (weight > 0)
-                    neighbourhoodCount += weight;
-            }
-        }
-        else {
-            neighbourhoodCount = neighbourhood.length;
-        }
-
         // Populate maxBirth & maxSurvival with numbers from 0 - max neighbour sum
-        for (int i = 0; i < neighbourhoodCount + 1; i++) {
+        for (int i = 0; i < maxNeighbourhoodCount + 1; i++) {
             maxBirth.add(i);
             maxSurvival.add(i);
         }
@@ -642,7 +687,7 @@ public class HROTGenerations extends RuleFamily {
 
     /**
      * Steps the grid provided forward one generation
-     * An optimisation is implemented that is specific to generations rules
+     * Includes some generations specific optimisation
      * @param grid The grid that will be stepped forward one generation
      * @param cellsChanged An array of sets that contains the cells the changed in the previous generations.
      *                     The first entry will contains the cells that changed in the previous generation
@@ -672,24 +717,29 @@ public class HROTGenerations extends RuleFamily {
         }
 
         int[] neighbours;
-        int newState, prevState;
+        int newState, prevState, convertedPrevState;
         for (Coordinate cell: cellsToCheck) {
             prevState = gridCopy.getCell(cell);
+            convertedPrevState = convertState(prevState, generation);
 
-            if (prevState < 2) {  // Dying cells don't depend on neighbours
+            // Skip for dying cells
+            if (convertedPrevState <= 1) {
                 // Getting neighbour states
                 neighbours = new int[neighbourhood.length];
                 for (int i = 0; i < neighbourhood.length; i++) {
-                    neighbours[i] = gridCopy.getCell(cell.add(neighbourhood[i]));
+                    // Converting based on background
+                    neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
                 }
 
-                // Call the transition function on the new state
-                newState = transitionFunc(neighbours, prevState, generation);
+                newState = convertState(transitionFunc(neighbours, convertedPrevState, generation),
+                        generation + 1);
             }
             else {
-                newState = (prevState + 1) % numStates;
+                newState = convertState((convertedPrevState + 1) % numStates, generation + 1);
             }
 
+            // Call the transition function on the new state
+            // Don't forget to convert back to the current backgroun
             if (newState != prevState) {
                 cellsChanged.get(0).add(cell);
                 grid.setCell(cell, newState);
@@ -706,5 +756,59 @@ public class HROTGenerations extends RuleFamily {
                 }
             }
         }
+
+        /* Old code
+        int[] neighbours;
+        int prevState, newState;
+        Coordinate neighbour;
+        HashSet<Coordinate> visited = new HashSet<>();
+        HashSet<Coordinate> cellNeighbours = new HashSet<>();
+
+        // Clear the cells changed
+        cellsToCheck = (HashSet<Coordinate>) cellsChanged.clone();
+        cellsChanged.clear();
+
+        for (Coordinate cell: cellsToCheck) {
+            visited.add(cell);
+
+            prevState = gridCopy.getCell(cell);
+
+            // Getting neighbour states
+            neighbours = new int[neighbourhood.length];
+            for (int i = 0; i < neighbourhood.length; i++) {
+                neighbour = cell.add(neighbourhood[i]);
+                neighbours[i] = gridCopy.getCell(neighbour);
+                if (!cellsToCheck.contains(neighbour))
+                    cellNeighbours.add(neighbour);
+            }
+
+            // Call the transition function on the new state
+            newState = transitionFunc(neighbours, prevState, generation);
+            if (newState != prevState) {
+                cellsChanged.add(cell);
+                grid.setCell(cell, newState);
+            }
+        }
+
+        for (Coordinate cell: cellNeighbours) {
+            visited.add(cell);
+
+            prevState = gridCopy.getCell(cell);
+
+            // Getting neighbour states
+            neighbours = new int[neighbourhood.length];
+            for (int i = 0; i < neighbourhood.length; i++) {
+                neighbour = cell.add(neighbourhood[i]);
+                neighbours[i] = gridCopy.getCell(neighbour);
+            }
+
+            // Call the transition function on the new state
+            newState = transitionFunc(neighbours, prevState, generation);
+            if (newState != prevState) {
+                cellsChanged.add(cell);
+                grid.setCell(cell, newState);
+            }
+        }
+         */
     }
 }
