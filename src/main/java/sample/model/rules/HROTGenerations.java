@@ -10,7 +10,6 @@ import java.util.*;
 
 /**
  * Represents the HROT Generations rule family
- * @author Lemon41625
  */
 public class HROTGenerations extends RuleFamily {
     /**
@@ -49,6 +48,13 @@ public class HROTGenerations extends RuleFamily {
             ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
     /**
+     * Creates a HROT Generations rule with the rule Frogs
+     */
+    public HROTGenerations() {
+        this("R1,C4,S1-2,B3-4,NM");
+    }
+
+    /**
      * Creates a HROT Generations rule with the given rulestring
      * @param rulestring The rulestring of the HROT Generations rule to be created
      * @throws IllegalArgumentException Thrown if the rulestring is invalid
@@ -72,7 +78,7 @@ public class HROTGenerations extends RuleFamily {
      * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
      */
     @Override
-    public void fromRulestring(String rulestring) throws IllegalArgumentException {
+    protected void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
         birth.clear();
         survival.clear();
@@ -98,6 +104,7 @@ public class HROTGenerations extends RuleFamily {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
             String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
+            weights = null;
             if (CoordCA.length() > 0)
                 neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
@@ -133,40 +140,7 @@ public class HROTGenerations extends RuleFamily {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
 
-        // Determine maximum neighbourhood count
-        maxNeighbourhoodCount = 0;
-        if (weights != null) {
-            for (int weight: weights) {
-                if (weight > 0)
-                    maxNeighbourhoodCount += weight;
-            }
-        }
-        else {
-            maxNeighbourhoodCount = neighbourhood.length;
-        }
-
-        // Handling B0 Rules
-        if (birth.contains(0)) {
-            // Checking for Smax
-            if (survival.contains(maxNeighbourhoodCount)) {
-                background = new int[]{1};
-                alternatingPeriod = 1;
-            }
-            else {
-                // Background -> {0, 1, 2, ...}
-                background = new int[numStates];
-                for (int i = 0; i < numStates; i++) {
-                    background[i] = i;
-                }
-
-                // Setting the alternating period
-                alternatingPeriod = numStates;
-            }
-        }
-        else {
-            background = new int[]{0};
-            alternatingPeriod = 1;
-        }
+        updateBackground();
     }
 
     /**
@@ -180,7 +154,8 @@ public class HROTGenerations extends RuleFamily {
         String newRulestring = "";
         StringBuilder rulestringBuilder = new StringBuilder(newRulestring);
 
-        if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined)) {
+        if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
+                rulestring.matches(higherRangeWeightedCustom)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,C[0-9]+,", rulestring, 0));
 
             // Adding Survival
@@ -195,6 +170,51 @@ public class HROTGenerations extends RuleFamily {
 
         newRulestring = rulestringBuilder.toString();
         return newRulestring;
+    }
+
+    @Override
+    public void updateBackground() {
+        // Determine maximum neighbourhood count
+        maxNeighbourhoodCount = 0;
+
+        if (neighbourhood != null) {
+            if (weights != null) {
+                for (int weight: weights) {
+                    if (weight > 0)
+                        maxNeighbourhoodCount += weight;
+                }
+            }
+            else {
+                maxNeighbourhoodCount = neighbourhood.length;
+            }
+
+            // Handling B0 Rules
+            if (birth.contains(0)) {
+                // Checking for Smax
+                if (survival.contains(maxNeighbourhoodCount)) {
+                    background = new int[]{1};
+                    alternatingPeriod = 1;
+                }
+                else {
+                    // Background -> {0, 1, 2, ...}
+                    background = new int[numStates];
+                    for (int i = 0; i < numStates; i++) {
+                        background[i] = i;
+                    }
+
+                    // Setting the alternating period
+                    alternatingPeriod = numStates;
+                }
+            }
+            else {
+                background = new int[]{0};
+                alternatingPeriod = 1;
+            }
+        }
+        else {
+            background = new int[]{0};
+        }
+
     }
 
     /**
@@ -214,12 +234,14 @@ public class HROTGenerations extends RuleFamily {
     public String getDescription() {
         return "This implements the Higher Range Outer Totalistic (HROT) generations rulespace.\n" +
                 "It supports arbitrary neighbourhoods via the CoordCA format (Specify with N@).\n" +
-                "It supports arbitary weighted neighbourhoods via the LifeViewer format (Specify with NW)\n" +
-                "B0 support and state weight support is planned.\n\n" +
+                "It supports arbitary weighted neighbourhoods via the LifeViewer format (Specify with NW).\n" +
+                "B0 rules are supported via emulation alternating rules.\n" +
                 "The format is as follows:\n" +
-                "R<range>,C<numStates>,S<survival>,B<birth>,N@<CoordCA> or\n" +
                 "R<range>,C<numStates>,S<survival>,B<birth>," +
-                "N<" + NeighbourhoodGenerator.neighbourhoodSymbols + ">\n\n" +
+                "N<" + NeighbourhoodGenerator.neighbourhoodSymbols + "> or\n" +
+                "R<range>,C<numStates>,S<survival>,B<birth>,N@<CoordCA> or\n" +
+                "R<range>,C<numStates>,S<survival>,B<birth>,NW<Weights> or\n" +
+                "R<range>,C<numStates>,S<survival>,B<birth>,NW<Weights>, <State Weights> or\n" +
                 "Examples:\n" +
                 "R1,C2,S1-2,B3-4,NM (Frogs)\n" +
                 "R2,C2,S1-2,B3-4,N@22A544 (Skew Frogs)";
@@ -236,9 +258,11 @@ public class HROTGenerations extends RuleFamily {
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException {
         if (minRule instanceof HROTGenerations && maxRule instanceof HROTGenerations) {
             Utils.randomiseTransitions(birth, ((HROTGenerations) minRule).birth, ((HROTGenerations) maxRule).birth);
-            Utils.randomiseTransitions(survival, ((HROTGenerations) minRule).survival, ((HROTGenerations) maxRule).survival);
+            Utils.randomiseTransitions(survival, ((HROTGenerations) minRule).survival,
+                    ((HROTGenerations) maxRule).survival);
 
             rulestring = canonise(rulestring);  // Reload the rulestring with the new birth / survival conditions
+            updateBackground();  // Update the background
         }
         else {
             throw new IllegalArgumentException("The rule families selected have to be the same!");
@@ -607,6 +631,9 @@ public class HROTGenerations extends RuleFamily {
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
@@ -619,6 +646,9 @@ public class HROTGenerations extends RuleFamily {
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
@@ -627,6 +657,7 @@ public class HROTGenerations extends RuleFamily {
      */
     public void setNeighbourhood(Coordinate[] neighbourhood) {
         this.neighbourhood = neighbourhood;
+        updateBackground();
     }
 
     /**
@@ -635,6 +666,7 @@ public class HROTGenerations extends RuleFamily {
      */
     public void setWeights(int[] weights) {
         this.weights = weights;
+        updateBackground();
     }
 
     /**

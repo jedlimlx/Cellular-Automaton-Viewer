@@ -1,5 +1,6 @@
 package sample.model.rules;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.paint.Color;
 import sample.model.Coordinate;
 import sample.model.Grid;
@@ -10,8 +11,8 @@ import java.util.Set;
 
 /**
  * Represents a single rule
- * @author Lemon41625
  */
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class Rule {
     /**
      * A list of backgrounds to be used for B0 rules.

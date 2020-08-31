@@ -16,17 +16,17 @@ public class AnimatedZoomOperator {
     }
 
     public void zoom(Node node, double factor, double x, double y) {
-        // determine scale
+        // Determine scale
         double oldScale = node.getScaleX();
         double scale = oldScale * factor;
         double f = (scale / oldScale) - 1;
 
-        // determine offset that we will have to move the node
+        // Determine offset that we will have to move the node
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
         double dx = (x - (bounds.getWidth() / 2 + bounds.getMinX()));
         double dy = (y - (bounds.getHeight() / 2 + bounds.getMinY()));
 
-        // timeline that scales and moves the node
+        // Timeline that scales and moves the node
         timeline.getKeyFrames().clear();
         timeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.millis(200), new KeyValue(node.translateXProperty(),

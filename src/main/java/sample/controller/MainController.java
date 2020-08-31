@@ -1,7 +1,10 @@
 package sample.controller;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -9,8 +12,12 @@ import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import sample.controller.dialogs.About;
 import sample.controller.dialogs.GifferDialog;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.rule.RuleWidget;
@@ -19,10 +26,12 @@ import sample.controller.dialogs.search.RuleSearchResultsDialog;
 import sample.model.Cell;
 import sample.model.*;
 import sample.model.rules.HROT;
+import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -51,6 +60,11 @@ public class MainController {
     @FXML
     private ImageView playButtonImage;
 
+    private final int WIDTH = 4096;
+    private final int HEIGHT = 4096;
+    private final int CELL_SIZE = 1;  // Cell size
+    private final String SETTINGS_FILE = "settings.json";
+
     private boolean currentlySelecting = false;
     private Coordinate startSelection;  // The start of the selection
     private Coordinate endSelection;  // The end of the selection
@@ -63,12 +77,15 @@ public class MainController {
     private Simulator simulator;  // Simulator to simulate rule
     private ArrayList<Button> stateButtons;  // Buttons to switch between states
     private HashMap<Coordinate, Cell> cellList;  // List of cell objects
+    private Group gridLines;  // The grid lines of the pattern editor
 
-    private final int CELL_SIZE = 2;  // Cell size
     private int currentState = 1;  // State to draw with
+    private boolean recording = false;  // Is the recording on?
     private boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = false;  // Is the visualisation done?
-    private boolean recording = false;  // Is the recording on?
+    private boolean showGridLines = false;  // Are the grid lines being shown?
+
+    private JSONObject settings;  // Store the settings
 
     private Giffer giffer;  // For writing to a *.gif
 
@@ -81,13 +98,18 @@ public class MainController {
 
         // Create simulator object
         simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
-        setCell(0, 0, 0);
 
         // Create selection rectangle and set properties
         selectionRectangle = new Rectangle();
         selectionRectangle.setOpacity(0.5);
         selectionRectangle.setFill(Color.rgb(150, 230, 255));
         selectionRectangle.toFront();
+        selectionRectangle.setVisible(false);
+        drawingPane.getChildren().add(selectionRectangle);
+
+        // Setting zoom
+        drawingPane.setScaleX(5);
+        drawingPane.setScaleY(5);
 
         // Disable scrollbars and scrolling
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -101,22 +123,74 @@ public class MainController {
         scrollPane.addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressedHandler);
 
         // Move the center of the ScrollPane
-        scrollPane.setHvalue(0.5);
-        scrollPane.setVvalue(0.5);
+        scrollPane.setHvalue(0.2);
+        scrollPane.setVvalue(0.2);
 
         // Setting the scroll pane in focus
-        scrollPane.requestFocus();
+        drawingPane.requestFocus();
 
         // Load the correct number of state buttons
         reloadStateButtons();
 
         // Start Simulation Thread
         Thread simulationThread = new Thread(this::runSimulation);
+        simulationThread.setName("Simulation Thread");
         simulationThread.setDaemon(true);
         simulationThread.start();
 
         // Setting the rule of the rule dialog
         dialog.setRule((RuleFamily) simulator.getRule());
+
+        // Creating grid lines
+        gridLines = new Group();
+        for (int i = 0; i < WIDTH; i += CELL_SIZE) {
+            Line lineX = new Line();
+            lineX.setStroke(Color.GREY);
+            lineX.setStrokeWidth(0.2 * CELL_SIZE);
+            lineX.setStartX(i);
+            lineX.setEndX(i);
+            lineX.setStartY(0);
+            lineX.setEndY(HEIGHT);
+            lineX.toFront();
+            gridLines.getChildren().add(lineX);
+
+            Line lineY = new Line();
+            lineY.setStroke(Color.GREY);
+            lineY.setStrokeWidth(0.2 * CELL_SIZE);
+            lineY.setStartX(0);
+            lineY.setEndX(HEIGHT);
+            lineY.setStartY(i);
+            lineY.setEndY(i);
+            lineY.toFront();
+            gridLines.getChildren().add(lineY);
+        }
+
+        gridLines.setVisible(false);
+        drawingPane.getChildren().add(gridLines);
+
+        // Loading settings
+        try {  // Reading settings from settings file
+            JSONTokener tokener = new JSONTokener(new FileInputStream(SETTINGS_FILE));
+            settings = new JSONObject(tokener);
+
+            // Grid lines
+            if (settings.getBoolean("grid_lines")) {
+                showGridLines = true;
+                gridLines.setVisible(true);
+            }
+
+            // Setting the rule
+            ObjectMapper m = new ObjectMapper();
+            m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            simulator.setRule(m.readValue(settings.get("rule").toString(), Rule.class));
+
+            // Setting the rule of the rule dialog
+            dialog.setRule((RuleFamily) simulator.getRule());
+        }
+        catch (IOException exception) {
+            settings = new JSONObject();
+            exception.printStackTrace();
+        }
     }
 
     @FXML
@@ -159,15 +233,15 @@ public class MainController {
         if (mode == Mode.SELECTING && !currentlySelecting) {
             currentlySelecting = true;
 
-            // Remove from pane
-            drawingPane.getChildren().remove(selectionRectangle);
+            selectionRectangle.setVisible(false);
+            selectionRectangle.toFront();
 
             selectionRectangle.setX((int)event.getX() / CELL_SIZE * CELL_SIZE);
             selectionRectangle.setY((int)event.getY() / CELL_SIZE * CELL_SIZE);
             startSelection = new Coordinate((int)event.getX() / CELL_SIZE,
                     (int)event.getY() / CELL_SIZE);
 
-            drawingPane.getChildren().add(selectionRectangle);
+            selectionRectangle.setVisible(true);
         }
     }
 
@@ -177,6 +251,12 @@ public class MainController {
             currentlySelecting = false;
             endSelection = new Coordinate((int)event.getX() / CELL_SIZE,
                     (int)event.getY() / CELL_SIZE);
+        }
+
+        if (startSelection != null && endSelection != null &&
+                (endSelection.subtract(startSelection).getX() <= 1 ||
+                endSelection.subtract(startSelection).getY() <= 1)) {
+            selectionRectangle.setVisible(false);
         }
     }
 
@@ -215,16 +295,35 @@ public class MainController {
         renderCells(startSelection, endSelection);
     }
 
+    @FXML // Sets the generation
+    public void setGeneration() {
+        // Getting the generation number from the user
+        TextInputDialog inputDialog = new TextInputDialog("0");
+        inputDialog.setTitle("Set Generation");
+        inputDialog.setHeaderText("Enter the generation number:");
+        inputDialog.showAndWait();
+
+        try {
+            simulator.setGeneration(Integer.parseInt(inputDialog.getResult()));
+            updateStatusText();
+        }
+        catch (NumberFormatException exception) {
+            // Ensure it's an integer
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
+            alert.showAndWait();
+        }
+    }
+
     // Function to set cell at (x, y) to a certain state
     public void setCell(int x, int y, int state) {
         setCell(x, y, state, true);
     }
 
     public void setCell(int x, int y, int state, boolean updateSimulator) {
-        // Bring selection rectangle to the front
-        if (mode == Mode.SELECTING) {
-            selectionRectangle.toFront();
-        }
+        selectionRectangle.toFront();
+        gridLines.toFront();
 
         // Get the cell object at the specified coordinate
         Cell prevCell = getCellObject(x, y);
@@ -236,12 +335,14 @@ public class MainController {
             cell.setWidth(CELL_SIZE);
             cell.setHeight(CELL_SIZE);
             cell.setFill(simulator.getRule().getColour(state));
+            cell.toBack();
 
             // Add cell to pane and cell list
             drawingPane.getChildren().add(cell);
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
         else if (prevCell.getState() != state) {  // Don't bother if the cell didn't change
+            prevCell.getRectangle().toBack();
             if (state == 0 && cellList.size() > 500) {
                 // Destroy the cell object (remove all references to it so it is garbage collected)
                 removeCellObject(x, y);
@@ -250,7 +351,11 @@ public class MainController {
             else {
                 prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
                 prevCell.setState(state);
+                prevCell.getRectangle().toBack();
             }
+        }
+        else {
+            prevCell.getRectangle().toBack();
         }
 
         // Add cell to simulator
@@ -277,8 +382,8 @@ public class MainController {
 
     // Renders cells between the start and end coordinate
     public void renderCells(Coordinate startSelection, Coordinate endSelection) {
-        for (int i = startSelection.getX(); i < endSelection.getX(); i++) {
-            for (int j = startSelection.getY(); j < endSelection.getY(); j++) {
+        for (int i = startSelection.getX(); i < endSelection.getX() + 1; i++) {
+            for (int j = startSelection.getY(); j < endSelection.getY() + 1; j++) {
                 setCell(i * CELL_SIZE, j * CELL_SIZE, simulator.getCell(i, j));  // Render the new cells
             }
         }
@@ -294,6 +399,10 @@ public class MainController {
 
     public Cell getCellObject(int x, int y) {
         return cellList.get(new Coordinate(x, y));
+    }
+
+    public void updateStatusText() {
+        statusLabel.setText("Generation: " + simulator.getGeneration());
     }
 
     @FXML // Zooming in and out of the canvas
@@ -339,8 +448,8 @@ public class MainController {
             // Update the variable to say that the visualisation is done
             visualisationDone = true;
 
-            // Update with new generation
-            statusLabel.setText("Generation: " + simulator.getGeneration());
+            // Update the status label
+            updateStatusText();
         });
 
         // Add to the gif if the recording is on
@@ -416,6 +525,12 @@ public class MainController {
         mode = Mode.SELECTING;
     }
 
+    @FXML // Toggle grid lines
+    public void toggleGridLines() {
+        showGridLines = !showGridLines;
+        gridLines.setVisible(showGridLines);
+    }
+
     @FXML // Starts the rule dialog
     public void startRuleDialog() {
         dialog.showAndWait();
@@ -443,6 +558,12 @@ public class MainController {
             RuleSearchResultsDialog resultsDialog = new RuleSearchResultsDialog(this, ruleSearch);
             resultsDialog.show();
         }
+    }
+
+    @FXML // Provides information about CAViewer
+    public void startAboutDialog() {
+        About about = new About();
+        about.showAndWait();
     }
 
     @FXML // Generates an APGTable
@@ -547,24 +668,28 @@ public class MainController {
                 return;
             }
 
-            if (!giffer.toGIF(file)) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error in generating *.gif");
-                alert.setHeaderText("The operation was unsuccessful.");
-                alert.setContentText("The operation was unsuccessful. " +
-                        "If you suspect a bug, please report it.");
-                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                alert.showAndWait();
-            }
-            else {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Operation successful!");
-                alert.setHeaderText("The operation was successful.");
-                alert.setContentText("The operation was successful. " +
-                        "The *.gif has been saved to " + file.getAbsolutePath() + ".");
-                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                alert.showAndWait();
-            }
+            Thread thread = new Thread(() -> {
+                if (!giffer.toGIF(file)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error in generating *.gif");
+                    alert.setHeaderText("The operation was unsuccessful.");
+                    alert.setContentText("The operation was unsuccessful. " +
+                            "If you suspect a bug, please report it.");
+                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                    alert.showAndWait();
+                }
+                else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Operation successful!");
+                    alert.setHeaderText("The operation was successful.");
+                    alert.setContentText("The operation was successful. " +
+                            "The *.gif has been saved to " + file.getAbsolutePath() + ".");
+                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                    alert.showAndWait();
+                }
+            });
+            thread.setName("Giffer Thread");
+            thread.start();
         }
         else {
             // Change icon for recording
@@ -587,7 +712,26 @@ public class MainController {
 
     @FXML // Closes the application
     public void closeApplication() {
+        onApplicationClosed();
         Platform.exit();
+    }
+
+    // Saving settings when the application is closed
+    public void onApplicationClosed() {
+        try {
+            ObjectMapper m = new ObjectMapper();
+
+            // Configuring settings
+            settings.put("grid_lines", showGridLines);
+            settings.put("rule", new JSONObject(m.writeValueAsString(simulator.getRule())));
+
+            // Writing to file
+            FileWriter writer = new FileWriter(SETTINGS_FILE);
+            writer.write(settings.toString(4));
+            writer.close();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     // Loads the pattern based on an RLE
@@ -651,18 +795,24 @@ public class MainController {
         }
 
         newPattern();  // Clear all cells
-        simulator.fromRLE(rleFinal.toString(), new Coordinate(1024, 1024));  // Insert the new cells
+        simulator.fromRLE(rleFinal.toString(), // Insert the new cells
+                new Coordinate(1800 / CELL_SIZE, 1800 / CELL_SIZE));
         renderCells();  // Render the new cells
-
-        // Move to the center of the ScrollPane
-        scrollPane.setHvalue(0.5);
-        scrollPane.setVvalue(0.5);
+        
+        // Centering the viewport
+        // scrollPane.setHvalue(0.2);
+        // scrollPane.setVvalue(0.2);
+        // drawingPane.setTranslateX(0);
+        // drawingPane.setTranslateY(0);
 
         // Setting the rule of the rule dialog
         dialog.setRule((RuleFamily) simulator.getRule());
 
         // Reloading the state buttons to state the number of states
         reloadStateButtons();
+
+        // Setting the generation count back to 0
+        simulator.setGeneration(0);
     }
 
     public void loadPattern(ArrayList<String> tokens) {

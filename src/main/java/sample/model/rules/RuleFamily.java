@@ -7,7 +7,6 @@ import java.io.File;
 
 /**
  * Represents a family of rules or a rulespace
- * @author Lemon41625
  */
 public abstract class RuleFamily extends Rule implements Cloneable {
     /**
@@ -25,10 +24,11 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @param rulestring The rulestring of the rule (eg. B3/S23, R2,C2,S5-9,B7-8,NM)
      * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
      */
-    public abstract void fromRulestring(String rulestring);
+    protected abstract void fromRulestring(String rulestring);
 
     /**
      * Canonises the inputted rulestring with the currently loaded parameters.
+     * This method should be called whenever the parameters of a rule are updated.
      * @param rulestring The rulestring to canonised
      * @return Canonised rulestring
      */
@@ -42,6 +42,13 @@ public abstract class RuleFamily extends Rule implements Cloneable {
         fromRulestring(rulestring);
         this.rulestring = canonise(rulestring);
     }
+
+    /**
+     * Updates the background of the rule based on the loaded parameters.
+     * This method should be called whenever the parameters of a rule are updated.
+     * For non-strobing rules, the background is {0}.
+     */
+    public abstract void updateBackground();
 
     /**
      * The regexes that will match a valid rulestring

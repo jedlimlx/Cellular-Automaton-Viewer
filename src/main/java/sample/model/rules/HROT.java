@@ -13,7 +13,6 @@ import java.util.Hashtable;
 
 /**
  * Represents the 2-state HROT rule family
- * @author Lemon41625
  */
 public class HROT extends RuleFamily {
     /**
@@ -55,6 +54,13 @@ public class HROT extends RuleFamily {
             ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
 
     /**
+     * Creates a 2-state HROT rule with the Minibugs rule
+     */
+    public HROT() {
+        this("R2,C2,S6-9,B7-8,NM");
+    }
+
+    /**
      * Creates a 2-state HROT rule with the given rulestring
      * @param rulestring The rulestring of the 2-state HROT rule to be created
      * @throws IllegalArgumentException Thrown if the rulestring is invalid
@@ -78,7 +84,7 @@ public class HROT extends RuleFamily {
      * @throws IllegalArgumentException Thrown if an invalid rulestring is passed in
      */
     @Override
-    public void fromRulestring(String rulestring) throws IllegalArgumentException {
+    protected void fromRulestring(String rulestring) throws IllegalArgumentException {
         // Clear birth and survival
         birth.clear();
         survival.clear();
@@ -92,6 +98,7 @@ public class HROT extends RuleFamily {
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateMoore(1);
+            weights = null;
         }
         else if (rulestring.matches(vonNeumann)) {
             // Add to birth & survival
@@ -102,6 +109,7 @@ public class HROT extends RuleFamily {
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateVonNeumann(1);
+            weights = null;
         }
         else if (rulestring.matches(hexagonal)) {
             // Add to birth & survival
@@ -112,6 +120,7 @@ public class HROT extends RuleFamily {
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateHexagonal(1);
+            weights = null;
         }
         else if (rulestring.matches(higherRangePredefined)) {
             // Generate Neighbourhood
@@ -132,6 +141,8 @@ public class HROT extends RuleFamily {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
             String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
+            weights = null;
+
             if (CoordCA.length() > 0)
                 neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
@@ -161,34 +172,8 @@ public class HROT extends RuleFamily {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
 
-        // Determine maximum neighbourhood count
-        maxNeighbourhoodCount = 0;
-        if (weights != null) {
-            for (int weight: weights) {
-                if (weight > 0)
-                    maxNeighbourhoodCount += weight;
-            }
-        }
-        else {
-            maxNeighbourhoodCount = neighbourhood.length;
-        }
-
-        // Handling B0
-        if (birth.contains(0)) {
-            // Checking for Smax
-            if (survival.contains(maxNeighbourhoodCount)) {
-                background = new int[]{1};
-                alternatingPeriod = 1;
-            }
-            else {
-                background = new int[]{0, 1};
-                alternatingPeriod = 2;
-            }
-        }
-        else {
-            background = new int[]{0};
-            alternatingPeriod = 1;
-        }
+        // Update the background
+        updateBackground();
     }
 
     /**
@@ -236,6 +221,48 @@ public class HROT extends RuleFamily {
     }
 
     /**
+     * Updates the background based on the currently loaded parameters
+     */
+    @Override
+    public void updateBackground() {
+        // Determine maximum neighbourhood count
+        maxNeighbourhoodCount = 0;
+
+        if (neighbourhood != null) {
+            if (weights != null) {
+                for (int weight: weights) {
+                    if (weight > 0)
+                        maxNeighbourhoodCount += weight;
+                }
+            }
+            else {
+                maxNeighbourhoodCount = neighbourhood.length;
+            }
+
+            // Handling B0
+            if (birth.contains(0)) {
+                // Checking for Smax
+                if (survival.contains(maxNeighbourhoodCount)) {
+                    background = new int[]{1};
+                    alternatingPeriod = 1;
+                }
+                else {
+                    background = new int[]{0, 1};
+                    alternatingPeriod = 2;
+                }
+            }
+            else {
+                background = new int[]{0};
+                alternatingPeriod = 1;
+            }
+        }
+        else {
+            background = new int[]{0};
+            alternatingPeriod = 1;
+        }
+    }
+
+    /**
      * The regexes that will match a valid rulestring
      * @return An array of regexes that will match a valid rulestring
      */
@@ -253,9 +280,11 @@ public class HROT extends RuleFamily {
     public String getDescription() {
         return "This implements the 2 state Higher Range Outer Totalistic (HROT) rulespace.\n" +
                 "It supports arbitrary neighbourhoods via the CoordCA format (Specify with N@).\n" +
+                "It supports arbitrary weighted neighbourhoods via the LV format (Specify with NW).\n" +
                 "It supports B0 rules via emulation by alternating rules.\n\n" +
                 "The format is as follows:\n" +
                 "R<range>,C2,S<survival>,B<birth>,N@<CoordCA> or\n" +
+                "R<range>,C2,S<survival>,B<birth>,NW<Weights> or\n" +
                 "R<range>,C2,S<survival>,B<birth>,N<" + NeighbourhoodGenerator.neighbourhoodSymbols + ">\n\n" +
                 "Examples:\n" +
                 "B36/S23 (High Life)\n" +
@@ -278,6 +307,7 @@ public class HROT extends RuleFamily {
             Utils.randomiseTransitions(survival, ((HROT) minRule).getSurvival(), ((HROT) maxRule).getSurvival());
 
             rulestring = canonise(rulestring);  // Reload the rulestring with the new birth / survival conditions
+            updateBackground(); // Updating the background (in case its B0)
         }
         else {
             throw new IllegalArgumentException("Invalid minimum and maximum rules!");
@@ -336,14 +366,8 @@ public class HROT extends RuleFamily {
                     else if (currentCell == 1 && nextCell == 0) {  // No Survival (1 -> 0)
                         maxSurvival.remove(sum);
                     }
-
-                    System.out.print(grids[i].getCell(coordinate));
                 }
-
-                System.out.println();
             }
-
-            System.out.println("=======================");
         }
 
         // Construct the new rules and return them
@@ -727,6 +751,9 @@ public class HROT extends RuleFamily {
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
@@ -739,6 +766,9 @@ public class HROT extends RuleFamily {
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
@@ -747,6 +777,7 @@ public class HROT extends RuleFamily {
      */
     public void setNeighbourhood(Coordinate[] neighbourhood) {
         this.neighbourhood = neighbourhood;
+        updateBackground();
     }
 
     /**
@@ -755,6 +786,7 @@ public class HROT extends RuleFamily {
      */
     public void setWeights(int[] weights) {
         this.weights = weights;
+        updateBackground();
     }
 
     /**

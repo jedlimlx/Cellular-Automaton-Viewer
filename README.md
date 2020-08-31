@@ -41,12 +41,16 @@ The Menu Bar
 *Paste* - Pastes the cells that are stored as an RLE on the clipboard <br>
 *Delete* - Deletes the selected cells <br>
 
+**Control Menu** <br>
+*Set Generation* - Sets the generation based on user input <br>
+*Grid Lines* - Toggles between showing and not showing grid lines <br>
+
 **Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
 *Run Rule Search* - Starts a search program that randomly enumerates rules to find spaceships & oscillators <br>
 
 **Help Menu**:<br>
-*About* - Doesn't do anything yet <br>
+*About* - Opens the CAViewer Wiki in a built-in browser.<br>
 
 The Tools Bar
 -------------
@@ -96,7 +100,7 @@ GUI TODO List
 - [x] Add menu button to open rules & patterns
 - [x] Add menu button to save patterns
 - [x] Add button to view search results and save to a file
-- [ ] Add grid lines
+- [x] Add grid lines
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Add more information to the status bar
 - [ ] Add help information to the about button
@@ -109,7 +113,7 @@ Editing Features
 - [x] Delete Cells
 - [x] Copy Cells to RLE
 - [x] Flip Horizontally / Vertically
-- [ ] Rotate Clockwise / Counter-Clockwise
+- [x] Rotate Clockwise / Counter-Clockwise
 - [ ] Nudging up / down / left / right
 - [ ] Pasting Cells from RLE
 - [ ] Invert Cells
@@ -126,14 +130,15 @@ Supported / Planned Rulespaces
     - [x] 2 State HROT
         - [x] B0 rules
         - [x] Weighted rules
-        - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for B0 rules
+        - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for weighted rules
     - [ ] HROT BSFKL
     - [ ] HROT Generations
-        - [ ] B0 Rules
+        - [x] B0 Rules
         - [ ] State Weights
         - [x] Neighbourhood Weights
+        - [ ] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for rules with neighbourhood weights
         - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
@@ -246,5 +251,6 @@ Known Bugs
 - [x] HROT B0 isn't working as intended (Fixed)
 - [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
 - [x] Rule Dialog don't show the most updated rule (Fixed)
+- [ ] Viewport doesn't move the center when a new pattern is loaded
 - [ ] ConcurrentModificationException is thrown
 - [ ] Step with space causes some cells to be rendered incorrectly

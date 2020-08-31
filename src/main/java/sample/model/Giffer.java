@@ -12,10 +12,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Giffer {  // TODO (Add more options to giffer)
+public class Giffer {  // TODO (Progress bar or something)
+    private double progress;
+
     // Array to store the images
     private final ArrayList<BufferedImage> images;
-
     private final int CELL_SIZE, TIME_BETWEEN_FRAMES;
 
     public Giffer(int CELL_SIZE, int TIME_BETWEEN_FRAMES) {
@@ -67,6 +68,7 @@ public class Giffer {  // TODO (Add more options to giffer)
             writer.writeToSequence(firstImage);
             for(int i = 1; i < images.size(); i++) {
                 writer.writeToSequence(images.get(i));
+                progress = (double) i / images.size();
             }
 
             // Close the writer and output and save the gif
@@ -77,5 +79,9 @@ public class Giffer {  // TODO (Add more options to giffer)
         catch (IOException exception) {
             return false;
         }
+    }
+
+    public double getProgress() {
+        return progress;
     }
 }

@@ -12,11 +12,40 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Simulations are run using Simulator. <br>
+ * <br>
+ * Example Usage: <br>
+ * <pre>
+ * Simulator simulator = new Simulator(new HROT("B3/S23"));
+ * simulator.fromRLE("bo$obo$o2bo$bobo$2bo!", new Coordinate(0, 0));
+ * simulator.step();
+ * for (Coordinate cell: simulator) {
+ *      System.out.println(cell);
+ * }
+ * </pre>
+ */
 public class Simulator extends Grid {
+    /**
+     * The generation of the simulation.
+     */
     private int generation;
+
+    /**
+     * The rule of the simulation.
+     */
     private Rule rule;
+
+    /**
+     * The cells that changed in the previous generation and the previous previous generation...
+     * Something like {{(0, 1)...}, ...} with the length of the loaded rule's alternating period.
+     */
     private final ArrayList<Set<Coordinate>> cellsChangedArray;
 
+    /**
+     * Initialises the simulator
+     * @param rule The rule to be loaded
+     */
     public Simulator(Rule rule) {
         this.rule = rule;
         this.generation = 0;
@@ -27,20 +56,35 @@ public class Simulator extends Grid {
         }
     }
 
-    // Accessor
+    /**
+     * Gets the rule of the simulator
+     * @return Returns the rule of the simulator
+     */
     public Rule getRule() {
         return rule;
     }
 
+    /**
+     * Gets the generation of the simulator
+     * @return Returns the generation of the simulator
+     */
     public int getGeneration() {
         return generation;
     }
 
+    /**
+     * Gets the cells that changed in the previous generation
+     * @return Returns the cells that changed in the previous generation
+     */
     public Set<Coordinate> getCellsChanged() {
         return cellsChangedArray.get(0);
     }
 
-    // Mutators
+    /**
+     * Sets the rule of the simulator. <br>
+     * IMPORTANT: DO NOT CHANGE THE RULE OF THE SIMULATOR WITH ANY OTHER FUNCTION! (Because bugzzz...)
+     * @param rule Rule to set the simulator to
+     */
     public void setRule(Rule rule) {
         cellsChangedArray.clear();  // Changing length to alternating period of the rule
         for (int i = 0; i < rule.getAlternatingPeriod(); i++) {
@@ -55,19 +99,38 @@ public class Simulator extends Grid {
         this.rule = rule;
     }
 
+    /**
+     * Set the generation of the simulator
+     * @param generation Generation to set the simulator to
+     */
     public void setGeneration(int generation) {
         this.generation = generation;
     }
 
-    // Identification functions
+    /**
+     * Identify a pattern (still life / oscillator / spaceship) with a max period of 5000
+     * @return The identified pattern
+     */
     public Pattern identify() {
         return identify(5000);
     }
 
+    /**
+     * Identify a pattern (still life / oscillator / spaceship) with the specified max period
+     * @param maxPeriod The max period to check for periodicity
+     * @return The identified pattern
+     */
     public Pattern identify(int maxPeriod) {
         return identify(maxPeriod, false, 0);
     }
 
+    /**
+     * Identify a pattern (still life / oscillator / spaceship) with the specified max period
+     * @param maxPeriod The max period to check for periodicity
+     * @param checkBoundExpansion Should the bounding box expansion be checked
+     * @param maxBound The maximum bounding box of the pattern. Only matters of checkBoundExpansion is True.
+     * @return The identified pattern
+     */
     public Pattern identify(int maxPeriod, boolean checkBoundExpansion, int maxBound) {
         // TODO (Identification for guns, puffers, rakes and replicators)
         // Hash map to store hashes among other things
@@ -165,18 +228,32 @@ public class Simulator extends Grid {
         return pattern;
     }
 
-    // Step 1 generation
+    /**
+     * Step the simulation forward 1 generation
+     */
     public void step() {
         rule.step(super.shallowCopy(), cellsChangedArray, generation);
         generation += 1;
     }
 
-    @Override // Adds cell to grid and to cells changed
+
+    /**
+     * Sets the cell at position coordinate to the specified state
+     * @param coordinate The coordinate of the cell
+     * @param state The state of the cell
+     */
+    @Override
     public void setCell(Coordinate coordinate, int state) {
         super.setCell(coordinate, state);
         cellsChangedArray.get(0).add(coordinate);
     }
 
+    /**
+     * Sets the cell at position (x, y) to the specified state
+     * @param x The x-coordinate of the cell
+     * @param y The y-coordinate of the cell
+     * @param state The state of the cell
+     */
     @Override
     public void setCell(int x, int y, int state) {
         super.setCell(x, y, state);

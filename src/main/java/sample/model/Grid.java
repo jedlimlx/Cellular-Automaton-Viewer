@@ -6,12 +6,41 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents and serves as pattern storage. <br>
+ * You may also iterate over it like in a loop. <br>
+ * <br>
+ * Example Usage: <br>
+ * <pre>
+ * Grid grid = new Grid();
+ * grid.fromRLE("bo$obo$o2bo$bobo$2bo!", new Coordinate(0, 0))
+ * for (Coordinate cell: grid) {
+ *      System.out.println(cell);
+ * }
+ * </pre>
+ */
 public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
+    /**
+     * The background of the grid.
+     * Used for minimum and maximum B0 rules (i.e. strobing rules).
+     */
     private int background;
 
+    /**
+     * The bounds of the grid.
+     */
     private Coordinate startCoordinate, endCoordinate;
+
+    /**
+     * The dictionary that stores the pattern.
+     * {(0, 0): 1, (0, 2): 2, ...}
+     */
     private final HashMap<Coordinate, Integer> dictionary;
 
+    /**
+     * Constructs a grid with an empty pattern and a background of 0.
+     * The bounds of the grid are also uninitialised.
+     */
     public Grid() {
         this.background = 0;
         this.dictionary = new HashMap<>();
@@ -19,14 +48,22 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
 
-    public Grid(HashMap<Coordinate, Integer> dictionary) {
+    /**
+     * Constructs a grid with the provided dictionary with a background of 0.
+     * The bounds of the grid are also uninitialised.
+     */
+    private Grid(HashMap<Coordinate, Integer> dictionary) {
         this.background = 0;
         this.dictionary = (HashMap<Coordinate, Integer>) dictionary.clone();
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
 
-    // Setting state of the cell at (x, y)
+    /**
+     * Sets the cell at position coordinate to the specified state
+     * @param coordinate The coordinate of the cell
+     * @param state The state of the cell
+     */
     public void setCell(Coordinate coordinate, int state) {
         state = convertCell(state);
 
@@ -36,18 +73,32 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
             dictionary.put(coordinate, state);
     }
 
+    /**
+     * Sets the cell at position (x, y) to the specified state
+     * @param x The x-coordinate of the cell
+     * @param y The y-coordinate of the cell
+     * @param state The state of the cell
+     */
     public void setCell(int x, int y, int state) {
         setCell(new Coordinate(x, y), state);
     }
 
-    // Insert cells at coordinate specified
+    /**
+     * Inserts the provided pattern at the specified coordinate
+     * @param pattern The pattern to be inserted
+     * @param coordinate The coordinate where the pattern is to be inserted
+     */
     public void insertCells(Grid pattern, Coordinate coordinate) {
         for (Coordinate coord: pattern) {
             setCell(coord.add(coordinate), pattern.getCell(coord));
         }
     }
 
-    // Clears all cells within the coordinate specified
+    /**
+     * Clears all cells between the coordinates specified
+     * @param start The starting coordinate
+     * @param end The end coordinate
+     */
     public void clearCells(Coordinate start, Coordinate end) {
         for (int x = start.getX(); x < end.getX() + 1; x++) {
             for (int y = start.getY(); y < end.getY() + 1; y++) {
@@ -56,22 +107,40 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Get the state of the cell at (x, y)
+    /**
+     * Gets the state of the cell at the specified coordinate
+     * @param coordinate The coordinate of the cell
+     * @return Returns the state of the cell
+     */
     public int getCell(Coordinate coordinate) {
         Integer state = dictionary.get(coordinate);
         return convertCell(Objects.requireNonNullElse(state, 0));
     }
 
+    /**
+     * Gets the state of the cell at (x, y)
+     * @param x The x-coordinate of the cell
+     * @param y The y-coordinate of the cell
+     * @return Returns the state of the cell
+     */
     public int getCell(int x, int y) {
         return getCell(new Coordinate(x, y));
     }
 
-    // Get all the cells in the pattern
+    /**
+     * Returns a deepcopy of the dictionary used to store the pattern
+     * @return Returns a dictionary contains all the cells of the pattern
+     */
     public HashMap<Coordinate, Integer> getCells() {
         return (HashMap<Coordinate, Integer>) dictionary.clone();
     }
 
-    // Get all cells from start to end
+    /**
+     * Get all cells between the start and end coordinates
+     * @param start The start coordinate
+     * @param end The end coordinate
+     * @return Returns a grid contains the pattern
+     */
     public Grid getCells(Coordinate start, Coordinate end) {
         Grid grid = new Grid();
         for (int x = start.getX(); x < end.getX() + 1; x++) {
@@ -83,7 +152,9 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return grid;
     }
 
-    // Updates the bounds of the grid
+    /**
+     * Updates the bounds of the grid.
+     */
     public void updateBounds() {
         if (size() == 0) {  // Check for empty grid
             startCoordinate = new Coordinate(0, 0);
@@ -108,12 +179,18 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Gets the bounds of the grid
+    /**
+     * Gets the bounds of the grid
+     * @return Returns a pair with the first entry being the start coordinate and the second entry being the end coordinate
+     */
     public Pair<Coordinate, Coordinate> getBounds() {
         return new Pair<>(startCoordinate, endCoordinate);
     }
 
-    // Converts the pattern into an array of coordinates
+    /**
+     * Converts the pattern into an array of coordinates
+     * @return Returns an array conains the coordinates
+     */
     public Coordinate[] toArray() {
         int index = 0;
         Coordinate[] array = new Coordinate[this.size()];
@@ -125,7 +202,11 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return array;
     }
 
-    // Reflect grid horizontally
+    /**
+     * Reflects the cells in the grid between the start and end coordinates horizontally
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     */
     public void reflectCellsX(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
@@ -135,7 +216,11 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Reflect grid vertically
+    /**
+     * Reflects the cells in the grid between the start and end coordinates vertically
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     */
     public void reflectCellsY(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
 
@@ -147,34 +232,52 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Rotate grid clockwise
+    /**
+     * Rotates the cells in the grid between the start and end coordinates clockwise
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     */
     public void rotateCW(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
+
+        int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
+        int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();
 
         // Rotating clockwise
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
             for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
-                setCell(x - startCoordinate.getX() + startCoordinate.getY(),
-                        endCoordinate.getX() - y + startCoordinate.getY(), grid.getCell(x, y));
+                int dx = x - centerX, dy = y - centerY;
+                setCell(centerX - dy, centerY + dx, grid.getCell(x, y));
             }
         }
     }
 
-    // Rotate grid counter-clockwise
+    /**
+     * Rotates the cells in the grid between the start and end coordinates counter-clockwise
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     */
     public void rotateCCW(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
+
+        int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
+        int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();
 
         // Rotating counter-clockwise
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
             for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
-                setCell(endCoordinate.getX() - x + startCoordinate.getX(),
-                        y - startCoordinate.getY() + startCoordinate.getX(), grid.getCell(x, y));
+                int dx = x - centerX, dy = y - centerY;
+                setCell(centerX + dy, centerY - dx, grid.getCell(x, y));
             }
         }
     }
 
-    // Converts pattern to the run length encoded (RLE) format
-    // Only returns the body (no header)
+    /**
+     * Converts pattern between the start and end coordinates to the run length encoded (RLE) format.
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     * @return Returns the RLE body (no header)
+     */
     public String toRLE(Coordinate startCoordinate, Coordinate endCoordinate) {
         // First, add characters to a string
         ArrayList<Character> rleArray = new ArrayList<>();
@@ -216,14 +319,20 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return rleString.toString() + "!";
     }
 
-    // Converts the entire pattern to RLE
+    /**
+     * Converts the entire pattern into an RLE
+     * @return Returns the RLE body (no headers)
+     */
     public String toRLE() {
         updateBounds();
         return toRLE(startCoordinate, endCoordinate);
     }
 
-    // Load a pattern from the RLE format
-    // Only accepts the RLE body (no \n)
+    /**
+     * Inserts the RLE into the grid
+     * @param rle The RLE body (no headers, no \n)
+     * @param startCoordinate The coordinate to insert the new cells
+     */
     public void fromRLE(String rle, Coordinate startCoordinate) {
         int x = startCoordinate.getX(), y = startCoordinate.getY();
         Pattern rleRegex = Pattern.compile("([0-9]+)?[ob$.A-Z]");
@@ -257,21 +366,38 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         }
     }
 
-    // Method to deep copy grid
+    /**
+     * Deep copies the grid
+     * @return A deep copy of the grid
+     */
     public Grid deepCopy() {
         return new Grid(dictionary);
     }
 
-    // Method to shallow copy grid
+    /**
+     * Shallow copies the grid
+     * @return A shallow copy of the grid
+     */
     public Grid shallowCopy() {
         return this;
     }
 
-    // Size of the grid
+    /**
+     * Gets the size of the grid
+     * @return Returns the size of the grid
+     */
     public int size() {
         return dictionary.size();
     }
 
+    /**
+     * Checks if 2 grids are identical given a translation.
+     * Used to check for hash collisions.
+     * @param grid The grid to check.
+     * @param displacementX The distance the first grid is translated in the x-direction compared to the second grid
+     * @param displacementY The distance the first grid is translated in the y-direction compared to the second grid
+     * @return Returns true if the grids are equal, false if they aren't
+     */
     public boolean slowEquals(Grid grid, int displacementX, int displacementY) {
         Coordinate[] gridArray1 = grid.toArray();
         Coordinate[] gridArray2 = this.toArray();
@@ -290,6 +416,11 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return true;
     }
 
+    /**
+     * Check if the inputted grid is equal to this grid (independent of translation)
+     * @param o The other grid
+     * @return Returns true if the grids are equal, false if they aren't
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -298,7 +429,11 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return that.hashCode() == this.hashCode();
     }
 
-    @Override  // Independent of translation
+    /**
+     * Gets the hash of the grid.
+     * @return Returns the grid's hash (uses Golly's hash algorithm).
+     */
+    @Override
     public int hashCode() {
         // TODO (Copy Golly's Hash Function)
         updateBounds();
@@ -353,6 +488,29 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         return hash;
     }
 
+    /**
+     * Set the background of the grid
+     * @param background The background
+     */
+    public void setBackground(int background) {
+        this.background = background;
+    }
+
+    /**
+     * Convert the cell state based on the background
+     * Used to for B0 / strobing rules
+     * @param state The current state of the cell
+     * @return Returns the new cell state
+     */
+    public int convertCell(int state) {
+        if (state == background)
+            return 0;
+        else if (state == 0)
+            return background;
+        else
+            return state;
+    }
+
     @Override  // Implementing these methods allow it to be used in a for each loop
     public boolean hasNext() {
         return dictionary.keySet().iterator().hasNext();
@@ -371,18 +529,5 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     @Override
     public Iterator<Coordinate> iterator() {
         return dictionary.keySet().iterator();
-    }
-
-    public void setBackground(int background) {
-        this.background = background;
-    }
-
-    public int convertCell(int state) {
-        if (state == background)
-            return 0;
-        else if (state == 0)
-            return background;
-        else
-            return state;
     }
 }
