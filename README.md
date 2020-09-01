@@ -1,7 +1,6 @@
-# CAViewer [![Build CAViewer]][Builds link]
+# CAViewer [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link]
 
-[Build CAViewer]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg
-[Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer
+[Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions
 
 See python branch for CAViewer v1.
 
@@ -11,12 +10,15 @@ CAViewer v2 is written in Java.<br>
 You will need the Java Runtime Environment / Java Development Kit to run the *.jar file.<br>
 
 If you can't use Java, download the precompiled binaries 
-[here](https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions?query=workflow%3A%22Build+CAViewer%22). <br>
+[here](https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions). <br>
 On Linux and Mac, the binary may not be exectuable by default so run `chmod +x CAViewer`.
+This requires a github account.
+
+Alternatively, get the binaries [here](https://github.com/jedlimlx/Cellular-Automaton-Viewer/releases).
 
 Note that this *.jar runs on the Java Runtime Environment / Java Development Kit 11 and above.
 
-See the wiki for instructions on how to build the application from source and how to modify it.
+See the [wiki](wiki/Home.md) for instructions on how to build the application from source and how to modify it.
 
 What is this?
 =============
@@ -62,7 +64,7 @@ The Tools Bar
 *Random Soup Button* - Generates a random soup <br>
 *Flip Button* - Flips the pattern horizontally / vertically <br>
 *Rotate Button* - Rotates the pattern clockwise / counter-clockwise (doesn't work) <br>
-*Recording Button* - Records all patterns that move in the selection area and saves it as a *.gif <br>
+*Recording Button* - Records all patterns that move in the selection area and saves it as a \*.gif <br>
 *Identify Button* - Identifies the pattern as a spaceship / oscillator <br>
 
 The Status Bar

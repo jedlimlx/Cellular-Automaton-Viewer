@@ -429,6 +429,31 @@ public class HROT extends RuleFamily {
     @Override
     public boolean generateApgtable(File file) {
         try {
+            /*
+            // Generating the APGTable
+            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+            apgTable.setWeights(weights);
+            apgTable.setBackground(background);
+
+            // Death Variables
+            apgTable.addUnboundedVariable("death", new int[]{0, 1});
+
+            // Transitions
+            for (int transition: birth) {
+                apgTable.addOuterTotalisticTransition(0, 1, transition,
+                        "0", "1");
+            }
+
+
+            for (int transition: survival) {
+                apgTable.addOuterTotalisticTransition(1, 1, transition,
+                        "0", "1");
+            }
+
+            apgTable.addOuterTotalisticTransition(1, 0, maxNeighbourhoodCount,
+                    "0", "death");
+             */
+
             // Open the file
             FileWriter writer = new FileWriter(file);
 

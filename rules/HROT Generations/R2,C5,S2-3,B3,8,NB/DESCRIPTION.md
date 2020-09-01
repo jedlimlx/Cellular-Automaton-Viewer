@@ -41,6 +41,7 @@ In addition, a handful of oscillator periods have been found with the most commo
 [9]: OSC_3.rle
 [18]: OSC_4.rle
 [24]: OSC_5.rle
+[P24]: OSC_5.rle
 
 [orthogonal puffer]: PUFF_1.rle
 [diagonal rake]: RAKE_1.rle

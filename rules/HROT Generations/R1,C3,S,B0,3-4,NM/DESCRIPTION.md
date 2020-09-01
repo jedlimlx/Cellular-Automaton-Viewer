@@ -7,7 +7,7 @@ Oscillators of various periods have been found.
 
 ![Random Soup](IMG.gif)
 
-**Known Periods**
+**Known Periods** <br>
 [3] <br>
 [6] <br>
 [9] <br>

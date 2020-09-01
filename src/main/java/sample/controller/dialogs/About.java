@@ -15,7 +15,7 @@ public class About extends Dialog {
         WebView view = new WebView();
         WebEngine engine = view.getEngine();
 
-        engine.load("https://github.com/jedlimlx/Cellular-Automaton-Viewer/wiki");
+        engine.load("https://jedlimlx.github.io/Cellular-Automaton-Viewer/");
         super.getDialogPane().setContent(view);
 
         // Allows closing with close button

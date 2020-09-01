@@ -71,7 +71,6 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @throws UnsupportedOperationException Thrown if the specific rule does not support randomisation
      */
     public void randomise(RuleFamily minRule, RuleFamily maxRule) throws IllegalArgumentException, UnsupportedOperationException {
-
     }
 
     /**
