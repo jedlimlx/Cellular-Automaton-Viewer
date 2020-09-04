@@ -27,7 +27,6 @@ public class RuleSearch extends SearchProgram {
     public void search(int numRules) {
         // TODO (Implement a more high-tech repetition checker)
         // TODO (Do whatever WildMyron says that searchPatt-matchPatt does with the min / max rule)
-
         Simulator simulator;
         RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
 

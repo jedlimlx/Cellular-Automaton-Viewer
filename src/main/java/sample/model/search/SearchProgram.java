@@ -60,6 +60,10 @@ public abstract class SearchProgram {
         return searchParameters;
     }
 
+    public int getNumSearched() {
+        return numSearched;
+    }
+
     // Writes the search results to a file
     // Returns true if successful, false if unsuccessful
     public abstract boolean writeToFile(File file);
