@@ -14,12 +14,13 @@ import sample.commands.*;
 })
 public class Main implements Runnable {
     public static void main(String[] args) {
+        if (args.length == 0 || args[0].equals("GUI")) {
+            GUICommand.main(args);
+            return;
+        }
+        
         Platform.startup(() -> {});  // Start JavaFX before doing anything else
-
-        Platform.runLater(() -> {
-            if (args.length == 0) GUICommand.main(args);
-            else new CommandLine(new Main()).execute(args);
-        });
+        Platform.runLater(() -> new CommandLine(new Main()).execute(args));
     }
 
     @Override

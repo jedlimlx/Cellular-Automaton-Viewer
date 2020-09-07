@@ -5,6 +5,10 @@ CAViewer supports arbitrary neighbourhoods via the [CoordCA format](https://gith
 CAViewer also supports arbitary weighted neighbourhoods & state weights via the [LifeViewer format](https://conwaylife.com/forums/viewtopic.php?f=3&t=1622&start=1677) (Specify with NW).<br>
 In addition, weighted neighbourhoods can be specified in the neighbourhood selector in the HROT rule dialog. <br>
 
+Rules on triangular and hexagonal tilings are also supported. 
+Append H for hexagonal or T for triangular to the custom neighbourhood / weights specifier 
+to get the rule on a hexagonal or triangular grid.
+
 ####  Supported / Planned Named HROT Neighbourhoods
 - [x] Asterisk (A)
 - [x] Checkerboard (B)
@@ -13,7 +17,7 @@ In addition, weighted neighbourhoods can be specified in the neighbourhood selec
 - [ ] Triangular Neighbourhood on Triangular Grid (D)
 - [x] Gaussian Weighted Neighbourhood (G)
 - [x] Hexagonal (H)
-- [ ] Triangular Moore (L)
+- [x] Triangular Moore (L)
 - [x] Moore (M)
 - [x] Von Neumann (N)
 - [ ] Triangular Neighbourhood on Hexagonal Grid (T)
@@ -26,7 +30,7 @@ In addition, weighted neighbourhoods can be specified in the neighbourhood selec
 - [x] Hash (#)
 - [x] CoordCA Format (Custom Neighbourhoods @)
 - [x] LifeViewer Format (Weighted Neighbourhoods W)
-- [ ] LifeViewer Format (State Weights W)
+- [x] LifeViewer Format (State Weights W)
 
 Use N@ with no extra hex digits if you specify the neighbourhood / state weights in the neighbourhood / state weights selector.
 
@@ -141,6 +145,31 @@ R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
 R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\>,\<State Weights\> <br>
 
+
+## Extended Generations
+Extended Generations rules are a generalisation of Generations rules. 
+This extension explores the result of changing the amounts of time cells can be active/inactive for, 
+and also of allowing cells to "come back" from inactivity and alternate between being active/inactive an 
+indefinite amount of times before dying.
+
+* An active cell
+    * Remains in its current state if it has X neighbours and X is in survival
+    * If not, it advances to state ((x + 1) mod y) in the next generation of the pattern where x is the current state and y is the total number of states.
+* An inactive cell
+    * Advances to state ((x + 1) mod y) in the next generation of the pattern where x is the current state and y is the total number of states. 
+      It behaves like a normal Generations dying cell.
+* A dead cell
+    Advances to state 1 if it has X neighbours and X is in birth.
+* If not, it remains dead.
+
+The code that simulates HROT Generations rules can be found [here](../src/main/java/sample/model/rules/HROTExtendedGenerations.java).
+
+#### Rulestring format
+R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,N\<neighbourhood\> <br>
+R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,N@\<CoordCA\> <br>
+R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,NW\<Neighbourhood Weights\> <br>
+
+
 # Isotropic Non-Totalistic (INT)
 Support for INT rules is planned.
 
@@ -156,7 +185,6 @@ Support for INT rules is planned.
 - [ ] Range 3 Cross Isotropic Non-Totalistic
 
 
-
 # B0 rules
 CAViewer makes use of a generalised B0 algorithm to emulate B0 rules.
 Let's say the transition function is *c* = f(*x*, *n*) where *c* is the cell's next state, *x* is the cell's current state and *n* is the cell's neighbours.
@@ -164,4 +192,4 @@ To emulate a B0 rule, we need to ensure the background is 0 at all times. So let
 The rule will alternate across *l* rules where *l* is the length of *B*.
 Every generation, before inputting the cells into *f(x, n)*, we swap 0 and *B\[generation % l\]*. A similar function is applied to the output.
 
-With that, we have successfully emulated a B0 rule!!!!
+With that, we have successfully emulated a B0 rule!

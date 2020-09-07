@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Represents the HROT Generations rule family
@@ -36,6 +35,11 @@ public class HROTGenerations extends RuleFamily {
     private int[] weights;
 
     /**
+     * The state weights of the HROT generations rule
+     */
+    private int[] stateWeights;
+
+    /**
      * The maximum possible neighbourhood count.
      * Used for B0 and min, max rule generation.
      */
@@ -45,15 +49,17 @@ public class HROTGenerations extends RuleFamily {
     private final static String higherRangePredefined = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" +
             hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
-            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
+            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?[HL]?";
     private final static String higherRangeWeightedCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
-            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
+            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?";
+    private final static String higherRangeStateWeightedCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
+            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?,[A-Fa-f0-9]+";
 
     /**
      * Creates a HROT Generations rule with the rule Frogs
      */
     public HROTGenerations() {
-        this("R1,C4,S1-2,B3-4,NM");
+        this("R1,C3,S1-2,B3-4,NM");
     }
 
     /**
@@ -92,6 +98,8 @@ public class HROTGenerations extends RuleFamily {
 
             neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
             weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
+            tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
+            stateWeights = null;
 
             // Set the number of states
             numStates = Integer.parseInt(Utils.matchRegex("C[0-9]+", rulestring, 0).substring(1));
@@ -107,11 +115,22 @@ public class HROTGenerations extends RuleFamily {
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
             String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
             weights = null;
+            stateWeights = null;
+
             if (CoordCA.length() > 0)
                 neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
             // Set the number of states
             numStates = Integer.parseInt(Utils.matchRegex("C[0-9]+", rulestring, 0).substring(1));
+
+            try {  // Getting the tiling
+                String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
+                        rulestring, 0, 1);
+                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
+                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            } catch (IllegalStateException exception) {
+                tiling = Tiling.Square;
+            }
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -129,8 +148,55 @@ public class HROTGenerations extends RuleFamily {
             neighbourhood = neighbourhoodAndWeights.getValue0();
             weights = neighbourhoodAndWeights.getValue1();
 
+            stateWeights = null;
+
             // Set the number of states
             numStates = Integer.parseInt(Utils.matchRegex("C[0-9]+", rulestring, 0).substring(1));
+
+            try {  // Getting the tiling
+                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
+                        rulestring, 0, 1);
+                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
+                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            } catch (IllegalStateException exception) {
+                tiling = Tiling.Square;
+            }
+
+            // Get transitions
+            Utils.getTransitionsFromStringWithCommas(birth,
+                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
+            Utils.getTransitionsFromStringWithCommas(survival,
+                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
+        }
+        else if (rulestring.matches(higherRangeStateWeightedCustom)) {
+            // Generate Neighbourhood
+            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
+            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
+
+            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
+                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
+            neighbourhood = neighbourhoodAndWeights.getValue0();
+            weights = neighbourhoodAndWeights.getValue1();
+
+            // Set the number of states
+            numStates = Integer.parseInt(Utils.matchRegex("C[0-9]+", rulestring, 0).substring(1));
+
+            // State Weights
+            String LifeViewerStateWeights = Utils.matchRegex("NW([A-Fa-f0-9]+),([A-Fa-f0-9]+)",
+                    rulestring, 0, 2);
+            if (LifeViewerStateWeights.length() == numStates)
+                stateWeights = NeighbourhoodGenerator.getStateWeights(LifeViewerStateWeights);
+            else
+                throw new IllegalArgumentException("State weights must have the same length as number of states");
+
+            try {  // Getting the tiling
+                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
+                        rulestring, 0, 1);
+                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
+                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            } catch (IllegalStateException exception) {
+                tiling = Tiling.Square;
+            }
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -157,7 +223,8 @@ public class HROTGenerations extends RuleFamily {
         StringBuilder rulestringBuilder = new StringBuilder(newRulestring);
 
         if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
-                rulestring.matches(higherRangeWeightedCustom)) {
+                rulestring.matches(higherRangeWeightedCustom) ||
+                rulestring.matches(higherRangeStateWeightedCustom)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,C[0-9]+,", rulestring, 0));
 
             // Adding Survival
@@ -174,6 +241,9 @@ public class HROTGenerations extends RuleFamily {
         return newRulestring;
     }
 
+    /**
+     * Updates the background based on the currently loaded parameters
+     */
     @Override
     public void updateBackground() {
         // Determine maximum neighbourhood count
@@ -217,6 +287,24 @@ public class HROTGenerations extends RuleFamily {
             background = new int[]{0};
         }
 
+        // Recompute the max neighbourhood count but correctly
+        if (stateWeights != null) {
+            maxNeighbourhoodCount = 0;
+
+            int maxStateWeight = 0;
+            for (int i = 0; i < numStates; i++) {
+                maxStateWeight = Math.max(stateWeights[i], maxStateWeight);
+            }
+
+            if (weights != null) {
+                for (int weight: weights) {
+                    if (weight > 0) maxNeighbourhoodCount += weight * maxStateWeight;
+                }
+            }
+            else {
+                maxNeighbourhoodCount = neighbourhood.length * maxStateWeight;
+            }
+        }
     }
 
     /**
@@ -225,7 +313,8 @@ public class HROTGenerations extends RuleFamily {
      */
     @Override
     public String[] getRegex() {
-        return new String[]{higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
+        return new String[]{higherRangeCustom, higherRangePredefined,
+                higherRangeWeightedCustom, higherRangeStateWeightedCustom};
     }
 
     /**
@@ -288,51 +377,43 @@ public class HROTGenerations extends RuleFamily {
         }
 
         // Running through every generation and check what transitions are required
-        for (int i = 0; i < grids.length - 1; i++) {
-            grids[i].updateBounds();  // Getting the bounds of the grid
-            Pair<Coordinate, Coordinate> bounds = grids[i].getBounds();
+        int sum;
+        for (int[] neighbours: getNeighbourList(grids)) {
+            sum = 0;
 
-            int sum;  // Neighbourhood sum
-            Coordinate coordinate;  // Current coordinate
-            for (int x = bounds.getValue0().getX() - 5; x < bounds.getValue1().getX() + 5; x++) {
-                for (int y = bounds.getValue0().getY() - 5; y < bounds.getValue1().getY() + 5; y++) {
-                    sum = 0;
-                    coordinate = new Coordinate(x, y);
-
-                    // Skip this part if its a dying cell
-                    if (grids[i].getCell(coordinate) > 1) {
-                        continue;
+            // Computes the neighbourhood sum for every cell
+            for (int i = 1; i < neighbours.length - 1; i++) {
+                int cell = neighbours[i];
+                if (stateWeights == null && cell == 1) {
+                    if (weights != null) {
+                        sum += cell * weights[i - 1];
+                    } else {
+                        sum += cell;
                     }
-
-                    // Computes the neighbourhood sum for every cell
-                    for (int j = 0; j < neighbourhood.length; j++) {
-                        if (weights == null) {
-                            if (grids[i].getCell(coordinate.add(neighbourhood[j])) == 1)
-                                sum += 1;
-                        }
-                        else {
-                            if (grids[i].getCell(coordinate.add(neighbourhood[j])) == 1)
-                                sum += weights[j];
-                        }
-                    }
-
-                    // Determining the required birth / survival condition
-                    int currentCell = grids[i].getCell(coordinate);
-                    int nextCell = grids[i + 1].getCell(coordinate);
-
-                    if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
-                        minBirth.add(sum);
-                    }
-                    else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
-                        maxBirth.remove(sum);
-                    }
-                    else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
-                        minSurvival.add(sum);
-                    }
-                    else if (currentCell == 1 && nextCell == 2) {  // No Survival (1 -> 2)
-                        maxSurvival.remove(sum);
+                } else if (stateWeights != null) {
+                    if (weights != null) {
+                        sum += stateWeights[cell] * weights[i - 1];
+                    } else {
+                        sum += stateWeights[cell];
                     }
                 }
+            }
+
+            // Determining the required birth / survival condition
+            int currentCell = neighbours[0];
+            int nextCell = neighbours[neighbours.length - 1];
+
+            if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
+                minBirth.add(sum);
+            }
+            else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
+                maxBirth.remove(sum);
+            }
+            else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
+                minSurvival.add(sum);
+            }
+            else if (currentCell == 1 && nextCell == 2) {  // No Survival (1 -> 2)
+                maxSurvival.remove(sum);
             }
         }
 
@@ -391,9 +472,10 @@ public class HROTGenerations extends RuleFamily {
      * Generates an apgtable for apgsearch to use
      * @param file The file to save the apgtable in
      * @return True if the operation was successful, false otherwise
+     * @throws UnsupportedOperationException Thrown if the rule has state weights (state weights are not supported)
      */
     @Override
-    public boolean generateApgtable(File file) {
+    public boolean generateApgtable(File file) throws UnsupportedOperationException {
         try {
             // Generating the APGTable
             APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
@@ -457,29 +539,18 @@ public class HROTGenerations extends RuleFamily {
     @Override
     public String[] generateComments() {
         if (rulestring.charAt(rulestring.length() - 1) == '@') {
-            int range = 0;
-            ArrayList<Coordinate> neighbourhoodList = new ArrayList<>();
-            for (Coordinate coordinate: neighbourhood) {
-                neighbourhoodList.add(coordinate);
-                range = Math.max(range, Math.max(Math.abs(coordinate.getX()), Math.abs(coordinate.getY())));
-            }
+            ArrayList<String> comments = CommentGenerator.generateFromWeights(weights, neighbourhood);
 
-            String[] comments = new String[2 * range + 1];  // The array of RLE comments
-            for (int i = -range; i <= range; i++) {
-                comments[i + range] = "#R ";
-                for (int j = -range; j <= range; j++) {
-                    int index = neighbourhoodList.indexOf(new Coordinate(i, j));
-                    if (index != -1) {
-                        comments[i + range] += weights[index];
-                    }
-                    else {
-                        comments[i + range] += 0;
-                    }
-                    comments[i + range] += " ";
+            StringBuilder comment = new StringBuilder("#R");
+            if (stateWeights != null) {
+                for (int i = 0; i < numStates; i++) {
+                    comment.append(stateWeights[i]).append(" ");
                 }
+
+                comments.add(comment.toString());
             }
 
-            return comments;
+            return comments.toArray(new String[0]);
         }
         else {
             return null;
@@ -493,31 +564,12 @@ public class HROTGenerations extends RuleFamily {
     @Override
     public void loadComments(String[] comments) {
         if (comments.length > 0) {  // Check if there are even any comments
-            int range = comments.length / 2;
-            ArrayList<Coordinate> neighbourhood = new ArrayList<>();
-            ArrayList<Integer> weights = new ArrayList<>();
-
-            for (int j = 0; j < comments.length; j++) {  // Parsing comments for the neighbourhood
-                String[] tokens = comments[j].split(" ");
-                for (int i = 1; i < tokens.length; i++) {
-                    if (!tokens[i].equals("0")) {
-                        neighbourhood.add(new Coordinate(i - 1 - range, j - range));
-                        weights.add(Integer.parseInt(tokens[i]));
-                    }
-                }
-            }
-
-            // Converting to arrays because java is annoying
-            int[] weightsArray = new int[weights.size()];
-            Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
-            for (int i = 0; i < weights.size(); i++) {
-                weightsArray[i] = weights.get(i);
-                neighbourhoodArray[i] = neighbourhood.get(i);
-            }
+            Pair<int[], Coordinate[]> weightsAndNeighbourhood =
+                    CommentGenerator.getWeightsFromComments(comments);
 
             // Setting weights and neighbourhood
-            setWeights(weightsArray);
-            setNeighbourhood(neighbourhoodArray);
+            setWeights(weightsAndNeighbourhood.getValue0());
+            setNeighbourhood(weightsAndNeighbourhood.getValue1());
         }
     }
 
@@ -553,6 +605,14 @@ public class HROTGenerations extends RuleFamily {
      */
     public HashSet<Integer> getSurvival() {
         return survival;
+    }
+
+    /**
+     * Gets the state weights of the HROT Generations rule
+     * @return State weights of the HROT Generations rule
+     */
+    public int[] getStateWeights() {
+        return stateWeights;
     }
 
     /**
@@ -604,14 +664,24 @@ public class HROTGenerations extends RuleFamily {
     }
 
     /**
+     * Sets the states weights of the rule
+     * @param stateWeights State weights of the rule
+     */
+    public void setStateWeights(int[] stateWeights) {
+        this.stateWeights = stateWeights;
+        updateBackground();
+    }
+
+    /**
      * Clones the rule
-     * @return Returns a deep copy of the HROT rule
+     * @return Returns a deep copy of the HROT generations rule
      */
     @Override
     public Object clone() {
         HROTGenerations newRule = new HROTGenerations(rulestring);
         newRule.setWeights(getWeights());
-        newRule.setNeighbourhood(getNeighbourhood(0).clone());
+        newRule.setStateWeights(getStateWeights());
+        newRule.setNeighbourhood(getNeighbourhood().clone());
 
         return newRule;
     }
@@ -627,12 +697,20 @@ public class HROTGenerations extends RuleFamily {
     public int transitionFunc(int[] neighbours, int cellState, int generations) {
         int sum = 0;
         for (int i = 0; i < neighbours.length; i++) {
-            if (neighbours[i] == 1) {
+            if (stateWeights == null && neighbours[i] == 1) {
                 if (weights != null) {
                     sum += neighbours[i] * weights[i];
                 }
                 else {
                     sum += neighbours[i];
+                }
+            }
+            else if (stateWeights != null){
+                if (weights != null) {
+                    sum += stateWeights[neighbours[i]] * weights[i];
+                }
+                else {
+                    sum += stateWeights[neighbours[i]];
                 }
             }
         }
@@ -651,130 +729,9 @@ public class HROTGenerations extends RuleFamily {
         }
     }
 
-    /**
-     * Steps the grid provided forward one generation
-     * Includes some generations specific optimisation
-     * @param grid The grid that will be stepped forward one generation
-     * @param cellsChanged An array of sets that contains the cells the changed in the previous generations.
-     *                     The first entry will contains the cells that changed in the previous generation
-     *                     and the next entry will contain the cells that changed the previous previous generation
-     *                     and so on. It should be the same length as the alternating period of the rule
-     * @param generation The current generation of the simulation
-     * @throws IllegalArgumentException Thrown if the length of cellsChanged is not the same as the alternating period
-     */
-    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation)
-            throws IllegalArgumentException {
-        if (cellsChanged.size() != alternatingPeriod)
-            throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
-
-        Grid gridCopy = grid.deepCopy();
-        HashSet<Coordinate> cellsToCheck = new HashSet<>();
-        Coordinate[] neighbourhood = getNeighbourhood(generation);
-
-        // Generate set of cells to run update function on
-        // Use a set to avoid duplicates
-        for (Set<Coordinate> cellSet: cellsChanged) {
-            for (Coordinate cell: cellSet) {
-                for (Coordinate neighbour: neighbourhood) {
-                    cellsToCheck.add(cell.add(neighbour));
-                }
-                cellsToCheck.add(cell);
-            }
-        }
-
-        int[] neighbours;
-        int newState, prevState, convertedPrevState;
-        for (Coordinate cell: cellsToCheck) {
-            prevState = gridCopy.getCell(cell);
-            convertedPrevState = convertState(prevState, generation);
-
-            // Skip for dying cells
-            if (convertedPrevState <= 1) {
-                // Getting neighbour states
-                neighbours = new int[neighbourhood.length];
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    // Converting based on background
-                    neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
-                }
-
-                newState = convertState(transitionFunc(neighbours, convertedPrevState, generation),
-                        generation + 1);
-            }
-            else {
-                newState = convertState((convertedPrevState + 1) % numStates, generation + 1);
-            }
-
-            // Call the transition function on the new state
-            // Don't forget to convert back to the current backgroun
-            if (newState != prevState) {
-                cellsChanged.get(0).add(cell);
-                grid.setCell(cell, newState);
-            }
-            else {
-                for (int i = 0; i < alternatingPeriod; i++) {
-                    if (cellsChanged.get(i).contains(cell)) {
-                        cellsChanged.get(i).remove(cell);
-
-                        // Move the cell forward into the next entry until it can't be moved forward anymore
-                        if (i < alternatingPeriod - 1) cellsChanged.get(i + 1).add(cell);
-                        break;
-                    }
-                }
-            }
-        }
-
-        /* Old code
-        int[] neighbours;
-        int prevState, newState;
-        Coordinate neighbour;
-        HashSet<Coordinate> visited = new HashSet<>();
-        HashSet<Coordinate> cellNeighbours = new HashSet<>();
-
-        // Clear the cells changed
-        cellsToCheck = (HashSet<Coordinate>) cellsChanged.clone();
-        cellsChanged.clear();
-
-        for (Coordinate cell: cellsToCheck) {
-            visited.add(cell);
-
-            prevState = gridCopy.getCell(cell);
-
-            // Getting neighbour states
-            neighbours = new int[neighbourhood.length];
-            for (int i = 0; i < neighbourhood.length; i++) {
-                neighbour = cell.add(neighbourhood[i]);
-                neighbours[i] = gridCopy.getCell(neighbour);
-                if (!cellsToCheck.contains(neighbour))
-                    cellNeighbours.add(neighbour);
-            }
-
-            // Call the transition function on the new state
-            newState = transitionFunc(neighbours, prevState, generation);
-            if (newState != prevState) {
-                cellsChanged.add(cell);
-                grid.setCell(cell, newState);
-            }
-        }
-
-        for (Coordinate cell: cellNeighbours) {
-            visited.add(cell);
-
-            prevState = gridCopy.getCell(cell);
-
-            // Getting neighbour states
-            neighbours = new int[neighbourhood.length];
-            for (int i = 0; i < neighbourhood.length; i++) {
-                neighbour = cell.add(neighbourhood[i]);
-                neighbours[i] = gridCopy.getCell(neighbour);
-            }
-
-            // Call the transition function on the new state
-            newState = transitionFunc(neighbours, prevState, generation);
-            if (newState != prevState) {
-                cellsChanged.add(cell);
-                grid.setCell(cell, newState);
-            }
-        }
-         */
+    @Override
+    public int dependsOnNeighbours(int state) {
+        if (state <= 1) return super.dependsOnNeighbours(state);
+        else return (state + 1) % numStates;
     }
 }

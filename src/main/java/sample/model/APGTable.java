@@ -7,7 +7,12 @@ import java.util.*;
  * <br>
  * Example Usage: <br>
  * <pre>
- * Work In Progress...
+ * APGTable apgTable = new APGTable(2, "permute", NeighbourhoodGenerator.generateMoore(1));
+ * apgTable.addUnboundedVariable("death");
+ * apgTable.addOuterTotalisticTransition(0, 1, 3, 0, 1);
+ * apgTable.addOuterTotalisticTransition(1, 1, 2, 0, 1);
+ * apgTable.addOuterTotalisticTransition(1, 1, 3, 0, 1);
+ * System.out.println(apgTable.compileAPGTable());
  * </pre>
  */
 public class APGTable {

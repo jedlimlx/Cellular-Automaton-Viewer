@@ -16,21 +16,21 @@ import java.io.IOException;
 public class SimulationCommand implements Runnable {
     private Simulator simulator;
 
-    @CommandLine.Option(names = {"i", "input"}, description = "Input file containing pattern to be simulated")
+    @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing pattern to be simulated")
     private File inputFile;
 
-    @CommandLine.Option(names = {"o", "out"}, description = "Output file for the pattern. (default: print to console)")
+    @CommandLine.Option(names = {"-o", "--out"}, description = "Output file for the pattern. (default: print to console)")
     private File outputFile;
 
-    @CommandLine.Option(names = {"m", "g", "generation"}, description = "Number of generations to run the pattern")
+    @CommandLine.Option(names = {"-m", "-g", "--generation"}, description = "Number of generations to run the pattern")
     private int generations;
 
-    @CommandLine.Option(names = {"s", "step"}, defaultValue = "0",
+    @CommandLine.Option(names = {"-s", "--step"}, defaultValue = "0",
             description = "Patterns will be printed to the console every step size generations " +
                     "(default: only print the final pattern)")
     private int stepSize;
 
-    @CommandLine.Option(names = {"p", "print"}, defaultValue = "true",
+    @CommandLine.Option(names = {"-p", "--print"}, defaultValue = "true",
              description = "Print pattern to console (default)")
     private boolean printPattern;
 

@@ -20,13 +20,13 @@ public class RuleDialog extends Dialog {
 
     // Array to store rule widgets
     private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(),
-            new HROTGenerationsDialog()};
+            new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog()};
 
     public RuleDialog(String promptText) {
         super();
 
         // Set Titles
-        super.setTitle("Rule Dialog");
+        super.setTitle("Set Rule");
         super.setResizable(true);
 
         // Create controls

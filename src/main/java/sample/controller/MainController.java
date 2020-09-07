@@ -82,7 +82,7 @@ public class MainController {
     private int currentState = 1;  // State to draw with
     private boolean recording = false;  // Is the recording on?
     private boolean simulationRunning = false;  // Is the simulation running?
-    private boolean visualisationDone = false;  // Is the visualisation done?
+    private boolean visualisationDone = true;  // Is the visualisation done?
     private boolean showGridLines = false;  // Are the grid lines being shown?
 
     private JSONObject settings;  // Store the settings
@@ -421,12 +421,12 @@ public class MainController {
 
     @FXML // Updates cells
     public void updateCells() {
+        visualisationDone = false;
+
         try {
             simulator.step();
         }
-        catch (ConcurrentModificationException exception) {
-            return;
-        }
+        catch (ConcurrentModificationException ignored) {}
 
         Platform.runLater(() -> {
             try {
@@ -465,15 +465,14 @@ public class MainController {
 
         while (true) {
             if (simulationRunning) {
-                updateCells();
-
                 // Wait for the visualisation to be done
                 // To avoid ConcurrentModificationException
+                // TODO (Using locks would be more elegant)
                 while (!visualisationDone) {
                     wait(1);
                 }
 
-                visualisationDone = false;
+                updateCells();
             }
             else {
                 int finalNum = num;
@@ -977,7 +976,6 @@ public class MainController {
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {
             updateCells();
-            visualisationDone = false;
         }
         // Delete cells
         else if (event.getCode().equals(KeyCode.DELETE)) {

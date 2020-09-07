@@ -1,5 +1,6 @@
 package sample.controller.dialogs.rule;
 
+import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import sample.model.rules.RuleFamily;
 
@@ -14,6 +15,7 @@ public abstract class RuleWidget extends GridPane {
         // Formatting the grid
         super.setHgap(5);
         super.setVgap(5);
+        super.setAlignment(Pos.CENTER);
 
         // Adding controls
         // rulestringField = new TextField();

@@ -41,15 +41,15 @@ public class HROT extends RuleFamily {
     private int maxNeighbourhoodCount;
 
     private final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
-    private final static String moore = "([BSbs]([0-8]+)?/?[BS]([0-8]+)?+|[BSbs]?([0-8]+)?/[BSbs]?([0-8]+)?)";
-    private final static String vonNeumann = "([BSbs]([0-4]+)?/?[BS]([0-4]+)?|[BSbs]?([0-4]+)?/[BSbs]?([0-4]+)?)V";
-    private final static String hexagonal = "([BSbs]([0-6]+)?/?[BS]([0-6]+)?|[BSbs]?([0-6]+)?/[BSbs]?([0-6]+)?)H";
+    private final static String moore = "([BSbs]([0-8]*)?/?[BS]([0-8]*)?+|[BSbs]?([0-8]*)?/[BSbs]?([0-8]*)?)";
+    private final static String vonNeumann = "([BSbs]([0-4]*)?/?[BS]([0-4]*)?|[BSbs]?([0-4]*)?/[BSbs]?([0-4]*)?)V";
+    private final static String hexagonal = "([BSbs]([0-6]*)?/?[BS]([0-6]*)?|[BSbs]?([0-6]*)?/[BSbs]?([0-6]*)?)H";
     private final static String higherRangePredefined = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" +
             hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?";
+            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?[HL]?";
     private final static String higherRangeWeightedCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+";
+            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?";
 
     /**
      * Creates a 2-state HROT rule with the Minibugs rule
@@ -90,9 +90,12 @@ public class HROT extends RuleFamily {
         if (rulestring.matches(moore)) {
             // Generate Birth & Survival Transitions
             Utils.getTransitionsFromString(birth,
-                    Utils.matchRegex("B[0-8]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Bb][0-8]*", rulestring, 0).substring(1));
             Utils.getTransitionsFromString(survival,
-                    Utils.matchRegex("S[0-8]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Ss][0-8]*", rulestring, 0).substring(1));
+
+            // Setting tiling
+            tiling = Tiling.Square;
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateMoore(1);
@@ -101,9 +104,12 @@ public class HROT extends RuleFamily {
         else if (rulestring.matches(vonNeumann)) {
             // Add to birth & survival
             Utils.getTransitionsFromString(birth,
-                    Utils.matchRegex("B[0-4]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Bb][0-4]*", rulestring, 0).substring(1));
             Utils.getTransitionsFromString(survival,
-                    Utils.matchRegex("S[0-4]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Ss][0-4]*", rulestring, 0).substring(1));
+
+            // Setting tiling
+            tiling = Tiling.Square;
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateVonNeumann(1);
@@ -112,9 +118,12 @@ public class HROT extends RuleFamily {
         else if (rulestring.matches(hexagonal)) {
             // Add to birth & survival
             Utils.getTransitionsFromString(birth,
-                    Utils.matchRegex("B[0-6]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Bb][0-6]*", rulestring, 0).substring(1));
             Utils.getTransitionsFromString(survival,
-                    Utils.matchRegex("S[0-6]+", rulestring, 0).substring(1));
+                    Utils.matchRegex("[Ss][0-6]*", rulestring, 0).substring(1));
+
+            // Setting tiling
+            tiling = Tiling.Hexagonal;
 
             // Generate Neighbourhood
             neighbourhood = NeighbourhoodGenerator.generateHexagonal(1);
@@ -128,6 +137,7 @@ public class HROT extends RuleFamily {
 
             neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
             weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
+            tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -144,6 +154,15 @@ public class HROT extends RuleFamily {
             if (CoordCA.length() > 0)
                 neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
+            try {
+                String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
+                        rulestring, 0, 1);
+                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
+                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            } catch (IllegalStateException exception) {
+                tiling = Tiling.Square;
+            }
+
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
                     Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
@@ -159,6 +178,15 @@ public class HROT extends RuleFamily {
                     NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
             neighbourhood = neighbourhoodAndWeights.getValue0();
             weights = neighbourhoodAndWeights.getValue1();
+
+            try {
+                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
+                        rulestring, 0, 1);
+                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
+                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            } catch (IllegalStateException exception) {
+                tiling = Tiling.Square;
+            }
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -329,42 +357,31 @@ public class HROT extends RuleFamily {
         }
 
         // Running through every generation and check what transitions are required
-        for (int i = 0; i < grids.length - 1; i++) {
-            grids[i].updateBounds();  // Getting the bounds of the grid
-            Pair<Coordinate, Coordinate> bounds = grids[i].getBounds();
+        int sum;
+        for (int[] neighbours: getNeighbourList(grids)) {
+            sum = 0;
 
-            int sum;  // Neighbourhood sum
-            Coordinate coordinate;  // Current coordinate
-            for (int x = bounds.getValue0().getX() - 5; x < bounds.getValue1().getX() + 5; x++) {
-                for (int y = bounds.getValue0().getY() - 5; y < bounds.getValue1().getY() + 5; y++) {
-                    sum = 0;
-                    coordinate = new Coordinate(x, y);
+            // Computes the neighbourhood sum for every cell
+            for (int i = 1; i < neighbours.length - 1; i++) {
+                if (weights == null) sum += neighbours[i];
+                else sum += neighbours[i] * weights[i - 1];
+            }
 
-                    // Computes the neighbourhood sum for every cell
-                    for (int j = 0; j < neighbourhood.length; j++) {
-                        if (weights == null)
-                            sum += grids[i].getCell(coordinate.add(neighbourhood[j]));
-                        else
-                            sum += grids[i].getCell(coordinate.add(neighbourhood[j])) * weights[j];
-                    }
+            // Determining the required birth / survival condition
+            int currentCell = neighbours[0];
+            int nextCell = neighbours[neighbours.length - 1];
 
-                    // Determining the required birth / survival condition
-                    int currentCell = grids[i].getCell(coordinate);
-                    int nextCell = grids[i + 1].getCell(coordinate);
-
-                    if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
-                        minBirth.add(sum);
-                    }
-                    else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
-                        maxBirth.remove(sum);
-                    }
-                    else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
-                        minSurvival.add(sum);
-                    }
-                    else if (currentCell == 1 && nextCell == 0) {  // No Survival (1 -> 0)
-                        maxSurvival.remove(sum);
-                    }
-                }
+            if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
+                minBirth.add(sum);
+            }
+            else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
+                maxBirth.remove(sum);
+            }
+            else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
+                minSurvival.add(sum);
+            }
+            else if (currentCell == 1 && nextCell == 0) {  // No Survival (1 -> 0)
+                maxSurvival.remove(sum);
             }
         }
 
@@ -473,29 +490,8 @@ public class HROT extends RuleFamily {
     @Override
     public String[] generateComments() {
         if (rulestring.charAt(rulestring.length() - 1) == '@') {
-            int range = 0;
-            ArrayList<Coordinate> neighbourhoodList = new ArrayList<>();
-            for (Coordinate coordinate: neighbourhood) {
-                neighbourhoodList.add(coordinate);
-                range = Math.max(range, Math.max(Math.abs(coordinate.getX()), Math.abs(coordinate.getY())));
-            }
-
-            String[] comments = new String[2 * range + 1];  // The array of RLE comments
-            for (int i = -range; i <= range; i++) {
-                comments[i + range] = "#R ";
-                for (int j = -range; j <= range; j++) {
-                    int index = neighbourhoodList.indexOf(new Coordinate(i, j));
-                    if (index != -1) {
-                        comments[i + range] += weights[index];
-                    }
-                    else {
-                        comments[i + range] += 0;
-                    }
-                    comments[i + range] += " ";
-                }
-            }
-
-            return comments;
+            ArrayList<String> comments = CommentGenerator.generateFromWeights(weights, neighbourhood);
+            return comments.toArray(new String[0]);
         }
         else {
             return null;
@@ -509,31 +505,12 @@ public class HROT extends RuleFamily {
     @Override
     public void loadComments(String[] comments) {
         if (comments.length > 0) {  // Check if there are even any comments
-            int range = comments.length / 2;
-            ArrayList<Coordinate> neighbourhood = new ArrayList<>();
-            ArrayList<Integer> weights = new ArrayList<>();
-
-            for (int j = 0; j < comments.length; j++) {  // Parsing comments for the neighbourhood
-                String[] tokens = comments[j].split(" ");
-                for (int i = 1; i < tokens.length; i++) {
-                    if (!tokens[i].equals("0")) {
-                        neighbourhood.add(new Coordinate(i - 1 - range, j - range));
-                        weights.add(Integer.parseInt(tokens[i]));
-                    }
-                }
-            }
-
-            // Converting to arrays because java is annoying
-            int[] weightsArray = new int[weights.size()];
-            Coordinate[] neighbourhoodArray = new Coordinate[neighbourhood.size()];
-            for (int i = 0; i < weights.size(); i++) {
-                weightsArray[i] = weights.get(i);
-                neighbourhoodArray[i] = neighbourhood.get(i);
-            }
+            Pair<int[], Coordinate[]> weightsAndNeighbourhood =
+                    CommentGenerator.getWeightsFromComments(comments);
 
             // Setting weights and neighbourhood
-            setWeights(weightsArray);
-            setNeighbourhood(neighbourhoodArray);
+            setWeights(weightsAndNeighbourhood.getValue0());
+            setNeighbourhood(weightsAndNeighbourhood.getValue1());
         }
     }
 

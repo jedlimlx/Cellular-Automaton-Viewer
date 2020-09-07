@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
-    public static String matchRegex(String regex, String input, int num) {
+    public static String matchRegex(String regex, String input, int num, int groupIndex) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
@@ -16,7 +16,11 @@ public class Utils {
             matcher.find();
         }
 
-        return matcher.group();
+        return matcher.group(groupIndex);
+    }
+
+    public static String matchRegex(String regex, String input, int num) {
+        return matchRegex(regex, input, num, 0);
     }
 
     public static void getTransitionsFromString(HashSet<Integer> transitions, String string) {

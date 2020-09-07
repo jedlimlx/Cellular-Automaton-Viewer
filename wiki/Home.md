@@ -9,6 +9,7 @@ Welcome to the CAViewer wiki!
   * [Higher Range Outer Totalistic (HROT)](Rule-Support.md#higher-range-outer-totalistic-hrot)
      * [2 state](Rule-Support.md#2-state)
      * [Generations](Rule-Support.md#generations)
+     * [Extended Generations](Rule-Support.md#extended-generations)
   * [Isotropic Non-Totalistic (INT)](Rule-Support.md#isotropic-non-totalistic-int)
   * [B0 Rules](Rule-Support.md#b0-rules)
 * [Sample Rules](Sample-Rules.md)

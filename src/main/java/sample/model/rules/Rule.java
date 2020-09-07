@@ -33,6 +33,19 @@ public abstract class Rule {
     protected int alternatingPeriod;
 
     /**
+     * The tiling of the rule
+     */
+    protected Tiling tiling;
+
+    /**
+     * This method returns the neighbourhood of a given cell at a generation 0
+     * @return A list of Coordinates that represent the neighbourhood
+     */
+    public Coordinate[] getNeighbourhood() {
+        return getNeighbourhood(0);
+    }
+
+    /**
      * This method returns the neighbourhood of a given cell at a certain generation
      * @param generation The generation of the simulation
      * @return A list of Coordinates that represent the neighbourhood
@@ -47,6 +60,16 @@ public abstract class Rule {
      * @return The state of the cell in the next generation
      */
     public abstract int transitionFunc(int[] neighbours, int cellState, int generations);
+
+    /**
+     * If the next state of the cell depends on its neighbours, return -1.
+     * If not return the next state of the cell.
+     * @param state The current state of the cell
+     * @return Returns -1 or the next state of the cell
+     */
+    public int dependsOnNeighbours(int state) {
+        return -1;
+    }
 
     /**
      * Gets the alternating period of the rule
@@ -83,6 +106,14 @@ public abstract class Rule {
     }
 
     /**
+     * Returns the tiling of the rule (Square, Hexagonal or Triangular)
+     * @return Returns the rule's tiling
+     */
+    public Tiling getTiling() {
+        return tiling;
+    }
+
+    /**
      * Steps the grid provided forward one generation
      * @param grid The grid that will be stepped forward one generation
      * @param cellsChanged An array of sets that contains the cells the changed in the previous generations.
@@ -101,13 +132,29 @@ public abstract class Rule {
         HashSet<Coordinate> cellsToCheck = new HashSet<>();
         Coordinate[] neighbourhood = getNeighbourhood(generation);
 
+        Coordinate[] invertedNeighbourhood = new Coordinate[neighbourhood.length];
+        if (tiling == Tiling.Triangular) {
+            // Inverting neighbourhood on the triangular checkboard grid thing
+            for (int i = 0; i < neighbourhood.length; i++) {
+                invertedNeighbourhood[i] = new Coordinate(neighbourhood[i].getX(), -neighbourhood[i].getY());
+            }
+        }
+
         // Generate set of cells to run update function on
         // Use a set to avoid duplicates
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate cell: cellSet) {
-                for (Coordinate neighbour: neighbourhood) {
-                    cellsToCheck.add(cell.add(neighbour));
+                if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                    for (Coordinate neighbour: neighbourhood) {
+                        cellsToCheck.add(cell.add(neighbour));
+                    }
                 }
+                else {
+                    for (Coordinate neighbour: invertedNeighbourhood) {
+                        cellsToCheck.add(cell.add(neighbour));
+                    }
+                }
+
                 cellsToCheck.add(cell);
             }
         }
@@ -119,9 +166,17 @@ public abstract class Rule {
 
             // Getting neighbour states
             neighbours = new int[neighbourhood.length];
-            for (int i = 0; i < neighbourhood.length; i++) {
-                // Converting based on background
-                neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
+            if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                for (int i = 0; i < neighbourhood.length; i++) {
+                    // Converting based on background
+                    neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
+                }
+            }
+            else {
+                for (int i = 0; i < neighbourhood.length; i++) {
+                    // Converting based on background
+                    neighbours[i] = convertState(gridCopy.getCell(cell.add(invertedNeighbourhood[i])), generation);
+                }
             }
 
             // Call the transition function on the new state
@@ -144,60 +199,6 @@ public abstract class Rule {
                 }
             }
         }
-
-        /* Old code
-        int[] neighbours;
-        int prevState, newState;
-        Coordinate neighbour;
-        HashSet<Coordinate> visited = new HashSet<>();
-        HashSet<Coordinate> cellNeighbours = new HashSet<>();
-
-        // Clear the cells changed
-        cellsToCheck = (HashSet<Coordinate>) cellsChanged.clone();
-        cellsChanged.clear();
-
-        for (Coordinate cell: cellsToCheck) {
-            visited.add(cell);
-
-            prevState = gridCopy.getCell(cell);
-
-            // Getting neighbour states
-            neighbours = new int[neighbourhood.length];
-            for (int i = 0; i < neighbourhood.length; i++) {
-                neighbour = cell.add(neighbourhood[i]);
-                neighbours[i] = gridCopy.getCell(neighbour);
-                if (!cellsToCheck.contains(neighbour))
-                    cellNeighbours.add(neighbour);
-            }
-
-            // Call the transition function on the new state
-            newState = transitionFunc(neighbours, prevState, generation);
-            if (newState != prevState) {
-                cellsChanged.add(cell);
-                grid.setCell(cell, newState);
-            }
-        }
-
-        for (Coordinate cell: cellNeighbours) {
-            visited.add(cell);
-
-            prevState = gridCopy.getCell(cell);
-
-            // Getting neighbour states
-            neighbours = new int[neighbourhood.length];
-            for (int i = 0; i < neighbourhood.length; i++) {
-                neighbour = cell.add(neighbourhood[i]);
-                neighbours[i] = gridCopy.getCell(neighbour);
-            }
-
-            // Call the transition function on the new state
-            newState = transitionFunc(neighbours, prevState, generation);
-            if (newState != prevState) {
-                cellsChanged.add(cell);
-                grid.setCell(cell, newState);
-            }
-        }
-         */
     }
 
     /**

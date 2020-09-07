@@ -11,7 +11,7 @@ public class HROTDialog extends RuleWidget {
     public HROTDialog() {
         super();
 
-        neighbourhoodSelector = new NeighbourhoodSelector(2);
+        neighbourhoodSelector = SharedWidgets.getNeighbourhoodSelector();
         super.add(neighbourhoodSelector, 0, 1);
 
         this.ruleFamily = new HROT("B3/S23");

@@ -1,13 +1,15 @@
 package sample.model;
 
 import org.javatuples.Pair;
+import sample.model.rules.Tiling;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class NeighbourhoodGenerator {
     // Modify to add new symbols for new neighbourhoods
-    public static String neighbourhoodSymbols = "ABbCGHMNX23*+#";
+    public static String neighbourhoodSymbols = "ABbCGHLMNX23*+#";
     public static Coordinate[] generateFromSymbol(char symbol, int range) {
         switch (symbol) {  // Add new neighbourhood types as cases here
             case 'A': return generateAsterisk(range);
@@ -16,6 +18,7 @@ public class NeighbourhoodGenerator {
             case 'C': return generateCircular(range);
             case 'G': return generateGaussianNeighbourhood(range);
             case 'H': return generateHexagonal(range);
+            case 'L': return generateTriangularNeighbourhood(range);
             case 'N': return generateVonNeumann(range);
             case 'X': return generateSaltire(range);
             case '2': return generateEuclidean(range);
@@ -30,6 +33,17 @@ public class NeighbourhoodGenerator {
         switch (symbol) {  // Add new weighted neighbourhood types as cases here
             case 'G': return generateGaussian(range);
             default: return null;
+        }
+    }
+    public static Tiling generateTilingFromSymbol(char symbol) {
+        switch (symbol) {  // Add new neighbourhood types as cases here
+            case 'A':
+            case 'H':
+            case '3':
+                return Tiling.Hexagonal;
+            case 'L':
+                return Tiling.Triangular;
+            default: return Tiling.Square;
         }
     }
 
@@ -257,6 +271,23 @@ public class NeighbourhoodGenerator {
         return weights;
     }
 
+    public static Coordinate[] generateTriangularNeighbourhood(int range) {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        for (int i = -2 * range; i < 2 * range + 1; i++) {
+            for (int j = -range; j < range + 1; j++) {
+                if (i == 0 && j == 0) continue;
+
+                if (j == 0 || j == -1 || Math.abs(i) <= range ||
+                        (j < 0 && Math.abs(i) > range && Math.abs(i) - range < range + j + 2) ||
+                        (j > 0 && Math.abs(i) > range && Math.abs(i) - range < range - j + 1)) {
+                    neighbourhood.add(new Coordinate(i, j));
+                }
+            }
+        }
+
+        return toArray(neighbourhood);
+    }
+
     // Convert cell list to array
     public static Coordinate[] toArray(ArrayList<Coordinate> neighbourhood) {
         // Turn into array
@@ -287,12 +318,12 @@ public class NeighbourhoodGenerator {
                     int index = (i + range) * (2 * range + 1) + (j + range);
                     if ((i == 0 && j > 0) || i > 0) {
                         if (flattenedNeighbourhood.charAt(index - 1) == '1') {
-                            neighbourhood.add(new Coordinate(i, j));
+                            neighbourhood.add(new Coordinate(j, i));
                         }
                     }
                     else {
                         if (flattenedNeighbourhood.charAt(index) == '1') {
-                            neighbourhood.add(new Coordinate(i, j));
+                            neighbourhood.add(new Coordinate(j, i));
                         }
                     }
                 }
@@ -349,6 +380,29 @@ public class NeighbourhoodGenerator {
 
     // Get State Weights from LifeViewer Format
     public static int[] getStateWeights(String LifeViewer) {
-        return null;  // TODO (Finish state weights)
+        int[] stateWeights = new int[LifeViewer.length()];
+        for (int i = 0; i < LifeViewer.length(); i++) {
+            stateWeights[i] = Integer.parseInt(LifeViewer.charAt(i) + "", 16);
+        }
+
+        return stateWeights;
+    }
+
+    // Get the active states from the Extended Generations String
+    public static HashSet<Integer> getActiveGenExtStates(String genExtString) {
+        int currentState = 1;
+        boolean active = true;
+        HashSet<Integer> activeStates = new HashSet<>();
+        for (String token: genExtString.split("-")) {
+            int temp = currentState + Integer.parseInt(token);
+            for (int i = currentState; i < temp; i++) {
+                if (active) activeStates.add(currentState);
+                currentState += 1;
+            }
+
+            active = !active;
+        }
+
+        return activeStates;
     }
 }

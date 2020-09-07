@@ -1,9 +1,11 @@
 package sample.model.rules;
 
 import org.javatuples.Pair;
+import sample.model.Coordinate;
 import sample.model.Grid;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Represents a family of rules or a rulespace
@@ -74,9 +76,9 @@ public abstract class RuleFamily extends Rule implements Cloneable {
     }
 
     /**
-     * Returns the minimum and maximum rule of the provided evolutionary sequence
-     * A child class the implements this method is compatible with CAViewer's rule search program
-     * If you're lazy, just return the min and max rule as the same rule
+     * Returns the minimum and maximum rule of the provided evolutionary sequence.
+     * This is used in CAViewer's rule search program and identification.
+     * The first grid in the list is taken to be at generation 0.
      * @param grids An array of grids representing the evolutionary sequence
      * @return A pair containing the min rule as the first value and the max rule as the second value
      * @throws UnsupportedOperationException Thrown if the specific rule does not support minimum and maximum rules
@@ -165,5 +167,60 @@ public abstract class RuleFamily extends Rule implements Cloneable {
     @Override
     public String toString() {
         return getRulestring();
+    }
+
+    /**
+     * Gets the list of neighbours with the input state and output state at the first and last index respectively
+     * when provided with an evolutionary sequence. Should be used in conjuction with getMinMaxRule.
+     * @param grids An array of grids representing an evolutionary sequence
+     * @return Returns the list of neighbours
+     */
+    protected ArrayList<int[]> getNeighbourList(Grid[] grids) {
+        ArrayList<int[]> neighboursList = new ArrayList<>();
+
+        // Running through every generation and check what transitions are required
+        for (int i = 0; i < grids.length - 1; i++) {
+            grids[i].updateBounds();  // Getting the bounds of the grid
+            Pair<Coordinate, Coordinate> bounds = grids[i].getBounds();
+
+            Coordinate coordinate;  // Current coordinate
+            Coordinate[] neighbourhood = getNeighbourhood(i);
+
+            // Inverting neighbourhood for triangular rules
+            Coordinate[] invertedNeighbourhood = new Coordinate[neighbourhood.length];
+            if (tiling == Tiling.Triangular) {
+                for (int j = 0; j < neighbourhood.length; j++) {
+                    invertedNeighbourhood[j] = new Coordinate(neighbourhood[j].getX(), -neighbourhood[j].getY());
+                }
+            }
+
+            for (int x = bounds.getValue0().getX() - 5; x < bounds.getValue1().getX() + 5; x++) {
+                for (int y = bounds.getValue0().getY() - 5; y < bounds.getValue1().getY() + 5; y++) {
+                    coordinate = new Coordinate(x, y);
+                    if (dependsOnNeighbours(grids[i].getCell(coordinate)) != -1) continue;
+
+                    // Computes the neighbourhood sum for every cell
+                    int[] neighbours = new int[getNeighbourhood(i).length + 2];
+                    if (tiling != Tiling.Triangular ||
+                            Math.floorMod(coordinate.getX(), 2) == Math.floorMod(coordinate.getY(), 2)) {
+                        for (int j = 0; j < neighbourhood.length; j++) {
+                            neighbours[j + 1] = grids[i].getCell(coordinate.add(neighbourhood[j]));
+                        }
+                    }
+                    else {
+                        for (int j = 0; j < neighbourhood.length; j++) {
+                            neighbours[j + 1] = grids[i].getCell(coordinate.add(invertedNeighbourhood[j]));
+                        }
+                    }
+
+                    neighbours[0] = grids[i].getCell(coordinate);
+                    neighbours[neighbourhood.length + 1] = grids[i + 1].getCell(coordinate);
+
+                    neighboursList.add(neighbours);
+                }
+            }
+        }
+
+        return neighboursList;
     }
 }

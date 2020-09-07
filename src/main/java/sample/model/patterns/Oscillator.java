@@ -7,8 +7,21 @@ import sample.model.rules.Rule;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Represents an oscillator
+ */
 public class Oscillator extends Pattern {
-    int period;
+    /**
+     * The period of the oscillator
+     */
+    private int period;
+
+    /**
+     * Constructs an oscillator
+     * @param rule The rule the oscillator works in
+     * @param pattern The oscillator's pattern
+     * @param period The period of the oscillator
+     */
     public Oscillator(Rule rule, Grid pattern, int period) {
         super(rule);
 
@@ -26,6 +39,10 @@ public class Oscillator extends Pattern {
         }
     }
 
+    /**
+     * Additional information about the oscillator. Namely the period, minimum rule and maximum rule
+     * @return A map containing the additional information about the oscillator
+     */
     @Override
     public Map<String, String> additionalInfo() {
         LinkedHashMap<String, String> information = new LinkedHashMap<>();

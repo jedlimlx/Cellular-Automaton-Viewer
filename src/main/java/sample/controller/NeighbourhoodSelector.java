@@ -31,6 +31,8 @@ public class NeighbourhoodSelector extends GridPane {
     private int[][] weights;
     private Button[][] weightButtons;
 
+    private Runnable onWeightsChanged;
+
     /**
      * Creates a new NeighbourhoodSelector with an initial range of 2
      * @param range The initial range
@@ -109,6 +111,8 @@ public class NeighbourhoodSelector extends GridPane {
     private void weightButtonClickedHandler(int i, int j) {
         weights[i][j] = (weights[i][j] + 11) % 21 - 10;  // Loop from -10 to 10
         weightButtons[i][j].setText(weights[i][j] + "");  // Set text to weight
+
+        onWeightsChanged.run();
     }
 
     /**
@@ -121,6 +125,33 @@ public class NeighbourhoodSelector extends GridPane {
                 weightButtons[i][j].setText("0");
             }
         }
+
+        onWeightsChanged.run();
+    }
+
+    /**
+     * Sets the weights of the neighbourhood selector
+     * @param weights The weights of the neighbourhood selector
+     */
+    public void setWeights(int[][] weights) {
+        this.weights = weights;
+
+        for (int i = 0; i < 2 * range + 1; i++) {
+            for (int j = 0; j < 2 * range + 1; j++) {
+                this.weights[i][j] = weights[i][j];
+                weightButtons[i][j].setText(weights[i][j] + "");
+            }
+        }
+
+        onWeightsChanged.run();
+    }
+
+    /**
+     * Gets the raw weights as an 2D integer array
+     * @return Returns the raw weights as an 2D integer array
+     */
+    public int[][] getRawWeights() {
+        return weights;
     }
 
     /**
@@ -163,5 +194,21 @@ public class NeighbourhoodSelector extends GridPane {
         }
 
         return null;
+    }
+
+    /**
+     * Gets the spinner that stores the range
+     * @return Returns the spinner that stores the range
+     */
+    public Spinner<Integer> getSpinnerRange() {
+        return spinnerRange;
+    }
+
+    /**
+     * The method to call when the weights change
+     * @param onWeightsChanged The method to call when weights change
+     */
+    public void setOnWeightsChanged(Runnable onWeightsChanged) {
+        this.onWeightsChanged = onWeightsChanged;
     }
 }

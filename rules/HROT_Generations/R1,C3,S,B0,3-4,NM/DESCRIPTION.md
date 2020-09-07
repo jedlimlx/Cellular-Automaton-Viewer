@@ -14,7 +14,12 @@ Oscillators of various periods have been found.
 [12] <br>
 [15] <br>
 [18] <br>
-[21]
+[21] <br>
+[33] <br>
+[78]
+
+And many more...
+Apgsearch logs can be found [here](.).
 
 [3]: OSC_1.rle
 [6]: OSC_2.rle
@@ -24,3 +29,5 @@ Oscillators of various periods have been found.
 [18]: OSC_8.rle
 [21]: OSC_7.rle
 [30]: OSC_6.rle
+[33]: OSC_9.rle
+[78]: OSC_10.rle

@@ -136,16 +136,25 @@ Supported / Planned Rulespaces
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for weighted rules
     - [ ] HROT BSFKL
+        - [ ] B0, F0 rules
+        - [ ] Neighbourhood Weights
+        - [ ] Apgtable Generation for all rules
     - [ ] HROT Generations
         - [x] B0 Rules
-        - [ ] State Weights
+        - [x] State Weights
         - [x] Neighbourhood Weights
-        - [ ] Apgtable Generation for B0 rules
+        - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for rules with neighbourhood weights
         - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
-    - [ ] HROT Extended Generations
+    - [x] HROT Extended Generations
+        - [x] B0 Rules
+        - [x] Neighbourhood Weights
+        - [x] Apgtable Generation for all rules
     - [ ] HROT Regenerating Generations
+        - [ ] B0 Rules
+        - [ ] Neighbourhood Weights
+        - [ ] Apgtable Generation for all rules
     - [ ] 3-state HROT
     - [ ] Integer HROT
     - [ ] Deficient HROT
@@ -194,7 +203,7 @@ Supported / Planned Named HROT Neighbourhoods
 - [ ] Triangular Neighbourhood on Triangular Grid (D)
 - [x] Gaussian Weighted Neighbourhood (G)
 - [x] Hexagonal (H)
-- [ ] Triangular Moore (L)
+- [x] Triangular Moore (L)
 - [x] Moore (M)
 - [x] Von Neumann (N)
 - [ ] Triangular Neighbourhood on Hexagonal Grid (T)
@@ -207,7 +216,7 @@ Supported / Planned Named HROT Neighbourhoods
 - [x] Hash (#)
 - [x] CoordCA Format (Custom Neighbourhoods @)
 - [x] LifeViewer Format (Weighted Neighbourhoods W)
-- [ ] LifeViewer Format (State Weights W)
+- [x] LifeViewer Format (State Weights W)
 
 Search Programs
 ===================
@@ -225,10 +234,13 @@ Long-term TODO List
 ===================
 - [x] Custom search programs
 - [x] Move stuff to the wiki
+- [x] Triangular Rules
 - [ ] Command Line Interface
-    - [ ] Simulation
-    - [ ] Search Programs
-    - [ ] Random Soup Generation
+    - [x] Simulation
+    - [x] Identification
+    - [x] Search Programs
+    - [ ] Apgtable Generation
+    - [ ] Random Soup / Symmetries Generation
 - [ ] Add Unit Tests
     - [x] Write the first one
     - [ ] Rule Families
@@ -239,7 +251,6 @@ Long-term TODO List
     - [ ] Torus
     - [ ] Klein Bottle & Cross Surface
     - [ ] Spherical
-- [ ] Triangular Rules
 - [ ] Hexagonal Rendering
 - [ ] Triangular Rendering
 - [ ] Accept some LifeViewer commands like STEP & RANDOMISE
@@ -253,6 +264,6 @@ Known Bugs
 - [x] HROT B0 isn't working as intended (Fixed)
 - [x] Keyboard shortcuts only work when the ScrollPane is in focus (Fixed)
 - [x] Rule Dialog don't show the most updated rule (Fixed)
+- [x] ConcurrentModificationException is thrown (Fixed)
+- [x] Step with space causes some cells to be rendered incorrectly (Fixed)
 - [ ] Viewport doesn't move the center when a new pattern is loaded
-- [ ] ConcurrentModificationException is thrown
-- [ ] Step with space causes some cells to be rendered incorrectly
