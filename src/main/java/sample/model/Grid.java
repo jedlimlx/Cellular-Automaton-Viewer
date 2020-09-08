@@ -243,6 +243,8 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
         int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();
 
+        clearCells(startCoordinate, endCoordinate);
+
         // Rotating clockwise
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
             for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
@@ -262,6 +264,8 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
 
         int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
         int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();
+
+        clearCells(startCoordinate, endCoordinate);
 
         // Rotating counter-clockwise
         for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {

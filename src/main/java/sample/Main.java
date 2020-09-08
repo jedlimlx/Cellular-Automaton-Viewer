@@ -10,6 +10,8 @@ import sample.commands.*;
         IdentifyCommand.class,
         RuleRangeCommand.class,
         RuleSearchCommand.class,
+        RandomSoupCommand.class,
+        SynthesisCommand.class,
         CommandLine.HelpCommand.class
 })
 public class Main implements Runnable {
@@ -20,7 +22,10 @@ public class Main implements Runnable {
         }
         
         Platform.startup(() -> {});  // Start JavaFX before doing anything else
-        Platform.runLater(() -> new CommandLine(new Main()).execute(args));
+        Platform.runLater(() -> {
+            new CommandLine(new Main()).execute(args);
+            System.exit(0);
+        });
     }
 
     @Override

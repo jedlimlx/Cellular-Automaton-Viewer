@@ -15,12 +15,15 @@ public class RuleRangeCommand implements Runnable {
     private Simulator simulator;
 
     @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing pattern whose " +
-            "rule range is to be computed")
+            "rule range is to be computed", required = true)
     private File inputFile;
 
     @CommandLine.Option(names = {"-m", "-g", "--generations"}, defaultValue = "0",
-            description = "Number of generations to run the pattern")
+            description = "Number of generations to run the pattern (default: 0)")
     private int generations;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true)
+    private boolean help;
 
     @Override
     public void run() {

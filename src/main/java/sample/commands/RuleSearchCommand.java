@@ -11,10 +11,10 @@ import java.io.FileNotFoundException;
 
 @CommandLine.Command(name = "rs", aliases = {"rulesrc"}, description = "Searches rules for oscillators / spaceships")
 public class RuleSearchCommand implements Runnable {
-    @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing the seed")
+    @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing the seed", required = true)
     private File inputFile;
 
-    @CommandLine.Option(names = {"-o", "--output"}, description = "Output file to save results")
+    @CommandLine.Option(names = {"-o", "--output"}, description = "Output file to save results", required = true)
     private File outputFile;
 
     @CommandLine.Option(names = {"-m", "-g", "--max_period"}, defaultValue = "50",
@@ -33,11 +33,16 @@ public class RuleSearchCommand implements Runnable {
             description = "Number of threads (default: 5)")
     private int threads;
     
-    @CommandLine.Option(names = {"-min", "--min_rule"}, description = "Minimum rule of the search space")
+    @CommandLine.Option(names = {"-min", "--min_rule"}, description = "Minimum rule of the search space",
+            required = true)
     private String minRule;
     
-    @CommandLine.Option(names = {"-max", "--max_rule"}, description = "Minimum rule of the search space")
+    @CommandLine.Option(names = {"-max", "--max_rule"}, description = "Minimum rule of the search space",
+            required = true)
     private String maxRule;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true)
+    private boolean help;
 
     @Override
     public void run() {

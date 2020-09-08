@@ -240,7 +240,7 @@ Long-term TODO List
     - [x] Identification
     - [x] Search Programs
     - [ ] Apgtable Generation
-    - [ ] Random Soup / Symmetries Generation
+    - [x] Random Soup / Symmetries Generation
 - [ ] Add Unit Tests
     - [x] Write the first one
     - [ ] Rule Families

@@ -262,7 +262,7 @@ public class MainController {
 
     @FXML // Generates random soup in the selection box
     public void generateRandomSoup() {
-        // Generate the souop
+        // Generate the soup
         Grid soup = SymmetryGenerator.generateSymmetry("C1", 50, new int[]{1},
                 endSelection.getX() - startSelection.getX(),
                 endSelection.getY() - startSelection.getY());

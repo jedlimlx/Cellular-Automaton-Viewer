@@ -16,13 +16,15 @@ import java.io.IOException;
 public class SimulationCommand implements Runnable {
     private Simulator simulator;
 
-    @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing pattern to be simulated")
+    @CommandLine.Option(names = {"-i", "--input"},
+            description = "Input file containing pattern to be simulated", required = true)
     private File inputFile;
 
     @CommandLine.Option(names = {"-o", "--out"}, description = "Output file for the pattern. (default: print to console)")
     private File outputFile;
 
-    @CommandLine.Option(names = {"-m", "-g", "--generation"}, description = "Number of generations to run the pattern")
+    @CommandLine.Option(names = {"-m", "-g", "--generation"},
+            description = "Number of generations to run the pattern", required = true)
     private int generations;
 
     @CommandLine.Option(names = {"-s", "--step"}, defaultValue = "0",
@@ -33,6 +35,9 @@ public class SimulationCommand implements Runnable {
     @CommandLine.Option(names = {"-p", "--print"}, defaultValue = "true",
              description = "Print pattern to console (default)")
     private boolean printPattern;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true)
+    private boolean help;
 
     @Override
     public void run() {

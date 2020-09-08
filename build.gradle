@@ -1,5 +1,4 @@
-// import org.gradle.nativeplatform.platform.OperatingSystem
-// import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id 'java'
@@ -50,6 +49,8 @@ sourceSets {
 mainClassName = "sample.Main"
 
 jlink {
+    OperatingSystem os = DefaultNativePlatform.currentOperatingSystem
+
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher{
         name = 'sample.Main'
@@ -59,6 +60,8 @@ jlink {
         outputDir = 'jpackage'
         imageName = 'CAViewer'
         skipInstaller = true
+        if (os.windows) imageOptions = ['--win-console', '--icon', 'src/main/resources/icon/PulsarIcon.ico']
+        else imageOptions = ['--icon', 'src/main/resources/icon/PulsarIcon.png']
         installerName = 'CAViewer'
     }
 }

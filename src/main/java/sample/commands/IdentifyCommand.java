@@ -8,15 +8,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 @CommandLine.Command(name = "id", aliases = {"identify"}, description = "Identifies oscillators / spaceships")
-public class IdentifyCommand implements Runnable {
+public class
+IdentifyCommand implements Runnable {
     private Simulator simulator;
 
-    @CommandLine.Option(names = {"-i", "--input"}, description = "Input file containing pattern to be identified")
+    @CommandLine.Option(names = {"-i", "--input"},
+            description = "Input file containing pattern to be identified", required = true)
     private File inputFile;
 
     @CommandLine.Option(names = {"-m", "-g", "--max_period"}, defaultValue = "50",
             description = "Number of generations to run the pattern")
     private int maxPeriod;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true)
+    private boolean help;
 
     @Override
     public void run() {
