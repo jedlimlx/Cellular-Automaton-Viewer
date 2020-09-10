@@ -55,10 +55,10 @@ public class MainController {
     private ToolBar secondaryToolbar;
 
     @FXML
-    private ImageView recordingImage;
+    private ImageView recordingImage, playButtonImage;
 
     @FXML
-    private ImageView playButtonImage;
+    private CheckMenuItem gridLinesMenuItem;
 
     private final int WIDTH = 4096;
     private final int HEIGHT = 4096;
@@ -79,6 +79,11 @@ public class MainController {
     private HashMap<Coordinate, Cell> cellList;  // List of cell objects
     private Group gridLines;  // The grid lines of the pattern editor
 
+    private Group pasteSelection;  // The group that renders the stuff to be pasted
+    private Grid pasteStuff;  // The stuff to paste
+
+    private ArrayList<Grid> history;  // The history for undo, redo
+
     private int currentState = 1;  // State to draw with
     private boolean recording = false;  // Is the recording on?
     private boolean simulationRunning = false;  // Is the simulation running?
@@ -94,6 +99,7 @@ public class MainController {
         // Initialise variables
         cellList = new HashMap<>();
         stateButtons = new ArrayList<>();
+        history = new ArrayList<>();
         mode = Mode.DRAWING;
 
         // Create simulator object
@@ -168,6 +174,11 @@ public class MainController {
         gridLines.setVisible(false);
         drawingPane.getChildren().add(gridLines);
 
+        // Pane for pasting
+        pasteSelection = new Group();
+        drawingPane.getChildren().add(pasteSelection);
+        pasteSelection.setVisible(true);
+
         // Loading settings
         try {  // Reading settings from settings file
             JSONTokener tokener = new JSONTokener(new FileInputStream(SETTINGS_FILE));
@@ -177,6 +188,7 @@ public class MainController {
             if (settings.getBoolean("grid_lines")) {
                 showGridLines = true;
                 gridLines.setVisible(true);
+                gridLinesMenuItem.setSelected(true);
             }
 
             // Setting the rule
@@ -213,7 +225,7 @@ public class MainController {
         }
     }
 
-    @FXML // Handle the mouse dragged events
+    @FXML // Handle the mouse events
     public void mouseDraggedHandler(MouseEvent event) {
         if (mode == Mode.DRAWING) {
             setCell((int)event.getX() / CELL_SIZE * CELL_SIZE,
@@ -243,6 +255,12 @@ public class MainController {
 
             selectionRectangle.setVisible(true);
         }
+        else if (mode == Mode.PASTING) {
+            insertCells(pasteStuff, (int)(event.getX() / CELL_SIZE), (int)event.getY() / CELL_SIZE);
+            pasteSelection.setVisible(false);
+
+            mode = Mode.SELECTING;
+        }
     }
 
     @FXML
@@ -257,6 +275,14 @@ public class MainController {
                 (endSelection.subtract(startSelection).getX() <= 1 ||
                 endSelection.subtract(startSelection).getY() <= 1)) {
             selectionRectangle.setVisible(false);
+        }
+    }
+
+    @FXML
+    public void mouseMovedHandler(MouseEvent event) {
+        if (mode == Mode.PASTING) {
+            pasteSelection.setTranslateX((int)(event.getX() / CELL_SIZE) * CELL_SIZE);
+            pasteSelection.setTranslateY((int)(event.getY() / CELL_SIZE) * CELL_SIZE);
         }
     }
 
@@ -495,6 +521,7 @@ public class MainController {
 
     @FXML  // Toggles simulation on and off
     public void toggleSimulation() {
+        history.add(simulator.deepCopy());
         simulationRunning = !simulationRunning;  // Toggle the simulation
         if (!simulationRunning) {  // Changing the icon
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
@@ -666,25 +693,27 @@ public class MainController {
                 recording = !recording;
                 return;
             }
-
             Thread thread = new Thread(() -> {
                 if (!giffer.toGIF(file)) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error in generating *.gif");
-                    alert.setHeaderText("The operation was unsuccessful.");
-                    alert.setContentText("The operation was unsuccessful. " +
-                            "If you suspect a bug, please report it.");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                    alert.showAndWait();
+                    Platform.runLater(() -> {Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error in generating *.gif");
+                        alert.setHeaderText("The operation was unsuccessful.");
+                        alert.setContentText("The operation was unsuccessful. " +
+                                "If you suspect a bug, please report it.");
+                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                        alert.showAndWait();
+                    });
                 }
                 else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Operation successful!");
-                    alert.setHeaderText("The operation was successful.");
-                    alert.setContentText("The operation was successful. " +
-                            "The *.gif has been saved to " + file.getAbsolutePath() + ".");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                    alert.showAndWait();
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Operation successful!");
+                        alert.setHeaderText("The operation was successful.");
+                        alert.setContentText("The operation was successful. " +
+                                "The *.gif has been saved to " + file.getAbsolutePath() + ".");
+                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                        alert.showAndWait();
+                    });
                 }
             });
             thread.setName("Giffer Thread");
@@ -938,8 +967,30 @@ public class MainController {
             }
         }
 
-        simulator.fromRLE(rleFinal.toString(), startSelection);  // Insert the cells
-        renderCells(startSelection, endSelection);  // Render the cells
+        mode = Mode.PASTING;
+
+        pasteStuff = new Grid();
+        pasteStuff.fromRLE(rleFinal.toString(), new Coordinate(0, 0));
+
+        pasteSelection.getChildren().clear();
+        for (Coordinate coordinate: pasteStuff) {
+            Rectangle cell = new Rectangle();
+            cell.setX(coordinate.getX() * CELL_SIZE);
+            cell.setY(coordinate.getY() * CELL_SIZE);
+            cell.setWidth(CELL_SIZE);
+            cell.setHeight(CELL_SIZE);
+            cell.setFill(simulator.getRule().getColour(pasteStuff.getCell(coordinate)));
+
+            // Add cell to pane and cell list
+            pasteSelection.getChildren().add(cell);
+        }
+
+        pasteSelection.setVisible(true);
+        pasteSelection.toFront();
+        gridLines.toFront();
+
+        //simulator.fromRLE(rleFinal.toString(), startSelection);  // Insert the cells
+        //renderCells(startSelection, endSelection);  // Render the cells
     }
 
     @FXML // Copies the currently selected cells to the clipboard
@@ -975,6 +1026,7 @@ public class MainController {
         }
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {
+            history.add(simulator.deepCopy());
             updateCells();
         }
         // Delete cells
@@ -993,6 +1045,33 @@ public class MainController {
         else if (event.getCode().equals(KeyCode.X) && event.isControlDown()) {
             copyCells();
             deleteCells();
+        }
+        // Ctrl + A to select all
+        else if (event.getCode().equals(KeyCode.A) && event.isControlDown()) {
+            simulator.updateBounds();
+            startSelection = new Coordinate(simulator.getBounds().getValue0().getX() * CELL_SIZE,
+                    simulator.getBounds().getValue0().getY() * CELL_SIZE);
+            endSelection = new Coordinate(simulator.getBounds().getValue1().getX() * CELL_SIZE,
+                    simulator.getBounds().getValue1().getY() * CELL_SIZE);
+
+            selectionRectangle.setX(simulator.getBounds().getValue0().getX() * CELL_SIZE);
+            selectionRectangle.setY(simulator.getBounds().getValue0().getY() * CELL_SIZE);
+
+            selectionRectangle.setWidth(simulator.getBounds().getValue1().getX() * CELL_SIZE -
+                    startSelection.getX() * CELL_SIZE + 1);
+            selectionRectangle.setHeight(simulator.getBounds().getValue1().getY() * CELL_SIZE -
+                    startSelection.getY() * CELL_SIZE + 1);
+
+            selectionRectangle.setVisible(true);
+            mode = Mode.SELECTING;
+        }
+        // Ctrl + Z to undo
+        else if (event.getCode().equals(KeyCode.Z) && event.isControlDown()) {
+            newPattern();
+            if (history.size() > 1) {
+                insertCells(history.get(history.size() - 1), 0, 0);
+                history.remove(history.size() - 1);
+            }
         }
         // Ctrl + Shift + O to load pattern from clipboard
         else if (event.getCode().equals(KeyCode.O) && event.isShiftDown() && event.isControlDown()) {

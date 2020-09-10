@@ -1,6 +1,5 @@
 package sample;
 
-import javafx.application.Platform;
 import picocli.CommandLine;
 import sample.commands.*;
 
@@ -12,6 +11,7 @@ import sample.commands.*;
         RuleSearchCommand.class,
         RandomSoupCommand.class,
         SynthesisCommand.class,
+        ApgtableCommand.class,
         CommandLine.HelpCommand.class
 })
 public class Main implements Runnable {
@@ -20,12 +20,9 @@ public class Main implements Runnable {
             GUICommand.main(args);
             return;
         }
-        
-        Platform.startup(() -> {});  // Start JavaFX before doing anything else
-        Platform.runLater(() -> {
-            new CommandLine(new Main()).execute(args);
-            System.exit(0);
-        });
+
+        new CommandLine(new Main()).execute(args);
+        System.exit(0);
     }
 
     @Override

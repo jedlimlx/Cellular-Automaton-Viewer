@@ -33,6 +33,8 @@ public class NeighbourhoodSelector extends GridPane {
 
     private Runnable onWeightsChanged;
 
+    private boolean recursed = false;
+
     /**
      * Creates a new NeighbourhoodSelector with an initial range of 2
      * @param range The initial range

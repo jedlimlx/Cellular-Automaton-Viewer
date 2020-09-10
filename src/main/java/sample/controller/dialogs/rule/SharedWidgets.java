@@ -14,16 +14,10 @@ public class SharedWidgets {
         newNeighbourhoodSelector.getSpinnerRange().valueProperty().addListener((obs, oldValue, newValue) ->
                 neighbourhoodSelector.getSpinnerRange().getValueFactory().setValue(newValue));
 
-        neighbourhoodSelector.setOnWeightsChanged(() -> {
-            try {
-                newNeighbourhoodSelector.setWeights(neighbourhoodSelector.getRawWeights());
-            } catch (StackOverflowError ignored) {}  // Recursive stuff going on, don't ask questions
-        });
-        newNeighbourhoodSelector.setOnWeightsChanged(() -> {
-            try {
-                neighbourhoodSelector.setWeights(newNeighbourhoodSelector.getRawWeights());
-            } catch (StackOverflowError ignored) {}  // Recursive stuff going on, don't ask questions
-        });
+        //neighbourhoodSelector.setOnWeightsChanged(() ->
+        //        newNeighbourhoodSelector.setWeights(neighbourhoodSelector.getRawWeights()));
+        //newNeighbourhoodSelector.setOnWeightsChanged(() ->
+        //        neighbourhoodSelector.setWeights(newNeighbourhoodSelector.getRawWeights()));
 
         return newNeighbourhoodSelector;
     }

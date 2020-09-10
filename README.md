@@ -29,6 +29,12 @@ The GUI
 =======
 The GUI is made with JavaFX & Scene Builder.
 
+Screenshots
+-----------
+<img src="wiki/images/screenshot_1.png" alt="screenshot" width="200"/>
+<img src="wiki/images/screenshot_2.png" alt="screenshot" width="200"/>
+<img src="wiki/images/screenshot_3.png" alt="screenshot" width="200"/>
+
 The Menu Bar
 -----------
 **File Menu**: <br>
@@ -43,7 +49,7 @@ The Menu Bar
 *Paste* - Pastes the cells that are stored as an RLE on the clipboard <br>
 *Delete* - Deletes the selected cells <br>
 
-**Control Menu** <br>
+**Control Menu**: <br>
 *Set Generation* - Sets the generation based on user input <br>
 *Grid Lines* - Toggles between showing and not showing grid lines <br>
 
@@ -86,6 +92,9 @@ Keyboard Shortcuts
 <kbd>Ctrl</kbd> + <kbd>V</kbd> - Paste Pattern (requires that an area is already selected) <br>
 <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd> - Load Pattern from Clipboard <br>
 
+<kbd>Ctrl</kbd> + <kbd>A</kbd> - Select the entire pattern <br>
+<kbd>Ctrl</kbd> + <kbd>Z</kbd> - Undo <br>
+
 <kbd>Ctrl</kbd> + <kbd>R</kbd> - Change Rule <br>
 <kbd>Ctrl</kbd> + <kbd>5</kbd> - Generate Random Soup <br>
 
@@ -103,9 +112,9 @@ GUI TODO List
 - [x] Add menu button to save patterns
 - [x] Add button to view search results and save to a file
 - [x] Add grid lines
-- [ ] Add dialog to ask "Would you like to save changes to untitled"
+- [x] Add help information to the about button
 - [ ] Add more information to the status bar
-- [ ] Add help information to the about button
+- [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Custom key binds
 
 Editing Features
@@ -116,12 +125,12 @@ Editing Features
 - [x] Copy Cells to RLE
 - [x] Flip Horizontally / Vertically
 - [x] Rotate Clockwise / Counter-Clockwise
-- [ ] Nudging up / down / left / right
-- [ ] Pasting Cells from RLE
-- [ ] Invert Cells
-- [ ] Undo & Redo
-- [ ] Select All
+- [x] Pasting Cells from RLE
+- [x] Undo
+- [x] Select All
 - [ ] Reset Pattern to Generation 0
+- [ ] Nudging up / down / left / right
+- [ ] Invert Cells
 - [ ] More Random Soup Symmetries
 - [ ] Simulate in selection
 - [ ] Simulate outside selection
@@ -235,11 +244,11 @@ Long-term TODO List
 - [x] Custom search programs
 - [x] Move stuff to the wiki
 - [x] Triangular Rules
-- [ ] Command Line Interface
+- [x] Command Line Interface
     - [x] Simulation
     - [x] Identification
     - [x] Search Programs
-    - [ ] Apgtable Generation
+    - [x] Apgtable Generation
     - [x] Random Soup / Symmetries Generation
 - [ ] Add Unit Tests
     - [x] Write the first one

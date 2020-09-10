@@ -165,24 +165,31 @@ public abstract class Rule {
             prevState = gridCopy.getCell(cell);
 
             // Getting neighbour states
-            neighbours = new int[neighbourhood.length];
-            if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    // Converting based on background
-                    neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
+            if (dependsOnNeighbours(convertState(prevState, generation)) == -1) {
+                neighbours = new int[neighbourhood.length];
+                if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        // Converting based on background
+                        neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
+                    }
                 }
+                else {
+                    for (int i = 0; i < neighbourhood.length; i++) {
+                        // Converting based on background
+                        neighbours[i] = convertState(gridCopy.getCell(cell.add(invertedNeighbourhood[i])), generation);
+                    }
+                }
+
+                // Call the transition function on the new state
+                // Don't forget to convert back to the current background
+                newState = convertState(transitionFunc(neighbours,
+                        convertState(prevState, generation), generation), generation + 1);
             }
             else {
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    // Converting based on background
-                    neighbours[i] = convertState(gridCopy.getCell(cell.add(invertedNeighbourhood[i])), generation);
-                }
+                newState = convertState(dependsOnNeighbours(convertState(prevState, generation)),
+                        generation + 1);
             }
 
-            // Call the transition function on the new state
-            // Don't forget to convert back to the current background
-            newState = convertState(transitionFunc(neighbours,
-                    convertState(prevState, generation), generation), generation + 1);
             if (newState != prevState) {
                 cellsChanged.get(0).add(cell);
                 grid.setCell(cell, newState);

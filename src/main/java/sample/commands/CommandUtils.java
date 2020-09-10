@@ -1,9 +1,10 @@
 package sample.commands;
 
-import sample.controller.dialogs.rule.RuleDialog;
-import sample.controller.dialogs.rule.RuleWidget;
 import sample.model.Coordinate;
 import sample.model.Simulator;
+import sample.model.rules.HROT;
+import sample.model.rules.HROTExtendedGenerations;
+import sample.model.rules.HROTGenerations;
 import sample.model.rules.RuleFamily;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandUtils {
+    public static RuleFamily[] ruleFamilies = {new HROT(), new HROTGenerations(), new HROTExtendedGenerations()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 
@@ -70,9 +72,8 @@ public class CommandUtils {
         // Identify the rule family based on regex
         boolean found = false;
         RuleFamily rule = null;
-        RuleDialog dialog = new RuleDialog();
-        for (RuleWidget widget: dialog.getRuleWidgets()) {
-            for (String regex: widget.getRuleFamily().getRegex()) {
+        for (RuleFamily ruleFamily: ruleFamilies) {
+            for (String regex: ruleFamily.getRegex()) {
                 if (rulestring.matches(regex)) {
                     found = true;
                     break;
@@ -81,8 +82,8 @@ public class CommandUtils {
 
             // Completely break out of the loop
             if (found) {
-                widget.getRuleFamily().setRulestring(rulestring);
-                rule = widget.getRuleFamily();
+                ruleFamily.setRulestring(rulestring);
+                rule = ruleFamily;
                 break;
             }
         }

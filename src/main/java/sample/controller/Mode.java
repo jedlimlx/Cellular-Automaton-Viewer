@@ -3,5 +3,6 @@ package sample.controller;
 public enum Mode {
     DRAWING,
     PANNING,
-    SELECTING
+    SELECTING,
+    PASTING
 }

@@ -341,7 +341,7 @@ public class HROTExtendedGenerations extends RuleFamily {
                 int cell = neighbours[j];
                 if (activeStates.contains(cell)) {
                     if (weights != null) {
-                        sum += weights[j + 1];
+                        sum += weights[j - 1];
                     }
                     else {
                         sum += 1;
@@ -648,7 +648,7 @@ public class HROTExtendedGenerations extends RuleFamily {
 
     @Override
     public int dependsOnNeighbours(int state) {
-        if (activeStates.contains(state)) return super.dependsOnNeighbours(state);
+        if (activeStates.contains(state) || state == 0) return super.dependsOnNeighbours(state);
         else return (state + 1) % numStates;
     }
 }
