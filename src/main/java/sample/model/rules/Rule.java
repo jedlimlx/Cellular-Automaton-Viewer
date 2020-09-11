@@ -144,14 +144,14 @@ public abstract class Rule {
         // Use a set to avoid duplicates
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate cell: cellSet) {
-                if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) != Math.floorMod(cell.getY(), 2)) {
                     for (Coordinate neighbour: neighbourhood) {
-                        cellsToCheck.add(cell.add(neighbour));
+                        cellsToCheck.add(cell.subtract(neighbour));
                     }
                 }
                 else {
                     for (Coordinate neighbour: invertedNeighbourhood) {
-                        cellsToCheck.add(cell.add(neighbour));
+                        cellsToCheck.add(cell.subtract(neighbour));
                     }
                 }
 

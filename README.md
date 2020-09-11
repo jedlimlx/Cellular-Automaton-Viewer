@@ -29,12 +29,6 @@ The GUI
 =======
 The GUI is made with JavaFX & Scene Builder.
 
-Screenshots
------------
-<img src="wiki/images/screenshot_1.png" alt="screenshot" width="200"/>
-<img src="wiki/images/screenshot_2.png" alt="screenshot" width="200"/>
-<img src="wiki/images/screenshot_3.png" alt="screenshot" width="200"/>
-
 The Menu Bar
 -----------
 **File Menu**: <br>
@@ -175,6 +169,7 @@ Supported / Planned Rulespaces
     - [ ] INT Regenerating Generations
     - [ ] 3-state INT
     - [ ] Deficient INT
+- [ ] Magma's Notation
 - [ ] Primodia
 - [ ] Naive Rules
     - [ ] Custom Reading Orders
@@ -183,10 +178,10 @@ Supported / Planned Rulespaces
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA
 - [ ] Yoel's Cyclic CA
-- [ ] Langton's Ant / Turnmites
+- [ ] Langton's Ant / Turmites
 - [ ] Block CA
 - [ ] Margolus
-- [ ] 1D CA
+- [x] 1D CA
 - [ ] Golly Ruletrees
 - [ ] Golly Ruletables
 - [ ] Square Cell Ruletables

@@ -20,7 +20,8 @@ public class RuleDialog extends Dialog {
 
     // Array to store rule widgets
     private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(),
-            new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog()};
+            new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog(),
+            new OneDimensionalDialog()};
 
     public RuleDialog(String promptText) {
         super();

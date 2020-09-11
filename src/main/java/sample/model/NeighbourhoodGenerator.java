@@ -307,9 +307,8 @@ public class NeighbourhoodGenerator {
 
         // Convert to binary
         String flattenedNeighbourhood = new BigInteger(CoordCA, 16).toString(2);
-
-        flattenedNeighbourhood = "0".repeat(Math.max(0, 24 - flattenedNeighbourhood.length())) +
-                flattenedNeighbourhood;  // Replace it with the corrected one
+        flattenedNeighbourhood = "0".repeat(Math.max(0, (2 * range + 1) * (2 * range + 1) - 1 -
+                flattenedNeighbourhood.length())) + flattenedNeighbourhood;  // Replace it with the corrected one
 
         ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         for (int i = -range; i < range + 1; i++) {
@@ -318,12 +317,12 @@ public class NeighbourhoodGenerator {
                     int index = (i + range) * (2 * range + 1) + (j + range);
                     if ((i == 0 && j > 0) || i > 0) {
                         if (flattenedNeighbourhood.charAt(index - 1) == '1') {
-                            neighbourhood.add(new Coordinate(j, i));
+                            neighbourhood.add(new Coordinate(j, -i));
                         }
                     }
                     else {
                         if (flattenedNeighbourhood.charAt(index) == '1') {
-                            neighbourhood.add(new Coordinate(j, i));
+                            neighbourhood.add(new Coordinate(j, -i));
                         }
                     }
                 }

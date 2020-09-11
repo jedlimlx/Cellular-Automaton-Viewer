@@ -313,8 +313,9 @@ public class APGTable {
             }
             else {
                 weightedTransitions.get(sum).add(paddedBinaryString);
-                System.out.println(weightedTransitions.get(sum));
             }
+
+            if (i % 10000 == 0) System.out.println(i);
         }
     }
 
