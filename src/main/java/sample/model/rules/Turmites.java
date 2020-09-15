@@ -81,7 +81,7 @@ public class Turmites extends RuleFamily {
                 turmiteStates++;
             }
 
-            System.out.println(turmiteStates + " " + gridStates);
+            // System.out.println(turmiteStates + " " + gridStates);
 
             numStates = gridStates + gridStates * turmiteStates * 4;
         }
@@ -91,9 +91,9 @@ public class Turmites extends RuleFamily {
 
         background = new int[]{0};
 
-        for (var key: transitionTable.keySet()) {
-            System.out.println(key + ": " + transitionTable.get(key));
-        }
+        //for (var key: transitionTable.keySet()) {
+            //System.out.println(key + ": " + transitionTable.get(key));
+        //}
     }
 
     @Override
