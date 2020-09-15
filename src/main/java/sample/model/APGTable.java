@@ -42,6 +42,11 @@ public class APGTable {
     private int[] weights;
 
     /**
+     * The state weights of the APGTable
+     */
+    private int[] stateWeights;
+
+    /**
      * The background of the APGTable (for strobing rules)
      */
     private int[] background;
@@ -79,7 +84,10 @@ public class APGTable {
 
         weights = null;
         background = new int[]{0};
-        
+
+        stateWeights = new int[numStates];
+        stateWeights[1] = 1;
+
         this.numStates = numStates;
         this.symmetry = symmetry;
         this.neighbourhood = neighbourhood;
@@ -317,6 +325,18 @@ public class APGTable {
 
             if (i % 10000 == 0) System.out.println(i);
         }
+    }
+
+    /**
+     * Sets the state weights of the APGTable.
+     * @param stateWeights The state weights of the APGTable
+     */
+    public void setStateWeights(int[] stateWeights) {
+        this.stateWeights = stateWeights;
+
+        updateMaxNeighbourhoodCount();
+
+        // TODO (Make state weights work)
     }
 
     /**

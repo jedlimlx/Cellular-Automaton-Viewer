@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a 1D cellular automaton rule
+ */
 public class OneDimensional extends RuleFamily {
     private Coordinate[] neighbourhood;
     private Map<String, Integer> transitions;
@@ -120,22 +123,6 @@ public class OneDimensional extends RuleFamily {
                 "W110\n" +
                 "R1,C3,W14584";
     }
-
-    /**
-     * The comments to be placed in the RLE (in this case there are none)
-     * @return Returns null
-     */
-    @Override
-    public String[] generateComments() {
-        return null;
-    }
-
-    /**
-     * Does absolutely nothing
-     * @param comments The comments from the RLE (all starting with #R)
-     */
-    @Override
-    public void loadComments(String[] comments) {}
 
     /**
      * Gets the deep copy of the 1D rule

@@ -45,7 +45,7 @@ public class SynthesisCommand implements Runnable {
             }
         }
         catch (FileNotFoundException exception) {
-            System.out.println("The file could not be found!");
+            System.err.println("The file could not be found!");
             System.exit(-1);
         }
 

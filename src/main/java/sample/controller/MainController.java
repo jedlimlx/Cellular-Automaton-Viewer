@@ -198,6 +198,9 @@ public class MainController {
 
             // Setting the rule of the rule dialog
             dialog.setRule((RuleFamily) simulator.getRule());
+
+            // Reloads the state buttons
+            reloadStateButtons();
         }
         catch (IOException exception) {
             settings = new JSONObject();

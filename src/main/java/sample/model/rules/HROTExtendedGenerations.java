@@ -97,19 +97,6 @@ public class HROTExtendedGenerations extends RuleFamily {
             neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
             weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
             tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
-
-            String genExtString = Utils.matchRegex("G("+ extendedGenerations +")", rulestring, 0, 1);
-            activeStates = NeighbourhoodGenerator.getActiveGenExtStates(genExtString);
-            numStates = 1;
-            for (String token: genExtString.split("-")) {
-                numStates += Integer.parseInt(token);
-            }
-
-            // Get transitions
-            Utils.getTransitionsFromStringWithCommas(birth,
-                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
-            Utils.getTransitionsFromStringWithCommas(survival,
-                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
         else if (rulestring.matches(higherRangeCustom)) {
             // Generate Neighbourhood
@@ -120,13 +107,6 @@ public class HROTExtendedGenerations extends RuleFamily {
             if (CoordCA.length() > 0)
                 neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
 
-            String genExtString = Utils.matchRegex("G("+ extendedGenerations +")", rulestring, 0, 1);
-            activeStates = NeighbourhoodGenerator.getActiveGenExtStates(genExtString);
-            numStates = 1;
-            for (String token: genExtString.split("-")) {
-                numStates += Integer.parseInt(token);
-            }
-
             try {
                 String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
                         rulestring, 0, 1);
@@ -135,12 +115,6 @@ public class HROTExtendedGenerations extends RuleFamily {
             } catch (IllegalStateException exception) {
                 tiling = Tiling.Square;
             }
-
-            // Get transitions
-            Utils.getTransitionsFromStringWithCommas(birth,
-                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
-            Utils.getTransitionsFromStringWithCommas(survival,
-                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
         else if (rulestring.matches(higherRangeWeightedCustom)) {
             // Generate Neighbourhood
@@ -152,13 +126,6 @@ public class HROTExtendedGenerations extends RuleFamily {
             neighbourhood = neighbourhoodAndWeights.getValue0();
             weights = neighbourhoodAndWeights.getValue1();
 
-            String genExtString = Utils.matchRegex("G("+ extendedGenerations +")", rulestring, 0, 1);
-            activeStates = NeighbourhoodGenerator.getActiveGenExtStates(genExtString);
-            numStates = 1;
-            for (String token: genExtString.split("-")) {
-                numStates += Integer.parseInt(token);
-            }
-
             try {
                 String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
                         rulestring, 0, 1);
@@ -167,16 +134,23 @@ public class HROTExtendedGenerations extends RuleFamily {
             } catch (IllegalStateException exception) {
                 tiling = Tiling.Square;
             }
-
-            // Get transitions
-            Utils.getTransitionsFromStringWithCommas(birth,
-                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
-            Utils.getTransitionsFromStringWithCommas(survival,
-                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
         else {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
+
+        String genExtString = Utils.matchRegex("G("+ extendedGenerations +")", rulestring, 0, 1);
+        activeStates = NeighbourhoodGenerator.getActiveGenExtStates(genExtString);
+        numStates = 1;
+        for (String token: genExtString.split("-")) {
+            numStates += Integer.parseInt(token);
+        }
+
+        // Get transitions
+        Utils.getTransitionsFromStringWithCommas(birth,
+                Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
+        Utils.getTransitionsFromStringWithCommas(survival,
+                Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
 
         // Update the background
         updateBackground();

@@ -1,9 +1,6 @@
 package sample.model;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +26,25 @@ public class Utils {
         }
     }
 
-    public static void getTransitionsFromStringWithCommas(HashSet<Integer> transitions, String string) {
+    public static void getTransitionsFromStringWithCommas(Set<Integer> transitions, String string) {
+        if (string.length() == 0)
+            return;  // Check for an empty string
+
+        String[] tokens = string.split(",");
+        for (String token: tokens) {
+            if (token.contains("-")) {
+                for (int i = Integer.parseInt(token.split("-")[0]);
+                     i <= Integer.parseInt(token.split("-")[1]); i++) {
+                    transitions.add(i);
+                }
+            }
+            else {
+                transitions.add(Integer.parseInt(token));
+            }
+        }
+    }
+
+    public static void getTransitionsFromStringWithCommas(List<Integer> transitions, String string) {
         if (string.length() == 0)
             return;  // Check for an empty string
 
@@ -72,7 +87,17 @@ public class Utils {
         }
 
         Arrays.sort(sortedTransitions); // Sorting transitions
+        return canoniseTransitionsWithCommas(sortedTransitions);
+    }
 
+    public static String canoniseTransitionsWithCommas(List<Integer> transitions) {
+        int[] sortedTransitions = transitions.stream().mapToInt(i->i).toArray();
+        Arrays.sort(sortedTransitions);
+
+        return canoniseTransitionsWithCommas(sortedTransitions);
+    }
+
+    private static String canoniseTransitionsWithCommas(int[] sortedTransitions) {
         // Code that I totally didn't steal from somewhere
         int idx = 0, idx2 = 0;
         int len = sortedTransitions.length;
@@ -94,8 +119,8 @@ public class Utils {
         return rulestring.toString();
     }
 
-    public static void randomiseTransitions(HashSet<Integer> transitions, HashSet<Integer> minTransitions,
-                                            HashSet<Integer> maxTransitions) {
+    public static void randomiseTransitions(Set<Integer> transitions, Set<Integer> minTransitions,
+                                            Set<Integer> maxTransitions) {
         Random random = new Random();
 
         // Use a deepcopy
@@ -121,7 +146,45 @@ public class Utils {
         }
     }
 
+    public static void randomiseTransitions(List<Integer> transitions, List<Integer> minTransitions,
+                                            List<Integer> maxTransitions) {
+        Random random = new Random();
+
+        // Use a deepcopy
+        minTransitions = new ArrayList<>(minTransitions);
+        maxTransitions = new ArrayList<>(maxTransitions);
+
+        // Clear existing transtions
+        transitions.clear();
+
+        // Adding compulsory transitions
+        transitions.addAll(minTransitions);
+
+        // Remove compulsory transitions
+        maxTransitions.removeAll(minTransitions);
+
+        // Add to rule at random
+        // TODO (Improve RNG function)
+        int transitionProbability = random.nextInt(500) + 250;
+        for (int transition: maxTransitions) {
+            if (random.nextInt(1000) > transitionProbability) {
+                transitions.add(transition);
+            }
+        }
+    }
+
     public static boolean checkSubset(Set<Integer> subset, Set<Integer> superset) {
+        // Ensure subset is a subset of superset
+        for (var transition: subset) {
+            if (!superset.contains(transition)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean checkSubset(List<Integer> subset, List<Integer> superset) {
         // Ensure subset is a subset of superset
         for (var transition: subset) {
             if (!superset.contains(transition)) {

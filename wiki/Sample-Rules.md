@@ -4,6 +4,7 @@
 
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |
+| [?](../rules/HROT/R2,C2,S0-3,11,B0-5,NN/DESCRIPTION.md) | Chaotic | R2,C2,S0-3,11,B0-5,NN | A chaotic B0 rule that has many high period wacky objects such as the 30c/268o and the P1396 oscillator. Multiple 30c/268o can be combined to form puffers.
 | [?](../rules/HROT/R2,C2,S0-3,B0,2-4,N+/DESCRIPTION.md) | Chaotic | R2,C2,S0-3,B0,2-4,N+ | This B0 cross rule has a rotating P264 and wide variety of oscillators formed from interactions of the common sparky P2 and P4 oscillators. There is also a c/34o spaceship.
 | [?](../rules/HROT/R2,C2,S2,B3,9,NN/DESCRIPTION.md) | Stable | R2,C2,S2,B3,9,NN | A stable rule that has a variety of natural speeds as well as an (5, 8)c/18 puffer that can be corderised. There is also a common P8 oscillator that looks like a shaker. In addition, there is a common still life that looks like a sideways 8. It is formed from a beehive predecessor.
 | [DuopletLife](../rules/HROT/R2,C2,S2-3,B4,7-8,NW0010001210120210121000100/DESCRIPTION.md) | Chaotic | R2,C2,S2-3,B4,7-8,NW0010001210120210121000100 | A weird rule with an overabundance of P2 duoplets. Has some oscillators as well as a 2c/8d, 4c/16d, c/13o spaceships and a 5c/10d duoplet puffer. Can someone corderise the puffer? |
@@ -27,5 +28,5 @@
 
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |
-[?](../rules/HROT Extended Generations/R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN) | Chaotic | R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN | A very active rule with a common glide-symmetric 8c/28o that moves from right to left to right.
-[efiL8draobrekcehC](../rules/HROT Extended Generations/R2,B3,S2,3,8,G0-1-1,NB) | Stable | R2,B3,S2,3,8,G0-1-1,NB | A stable snoitreneg rule with common P4 oscillators and a c/2o. Still lives exist although they are fairly uncommon. The P4 oscillator can eat the c/2o and the c/2o can pass through the P4 destroying it. In fact, any oscillator and spaceship pair that each have consist of only one state and have opposite states are able to destroy the other without being affected.
+[?](../rules/HROT Extended Generations/R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN/DESCRIPTION.md) | Chaotic | R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN | A very active rule with a common glide-symmetric 8c/28o that moves from right to left to right.
+[efiL8draobrekcehC](../rules/HROT Extended Generations/R2,B3,S2,3,8,G0-1-1,NB/DESCRIPTION.md) | Stable | R2,B3,S2,3,8,G0-1-1,NB | A stable snoitreneg rule with common P4 oscillators and a c/2o. Still lives exist although they are fairly uncommon. The P4 oscillator can eat the c/2o and the c/2o can pass through the P4 destroying it. In fact, any oscillator and spaceship pair that each have consist of only one state and have opposite states are able to destroy the other without being affected.

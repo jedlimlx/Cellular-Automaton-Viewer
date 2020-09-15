@@ -117,7 +117,7 @@ The code that simulates HROT rules can be found [here](../src/main/java/sample/m
 #### Rulestring format
 R\<range\>,C2,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
 R\<range\>,C2,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
-R\<range\>,C2,S\<survival\>,B\<birth\>,NW\<LifeViewer\> <br>
+R\<range\>,C2,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 
 ## Generations
 Generations rules are a multistate generalization of 2 state rules in which live cells can exist in different states, and cells that would die in a 2-state cellular automaton instead advance to the next state.
@@ -145,7 +145,6 @@ R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
 R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\>,\<State Weights\> <br>
 
-
 ## Extended Generations
 Extended Generations rules are a generalisation of Generations rules. 
 This extension explores the result of changing the amounts of time cells can be active/inactive for, 
@@ -162,12 +161,43 @@ indefinite amount of times before dying.
     Advances to state 1 if it has X neighbours and X is in birth.
 * If not, it remains dead.
 
-The code that simulates HROT Generations rules can be found [here](../src/main/java/sample/model/rules/HROTExtendedGenerations.java).
+The code that simulates HROT Extended Generations rules can be found [here](../src/main/java/sample/model/rules/HROTExtendedGenerations.java).
 
 #### Rulestring format
 R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,N\<neighbourhood\> <br>
 R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,N@\<CoordCA\> <br>
 R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,NW\<Neighbourhood Weights\> <br>
+
+## Deficient Rules
+In deficient rules, after a cell is born with birth transition B, a dead cell in its neighbourhood 
+cannot be born with the same birth transition. This deficiency will go away after the cell survives for a generation. 
+If there is permanent deficiency, the cell will remain deficient forever until it dies.
+This allows typically explosive rules such as B1 and B2 rules to be stable.
+
+#### Rulestring format
+R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N@<CoordCA> <br>
+R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N<neighbourhood> <br>
+R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,NW<Neighbourhood Weights> <br>
+
+The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/DeficientHROT.java).
+
+## Integer Rules
+An extension of a rule described by Mark Niemiec called Integer Life.
+
+* At every step, a cell's neighborhood sum is the arithmetic sum of the values of its neighbors.
+* If a cell is dead and has a neighborhood of exactly Xn and X is in the birth conditions, 
+a new cell of value n is born there; otherwise it stays dead. If a cell can be born into mulitple states, the lowest is chosen.
+* If a cell is alive (n > 0), and has exactly Xn neighbors and X is in the survival conditions, 
+it remains alive; otherwise, it dies.
+* Survival occurs in the range [Xn, (X+1)n)
+* If a cell's state exceeds the maximum state, it dies.
+
+#### Rulestring format
+R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
+R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
+R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
+
+The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/IntegerHROT.java).
 
 
 # Isotropic Non-Totalistic (INT)
@@ -183,6 +213,16 @@ Support for INT rules is planned.
 - [ ] Range 2 Knight Life Isotropic Non-Totalistic
 - [ ] Range 2 Cross Isotropic Non-Totalistic
 - [ ] Range 3 Cross Isotropic Non-Totalistic
+
+
+# 1D Cellular Automaton
+CAViewer also supports 1D rules via the format used by Wolfram Alpha. This includes B0 rules.
+
+The code that simulates 1D rules can be found [here](../src/main/java/sample/model/rules/OneDimensional.java).
+
+#### Rulestring format
+W\<wolframNumber\> <br>
+R\<range\>,C\<states\>,W\<wolframNumber\> <br>
 
 
 # B0 rules

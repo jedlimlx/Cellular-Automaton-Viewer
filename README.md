@@ -160,7 +160,12 @@ Supported / Planned Rulespaces
         - [ ] Apgtable Generation for all rules
     - [ ] 3-state HROT
     - [ ] Integer HROT
-    - [ ] Deficient HROT
+        - [x] Weighted Rules
+        - [ ] Apgtable Generation for all rules
+    - [x] Deficient HROT
+        - [x] B0 Rules
+        - [x] Weighted Rules
+        - [x] Apgtable Generation for all rules
 - [ ] Isotropic Non-Totalistic (INT)
     - [ ] 2 State INT
     - [ ] INT BSFKL

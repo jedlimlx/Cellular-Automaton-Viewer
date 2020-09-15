@@ -34,7 +34,7 @@ IdentifyCommand implements Runnable {
                 CommandUtils.loadPattern(simulator, inputFile);
             }
             else {
-                System.out.println("Input file must be specified!");
+                System.err.println("Input file must be specified!");
                 System.exit(-1);
             }
             
@@ -46,7 +46,7 @@ IdentifyCommand implements Runnable {
             }
         }
         catch (FileNotFoundException exception) {
-            System.out.println("Input / Output file could not be found!");
+            System.err.println("Input / Output file could not be found!");
             System.exit(-1);
         }
 

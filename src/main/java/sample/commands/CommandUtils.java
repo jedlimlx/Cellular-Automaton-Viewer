@@ -2,10 +2,7 @@ package sample.commands;
 
 import sample.model.Coordinate;
 import sample.model.Simulator;
-import sample.model.rules.HROT;
-import sample.model.rules.HROTExtendedGenerations;
-import sample.model.rules.HROTGenerations;
-import sample.model.rules.RuleFamily;
+import sample.model.rules.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,7 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandUtils {
-    public static RuleFamily[] ruleFamilies = {new HROT(), new HROTGenerations(), new HROTExtendedGenerations()};
+    public static RuleFamily[] ruleFamilies = {new HROT(), new HROTGenerations(), new HROTExtendedGenerations(),
+            new IntegerHROT(), new DeficientHROT(), new OneDimensional(), new Turmites()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 
@@ -25,7 +23,7 @@ public class CommandUtils {
         }
 
         String rulestring = "";
-        Pattern rulestringRegex = Pattern.compile("rule = \\S+");
+        Pattern rulestringRegex = Pattern.compile("rule\\s*=\\s*\\S+");
         ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
 
         // Parsing code - Removes headers, comments
@@ -88,6 +86,7 @@ public class CommandUtils {
             }
         }
 
+        if (!found) throw new IllegalArgumentException("The rulestring is invalid!");
         return rule;
     }
 }

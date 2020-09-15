@@ -37,7 +37,7 @@ public class RuleSearchCommand implements Runnable {
             required = true)
     private String minRule;
     
-    @CommandLine.Option(names = {"-max", "--max_rule"}, description = "Minimum rule of the search space",
+    @CommandLine.Option(names = {"-max", "--max_rule"}, description = "Maximum rule of the search space",
             required = true)
     private String maxRule;
 
@@ -53,12 +53,12 @@ public class RuleSearchCommand implements Runnable {
                 CommandUtils.loadPattern(simulator, inputFile);
             }
             else {
-                System.out.println("Input file must be specified!");
+                System.err.println("Input file must be specified!");
                 System.exit(-1);
             }
 
             if (outputFile == null) {
-                System.out.println("Output file must be specified!");
+                System.err.println("Output file must be specified!");
                 System.exit(-1);
             }
 
@@ -73,7 +73,7 @@ public class RuleSearchCommand implements Runnable {
                     System.out.println(ruleSearch.getNumSearched() + " rules searched, " +
                             ruleSearch.getSearchResults().size() + " unique objects found!");
                     if (!ruleSearch.writeToFile(outputFile)) {
-                        System.out.println("Something went wrong while writing to the output file!");
+                        System.err.println("Something went wrong while writing to the output file!");
                     }
                 }
 
@@ -81,7 +81,7 @@ public class RuleSearchCommand implements Runnable {
             }
         }
         catch (FileNotFoundException exception) {
-            System.out.println("Input / Output file could not be found!");
+            System.err.println("Input / Output file could not be found!");
             System.exit(-1);
         }
         catch (InterruptedException ignored) {}

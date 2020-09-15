@@ -51,7 +51,7 @@ public class RuleRangeCommand implements Runnable {
             System.out.println("Max Rule: " + minMaxRule.getValue1());
         }
         catch (FileNotFoundException exception) {
-            System.out.println("Input / Output file could not be found!");
+            System.err.println("Input / Output file could not be found!");
             System.exit(-1);
         }
 

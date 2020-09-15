@@ -24,7 +24,7 @@ public class ApgtableCommand implements Runnable {
             System.exit(0);
         }
         else {
-            System.out.println("Something went wrong.");
+            System.err.println("Something went wrong.");
             System.exit(-1);
         }
     }

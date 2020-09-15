@@ -5,7 +5,6 @@ import picocli.CommandLine;
 import sample.model.Coordinate;
 import sample.model.Simulator;
 import sample.model.rules.HROT;
-import sample.model.rules.RuleFamily;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,24 +19,23 @@ public class SimulationCommand implements Runnable {
             description = "Input file containing pattern to be simulated", required = true)
     private File inputFile;
 
-    @CommandLine.Option(names = {"-o", "--out"}, description = "Output file for the pattern. (default: print to console)")
+    @CommandLine.Option(names = {"-o", "--out"}, description = "Output file for the pattern.", required = true)
     private File outputFile;
 
     @CommandLine.Option(names = {"-m", "-g", "--generation"},
             description = "Number of generations to run the pattern", required = true)
     private int generations;
 
-    @CommandLine.Option(names = {"-s", "--step"}, defaultValue = "0",
+    @CommandLine.Option(names = {"-s", "--step"}, defaultValue = "1",
             description = "Patterns will be printed to the console every step size generations " +
-                    "(default: only print the final pattern)")
+                    "(default: 1)")
     private int stepSize;
-
-    @CommandLine.Option(names = {"-p", "--print"}, defaultValue = "true",
-             description = "Print pattern to console (default)")
-    private boolean printPattern;
 
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true)
     private boolean help;
+
+    private Coordinate startingCoordinate;
+    private StringBuilder rleFinal = new StringBuilder();
 
     @Override
     public void run() {
@@ -50,24 +48,26 @@ public class SimulationCommand implements Runnable {
                 CommandUtils.loadPattern(simulator, inputFile);
             }
             else {
-                System.out.println("Input file must be specified!");
+                System.err.println("Input file must be specified!");
                 System.exit(-1);
             }
 
+            simulator.updateBounds();
+            startingCoordinate = simulator.getBounds().getValue0();
+
             for (int i = 0; i < generations; i++) {
                 // Printing every stepSize
-                if (stepSize != 0 && outputFile == null && i % stepSize == 0 && i != 0) {
-                    System.out.println(getRLE());
+                if (stepSize != 0 && i % stepSize == 0 && i != 0) {
+                    getRLE();
                 }
 
                 simulator.step();  // Stepping forward 1 generation
             }
 
-            if (outputFile != null) savePattern(outputFile);
-            if (printPattern && outputFile == null) System.out.println(getRLE());
+            savePattern(outputFile);
         }
         catch (FileNotFoundException exception) {
-            System.out.println("Input / Output file could not be found!");
+            System.err.println("Input / Output file could not be found!");
             System.exit(-1);
         }
         catch (IOException exception) {
@@ -78,7 +78,7 @@ public class SimulationCommand implements Runnable {
         System.exit(0);
     }
 
-    public String getRLE() {
+    public void getRLE() {
         // Getting bounding box
         simulator.updateBounds();
         Pair<Coordinate, Coordinate> bounds = simulator.getBounds();
@@ -88,28 +88,18 @@ public class SimulationCommand implements Runnable {
 
         // Add header & comments
         String rle = simulator.toRLE(start, end);
-        StringBuilder rleFinal = new StringBuilder();
-
-        // Adding comments
-        String[] comments = ((RuleFamily) simulator.getRule()).generateComments();
-        if (comments != null) {
-            for (String comment: comments) {
-                rleFinal.append(comment).append("\n");
-            }
-        }
 
         // Adding header
-        rleFinal.append("x = ").append(end.getX() - start.getX()).
-                append(", y = ").append(end.getY() - start.getY()).
-                append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
-        rleFinal.append(rle);
-
-        return rleFinal.toString();
+        rleFinal.append(start.getX() - startingCoordinate.getX()).append(",").
+                append(start.getY() - startingCoordinate.getY()).append("\n");
+        rleFinal.append(end.getX() - start.getX()).append(",").
+                append(end.getY() - start.getY()).append("\n");
+        rleFinal.append(rle).append("\n");
     }
     
     public void savePattern(File file) throws IOException {
         FileWriter fileWriter = new FileWriter(file);
-        fileWriter.write(getRLE());
+        fileWriter.write(rleFinal.toString());
         fileWriter.close();
     }
 }
