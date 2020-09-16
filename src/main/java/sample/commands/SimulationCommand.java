@@ -90,16 +90,24 @@ public class SimulationCommand implements Runnable {
         String rle = simulator.toRLE(start, end);
 
         // Adding header
-        rleFinal.append(start.getX() - startingCoordinate.getX()).append(",").
-                append(start.getY() - startingCoordinate.getY()).append("\n");
-        rleFinal.append(end.getX() - start.getX()).append(",").
-                append(end.getY() - start.getY()).append("\n");
+        rleFinal.append(start.getX() - startingCoordinate.getX() + 1).append(",").
+                append(start.getY() - startingCoordinate.getY() + 1).append("\n");
+        rleFinal.append(end.getX() - start.getX() + 1).append(",").
+                append(end.getY() - start.getY() + 1).append("\n");
         rleFinal.append(rle).append("\n");
     }
     
     public void savePattern(File file) throws IOException {
         FileWriter fileWriter = new FileWriter(file);
         fileWriter.write(rleFinal.toString());
+        fileWriter.write("\n@COLOR\n");
+        for (int state = 0; state < simulator.getRule().getNumStates(); state++) {
+            fileWriter.write(state + " ");
+            fileWriter.write((int) (simulator.getRule().getColour(state).getRed() * 255) + " ");
+            fileWriter.write((int) (simulator.getRule().getColour(state).getGreen() * 255) + " ");
+            fileWriter.write((int) (simulator.getRule().getColour(state).getBlue() * 255) + " \n");
+        }
+
         fileWriter.close();
     }
 }
