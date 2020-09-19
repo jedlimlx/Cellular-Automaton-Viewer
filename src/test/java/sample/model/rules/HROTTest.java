@@ -1,6 +1,7 @@
 package sample.model.rules;
 
 import org.junit.Test;
+import sample.model.rules.hrot.HROT;
 
 import java.io.File;
 import java.io.FileNotFoundException;

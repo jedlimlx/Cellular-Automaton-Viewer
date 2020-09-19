@@ -3,6 +3,7 @@ package sample.controller.dialogs.search;
 import javafx.scene.control.*;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.model.Grid;
+import sample.model.rules.MinMaxRuleable;
 import sample.model.search.RuleSearchParameters;
 
 public class RuleSearchParametersDialog extends SearchParametersDialog {
@@ -50,8 +51,14 @@ public class RuleSearchParametersDialog extends SearchParametersDialog {
         super.confirmParameters();
 
         try {
+            // Checking if the rulespace supports min / max rules
+            if (!(minRuleDialog.getRule() instanceof MinMaxRuleable)) {
+                throw new IllegalArgumentException();
+            }
+
             // Checking if the min and max rules are valid
-            if (!minRuleDialog.getRule().validMinMax(minRuleDialog.getRule(), maxRuleDialog.getRule())) {
+            if (!((MinMaxRuleable) minRuleDialog.getRule()).
+                    validMinMax(minRuleDialog.getRule(), maxRuleDialog.getRule())) {
                 throw new IllegalArgumentException();
             }
 

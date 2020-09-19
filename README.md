@@ -135,6 +135,7 @@ Supported / Planned Rulespaces
     - [x] 2 State HROT
         - [x] B0 rules
         - [x] Weighted rules
+        - [x] History Rule
         - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for weighted rules

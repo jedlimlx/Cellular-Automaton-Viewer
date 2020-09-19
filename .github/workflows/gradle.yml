@@ -24,7 +24,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
     - name: Build Executable with JLink & JPackage
       run: ./gradlew jpackage
     - shell: bash
@@ -48,7 +48,7 @@ jobs:
         java-version: 14
         java-package: jdk+fx
     - name: Build Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
     - name: Build Executable with JLink & JPackage
       run: ./gradlew jpackage
     - name: Upload the Executable
@@ -71,7 +71,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
     - name: Build Executable with JLink & JPackage
       run: ./gradlew jpackage
     - shell: bash

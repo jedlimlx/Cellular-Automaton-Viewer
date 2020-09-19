@@ -25,9 +25,10 @@ import sample.controller.dialogs.search.RuleSearchParametersDialog;
 import sample.controller.dialogs.search.RuleSearchResultsDialog;
 import sample.model.Cell;
 import sample.model.*;
-import sample.model.rules.HROT;
+import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.hrot.HROT;
 import sample.model.search.RuleSearch;
 
 import java.io.File;
@@ -275,8 +276,8 @@ public class MainController {
         }
 
         if (startSelection != null && endSelection != null &&
-                (endSelection.subtract(startSelection).getX() <= 1 ||
-                endSelection.subtract(startSelection).getY() <= 1)) {
+                (endSelection.subtract(startSelection).getX() < 1 ||
+                endSelection.subtract(startSelection).getY() < 1)) {
             selectionRectangle.setVisible(false);
         }
     }
@@ -607,7 +608,11 @@ public class MainController {
 
                 // If operation is cancelled
                 if (file != null) {
-                    if (!((RuleFamily) simulator.getRule()).generateApgtable(file)) {
+                    if (!(simulator.getRule() instanceof ApgtableGeneratable)) {
+                        throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
+                    }
+
+                    if (!((ApgtableGeneratable) simulator.getRule()).generateApgtable(file)) {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error in generating APGTable");
                         alert.setHeaderText("The operation was unsuccessful.");

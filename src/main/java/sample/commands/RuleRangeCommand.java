@@ -4,8 +4,9 @@ import org.javatuples.Pair;
 import picocli.CommandLine;
 import sample.model.Grid;
 import sample.model.Simulator;
-import sample.model.rules.HROT;
+import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.hrot.HROT;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,9 +47,17 @@ public class RuleRangeCommand implements Runnable {
                 simulator.step();
             }
 
-            Pair<RuleFamily, RuleFamily> minMaxRule = ((RuleFamily) simulator.getRule()).getMinMaxRule(grids);
-            System.out.println("Min Rule: " + minMaxRule.getValue0());
-            System.out.println("Max Rule: " + minMaxRule.getValue1());
+
+            // Checking if min / max rules are supported
+            if (simulator.getRule() instanceof MinMaxRuleable) {
+                Pair<RuleFamily, RuleFamily> minMaxRule = ((MinMaxRuleable) simulator.getRule()).getMinMaxRule(grids);
+                System.out.println("Min Rule: " + minMaxRule.getValue0());
+                System.out.println("Max Rule: " + minMaxRule.getValue1());
+            }
+            else {
+                System.err.println("Minimum, maximum rules are not supported by this rulespace!");
+                System.exit(-1);
+            }
         }
         catch (FileNotFoundException exception) {
             System.err.println("Input / Output file could not be found!");

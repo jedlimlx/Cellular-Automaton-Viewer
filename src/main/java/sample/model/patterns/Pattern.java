@@ -3,6 +3,7 @@ package sample.model.patterns;
 import org.javatuples.Pair;
 import sample.model.Grid;
 import sample.model.Simulator;
+import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
@@ -34,12 +35,15 @@ public abstract class Pattern extends Simulator {
     }
 
     public void generateMinMaxRule(Grid[] grids) {
-        try {
-            Pair<RuleFamily, RuleFamily> minMaxRule = ((RuleFamily) getRule()).getMinMaxRule(grids);
-            minRule = minMaxRule.getValue0();
-            maxRule = minMaxRule.getValue1();
+        // Checking if min / max rules are supported
+        if (getRule() instanceof MinMaxRuleable) {
+            try {
+                Pair<RuleFamily, RuleFamily> minMaxRule = ((MinMaxRuleable) getRule()).getMinMaxRule(grids);
+                minRule = minMaxRule.getValue0();
+                maxRule = minMaxRule.getValue1();
+            }
+            catch (UnsupportedOperationException exception) {}
         }
-        catch (UnsupportedOperationException exception) {}
     }
 
     // Returns a brief description of the pattern

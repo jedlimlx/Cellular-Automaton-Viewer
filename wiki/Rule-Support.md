@@ -112,7 +112,7 @@ B0 rules are supported via emulation by alternating rules. See [this](http://gol
 Apgtable generation is supported for normal rules, B0 rules and weighted rules. <br>
 Note that the generated apgtables for weighted rules can be several gigabytes in size if you are using a large neighbourhood like R2 Moore.
 
-The code that simulates HROT rules can be found [here](../src/main/java/sample/model/rules/HROT.java).
+The code that simulates HROT rules can be found [here](../src/main/java/sample/model/rules/hrot/HROT.java).
 
 #### Rulestring format
 R\<range\>,C2,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
@@ -137,7 +137,7 @@ B0 rules are supported via emulation with alternating rules. See [this](./Rule-S
 State weights can also be used with generations rules. By default, all states have a state weight of 0 except the alive state. <br>
 This extension of generations rules is known as [Weighted Generations](http://www.mirekw.com/ca/rullex_wgen.html).
 
-The code that simulates HROT Generations rules can be found [here](../src/main/java/sample/model/rules/HROTGenerations.java).
+The code that simulates HROT Generations rules can be found [here](../src/main/java/sample/model/rules/hrot/HROTGenerations.java).
 
 #### Rulestring format
 R\<range\>,C\<states\>,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
@@ -161,7 +161,7 @@ indefinite amount of times before dying.
     Advances to state 1 if it has X neighbours and X is in birth.
 * If not, it remains dead.
 
-The code that simulates HROT Extended Generations rules can be found [here](../src/main/java/sample/model/rules/HROTExtendedGenerations.java).
+The code that simulates HROT Extended Generations rules can be found [here](../src/main/java/sample/model/rules/hrot/HROTExtendedGenerations.java).
 
 #### Rulestring format
 R\<range\>,B\<birth\>,S\<survival\>,G\<genext\>,N\<neighbourhood\> <br>
@@ -179,7 +179,7 @@ R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N@<CoordCA> <br>
 R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N<neighbourhood> <br>
 R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,NW<Neighbourhood Weights> <br>
 
-The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/DeficientHROT.java).
+The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/hrot/DeficientHROT.java).
 
 ## Integer Rules
 An extension of a rule described by Mark Niemiec called Integer Life.
@@ -197,7 +197,7 @@ R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
 R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
 R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 
-The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/IntegerHROT.java).
+The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/hrot/IntegerHROT.java).
 
 
 # Isotropic Non-Totalistic (INT)
@@ -218,11 +218,19 @@ Support for INT rules is planned.
 # 1D Cellular Automaton
 CAViewer also supports 1D rules via the format used by Wolfram Alpha. This includes B0 rules.
 
-The code that simulates 1D rules can be found [here](../src/main/java/sample/model/rules/OneDimensional.java).
+The code that simulates 1D rules can be found [here](../src/main/java/sample/model/rules/misc/OneDimensional.java).
 
 #### Rulestring format
 W\<wolframNumber\> <br>
 R\<range\>,C\<states\>,W\<wolframNumber\> <br>
+
+
+# History Rules
+History rules have 7 or more states. They are based on the HistoricalLife rule. See [here](https://conwaylife.com/wiki/OCA:LifeHistory) 
+for more information.
+
+History rules are supported by:
+- [x] 2-state HROT
 
 
 # B0 rules

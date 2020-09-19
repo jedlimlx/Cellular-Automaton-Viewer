@@ -7,6 +7,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.stage.Window;
+import sample.controller.dialogs.rule.hrot.*;
+import sample.controller.dialogs.rule.misc.OneDimensionalDialog;
+import sample.controller.dialogs.rule.misc.TurmitesDialog;
 import sample.model.rules.RuleFamily;
 
 public class RuleDialog extends Dialog {
@@ -19,7 +22,7 @@ public class RuleDialog extends Dialog {
     private final ComboBox ruleFamilyCombobox;
 
     // Array to store rule widgets
-    private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(),
+    private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(), new HROTHistoryDialog(),
             new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog(),
             new IntegerHROTDialog(), new DeficientHROTDialog(),
             new OneDimensionalDialog(), new TurmitesDialog()};

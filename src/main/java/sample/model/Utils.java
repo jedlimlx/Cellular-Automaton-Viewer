@@ -104,7 +104,7 @@ public class Utils {
         StringBuilder rulestring = new StringBuilder();
         while (idx < len) {
             while (++idx2 < len && sortedTransitions[idx2] - sortedTransitions[idx2 - 1] == 1);
-            if (idx2 - idx > 2) {
+            if (idx2 - idx > 1) {
                 rulestring.append(String.format("%s-%s,", sortedTransitions[idx], sortedTransitions[idx2 - 1]));
                 idx = idx2;
             } else {

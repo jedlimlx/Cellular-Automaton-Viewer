@@ -2,7 +2,11 @@ package sample.commands;
 
 import sample.model.Coordinate;
 import sample.model.Simulator;
-import sample.model.rules.*;
+import sample.model.rules.RuleFamily;
+import sample.model.rules.hrot.*;
+import sample.model.rules.hrot.history.HROTHistory;
+import sample.model.rules.misc.OneDimensional;
+import sample.model.rules.misc.Turmites;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,8 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommandUtils {
-    public static RuleFamily[] ruleFamilies = {new HROT(), new HROTGenerations(), new HROTExtendedGenerations(),
-            new IntegerHROT(), new DeficientHROT(), new OneDimensional(), new Turmites()};
+    public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTGenerations(),
+            new HROTExtendedGenerations(), new IntegerHROT(), new DeficientHROT(), new OneDimensional(),
+            new Turmites()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 

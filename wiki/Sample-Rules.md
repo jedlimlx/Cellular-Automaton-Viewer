@@ -30,3 +30,12 @@
 | ------------- | ------------- | ------------- | ------------- |
 [?](../rules/HROT Extended Generations/R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN/DESCRIPTION.md) | Chaotic | R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN | A very active rule with a common glide-symmetric 8c/28o that moves from right to left to right.
 [efiL8draobrekcehC](../rules/HROT Extended Generations/R2,B3,S2,3,8,G0-1-1,NB/DESCRIPTION.md) | Stable | R2,B3,S2,3,8,G0-1-1,NB | A stable snoitreneg rule with common P4 oscillators and a c/2o. Still lives exist although they are fairly uncommon. The P4 oscillator can eat the c/2o and the c/2o can pass through the P4 destroying it. In fact, any oscillator and spaceship pair that each have consist of only one state and have opposite states are able to destroy the other without being affected.
+
+## Deficient HROT
+
+
+## Integer HROT
+
+| Name | Character | Rulestring | Description | 
+| ------------- | ------------- | ------------- | ------------- |
+| [IntegerLife](../rules/Integer HROT/R1,I8,S2-3,B3,NM/DESCRIPTION.md) | Chaotic | R1,I8,S2-3,B3,NM | A chaotic rule by Mark Niemiec. All patterns in Life work excluding those involving B6. Other than the glider and the xWSS, this rule also has a natural 2c/6o, c/3o and 3/11o. There is also a natural backrake and a gun has been constructed. This collection excludes Life patterns.

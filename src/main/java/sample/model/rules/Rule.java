@@ -65,9 +65,10 @@ public abstract class Rule {
      * If the next state of the cell depends on its neighbours, return -1.
      * If not return the next state of the cell.
      * @param state The current state of the cell
+     * @param generation The generation of the simulation
      * @return Returns -1 or the next state of the cell
      */
-    public int dependsOnNeighbours(int state) {
+    public int dependsOnNeighbours(int state, int generation) {
         return -1;
     }
 
@@ -165,7 +166,7 @@ public abstract class Rule {
             prevState = gridCopy.getCell(cell);
 
             // Getting neighbour states
-            if (dependsOnNeighbours(convertState(prevState, generation)) == -1) {
+            if (dependsOnNeighbours(convertState(prevState, generation), generation) == -1) {
                 neighbours = new int[neighbourhood.length];
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
                     for (int i = 0; i < neighbourhood.length; i++) {
@@ -186,7 +187,7 @@ public abstract class Rule {
                         convertState(prevState, generation), generation), generation + 1);
             }
             else {
-                newState = convertState(dependsOnNeighbours(convertState(prevState, generation)),
+                newState = convertState(dependsOnNeighbours(convertState(prevState, generation), generation),
                         generation + 1);
             }
 

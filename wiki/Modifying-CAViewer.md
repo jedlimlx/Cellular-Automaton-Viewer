@@ -25,6 +25,9 @@ Adding custom rule families
 Do ensure that you also add a dummy constructor with no arguments. 
 This ensures that Jackson is able to construct the rule from the serialised JSON stored in settings.json.
 
+To allow apgtable generation implement the [ApgtableGeneratable.java] interface. To allow min / max rule generation
+implement the [MinMaxRuleable.java] interface.
+
 Some useful methods in writing the new rule family would be [APGTable.java] for apgtable generation 
 (Unbounded variables and B0 support (must provide the background)!), [CommentGenerator.java] for generating the 
 RLE comments / multiline rulestrings, [NeighbourhoodGenerator.java] for handling the different neighbourhoods 
@@ -35,11 +38,15 @@ supported by CAViewer and [Utils.java] with useful methods for parsing strings a
 - [x] [NeighbourhoodSelector.java]
 - [x] [StateWeightSelector.java]
 
+5. Add the new rule family to [CommandUtils.java].
+
 If you use these widgets, construct them via the methods in [SharedWidgets.java] 
 so that the values in these widgets do not change when the rulespace is changed.
 
 [Rule.java]: ../src/main/java/sample/model/rules/Rule.java
 [RuleFamily.java]: ../src/main/java/sample/model/rules/RuleFamily.java
+[ApgtableGeneratable.java]: ../src/main/java/sample/model/rules/ApgtableGeneratable.java
+[MinMaxRuleable.java]: ../src/main/java/sample/model/rules/MinMaxRuleable.java
 [RuleWidget.java]: ../src/main/java/sample/controller/dialogs/rule/RuleWidget.java
 [SharedWidget.java]: ../src/main/java/sample/controller/dialogs/rule/RuleWidget.java
 [APGTable.java]: ../src/main/java/sample/model/APGTable.java
@@ -47,6 +54,7 @@ so that the values in these widgets do not change when the rulespace is changed.
 [Utils.java]: ../src/main/java/sample/model/Utils.java
 [StateWeightSelector.java]: ../src/main/java/sample/controller/StateWeightSelector.java
 [NeighbourhoodSelector.java]: ../src/main/java/sample/controller/NeighbourhoodSelector.java
+[CommandUtils]: ../src/main/java/sample/commands/CommandUtils.java
 [rules]: ../src/main/java/sample/model/rules
 [javadocs]: ../javadoc/index.html
 

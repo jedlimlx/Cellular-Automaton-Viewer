@@ -2,7 +2,7 @@ package sample.commands;
 
 import picocli.CommandLine;
 import sample.model.Simulator;
-import sample.model.rules.HROT;
+import sample.model.rules.hrot.HROT;
 import sample.model.search.RuleSearch;
 import sample.model.search.RuleSearchParameters;
 

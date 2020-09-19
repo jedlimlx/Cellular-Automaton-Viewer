@@ -13,6 +13,7 @@ Welcome to the CAViewer wiki!
      * [Deficient Rules](Rule-Support.md#deficient-rules)
      * [Integer Rules](Rule-Support.md#integer-rules)
   * [Isotropic Non-Totalistic (INT)](Rule-Support.md#isotropic-non-totalistic-int)
+  * [History](Rule-Support.md#history-rules)
   * [B0 Rules](Rule-Support.md#b0-rules)
 * [Sample Rules](Sample-Rules.md)
   * [Higher Range Outer Totalistic (HROT)](Sample-Rules.md#higher-range-outer-totalistic-hrot)

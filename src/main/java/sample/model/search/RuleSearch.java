@@ -4,6 +4,7 @@ import sample.model.Coordinate;
 import sample.model.Grid;
 import sample.model.Simulator;
 import sample.model.patterns.Pattern;
+import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
@@ -24,11 +25,16 @@ public class RuleSearch extends SearchProgram {
         }
     }
 
-    public void search(int numRules) {
+    public void search(int numRules) throws IllegalArgumentException {
         // TODO (Implement a more high-tech repetition checker)
         // TODO (Do whatever WildMyron says that searchPatt-matchPatt does with the min / max rule)
         Simulator simulator;
         RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
+
+        // Checking for valid minimum, maximum rules
+        if (!(searchParameters.getMinRule() instanceof MinMaxRuleable)) {
+            throw new IllegalArgumentException("This rule family does not support min / max rules!");
+        }
 
         known = new HashSet<>();  // Hash set to store known things
         searchResults = new ArrayList<>(); // Initialise search results
@@ -39,8 +45,10 @@ public class RuleSearch extends SearchProgram {
             simulator.insertCells(searchParameters.getTargetPattern(), new Coordinate(0, 0));
 
             // Randomise the rule
-            ((RuleFamily) simulator.getRule()).randomise(
-                    searchParameters.getMinRule(), searchParameters.getMaxRule());
+            if (simulator.getRule() instanceof MinMaxRuleable) {
+                ((MinMaxRuleable) simulator.getRule()).randomise(
+                        searchParameters.getMinRule(), searchParameters.getMaxRule());
+            }
 
             // Identify the object
             Pattern result = simulator.identify(searchParameters.getMaxPeriod(), true, 40);
