@@ -55,7 +55,7 @@ public class SimulationCommand implements Runnable {
             simulator.updateBounds();
             startingCoordinate = simulator.getBounds().getValue0();
 
-            for (int i = 0; i < generations; i++) {
+            for (int i = 0; i < generations + 1; i++) {
                 // Printing every stepSize
                 if (i % stepSize == 0) getRLE();
 

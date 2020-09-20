@@ -317,12 +317,12 @@ public class NeighbourhoodGenerator {
                     int index = (i + range) * (2 * range + 1) + (j + range);
                     if ((i == 0 && j > 0) || i > 0) {
                         if (flattenedNeighbourhood.charAt(index - 1) == '1') {
-                            neighbourhood.add(new Coordinate(j, -i));
+                            neighbourhood.add(new Coordinate(-j, -i));
                         }
                     }
                     else {
                         if (flattenedNeighbourhood.charAt(index) == '1') {
-                            neighbourhood.add(new Coordinate(j, -i));
+                            neighbourhood.add(new Coordinate(-j, -i));
                         }
                     }
                 }

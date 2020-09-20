@@ -35,7 +35,7 @@ public abstract class Rule {
     /**
      * The tiling of the rule
      */
-    protected Tiling tiling;
+    protected Tiling tiling = Tiling.Square;
 
     /**
      * This method returns the neighbourhood of a given cell at a generation 0
