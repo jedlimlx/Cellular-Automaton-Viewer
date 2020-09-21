@@ -85,7 +85,12 @@ public class MainController {
 
     private ArrayList<Grid> history;  // The history for undo, redo
 
+    private int simulationTime, visualisationTime;  // Time taken for visualisation and simulation
+
+    private int minSimTime = 0;  // Minimum time for one step
+    private int stepSize = 1;  // Step size of the simulation
     private int currentState = 1;  // State to draw with
+
     private boolean recording = false;  // Is the recording on?
     private boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = true;  // Is the visualisation done?
@@ -346,15 +351,33 @@ public class MainController {
         }
     }
 
+    @FXML // Sets the step size
+    public void setStepSize() {
+        // Getting the generation number from the user
+        TextInputDialog inputDialog = new TextInputDialog("1");
+        inputDialog.setTitle("Set Step Size:");
+        inputDialog.setHeaderText("Enter the step size:");
+        inputDialog.showAndWait();
+
+        try {
+            stepSize = Integer.parseInt(inputDialog.getResult());
+            updateStatusText();
+        }
+        catch (NumberFormatException exception) {
+            // Ensure it's an integer
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
+            alert.showAndWait();
+        }
+    }
+
     // Function to set cell at (x, y) to a certain state
     public void setCell(int x, int y, int state) {
         setCell(x, y, state, true);
     }
 
     public void setCell(int x, int y, int state, boolean updateSimulator) {
-        selectionRectangle.toFront();
-        gridLines.toFront();
-
         // Get the cell object at the specified coordinate
         Cell prevCell = getCellObject(x, y);
         if (prevCell == null) {  // Insert a new cell if one doesn't already exist
@@ -372,8 +395,7 @@ public class MainController {
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
         else if (prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            prevCell.getRectangle().toBack();
-            if (state == 0 && cellList.size() > 500) {
+            if (state == 0 && cellList.size() > 5000000) {
                 // Destroy the cell object (remove all references to it so it is garbage collected)
                 removeCellObject(x, y);
                 drawingPane.getChildren().remove(prevCell.getRectangle());
@@ -381,11 +403,7 @@ public class MainController {
             else {
                 prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
                 prevCell.setState(state);
-                prevCell.getRectangle().toBack();
             }
-        }
-        else {
-            prevCell.getRectangle().toBack();
         }
 
         // Add cell to simulator
@@ -432,7 +450,11 @@ public class MainController {
     }
 
     public void updateStatusText() {
-        statusLabel.setText("Generation: " + simulator.getGeneration());
+        String simulationString = String.format("Simulation Speed: %.2f gen/s",
+                (double) stepSize * 1000.0 / (visualisationTime + simulationTime));
+
+        statusLabel.setText("Generation: " + simulator.getGeneration() + ", " +
+                simulationString);
     }
 
     @FXML // Zooming in and out of the canvas
@@ -453,17 +475,31 @@ public class MainController {
     public void updateCells() {
         visualisationDone = false;
 
+        Set<Coordinate> cellsChanged = new HashSet<>();
+
+        long startTime = System.currentTimeMillis();
         try {
-            simulator.step();
+            for (int i = 0; i < stepSize; i++) {
+                simulator.step();
+                if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
+                else cellsChanged = simulator.getCellsChanged();
+            }
         }
         catch (ConcurrentModificationException ignored) {}
 
+        simulationTime = (int) (System.currentTimeMillis() - startTime);
+
+        Set<Coordinate> finalCellsChanged = cellsChanged;
         Platform.runLater(() -> {
             try {
+                long startTime2 = System.currentTimeMillis();
+
                 // Only update cells that changed (for speed)
-                for (Coordinate cell: simulator.getCellsChanged()) {
+                for (Coordinate cell: finalCellsChanged) {
                     setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
+
+                visualisationTime = (int) (System.currentTimeMillis() - startTime2);
             }
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                 simulationRunning = false;  // Pause the simulation
@@ -503,6 +539,9 @@ public class MainController {
                 }
 
                 updateCells();
+
+                int waitTime = minSimTime - (simulationTime + visualisationTime);
+                if (waitTime > 0) wait(waitTime);
             }
             else {
                 int finalNum = num;
@@ -519,13 +558,16 @@ public class MainController {
                 wait(75);
             }
 
-            wait(1);
+            // Move the grid lines and selection to the front
+            Platform.runLater(() -> {
+                selectionRectangle.toFront();
+                gridLines.toFront();
+            });
         }
     }
 
     @FXML  // Toggles simulation on and off
     public void toggleSimulation() {
-        history.add(simulator.deepCopy());
         simulationRunning = !simulationRunning;  // Toggle the simulation
         if (!simulationRunning) {  // Changing the icon
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
@@ -534,6 +576,14 @@ public class MainController {
         else {
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
                     "/icon/StopButtonEater.png")));
+        }
+
+        while (true) {
+            try {
+                history.add(simulator.deepCopy());
+                break;
+            }
+            catch (ConcurrentModificationException ignored) {}
         }
     }
 

@@ -88,7 +88,7 @@ public class Coordinate implements Comparable<Coordinate> {
 
     @Override
     public int hashCode() {
-        return (x >> 2) ^ (y << 3);
+        return x + y * 5000;
     }
 
     @Override

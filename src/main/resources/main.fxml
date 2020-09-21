@@ -23,6 +23,7 @@
       <Menu mnemonicParsing="false" text="Control">
         <items>
           <MenuItem mnemonicParsing="false" onAction="#setGeneration" text="Set Generation" />
+            <MenuItem mnemonicParsing="false" onAction="#setStepSize" text="Set Step Size" />
             <CheckMenuItem fx:id="gridLinesMenuItem" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
         </items>
       </Menu>
