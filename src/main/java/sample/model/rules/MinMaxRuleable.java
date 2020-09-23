@@ -3,6 +3,9 @@ package sample.model.rules;
 import org.javatuples.Pair;
 import sample.model.Grid;
 
+/**
+ * Rule families that support minimum, maximum rules implement this interface
+ */
 public interface MinMaxRuleable {
     /**
      * Randomise the parameters of the current rule to be between minimum and maximum rules

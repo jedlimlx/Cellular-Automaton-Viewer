@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 public class RuleTreeGen {
     /* Put your state count, neighbor count, and function here */
-    final static int numStates = 12;
+    final static int numStates = 5;
     final static int numNeighbors = 8;
     /* order for nine neighbors is nw, ne, sw, se, n, w, e, s, c */
     /* order for five neighbors is n, w, e, s, c */
@@ -14,7 +14,7 @@ public class RuleTreeGen {
         int[] neighbours = new int[8];
         System.arraycopy(a, 0, neighbours, 0, 8);
 
-        IntegerHROT hrot = new IntegerHROT("R1,I12,S2,3,B3,NM");
+        IntegerHROT hrot = new IntegerHROT("R1,I5,S2,3,B3,N+");
         return hrot.transitionFunc(neighbours, a[8], 0);
     }
 

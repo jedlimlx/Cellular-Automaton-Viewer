@@ -2,6 +2,9 @@ package sample.model.rules;
 
 import java.io.File;
 
+/**
+ * Rule families that support apgtable generation implement this interface
+ */
 public interface ApgtableGeneratable {
     /**
      * Generates an apgtable for apgsearch to use

@@ -304,6 +304,10 @@ public class MainController {
         
         // Insert the cells in the pane (automatically inserted in the simulator)
         insertCells(soup, startSelection.getX(), startSelection.getY());
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     @FXML // Flips selected cells horizontally
@@ -333,7 +337,7 @@ public class MainController {
     @FXML // Sets the generation
     public void setGeneration() {
         // Getting the generation number from the user
-        TextInputDialog inputDialog = new TextInputDialog("0");
+        TextInputDialog inputDialog = new TextInputDialog(simulator.getGeneration() + "");
         inputDialog.setTitle("Set Generation");
         inputDialog.setHeaderText("Enter the generation number:");
         inputDialog.showAndWait();
@@ -353,8 +357,8 @@ public class MainController {
 
     @FXML // Sets the step size
     public void setStepSize() {
-        // Getting the generation number from the user
-        TextInputDialog inputDialog = new TextInputDialog("1");
+        // Getting the step size from the user
+        TextInputDialog inputDialog = new TextInputDialog(stepSize + "");
         inputDialog.setTitle("Set Step Size:");
         inputDialog.setHeaderText("Enter the step size:");
         inputDialog.showAndWait();
@@ -369,6 +373,45 @@ public class MainController {
             alert.setTitle("Error!");
             alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
             alert.showAndWait();
+        }
+    }
+
+    @FXML // Sets the maximum simulation speed (gen/s)
+    public void setSimSpeed() {
+        // Getting the generation number from the user
+        TextInputDialog inputDialog = new TextInputDialog(1000 / (minSimTime + 1) + "");
+        inputDialog.setTitle("Set Maximum Simulation Speed (gen/s)");
+        inputDialog.setHeaderText("Enter the simulation speed (gen/s):");
+        inputDialog.showAndWait();
+
+        try {
+            minSimTime = 1000 / Integer.parseInt(inputDialog.getResult());
+        }
+        catch (NumberFormatException exception) {
+            // Ensure it's an integer
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML // Clears the cell cache
+    public void clearCellsCache() {
+        ArrayList<Cell> toBeRemoved = new ArrayList<>();
+        for (Coordinate cell: cellList.keySet()) {
+            if (cellList.get(cell).getState() == 0) {
+                try {
+                    toBeRemoved.add(cellList.get(cell));
+                }
+                catch (NullPointerException ignored) {}
+            }
+        }
+
+        for (Cell cell: toBeRemoved) {
+            // Destroy the cell object (remove all references to it so it is garbage collected)
+            removeCellObject(cell.getCoordinate().getX(), cell.getCoordinate().getY());
+            drawingPane.getChildren().remove(cell.getRectangle());
         }
     }
 
@@ -450,8 +493,8 @@ public class MainController {
     }
 
     public void updateStatusText() {
-        String simulationString = String.format("Simulation Speed: %.2f gen/s",
-                (double) stepSize * 1000.0 / (visualisationTime + simulationTime));
+        String simulationString = String.format("Simulation Speed: %.2f step/s",
+                1000.0 / (visualisationTime + simulationTime));
 
         statusLabel.setText("Generation: " + simulator.getGeneration() + ", " +
                 simulationString);
@@ -499,6 +542,10 @@ public class MainController {
                     setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
                 }
 
+                // Move the grid lines and selection to the front
+                if (selectionRectangle.isVisible()) selectionRectangle.toFront();
+                if (gridLines.isVisible()) gridLines.toFront();
+
                 visualisationTime = (int) (System.currentTimeMillis() - startTime2);
             }
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
@@ -509,6 +556,13 @@ public class MainController {
                 alert.setHeaderText("ConcurrentModificationException cause in updateCells.");
                 alert.setContentText("Please report this as a bug.");
                 alert.showAndWait();
+            }
+
+            // Ensure that the minimum simulation time is not "surpassed"
+            int waitTime = minSimTime - (simulationTime + visualisationTime);
+            if (waitTime > 0) {
+                wait(waitTime);
+                visualisationTime += waitTime;
             }
 
             // Update the variable to say that the visualisation is done
@@ -539,9 +593,6 @@ public class MainController {
                 }
 
                 updateCells();
-
-                int waitTime = minSimTime - (simulationTime + visualisationTime);
-                if (waitTime > 0) wait(waitTime);
             }
             else {
                 int finalNum = num;
@@ -558,11 +609,7 @@ public class MainController {
                 wait(75);
             }
 
-            // Move the grid lines and selection to the front
-            Platform.runLater(() -> {
-                selectionRectangle.toFront();
-                gridLines.toFront();
-            });
+            wait(1);
         }
     }
 
@@ -1072,6 +1119,10 @@ public class MainController {
     public void deleteCells() {
         simulator.clearCells(startSelection, endSelection);
         renderCells(startSelection, endSelection);
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     // Handles the keyboard shortcuts

@@ -45,6 +45,9 @@ The Menu Bar
 
 **Control Menu**: <br>
 *Set Generation* - Sets the generation based on user input <br>
+*Set Step Size* - Sets the step size of the simulation <br>
+*Set Simulation Speed* - Sets the maximum simulation speed <br>
+*Clear Cell Cache* - Clears the cell cache to speed up the simulation (application may hang for a while) <br>
 *Grid Lines* - Toggles between showing and not showing grid lines <br>
 
 **Search Menu**: <br>
@@ -107,7 +110,7 @@ GUI TODO List
 - [x] Add button to view search results and save to a file
 - [x] Add grid lines
 - [x] Add help information to the about button
-- [ ] Add more information to the status bar
+- [x] Add more information to the status bar
 - [ ] Add dialog to ask "Would you like to save changes to untitled"
 - [ ] Custom key binds
 
@@ -167,6 +170,10 @@ Supported / Planned Rulespaces
         - [x] B0 Rules
         - [x] Weighted Rules
         - [x] Apgtable Generation for all rules
+    - [ ] Multi-state Cyclic HROT
+        - [ ] B0 Rules
+        - [ ] Weighted Rules
+        - [ ] Apgtable Generation for all rules
 - [ ] Isotropic Non-Totalistic (INT)
     - [ ] 2 State INT
     - [ ] INT BSFKL
@@ -183,7 +190,6 @@ Supported / Planned Rulespaces
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA
-- [ ] Yoel's Cyclic CA
 - [ ] Langton's Ant / Turmites
 - [ ] Block CA
 - [ ] Margolus
@@ -235,7 +241,7 @@ Search Programs
     - [ ] Identification for linear growth patterns, replicators
     - [ ] Fine tune RNG function manually
     - [ ] Fine tune RNG function via genetic algorithms?
-    - [ ] Object seperation?
+    - [ ] Object separation?
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
 - [ ] Methuselah Search Program
