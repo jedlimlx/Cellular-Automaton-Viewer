@@ -6,10 +6,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.simulation.Grid;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -423,42 +422,31 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public boolean generateApgtable(File file) {
-        try {
-            // Generating the APGTable
-            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-            apgTable.setWeights(weights);
-            apgTable.setBackground(background);
+    public APGTable generateApgtable(File file) {
+        // Generating the APGTable
+        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+        apgTable.setWeights(weights);
+        apgTable.setBackground(background);
 
-            // Death Variables
-            apgTable.addUnboundedVariable("death", new int[]{0, 1});
+        // Death Variables
+        apgTable.addUnboundedVariable("death", new int[]{0, 1});
 
-            // Transitions
-            for (int transition: birth) {
-                apgTable.addOuterTotalisticTransition(0, 1, transition,
-                        "0", "1");
-            }
-
-
-            for (int transition: survival) {
-                apgTable.addOuterTotalisticTransition(1, 1, transition,
-                        "0", "1");
-            }
-
-            apgTable.addOuterTotalisticTransition(1, 0, maxNeighbourhoodCount,
-                    "0", "death");
-
-            // Open the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(apgTable.compileAPGTable());
-
-            // Closing the file
-            writer.close();
-            return true;
+        // Transitions
+        for (int transition: birth) {
+            apgTable.addOuterTotalisticTransition(0, 1, transition,
+                    "0", "1");
         }
-        catch (IOException exception) {
-            return false;
+
+
+        for (int transition: survival) {
+            apgTable.addOuterTotalisticTransition(1, 1, transition,
+                    "0", "1");
         }
+
+        apgTable.addOuterTotalisticTransition(1, 0, maxNeighbourhoodCount,
+                "0", "death");
+
+        return apgTable;
     }
 
     /**

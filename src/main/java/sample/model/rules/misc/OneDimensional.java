@@ -1,9 +1,9 @@
 package sample.model.rules.misc;
 
 import sample.model.Coordinate;
-import sample.model.Grid;
 import sample.model.Utils;
 import sample.model.rules.RuleFamily;
+import sample.model.simulation.Grid;
 
 import java.math.BigInteger;
 import java.util.*;

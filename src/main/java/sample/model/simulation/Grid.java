@@ -1,8 +1,14 @@
-package sample.model;
+package sample.model.simulation;
 
 import org.javatuples.Pair;
+import sample.model.Coordinate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +25,7 @@ import java.util.regex.Pattern;
  * }
  * </pre>
  */
-public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
+public class Grid implements Iterable<Block>, Iterator<Block> {
     /**
      * The background of the grid.
      * Used for minimum and maximum B0 rules (i.e. strobing rules).
@@ -32,10 +38,14 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     private Coordinate startCoordinate, endCoordinate;
 
     /**
-     * The dictionary that stores the pattern.
-     * {(0, 0): 1, (0, 2): 2, ...}
+     * The dictionary that stores the blocks according to their start coordinates
      */
-    private final HashMap<Coordinate, Integer> dictionary;
+    private final HashMap<Coordinate, Block> dictionary;
+
+    /**
+     * The size of the blocks used
+     */
+    private final int BLOCK_SIZE = 8;
 
     /**
      * Constructs a grid with an empty pattern and a background of 0.
@@ -52,11 +62,21 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      * Constructs a grid with the provided dictionary with a background of 0.
      * The bounds of the grid are also uninitialised.
      */
-    private Grid(HashMap<Coordinate, Integer> dictionary) {
+    private Grid(HashMap<Coordinate, Block> dictionary) {
         this.background = 0;
-        this.dictionary = (HashMap<Coordinate, Integer>) dictionary.clone();
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
+
+        // Deep copying
+        this.dictionary = new HashMap<>();
+
+        Block block;
+        for (Coordinate coordinate: dictionary.keySet()) {
+            block = dictionary.get(coordinate);
+            if (block.getPopulation() == 0) continue;
+
+            this.dictionary.put(coordinate, (Block) block.clone());
+        }
     }
 
     /**
@@ -67,10 +87,17 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     public void setCell(Coordinate coordinate, int state) {
         state = convertCell(state);
 
-        if (state == 0)
-            dictionary.remove(coordinate);
-        else
-            dictionary.put(coordinate, state);
+        Coordinate blockCoordinate = getBlockCoordinate(coordinate);
+        if (dictionary.get(blockCoordinate) == null) {
+            if (state == 0) return;
+            Block block = new Block(blockCoordinate, BLOCK_SIZE, BLOCK_SIZE);
+            block.setCell(coordinate.getX(), coordinate.getY(), state);
+
+            dictionary.put(blockCoordinate, block);
+        }
+        else {
+            dictionary.get(blockCoordinate).setCell(coordinate.getX(), coordinate.getY(), state);
+        }
     }
 
     /**
@@ -84,14 +111,28 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
     }
 
     /**
+     * Adds a block at coordinate (x, y) into the hashmap
+     * @param coordinate The coordinate of the block that is to be removed
+     */
+    public void addBlock(Coordinate coordinate) {
+        dictionary.put(coordinate, new Block(coordinate, BLOCK_SIZE, BLOCK_SIZE));
+    }
+
+    /**
+     * Removes the block at coordinate (x, y) from the hashmap
+     * @param coordinate The coordinate of the block that is to be removed
+     */
+    public void removeBlock(Coordinate coordinate) {
+        dictionary.remove(coordinate);
+    }
+
+    /**
      * Inserts the provided pattern at the specified coordinate
      * @param pattern The pattern to be inserted
      * @param coordinate The coordinate where the pattern is to be inserted
      */
     public void insertCells(Grid pattern, Coordinate coordinate) {
-        for (Coordinate coord: pattern) {
-            setCell(coord.add(coordinate), pattern.getCell(coord));
-        }
+        pattern.iterateCells(coord -> setCell(coord.add(coordinate), pattern.getCell(coord)));
     }
 
     /**
@@ -100,8 +141,25 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      * @param end The end coordinate
      */
     public void clearCells(Coordinate start, Coordinate end) {
+        Coordinate blockStart = getBlockCoordinate(start);
+        Coordinate blockEnd = getBlockCoordinate(end);
+
+        // Removing all the blocks
+        for (int x = blockStart.getX(); x < blockEnd.getX() + 1; x++) {
+            for (int y = blockStart.getY(); y < blockEnd.getY() + 1; y++) {
+                dictionary.remove(new Coordinate(x, y));
+            }
+        }
+
+        // Removing the remaining cells
         for (int x = start.getX(); x < end.getX() + 1; x++) {
             for (int y = start.getY(); y < end.getY() + 1; y++) {
+                if (y >= blockStart.getY() && y <= blockEnd.getY()) {
+                    if (x >= blockStart.getX() || x <= blockEnd.getX() + BLOCK_SIZE) {
+                        x = blockEnd.getX() + BLOCK_SIZE + 1;
+                    }
+                }
+
                 setCell(x, y, 0);
             }
         }
@@ -113,8 +171,15 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      * @return Returns the state of the cell
      */
     public int getCell(Coordinate coordinate) {
-        Integer state = dictionary.get(coordinate);
-        return convertCell(Objects.requireNonNullElse(state, 0));
+        Coordinate blockCoordinate = getBlockCoordinate(coordinate);
+
+        Block block = dictionary.get(blockCoordinate);
+        if (block == null) {
+            return convertCell(0);
+        }
+        else {
+            return convertCell(block.getCell(coordinate.getX(), coordinate.getY()));
+        }
     }
 
     /**
@@ -125,14 +190,6 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      */
     public int getCell(int x, int y) {
         return getCell(new Coordinate(x, y));
-    }
-
-    /**
-     * Returns a deepcopy of the dictionary used to store the pattern
-     * @return Returns a dictionary contains all the cells of the pattern
-     */
-    public HashMap<Coordinate, Integer> getCells() {
-        return (HashMap<Coordinate, Integer>) dictionary.clone();
     }
 
     /**
@@ -166,16 +223,51 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
         startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
 
-        for (Coordinate coordinate: this) {
+        Coordinate blockStartCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Coordinate blockEndCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
+
+        Coordinate blockCoordinate;
+        for (Block block: this) {
+            if (block.getPopulation() == 0) continue;
+            blockCoordinate = block.getStartCoordinate();
+
             // Updating the bounds
-            if (coordinate.getX() < startCoordinate.getX())
-                startCoordinate = new Coordinate(coordinate.getX(), startCoordinate.getY());
-            if (coordinate.getY() < startCoordinate.getY())
-                startCoordinate = new Coordinate(startCoordinate.getX(), coordinate.getY());
-            if (coordinate.getX() > endCoordinate.getX())
-                endCoordinate = new Coordinate(coordinate.getX(), endCoordinate.getY());
-            if (coordinate.getY() > endCoordinate.getY())
-                endCoordinate = new Coordinate(endCoordinate.getX(), coordinate.getY());
+            if (blockCoordinate.getX() <= blockStartCoordinate.getX()) {
+                blockStartCoordinate = new Coordinate(blockCoordinate.getX(), blockStartCoordinate.getY());
+                iterateCellsInBlock(cellCoordinate -> {
+                    if (cellCoordinate.getX() < startCoordinate.getX())
+                        startCoordinate = new Coordinate(cellCoordinate.getX(), startCoordinate.getY());
+                    if (cellCoordinate.getY() < startCoordinate.getY())
+                        startCoordinate = new Coordinate(startCoordinate.getX(), cellCoordinate.getY());
+                }, block);
+            }
+            if (blockCoordinate.getY() <= blockStartCoordinate.getY()) {
+                blockStartCoordinate = new Coordinate(blockStartCoordinate.getX(), blockCoordinate.getY());
+                iterateCellsInBlock(cellCoordinate -> {
+                    if (cellCoordinate.getX() < startCoordinate.getX())
+                        startCoordinate = new Coordinate(cellCoordinate.getX(), startCoordinate.getY());
+                    if (cellCoordinate.getY() < startCoordinate.getY())
+                        startCoordinate = new Coordinate(startCoordinate.getX(), cellCoordinate.getY());
+                }, block);
+            }
+            if (blockCoordinate.getX() >= blockEndCoordinate.getX()) {
+                blockEndCoordinate = new Coordinate(blockCoordinate.getX(), blockEndCoordinate.getY());
+                iterateCellsInBlock(cellCoordinate -> {
+                    if (cellCoordinate.getX() > endCoordinate.getX())
+                        endCoordinate = new Coordinate(cellCoordinate.getX(), endCoordinate.getY());
+                    if (cellCoordinate.getY() > endCoordinate.getY())
+                        endCoordinate = new Coordinate(endCoordinate.getX(), cellCoordinate.getY());
+                }, block);
+            }
+            if (blockCoordinate.getY() >= blockEndCoordinate.getY()) {
+                blockEndCoordinate = new Coordinate(blockEndCoordinate.getX(), blockCoordinate.getY());
+                iterateCellsInBlock(cellCoordinate -> {
+                    if (cellCoordinate.getX() > endCoordinate.getX())
+                        endCoordinate = new Coordinate(cellCoordinate.getX(), endCoordinate.getY());
+                    if (cellCoordinate.getY() > endCoordinate.getY())
+                        endCoordinate = new Coordinate(endCoordinate.getX(), cellCoordinate.getY());
+                }, block);
+            }
         }
     }
 
@@ -192,12 +284,13 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      * @return Returns an array conains the coordinates
      */
     public Coordinate[] toArray() {
-        int index = 0;
-        Coordinate[] array = new Coordinate[this.size()];
-        for (Coordinate coordinate: this) {
-            array[index] = coordinate;
-            index++;
-        }
+        AtomicInteger index = new AtomicInteger(0);
+        Coordinate[] array = new Coordinate[getPopulation()];
+
+        iterateCells(coordinate -> {
+            array[index.intValue()] = coordinate;
+            index.getAndIncrement();
+        });
 
         return array;
     }
@@ -439,7 +532,6 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
      */
     @Override
     public int hashCode() {
-        // TODO (Copy Golly's Hash Function)
         updateBounds();
 
         /*
@@ -515,23 +607,67 @@ public class Grid implements Iterable<Coordinate>, Iterator<Coordinate> {
             return state;
     }
 
+    /**
+     * Calls a method on every live cell (not state 0) in the grid
+     * @param methodToCall The method to call with the coordinate of the cells as a parameter
+     */
+    public void iterateCells(Consumer<Coordinate> methodToCall) {
+        for (Block block: this) {
+            if (block.getPopulation() == 0) continue;
+            iterateCellsInBlock(methodToCall, block);
+        }
+    }
+
+    /**
+     * Calls a method on every live cell (not state 0) in the provided block
+     * @param methodToCall The method to call with the coordinate of the cells as a parameter
+     * @param block The block to iterate through
+     */
+    public void iterateCellsInBlock(Consumer<Coordinate> methodToCall, Block block) {
+        for (int i = block.getStartCoordinate().getX(); i < block.getStartCoordinate().getX() + BLOCK_SIZE; i++) {
+                for (int j = block.getStartCoordinate().getY(); j < block.getStartCoordinate().getY() + BLOCK_SIZE; j++) {
+                    if (block.getCell(i, j) > 0) methodToCall.accept(new Coordinate(i, j));
+                }
+            }
+    }
+
+    /**
+     * Gets the coordinate of the block of a cell at a given coordinate (x, y)
+     * @param coordinate The coordinate of the cell
+     * @return Returns the block coordinate
+     */
+    public Coordinate getBlockCoordinate(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX() >= 0 ? (coordinate.getX() / BLOCK_SIZE) * BLOCK_SIZE :
+                ((coordinate.getX() - BLOCK_SIZE + 1) / BLOCK_SIZE) * BLOCK_SIZE,
+                coordinate.getY() >= 0 ? (coordinate.getY() / BLOCK_SIZE) * BLOCK_SIZE :
+                        ((coordinate.getY() - BLOCK_SIZE + 1) / BLOCK_SIZE) * BLOCK_SIZE);
+    }
+
+    /**
+     * Gets the population of the grid (all cells above state 0)
+     * @return Returns the population of the grid
+     */
+    public int getPopulation() {
+        int population = 0;
+        for (Block block: this) {
+            population += block.getPopulation();
+        }
+
+        return population;
+    }
+
     @Override  // Implementing these methods allow it to be used in a for each loop
     public boolean hasNext() {
-        return dictionary.keySet().iterator().hasNext();
+        return dictionary.values().iterator().hasNext();
     }
 
     @Override
-    public Coordinate next() {
-        return dictionary.keySet().iterator().next();
+    public Block next() {
+        return dictionary.values().iterator().next();
     }
 
     @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Iterator<Coordinate> iterator() {
-        return dictionary.keySet().iterator();
+    public Iterator<Block> iterator() {
+        return dictionary.values().iterator();
     }
 }

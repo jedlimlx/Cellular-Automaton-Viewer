@@ -1,6 +1,6 @@
 package sample.model.search;
 
-import sample.model.Grid;
+import sample.model.simulation.Grid;
 
 import java.io.File;
 import java.util.ArrayList;

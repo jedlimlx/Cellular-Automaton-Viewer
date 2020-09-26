@@ -246,7 +246,7 @@ extends <a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily
 </tr>
 <tr class="rowColor" id="i9">
 <td class="colFirst"><code>org.javatuples.Pair&lt;<a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a>,&#8203;<a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMinMaxRule(sample.model.Grid%5B%5D)">getMinMaxRule</a></span>&#8203;(<a href="../Grid.html" title="class in sample.model">Grid</a>[]&nbsp;grids)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMinMaxRule(sample.model.simulation.Grid%5B%5D)">getMinMaxRule</a></span>&#8203;(<a href="../Grid.html" title="class in sample.model">Grid</a>[]&nbsp;grids)</code></th>
 <td class="colLast">
 <div class="block">Returns the minimum and maximum rule of the provided evolutionary sequence</div>
 </td>
@@ -355,12 +355,12 @@ int&nbsp;generations)</code></th>
 <h3>Methods inherited from class&nbsp;sample.model.rules.<a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a></h3>
 <a id="methods.inherited.from.class.sample.model.rules.RuleFamily">
 <!--   -->
-</a><code><a href="RuleFamily.html#getName()">getName</a>, <a href="RuleFamily.html#getNeighbourList(sample.model.Grid%5B%5D)">getNeighbourList</a>, <a href="RuleFamily.html#getRulestring()">getRulestring</a>, <a href="RuleFamily.html#setRulestring(java.lang.String)">setRulestring</a>, <a href="RuleFamily.html#toString()">toString</a></code></div>
+</a><code><a href="RuleFamily.html#getName()">getName</a>, <a href="RuleFamily.html#getNeighbourList(sample.model.simulation.Grid%5B%5D)">getNeighbourList</a>, <a href="RuleFamily.html#getRulestring()">getRulestring</a>, <a href="RuleFamily.html#setRulestring(java.lang.String)">setRulestring</a>, <a href="RuleFamily.html#toString()">toString</a></code></div>
 <div class="inheritedList">
 <h3>Methods inherited from class&nbsp;sample.model.rules.<a href="Rule.html" title="class in sample.model.rules">Rule</a></h3>
 <a id="methods.inherited.from.class.sample.model.rules.Rule">
 <!--   -->
-</a><code><a href="Rule.html#convertState(int,int)">convertState</a>, <a href="Rule.html#getAlternatingPeriod()">getAlternatingPeriod</a>, <a href="Rule.html#getColour(int)">getColour</a>, <a href="Rule.html#getNeighbourhood()">getNeighbourhood</a>, <a href="Rule.html#getNumStates()">getNumStates</a>, <a href="Rule.html#getTiling()">getTiling</a>, <a href="Rule.html#step(sample.model.Grid,java.util.ArrayList,int)">step</a></code></div>
+</a><code><a href="Rule.html#convertState(int,int)">convertState</a>, <a href="Rule.html#getAlternatingPeriod()">getAlternatingPeriod</a>, <a href="Rule.html#getColour(int)">getColour</a>, <a href="Rule.html#getNeighbourhood()">getNeighbourhood</a>, <a href="Rule.html#getNumStates()">getNumStates</a>, <a href="Rule.html#getTiling()">getTiling</a>, <a href="Rule.html#step(sample.model.simulation.Grid,java.util.ArrayList,int)">step</a></code></div>
 <div class="inheritedList">
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
 <a id="methods.inherited.from.class.java.lang.Object">
@@ -498,12 +498,12 @@ int&nbsp;generations)</code></th>
 </li>
 <li class="blockList">
 <section class="detail">
-<h3><a id="getMinMaxRule(sample.model.Grid[])">getMinMaxRule</a></h3>
+<h3><a id="getMinMaxRule(sample.model.simulation.Grid[])">getMinMaxRule</a></h3>
 <div class="memberSignature"><span class="modifiers">public</span>&nbsp;<span class="returnType">org.javatuples.Pair&lt;<a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a>,&#8203;<a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a>&gt;</span>&nbsp;<span class="memberName">getMinMaxRule</span>&#8203;(<span class="arguments"><a href="../Grid.html" title="class in sample.model">Grid</a>[]&nbsp;grids)</span></div>
 <div class="block">Returns the minimum and maximum rule of the provided evolutionary sequence</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="RuleFamily.html#getMinMaxRule(sample.model.Grid%5B%5D)">getMinMaxRule</a></code>&nbsp;in class&nbsp;<code><a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a></code></dd>
+<dd><code><a href="RuleFamily.html#getMinMaxRule(sample.model.simulation.Grid%5B%5D)">getMinMaxRule</a></code>&nbsp;in class&nbsp;<code><a href="RuleFamily.html" title="class in sample.model.rules">RuleFamily</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>grids</code> - An array of grids representing the evolutionary sequence</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

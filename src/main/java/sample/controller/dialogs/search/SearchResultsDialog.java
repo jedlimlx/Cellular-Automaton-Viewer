@@ -12,8 +12,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 import sample.controller.MainController;
-import sample.model.Grid;
 import sample.model.search.SearchProgram;
+import sample.model.simulation.Grid;
 
 import java.io.File;
 import java.util.Arrays;

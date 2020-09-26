@@ -1,12 +1,12 @@
 package sample.model.search;
 
 import sample.model.Coordinate;
-import sample.model.Grid;
-import sample.model.Simulator;
 import sample.model.patterns.Pattern;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
+import sample.model.simulation.Grid;
+import sample.model.simulation.Simulator;
 
 import java.io.File;
 import java.io.FileWriter;

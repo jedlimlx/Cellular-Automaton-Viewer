@@ -6,10 +6,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.simulation.Grid;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -399,78 +398,67 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public boolean generateApgtable(File file) {
-        try {
-            // Generating the APGTable
-            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-            apgTable.setWeights(weights);
-            apgTable.setBackground(background);
+    public APGTable generateApgtable(File file) {
+        // Generating the APGTable
+        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+        apgTable.setWeights(weights);
+        apgTable.setBackground(background);
 
-            // Death Variables
-            int[] death = new int[numStates];
-            for (int i = 0; i < numStates; i++) {
-                death[i] = i;
+        // Death Variables
+        int[] death = new int[numStates];
+        for (int i = 0; i < numStates; i++) {
+            death[i] = i;
+        }
+
+        apgTable.addUnboundedVariable("death", death);
+
+        // Living Variables
+        int[] living = new int[numStates - 1];
+        for (int i = 1; i < numStates; i++) {
+            living[i - 1] = i;
+        }
+
+        apgTable.addUnboundedVariable("living", living);
+
+        // Deficient Variables
+        for (int transition: birth) {
+            int index = 0;
+            int[] deficient = new int[numStates - 2];  // Contains all states but one
+            for (int state = 1; state < numStates; state++) {
+                if (state == stateLookup.get(transition)) continue;
+                deficient[index] = state;
+                index++;
             }
 
-            apgTable.addUnboundedVariable("death", death);
+            apgTable.addUnboundedVariable("deficient_" + transition, deficient);
+        }
 
-            // Living Variables
-            int[] living = new int[numStates - 1];
-            for (int i = 1; i < numStates; i++) {
-                living[i - 1] = i;
-            }
+        // Birth Transitions
+        for (int transition: birth) {
+            apgTable.addOuterTotalisticTransition(0, stateLookup.get(transition), transition,
+                    "0", "deficient_" + transition);
+        }
 
-            apgTable.addUnboundedVariable("living", living);
-
-            // Deficient Variables
-            for (int transition: birth) {
-                int index = 0;
-                int[] deficient = new int[numStates - 2];  // Contains all states but one
-                for (int state = 1; state < numStates; state++) {
-                    if (state == stateLookup.get(transition)) continue;
-                    deficient[index] = state;
-                    index++;
+        // Survival Transitions
+        for (int transition: survival) {
+            for (int state = 1; state < numStates; state++) {  // Every state above 1 can survive
+                if (permanentDeficiency) {  // Checking for permanent deficiency
+                    apgTable.addOuterTotalisticTransition(state, state, transition,
+                            "0", "living");
                 }
-
-                apgTable.addUnboundedVariable("deficient_" + transition, deficient);
-            }
-
-            // Birth Transitions
-            for (int transition: birth) {
-                apgTable.addOuterTotalisticTransition(0, stateLookup.get(transition), transition,
-                        "0", "deficient_" + transition);
-            }
-
-            // Survival Transitions
-            for (int transition: survival) {
-                for (int state = 1; state < numStates; state++) {  // Every state above 1 can survive
-                    if (permanentDeficiency) {  // Checking for permanent deficiency
-                        apgTable.addOuterTotalisticTransition(state, state, transition,
-                                "0", "living");
-                    }
-                    else {
-                        apgTable.addOuterTotalisticTransition(state, 1, transition,
-                                "0", "living");
-                    }
+                else {
+                    apgTable.addOuterTotalisticTransition(state, 1, transition,
+                            "0", "living");
                 }
             }
-
-            for (int state = 1; state < numStates; state++) {  // Every state above can die
-                apgTable.addOuterTotalisticTransition(state, 0, maxNeighbourhoodCount,
-                        "0", "death");
-            }
-
-            // Open the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(apgTable.compileAPGTable());
-
-            // Closing the file
-            writer.close();
-            return true;
         }
-        catch (IOException exception) {
-            return false;
+
+        for (int state = 1; state < numStates; state++) {  // Every state above can die
+            apgTable.addOuterTotalisticTransition(state, 0, maxNeighbourhoodCount,
+                    "0", "death");
         }
+
+        return apgTable;
     }
 
     /**

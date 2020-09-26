@@ -7,8 +7,6 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * Represents a HROT History rule.
@@ -94,55 +92,44 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public boolean generateApgtable(File file) {
-        try {
-            // Generating the APGTable
-            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-            apgTable.setWeights(weights);
-            apgTable.setBackground(background);
+    public APGTable generateApgtable(File file) {
+        // Generating the APGTable
+        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+        apgTable.setWeights(weights);
+        apgTable.setBackground(background);
 
-            // Death Variables
-            apgTable.addUnboundedVariable("living", new int[]{1, 3, 5});
-            apgTable.addUnboundedVariable("dead", new int[]{0, 2, 4});
-            apgTable.addUnboundedVariable("death", new int[]{0, 1, 2, 3, 4, 5, 6});
+        // Death Variables
+        apgTable.addUnboundedVariable("living", new int[]{1, 3, 5});
+        apgTable.addUnboundedVariable("dead", new int[]{0, 2, 4});
+        apgTable.addUnboundedVariable("death", new int[]{0, 1, 2, 3, 4, 5, 6});
 
-            // Transitions
-            for (int transition: birth) {
-                apgTable.addOuterTotalisticTransition(0, 1, transition,
-                        "dead", "living");
-                apgTable.addOuterTotalisticTransition(2, 1, transition,
-                        "dead", "living");
-                apgTable.addOuterTotalisticTransition(4, 3, transition,
-                        "dead", "living");
-            }
-
-            for (int transition: survival) {
-                apgTable.addOuterTotalisticTransition(1, 1, transition,
-                        "dead", "living");
-                apgTable.addOuterTotalisticTransition(3, 3, transition,
-                        "dead", "living");
-                apgTable.addOuterTotalisticTransition(5, 5, transition,
-                        "dead", "living");
-            }
-
-            apgTable.addOuterTotalisticTransition(1, 2, maxNeighbourhoodCount,
-                    "0", "death");
-            apgTable.addOuterTotalisticTransition(3, 4, maxNeighbourhoodCount,
-                    "0", "death");
-            apgTable.addOuterTotalisticTransition(5, 4, maxNeighbourhoodCount,
-                    "0", "death");
-
-            // Open the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(apgTable.compileAPGTable());
-
-            // Closing the file
-            writer.close();
-            return true;
+        // Transitions
+        for (int transition: birth) {
+            apgTable.addOuterTotalisticTransition(0, 1, transition,
+                    "dead", "living");
+            apgTable.addOuterTotalisticTransition(2, 1, transition,
+                    "dead", "living");
+            apgTable.addOuterTotalisticTransition(4, 3, transition,
+                    "dead", "living");
         }
-        catch (IOException exception) {
-            return false;
+
+        for (int transition: survival) {
+            apgTable.addOuterTotalisticTransition(1, 1, transition,
+                    "dead", "living");
+            apgTable.addOuterTotalisticTransition(3, 3, transition,
+                    "dead", "living");
+            apgTable.addOuterTotalisticTransition(5, 5, transition,
+                    "dead", "living");
         }
+
+        apgTable.addOuterTotalisticTransition(1, 2, maxNeighbourhoodCount,
+                "0", "death");
+        apgTable.addOuterTotalisticTransition(3, 4, maxNeighbourhoodCount,
+                "0", "death");
+        apgTable.addOuterTotalisticTransition(5, 4, maxNeighbourhoodCount,
+                "0", "death");
+
+        return apgTable;
     }
 
     /**

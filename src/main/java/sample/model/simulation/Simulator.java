@@ -1,6 +1,7 @@
-package sample.model;
+package sample.model.simulation;
 
 import org.javatuples.Pair;
+import sample.model.Coordinate;
 import sample.model.patterns.Oscillator;
 import sample.model.patterns.Pattern;
 import sample.model.patterns.Spaceship;
@@ -92,10 +93,7 @@ public class Simulator extends Grid {
         }
 
         // If the rule changes, you have to re-evaluate each cell
-        for (Coordinate cell: this) {
-            cellsChangedArray.get(0).add(cell);
-        }
-
+        this.iterateCells(coordinate -> cellsChangedArray.get(0).add(coordinate));
         this.rule = rule;
     }
 
@@ -236,7 +234,6 @@ public class Simulator extends Grid {
         generation += 1;
     }
 
-
     /**
      * Sets the cell at position coordinate to the specified state
      * @param coordinate The coordinate of the cell
@@ -258,5 +255,21 @@ public class Simulator extends Grid {
     public void setCell(int x, int y, int state) {
         super.setCell(x, y, state);
         cellsChangedArray.get(0).add(new Coordinate(x, y));
+    }
+
+    /**
+     * Clears all cells between the coordinates specified
+     * @param start The starting coordinate
+     * @param end The end coordinate
+     */
+    @Override
+    public void clearCells(Coordinate start, Coordinate end) {
+        super.clearCells(start, end);
+
+        for (int x = start.getX(); x < end.getX() + 1; x++) {
+            for (int y = start.getY(); y < end.getY() + 1; y++) {
+                cellsChangedArray.get(0).add(new Coordinate(x, y));
+            }
+        }
     }
 }

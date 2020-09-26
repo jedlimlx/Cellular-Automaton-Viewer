@@ -1,5 +1,7 @@
 package sample.model;
 
+import sample.model.simulation.Grid;
+
 import java.util.Random;
 
 /**

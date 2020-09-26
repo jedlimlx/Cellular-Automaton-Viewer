@@ -2,8 +2,8 @@ package sample.model.rules.hrot;
 
 import org.junit.Test;
 import sample.model.Coordinate;
-import sample.model.Grid;
-import sample.model.Simulator;
+import sample.model.simulation.Grid;
+import sample.model.simulation.Simulator;
 
 import java.io.InputStream;
 import java.util.ArrayList;

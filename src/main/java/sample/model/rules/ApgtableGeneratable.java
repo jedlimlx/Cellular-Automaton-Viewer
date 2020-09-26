@@ -1,5 +1,7 @@
 package sample.model.rules;
 
+import sample.model.APGTable;
+
 import java.io.File;
 
 /**
@@ -11,5 +13,5 @@ public interface ApgtableGeneratable {
      * @param file The file to save the apgtable in
      * @return True if the operation was successful, false otherwise
      */
-    boolean generateApgtable(File file);
+    APGTable generateApgtable(File file);
 }

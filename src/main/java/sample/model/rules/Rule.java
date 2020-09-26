@@ -3,7 +3,7 @@ package sample.model.rules;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.paint.Color;
 import sample.model.Coordinate;
-import sample.model.Grid;
+import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
 import java.util.HashSet;

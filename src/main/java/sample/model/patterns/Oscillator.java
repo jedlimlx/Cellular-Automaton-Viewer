@@ -1,8 +1,8 @@
 package sample.model.patterns;
 
 import sample.model.Coordinate;
-import sample.model.Grid;
 import sample.model.rules.Rule;
+import sample.model.simulation.Grid;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

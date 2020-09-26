@@ -2,7 +2,7 @@ package sample.model.rules;
 
 import org.javatuples.Pair;
 import sample.model.Coordinate;
-import sample.model.Grid;
+import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
 

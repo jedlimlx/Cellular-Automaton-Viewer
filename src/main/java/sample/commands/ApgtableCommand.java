@@ -1,10 +1,13 @@
 package sample.commands;
 
 import picocli.CommandLine;
+import sample.model.APGTable;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.RuleFamily;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 @CommandLine.Command(name = "apgtable", aliases = {"ruletable"}, description = 
         "Generates an apgtable / ruletable for apgsearch")
@@ -27,16 +30,15 @@ public class ApgtableCommand implements Runnable {
             if (!(family instanceof ApgtableGeneratable))
                 throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
 
-            if ((((ApgtableGeneratable) family).generateApgtable(outputFile))) {
-                System.exit(0);
-            }
-            else {
-                System.err.println("Something went wrong.");
-                System.exit(-1);
-            }
+            APGTable apgTable = ((ApgtableGeneratable) family).generateApgtable(outputFile);
+
+            FileWriter fileWriter = new FileWriter(outputFile);
+            fileWriter.write(apgTable.compileAPGTable());
+            fileWriter.close();
         }
-        catch (UnsupportedOperationException exception) {
+        catch (UnsupportedOperationException | IOException exception) {
             System.err.println(exception.getMessage());
+            System.exit(-1);
         }
     }
 }

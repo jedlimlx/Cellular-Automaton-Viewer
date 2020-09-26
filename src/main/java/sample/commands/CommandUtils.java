@@ -1,12 +1,12 @@
 package sample.commands;
 
 import sample.model.Coordinate;
-import sample.model.Simulator;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.*;
 import sample.model.rules.hrot.history.HROTHistory;
 import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.Turmites;
+import sample.model.simulation.Simulator;
 
 import java.io.File;
 import java.io.FileNotFoundException;

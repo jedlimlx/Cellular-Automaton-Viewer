@@ -30,6 +30,8 @@ import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
 import sample.model.search.RuleSearch;
+import sample.model.simulation.Grid;
+import sample.model.simulation.Simulator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -314,24 +316,40 @@ public class MainController {
     public void flipHorizontalHandler() {
         simulator.reflectCellsX(startSelection, endSelection);  // Reflect cells in the grid
         renderCells(startSelection, endSelection);
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     @FXML // Flips selected cells vertically
     public void flipVerticalHandler() {
         simulator.reflectCellsY(startSelection, endSelection);  // Reflect cells in the grid
         renderCells(startSelection, endSelection);
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     @FXML // Rotates the selected cells clockwise
     public void rotateCWHandler() {
         simulator.rotateCW(startSelection, endSelection);  // Rotate the cells in the grid
         renderCells(startSelection, endSelection);
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     @FXML // Rotates the selected cells counter-clockwise
     public void rotateCCWHandler() {
         simulator.rotateCCW(startSelection, endSelection);  // Rotate the cells in the grid
         renderCells(startSelection, endSelection);
+
+        // Move the grid lines and selection to the front
+        selectionRectangle.toFront();
+        gridLines.toFront();
     }
 
     @FXML // Sets the generation
@@ -455,20 +473,17 @@ public class MainController {
     }
 
     public void insertCells(Grid cellsToInsert, int x, int y) {
-        Coordinate newCell;
-        for (Coordinate coord: cellsToInsert) {
-            newCell = coord.add(new Coordinate(x, y));
+        cellsToInsert.iterateCells(coord -> {
+            Coordinate newCell = coord.add(new Coordinate(x, y));
             setCell(newCell.getX() * CELL_SIZE, newCell.getY() * CELL_SIZE,
                     cellsToInsert.getCell(coord));
-        }
+        });
     }
 
     // Renders all cells
     public void renderCells() {
-        for (Coordinate coordinate: simulator) {
-            setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE,
-                    simulator.getCell(coordinate),false);
-        }
+        simulator.iterateCells(coordinate -> setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE,
+                simulator.getCell(coordinate),false));
     }
 
     // Renders cells between the start and end coordinate
@@ -698,9 +713,9 @@ public class MainController {
         if (simulator.getRule() instanceof RuleFamily) {
             try {
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Save Apgtable");
+                fileChooser.setTitle("Save APGTable");
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                        "Apgtable Files (*.table)", "*.table"));
+                        "Ruletable Files (*.rule)", "*.rule"));
                 File file = fileChooser.showSaveDialog(null);
 
                 // If operation is cancelled
@@ -709,30 +724,35 @@ public class MainController {
                         throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
                     }
 
-                    if (!((ApgtableGeneratable) simulator.getRule()).generateApgtable(file)) {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error in generating APGTable");
-                        alert.setHeaderText("The operation was unsuccessful.");
-                        alert.setContentText("The operation was unsuccessful. " +
-                                "If you suspect a bug, please report it.");
-                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                        alert.showAndWait();
-                    }
-                    else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Operation successful!");
-                        alert.setHeaderText("The operation was successful.");
-                        alert.setContentText("The operation was successful. " +
-                                "The apgtable has been saved to " + file.getAbsolutePath() + ".");
-                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                        alert.showAndWait();
-                    }
+                    APGTable apgTable = ((ApgtableGeneratable) simulator.getRule()).generateApgtable(file);
+
+                    FileWriter fileWriter = new FileWriter(file);
+                    fileWriter.write("@RULE " + file.getName().replace(".rule", "") + "\n\n");
+                    fileWriter.write("@TABLE\n");
+                    fileWriter.write(apgTable.compileAPGTable());
+                    fileWriter.close();
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Operation successful!");
+                    alert.setHeaderText("The operation was successful.");
+                    alert.setContentText("The operation was successful. " +
+                            "The apgtable has been saved to " + file.getAbsolutePath() + ".");
+                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                    alert.showAndWait();
                 }
             }
             catch (UnsupportedOperationException exception) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error in generating APGTable");
                 alert.setHeaderText("APGTable generation is not supported by this rule / rulespace!");
+                alert.setContentText(exception.getMessage());
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                alert.showAndWait();
+            }
+            catch (IOException exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error in generating APGTable");
+                alert.setHeaderText("The operation was unsuccessful.");
                 alert.setContentText(exception.getMessage());
                 alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
                 alert.showAndWait();
@@ -751,8 +771,7 @@ public class MainController {
     @FXML // Identifies selected object
     public void identifySelection() {
         Simulator simulator = new Simulator(this.simulator.getRule());
-        simulator.insertCells(this.simulator.getCells(startSelection, endSelection),
-                new Coordinate(0, 0));
+        simulator.insertCells(this.simulator.getCells(startSelection, endSelection), startSelection);
         simulator.setGeneration(this.simulator.getGeneration());  // Ensure the generation is the same
 
         // Results of the identification
@@ -1017,9 +1036,7 @@ public class MainController {
     @FXML // Creates a new pattern
     public void newPattern() {
         ArrayList<Coordinate> coordinates = new ArrayList<>();
-        for (Coordinate coordinate: simulator) {
-            coordinates.add(coordinate);
-        }
+        simulator.iterateCells(coordinates::add);
 
         // Avoiding ConcurrentModificationException
         for (Coordinate coordinate: coordinates) {
@@ -1058,7 +1075,6 @@ public class MainController {
 
     @FXML // Pastes the RLE from the clipboard
     public void pasteRLE() {
-        // TODO (Make pasting nicer)
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         String RLE = clipboard.getString();
 
@@ -1078,7 +1094,7 @@ public class MainController {
         pasteStuff.fromRLE(rleFinal.toString(), new Coordinate(0, 0));
 
         pasteSelection.getChildren().clear();
-        for (Coordinate coordinate: pasteStuff) {
+        pasteStuff.iterateCells(coordinate -> {
             Rectangle cell = new Rectangle();
             cell.setX(coordinate.getX() * CELL_SIZE);
             cell.setY(coordinate.getY() * CELL_SIZE);
@@ -1088,7 +1104,7 @@ public class MainController {
 
             // Add cell to pane and cell list
             pasteSelection.getChildren().add(cell);
-        }
+        });
 
         pasteSelection.setVisible(true);
         pasteSelection.toFront();
@@ -1173,6 +1189,10 @@ public class MainController {
 
             selectionRectangle.setVisible(true);
             mode = Mode.SELECTING;
+            
+            // Move the grid lines and selection to the front
+            selectionRectangle.toFront();
+            gridLines.toFront();
         }
         // Ctrl + Z to undo
         else if (event.getCode().equals(KeyCode.Z) && event.isControlDown()) {

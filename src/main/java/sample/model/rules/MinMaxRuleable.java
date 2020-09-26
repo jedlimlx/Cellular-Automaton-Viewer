@@ -1,7 +1,7 @@
 package sample.model.rules;
 
 import org.javatuples.Pair;
-import sample.model.Grid;
+import sample.model.simulation.Grid;
 
 /**
  * Rule families that support minimum, maximum rules implement this interface

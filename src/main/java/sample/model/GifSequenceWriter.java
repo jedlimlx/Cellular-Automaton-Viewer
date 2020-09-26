@@ -11,10 +11,11 @@ package sample.model;
 
 
 import javax.imageio.*;
-import javax.imageio.metadata.*;
-import javax.imageio.stream.*;
-import java.awt.image.*;
-import java.io.*;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.util.Iterator;
 
 public class GifSequenceWriter {
@@ -106,6 +107,7 @@ public class GifSequenceWriter {
     /**
      * Close this GifSequenceWriter object. This does not close the underlying
      * stream, just finishes off the GIF.
+     * @throws IOException Thrown when IOException is thrown
      */
     public void close() throws IOException {
         gifWriter.endWriteSequence();

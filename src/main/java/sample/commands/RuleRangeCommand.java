@@ -2,11 +2,11 @@ package sample.commands;
 
 import org.javatuples.Pair;
 import picocli.CommandLine;
-import sample.model.Grid;
-import sample.model.Simulator;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
+import sample.model.simulation.Grid;
+import sample.model.simulation.Simulator;
 
 import java.io.File;
 import java.io.FileNotFoundException;

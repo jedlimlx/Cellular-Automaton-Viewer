@@ -4,6 +4,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import sample.model.rules.Rule;
+import sample.model.simulation.Grid;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -26,7 +27,7 @@ public class Giffer {  // TODO (Progress bar or something)
     }
 
     public void addGrid(Coordinate startCoordinate, Coordinate endCoordinate,
-                            Grid pattern, Rule rule) {
+                        Grid pattern, Rule rule) {
         int width = endCoordinate.getX() - startCoordinate.getX();
         int height = endCoordinate.getY() - startCoordinate.getY();
 

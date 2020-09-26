@@ -2,9 +2,9 @@ package sample.controller.dialogs.search;
 
 import javafx.scene.control.*;
 import sample.controller.dialogs.rule.RuleDialog;
-import sample.model.Grid;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.search.RuleSearchParameters;
+import sample.model.simulation.Grid;
 
 public class RuleSearchParametersDialog extends SearchParametersDialog {
     private final Grid targetPattern;

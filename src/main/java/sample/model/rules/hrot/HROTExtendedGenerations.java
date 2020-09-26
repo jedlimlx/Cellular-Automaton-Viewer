@@ -6,10 +6,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.simulation.Grid;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -390,62 +389,51 @@ public class HROTExtendedGenerations extends BaseHROT implements MinMaxRuleable,
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public boolean generateApgtable(File file) {
-        try {
-            // Generating the APGTable
-            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-            apgTable.setWeights(weights);
-            apgTable.setBackground(background);
+    public APGTable generateApgtable(File file) {
+        // Generating the APGTable
+        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+        apgTable.setWeights(weights);
+        apgTable.setBackground(background);
 
-            // Active Variables
-            int[] active = activeStates.stream().mapToInt(Number::intValue).toArray();
-            apgTable.addUnboundedVariable("active", active);
+        // Active Variables
+        int[] active = activeStates.stream().mapToInt(Number::intValue).toArray();
+        apgTable.addUnboundedVariable("active", active);
 
-            // Active Variables
-            int[] inactive = new int[numStates - activeStates.size()];
-            for (int i = 0; i < numStates; i++) {
-                if (!activeStates.contains(i)) inactive[i] = i;
-            }
-            apgTable.addUnboundedVariable("inactive", inactive);
+        // Active Variables
+        int[] inactive = new int[numStates - activeStates.size()];
+        for (int i = 0; i < numStates; i++) {
+            if (!activeStates.contains(i)) inactive[i] = i;
+        }
+        apgTable.addUnboundedVariable("inactive", inactive);
 
-            // Death Variables
-            int[] death = new int[numStates];
-            for (int i = 0; i < death.length; i++) {
-                death[i] = i;
-            }
+        // Death Variables
+        int[] death = new int[numStates];
+        for (int i = 0; i < death.length; i++) {
+            death[i] = i;
+        }
 
-            apgTable.addUnboundedVariable("death", death);
+        apgTable.addUnboundedVariable("death", death);
 
-            // Transitions
-            for (int transition: birth) {
-                apgTable.addOuterTotalisticTransition(0, 1, transition,
+        // Transitions
+        for (int transition: birth) {
+            apgTable.addOuterTotalisticTransition(0, 1, transition,
+                    "inactive", "active");
+        }
+
+
+        for (int transition: survival) {
+            for (int state: activeStates) {
+                apgTable.addOuterTotalisticTransition(state, state, transition,
                         "inactive", "active");
             }
-
-
-            for (int transition: survival) {
-                for (int state: activeStates) {
-                    apgTable.addOuterTotalisticTransition(state, state, transition,
-                            "inactive", "active");
-                }
-            }
-
-            for (int state = 1; state < numStates; state++) {
-                apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
-                        "0", "death");
-            }
-
-            // Open the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(apgTable.compileAPGTable());
-
-            // Closing the file
-            writer.close();
-            return true;
         }
-        catch (IOException exception) {
-            return false;
+
+        for (int state = 1; state < numStates; state++) {
+            apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
+                    "0", "death");
         }
+
+        return apgTable;
     }
 
     /**

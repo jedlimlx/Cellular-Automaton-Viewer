@@ -1,11 +1,11 @@
 package sample.model.patterns;
 
 import org.javatuples.Pair;
-import sample.model.Grid;
-import sample.model.Simulator;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
+import sample.model.simulation.Grid;
+import sample.model.simulation.Simulator;
 
 import java.util.Map;
 

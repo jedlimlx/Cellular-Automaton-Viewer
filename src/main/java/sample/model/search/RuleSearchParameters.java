@@ -1,7 +1,7 @@
 package sample.model.search;
 
-import sample.model.Grid;
 import sample.model.rules.RuleFamily;
+import sample.model.simulation.Grid;
 
 public class RuleSearchParameters extends SearchParameters {
     private final RuleFamily minRule;

@@ -4,11 +4,11 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import sample.controller.MainController;
-import sample.model.Grid;
 import sample.model.patterns.Pattern;
 import sample.model.rules.RuleFamily;
 import sample.model.search.RuleSearchParameters;
 import sample.model.search.SearchProgram;
+import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
 

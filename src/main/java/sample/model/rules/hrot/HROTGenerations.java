@@ -6,10 +6,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.simulation.Grid;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -468,58 +467,47 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
      * @throws UnsupportedOperationException Thrown if the rule has state weights (state weights are not supported)
      */
     @Override
-    public boolean generateApgtable(File file) throws UnsupportedOperationException {
-        try {
-            // Generating the APGTable
-            APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-            apgTable.setWeights(weights);
-            apgTable.setBackground(background);
+    public APGTable generateApgtable(File file) throws UnsupportedOperationException {
+    // Generating the APGTable
+        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
+        apgTable.setWeights(weights);
+        apgTable.setBackground(background);
 
-            // Decay Variables
-            int[] decay = new int[numStates - 1];
-            for (int i = 0; i < decay.length; i++) {
-                if (i == 0) decay[i] = i;
-                else decay[i] = i + 1;
-            }
-
-            apgTable.addUnboundedVariable("decay", decay);
-
-            // Death Variables
-            int[] death = new int[numStates];
-            for (int i = 0; i < death.length; i++) {
-                death[i] = i;
-            }
-
-            apgTable.addUnboundedVariable("death", death);
-
-            // Transitions
-            for (int transition: birth) {
-                apgTable.addOuterTotalisticTransition(0, 1, transition,
-                        "decay", "1");
-            }
-
-
-            for (int transition: survival) {
-                apgTable.addOuterTotalisticTransition(1, 1, transition,
-                        "decay", "1");
-            }
-
-            for (int state = 1; state < numStates; state++) {
-                apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
-                        "0", "death");
-            }
-
-            // Open the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(apgTable.compileAPGTable());
-
-            // Closing the file
-            writer.close();
-            return true;
+        // Decay Variables
+        int[] decay = new int[numStates - 1];
+        for (int i = 0; i < decay.length; i++) {
+            if (i == 0) decay[i] = i;
+            else decay[i] = i + 1;
         }
-        catch (IOException exception) {
-            return false;
+
+        apgTable.addUnboundedVariable("decay", decay);
+
+        // Death Variables
+        int[] death = new int[numStates];
+        for (int i = 0; i < death.length; i++) {
+            death[i] = i;
         }
+
+        apgTable.addUnboundedVariable("death", death);
+
+        // Transitions
+        for (int transition: birth) {
+            apgTable.addOuterTotalisticTransition(0, 1, transition,
+                    "decay", "1");
+        }
+
+
+        for (int transition: survival) {
+            apgTable.addOuterTotalisticTransition(1, 1, transition,
+                    "decay", "1");
+        }
+
+        for (int state = 1; state < numStates; state++) {
+            apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
+                    "0", "death");
+        }
+
+        return apgTable;
     }
 
     /**
