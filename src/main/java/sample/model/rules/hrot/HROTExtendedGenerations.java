@@ -529,15 +529,9 @@ public class HROTExtendedGenerations extends BaseHROT implements MinMaxRuleable,
         return newRule;
     }
 
-    /**
-     * This method represents the transition function of the rule
-     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
-     * @param cellState The current state of the cell
-     * @param generations The current generation of the simulation
-     * @return The state of the cell in the next generation
-     */
+
     @Override
-    public int transitionFunc(int[] neighbours, int cellState, int generations) {
+    public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         int sum = 0;
         for (int i = 0; i < neighbours.length; i++) {
             if (activeStates.contains(neighbours[i])) {
@@ -565,8 +559,8 @@ public class HROTExtendedGenerations extends BaseHROT implements MinMaxRuleable,
     }
 
     @Override
-    public int dependsOnNeighbours(int state, int generation) {
-        if (activeStates.contains(state) || state == 0) return super.dependsOnNeighbours(state, generation);
+    public int dependsOnNeighbours(int state, int generation, Coordinate coordinate) {
+        if (activeStates.contains(state) || state == 0) return super.dependsOnNeighbours(state, generation, coordinate);
         else return (state + 1) % numStates;
     }
 }

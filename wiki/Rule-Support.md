@@ -175,9 +175,9 @@ If there is permanent deficiency, the cell will remain deficient forever until i
 This allows typically explosive rules such as B1 and B2 rules to be stable.
 
 #### Rulestring format
-R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N@<CoordCA> <br>
-R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,N<neighbourhood> <br>
-R<range>,D<permanentDeficiency?>,S<survival>,B<birth>,NW<Neighbourhood Weights> <br>
+R\<range\>,D\<permanentDeficiency?\>,S\<survival\>,B\<birth\>,N@\<CoordCA\> <br>
+R\<range\>,D\<permanentDeficiency?\>,S\<survival\>,B\<birth\>,N\<neighbourhood\> <br>
+R\<range\>,D\<permanentDeficiency?\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 
 The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/hrot/DeficientHROT.java).
 
@@ -199,6 +199,27 @@ R\<range\>,I\<states\>,S\<survival\>,B\<birth\>,NW\<Neighbourhood Weights\> <br>
 
 The code that simulates HROT Integer rules can be found [here](../src/main/java/sample/model/rules/hrot/IntegerHROT.java).
 
+## Regenerating Generations
+This is an extension of generations rules that allows dying to regenerating (ie. progress back to the alive state).
+
+* A dead cell
+    * Goes to the birth state if it has X neighbours and X is in birth
+    * If not, it remains dead
+* An alive cell
+    * Remains alive if it has X neighbours and X is in survival
+    * If not it goes to state 2
+* A dying cell (state 2 and above)
+    * Goes the state (n - 1) if it has X neighbours and X is in regen birth
+    * Remains at the same state if it has X neighbours and X is in regen survival
+    * Else, it progresses to the (n + 1) % m state
+
+### Rulestring format
+R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,N\<neighbourhood\> <br>
+R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,N@\<CoordCA\> <br>
+R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,NW\<Neighbourhood Weights\> <br>
+R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,NW\<Neighbourhood Weights\>,\<State Weights\> <br>
+
+The code that simulates HROT Regenerating Generations can be found [here](../src/main/java/sample/model/rules/hrot/HROTRegeneratingGenerations.java).
 
 # Isotropic Non-Totalistic (INT)
 Support for INT rules is planned.
@@ -229,8 +250,10 @@ R\<range\>,C\<states\>,W\<wolframNumber\> <br>
 History rules have 7 or more states. They are based on the HistoricalLife rule. See [here](https://conwaylife.com/wiki/OCA:LifeHistory) 
 for more information.
 
-History rules are supported by:
+History rules are (planned to be) supported by:
 - [x] 2-state HROT
+- [ ] HROT Generations
+- [ ] HROT Extended Generations
 
 
 # B0 rules

@@ -135,7 +135,7 @@ public class Simulator extends Grid {
         updateBounds();
 
         HashMap<Integer, Object[]> hashMap = new HashMap<>();
-        hashMap.put(this.hashCode(), new Object[]{generation, size(), getBounds(), this.deepCopy()});
+        hashMap.put(this.hashCode(), new Object[]{generation, getPopulation(), getBounds(), this.deepCopy()});
 
         // List of grids to find min, max rule
         ArrayList<Grid> grids = new ArrayList<>();
@@ -167,7 +167,7 @@ public class Simulator extends Grid {
                 int displacementY2 = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue1()).getY() -
                         getBounds().getValue1().getY();
 
-                if ((int) hashMap.get(hash)[1] != size() || displacementX != displacementX2 ||
+                if ((int) hashMap.get(hash)[1] != getPopulation() || displacementX != displacementX2 ||
                         displacementY != displacementY2)
                     continue;
 
@@ -201,7 +201,7 @@ public class Simulator extends Grid {
                 grids.add(deepCopy2);
 
                 // Adding to the hashmap
-                hashMap.put(hash, new Object[]{generation, size(), getBounds(), deepCopy});
+                hashMap.put(hash, new Object[]{generation, getPopulation(), getBounds(), deepCopy});
 
                 // If it exceeds the maximum bound
                 if (checkBoundExpansion) {

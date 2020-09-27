@@ -116,7 +116,7 @@ public class Turmites extends RuleFamily {
     }
 
     @Override
-    public int transitionFunc(int[] neighbours, int cellState, int generations) {
+    public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         int newColour = getGridColour(cellState);
 
         // Key is (turmiteState, gridState)

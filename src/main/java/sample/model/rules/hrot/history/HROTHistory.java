@@ -2,6 +2,7 @@ package sample.model.rules.hrot.history;
 
 import javafx.scene.paint.Color;
 import sample.model.APGTable;
+import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
@@ -132,15 +133,8 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
         return apgTable;
     }
 
-    /**
-     * This method represents the transition function of the rule
-     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
-     * @param cellState The current state of the cell
-     * @param generations The current generation of the simulation
-     * @return The state of the cell in the next generation
-     */
     @Override
-    public int transitionFunc(int[] neighbours, int cellState, int generations) {
+    public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         if (cellState == 6) return cellState;
 
         int sum = 0;
@@ -194,8 +188,8 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
     }
 
     @Override
-    public int dependsOnNeighbours(int state, int generation) {
+    public int dependsOnNeighbours(int state, int generation, Coordinate coordinate) {
         if (state == 6) return 6;
-        return super.dependsOnNeighbours(state, generation);
+        return super.dependsOnNeighbours(state, generation, coordinate);
     }
 }

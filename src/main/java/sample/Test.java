@@ -1,11 +1,10 @@
 package sample;
 
-import sample.model.NeighbourhoodGenerator;
-
-import java.util.Arrays;
+import sample.model.rules.isotropic.R1MooreINT;
 
 public class Test {
     public static void main(String[] args) {
-        System.out.println(Arrays.toString(NeighbourhoodGenerator.generateCross(2)));
+        R1MooreINT mooreINT = new R1MooreINT("2n3");
+        System.out.println(mooreINT.getSortedTransitionTable());
     }
 }

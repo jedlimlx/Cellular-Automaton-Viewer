@@ -141,8 +141,10 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      * @param end The end coordinate
      */
     public void clearCells(Coordinate start, Coordinate end) {
-        Coordinate blockStart = getBlockCoordinate(start);
-        Coordinate blockEnd = getBlockCoordinate(end);
+        Coordinate blockStart = new Coordinate(getBlockCoordinate(start).getX() + BLOCK_SIZE,
+                getBlockCoordinate(start).getY() + BLOCK_SIZE);
+        Coordinate blockEnd = new Coordinate(getBlockCoordinate(end).getX() - BLOCK_SIZE,
+                getBlockCoordinate(end).getY() - BLOCK_SIZE);
 
         // Removing all the blocks
         for (int x = blockStart.getX(); x < blockEnd.getX() + 1; x++) {
@@ -154,11 +156,12 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
         // Removing the remaining cells
         for (int x = start.getX(); x < end.getX() + 1; x++) {
             for (int y = start.getY(); y < end.getY() + 1; y++) {
-                if (y >= blockStart.getY() && y <= blockEnd.getY()) {
-                    if (x >= blockStart.getX() || x <= blockEnd.getX() + BLOCK_SIZE) {
-                        x = blockEnd.getX() + BLOCK_SIZE + 1;
-                    }
+                /* TODO (Fix the delete cells bug)
+                if (x >= blockStart.getX() && x <= blockEnd.getX() &&
+                        y >= blockStart.getY() && y <= blockEnd.getY()) {
+                    x = blockEnd.getX() + 1;
                 }
+                */
 
                 setCell(x, y, 0);
             }
@@ -503,7 +506,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
         Arrays.sort(gridArray1);
         Arrays.sort(gridArray2);
 
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < getPopulation(); i++) {
             if (gridArray1[i].subtract(gridArray2[i]).getX() != displacementX ||
                     gridArray1[i].subtract(gridArray2[i]).getY() != displacementY) {
                 return false;

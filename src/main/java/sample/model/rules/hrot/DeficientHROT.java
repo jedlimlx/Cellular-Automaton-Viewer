@@ -554,15 +554,8 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
         return newRule;
     }
 
-    /**
-     * This method represents the transition function of the rule
-     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
-     * @param cellState The current state of the cell
-     * @param generations The current generation of the simulation
-     * @return The state of the cell in the next generation
-     */
     @Override
-    public int transitionFunc(int[] neighbours, int cellState, int generations) {
+    public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         int sum = 0;
         HashSet<Integer> forbiddenTransitions = new HashSet<>();
         for (int i = 0; i < neighbours.length; i++) {

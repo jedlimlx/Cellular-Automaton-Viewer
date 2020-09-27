@@ -20,6 +20,8 @@ Welcome to the CAViewer wiki!
      * [2 state](Sample-Rules.md#2-state)
      * [Generations](Sample-Rules.md#generations)
      * [Extended Generations](Sample-Rules.md#extended-generations)
+     * [Deficient](Sample-Rules.md#deficient-rules)
+     * [Integer](Sample-Rules.md#integer-rules)
 * [Search Programs](Search-Programs.md)
   * [Rule Search](Search-Programs.md#rule-search)
 * [Code Documentation](../javadoc/index.html)

@@ -5,6 +5,7 @@ import sample.model.Coordinate;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Represents a family of rules or a rulespace
@@ -49,7 +50,24 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * This method should be called whenever the parameters of a rule are updated.
      * For non-strobing rules, the background is {0}.
      */
-    public abstract void updateBackground();
+    public void updateBackground() {
+        int currentState = 0;
+        ArrayList<Integer> bgStates = new ArrayList<>();
+        while (!bgStates.contains(currentState)) {
+            bgStates.add(currentState);
+
+            int[] neighbours = new int[getNeighbourhood().length];
+            Arrays.fill(neighbours, currentState);
+            currentState = transitionFunc(neighbours, currentState, 0, new Coordinate());
+        }
+
+        background = new int[bgStates.size() - bgStates.indexOf(currentState)];
+        for (int i = bgStates.indexOf(currentState); i < bgStates.size(); i++) {
+            background[i - bgStates.indexOf(currentState)] = bgStates.get(i);
+        }
+
+        alternatingPeriod = background.length;
+    }
 
     /**
      * The regexes that will match a valid rulestring
@@ -136,7 +154,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
             for (int x = bounds.getValue0().getX() - 5; x < bounds.getValue1().getX() + 5; x++) {
                 for (int y = bounds.getValue0().getY() - 5; y < bounds.getValue1().getY() + 5; y++) {
                     coordinate = new Coordinate(x, y);
-                    if (dependsOnNeighbours(grids[i].getCell(coordinate), i) != -1) continue;
+                    if (dependsOnNeighbours(grids[i].getCell(coordinate), i, coordinate) != -1) continue;
 
                     // Computes the neighbourhood sum for every cell
                     int[] neighbours = new int[getNeighbourhood(i).length + 2];

@@ -128,7 +128,7 @@ public class NeighbourhoodSelector extends GridPane {
             }
         }
 
-        onWeightsChanged.run();
+        if (onWeightsChanged != null) onWeightsChanged.run();
     }
 
     /**

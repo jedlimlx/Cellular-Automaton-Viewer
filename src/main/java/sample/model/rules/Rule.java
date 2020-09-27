@@ -57,18 +57,20 @@ public abstract class Rule {
      * @param neighbours The cell's neighbours in the order of the neighbourhood provided
      * @param cellState The current state of the cell
      * @param generations The current generation of the simulation
+     * @param coordinate The coordinate of the cell
      * @return The state of the cell in the next generation
      */
-    public abstract int transitionFunc(int[] neighbours, int cellState, int generations);
+    public abstract int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate);
 
     /**
      * If the next state of the cell depends on its neighbours, return -1.
      * If not return the next state of the cell.
      * @param state The current state of the cell
      * @param generation The generation of the simulation
+     * @param coordinate The coordinate of the cell
      * @return Returns -1 or the next state of the cell
      */
-    public int dependsOnNeighbours(int state, int generation) {
+    public int dependsOnNeighbours(int state, int generation, Coordinate coordinate) {
         return -1;
     }
 
@@ -166,7 +168,7 @@ public abstract class Rule {
             prevState = gridCopy.getCell(cell);
 
             // Getting neighbour states
-            if (dependsOnNeighbours(convertState(prevState, generation), generation) == -1) {
+            if (dependsOnNeighbours(convertState(prevState, generation), generation, cell) == -1) {
                 neighbours = new int[neighbourhood.length];
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
                     for (int i = 0; i < neighbourhood.length; i++) {
@@ -184,10 +186,10 @@ public abstract class Rule {
                 // Call the transition function on the new state
                 // Don't forget to convert back to the current background
                 newState = convertState(transitionFunc(neighbours,
-                        convertState(prevState, generation), generation), generation + 1);
+                        convertState(prevState, generation), generation, cell), generation + 1);
             }
             else {
-                newState = convertState(dependsOnNeighbours(convertState(prevState, generation), generation),
+                newState = convertState(dependsOnNeighbours(convertState(prevState, generation), generation, cell),
                         generation + 1);
             }
 

@@ -23,6 +23,12 @@ public abstract class BaseHROT extends RuleFamily {
     protected final static String hrotTransitions = "(((\\d,(?=\\d))|(\\d-(?=\\d))|\\d)+)?";
 
     /**
+     * The maximum possible neighbourhood count.
+     * Used for B0 and min, max rule generation.
+     */
+    private int maxNeighbourhoodCount;
+
+    /**
      * Sets the neighbourhood of the HROT rule
      * @param neighbourhood Neighbourhood of the HROT rule
      */

@@ -3,10 +3,11 @@ package sample.model.rules.misc;
 import sample.model.Coordinate;
 import sample.model.Utils;
 import sample.model.rules.RuleFamily;
-import sample.model.simulation.Grid;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a 1D cellular automaton rule
@@ -144,15 +145,8 @@ public class OneDimensional extends RuleFamily {
         return neighbourhood;
     }
 
-    /**
-     * The transition function of the 1D rule
-     * @param neighbours The cell's neighbours in the order of the neighbourhood provided
-     * @param cellState The current state of the cell
-     * @param generations The current generation of the simulation
-     * @return Returns the new state of the cell
-     */
     @Override
-    public int transitionFunc(int[] neighbours, int cellState, int generations) {
+    public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         StringBuilder transitionString = new StringBuilder();
         for (int neighbour : neighbours) {
             transitionString.append(neighbour);
@@ -161,55 +155,5 @@ public class OneDimensional extends RuleFamily {
         Integer newState = transitions.get(transitionString.toString());
         if (newState == null) return 0;
         return newState;
-    }
-
-    @Override
-    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation) throws IllegalArgumentException {
-        if (cellsChanged.size() != alternatingPeriod)
-            throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
-
-        Grid gridCopy = grid.deepCopy();
-        HashSet<Coordinate> cellsToCheck = new HashSet<>();
-        Coordinate[] neighbourhood = getNeighbourhood(generation);
-
-        // Generate set of cells to run update function on
-        // Use a set to avoid duplicates
-        for (Set<Coordinate> cellSet: cellsChanged) {
-            for (Coordinate cell: cellSet) {
-                for (Coordinate neighbour: neighbourhood) {
-                    cellsToCheck.add(cell.subtract(neighbour));
-                }
-            }
-        }
-
-        cellsChanged.get(0).clear();
-
-        int[] neighbours;
-        int newState, prevState;
-        for (Coordinate cell: cellsToCheck) {
-            prevState = gridCopy.getCell(cell);
-
-            // Getting neighbour states
-            if (prevState == 0) {
-                neighbours = new int[neighbourhood.length];
-                for (int i = 0; i < neighbourhood.length; i++) {
-                    // Converting based on background
-                    neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
-                }
-
-                // Call the transition function on the new state
-                // Don't forget to convert back to the current background
-                newState = convertState(transitionFunc(neighbours,
-                        convertState(prevState, generation), generation), generation + 1);
-            }
-            else {
-                newState = prevState;
-            }
-
-            if (newState != prevState) {
-                cellsChanged.get(0).add(cell);
-                grid.setCell(cell, newState);
-            }
-        }
     }
 }

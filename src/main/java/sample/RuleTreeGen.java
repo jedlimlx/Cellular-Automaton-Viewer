@@ -1,5 +1,6 @@
 package sample;
 
+import sample.model.Coordinate;
 import sample.model.rules.hrot.IntegerHROT;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class RuleTreeGen {
         System.arraycopy(a, 0, neighbours, 0, 8);
 
         IntegerHROT hrot = new IntegerHROT("R1,I5,S2,3,B3,N+");
-        return hrot.transitionFunc(neighbours, a[8], 0);
+        return hrot.transitionFunc(neighbours, a[8], 0, new Coordinate(0, 0));
     }
 
     final static int numParams = numNeighbors + 1;
