@@ -2,9 +2,7 @@ package sample.model.simulation;
 
 import org.javatuples.Pair;
 import sample.model.Coordinate;
-import sample.model.patterns.Oscillator;
-import sample.model.patterns.Pattern;
-import sample.model.patterns.Spaceship;
+import sample.model.patterns.*;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
@@ -110,7 +108,7 @@ public class Simulator extends Grid {
      * @return The identified pattern
      */
     public Pattern identify() {
-        return identify(5000);
+        return identify(500);
     }
 
     /**
@@ -130,12 +128,21 @@ public class Simulator extends Grid {
      * @return The identified pattern
      */
     public Pattern identify(int maxPeriod, boolean checkBoundExpansion, int maxBound) {
-        // TODO (Identification for guns, puffers, rakes and replicators)
+        // TODO (More specific identification for guns and replicators)
         // Hash map to store hashes among other things
         updateBounds();
 
         HashMap<Integer, Object[]> hashMap = new HashMap<>();
         hashMap.put(this.hashCode(), new Object[]{generation, getPopulation(), getBounds(), this.deepCopy()});
+
+        // Population list for linear growth identification
+        int[] popList = new int[maxPeriod + 1];
+
+        // Stuff for zz identification
+        int[] popList2 = new int[maxPeriod + 2];
+        popList2[0] = getPopulation();
+
+        ArrayList<Pair<Double, Double>> pointList = new ArrayList<>();
 
         // List of grids to find min, max rule
         ArrayList<Grid> grids = new ArrayList<>();
@@ -200,14 +207,38 @@ public class Simulator extends Grid {
                 deepCopy2.setBackground(rule.convertState(0, generation));
                 grids.add(deepCopy2);
 
-                // Adding to the hashmap
+                // Adding to the hashmap and population list
                 hashMap.put(hash, new Object[]{generation, getPopulation(), getBounds(), deepCopy});
+
+                popList[i] = getPopulation();
+                popList2[i + 1] = getPopulation() + popList2[i];
+                if (i > maxPeriod / 2) pointList.add(new Pair<>(Math.log10(i), Math.log10(popList2[i] + 1)));
 
                 // If it exceeds the maximum bound
                 if (checkBoundExpansion) {
                     if ((getBounds().getValue1().getX() - getBounds().getValue0().getX()) > maxBound ||
                             (getBounds().getValue1().getY() - getBounds().getValue0().getY()) > maxBound) {
                         return null;
+                    }
+                }
+
+                // Checking for linear growth / zz_WHATEVER every 50 generations
+                if (i % 50 == 0) {
+                    // Taking note of the generation
+                    firstPhaseGeneration = initialGeneration;
+
+                    // Checking for linear growth
+                    int popPeriod = LinearGrowth.deepPeriod(popList, i / 3, 1);
+                    if (popPeriod != -1) {
+                        pattern = new LinearGrowth((Rule) ((RuleFamily) rule).clone(), this.deepCopy(), popPeriod);
+                        break;
+                    }
+
+                    // Checking for zz_WHATEVER
+                    double power = PowerLawPattern.regress(pointList);
+                    if (power > 1.10) {
+                        pattern = new PowerLawPattern((Rule) ((RuleFamily) rule).clone(), this.deepCopy(), power);
+                        break;
                     }
                 }
             }

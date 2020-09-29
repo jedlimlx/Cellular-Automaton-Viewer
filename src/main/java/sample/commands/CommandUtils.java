@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 
 public class CommandUtils {
     public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTGenerations(),
-            new HROTExtendedGenerations(), new IntegerHROT(), new DeficientHROT(), new OneDimensional(),
-            new Turmites()};
+            new HROTExtendedGenerations(), new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(),
+            new OneDimensional(), new Turmites()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 

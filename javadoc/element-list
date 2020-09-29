@@ -12,6 +12,7 @@ sample.model.patterns
 sample.model.rules
 sample.model.rules.hrot
 sample.model.rules.hrot.history
+sample.model.rules.isotropic
 sample.model.rules.misc
 sample.model.search
 sample.model.simulation

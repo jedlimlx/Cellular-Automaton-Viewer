@@ -45,7 +45,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     /**
      * The size of the blocks used
      */
-    private final int BLOCK_SIZE = 8;
+    private final int BLOCK_SIZE = 50;
 
     /**
      * Constructs a grid with an empty pattern and a background of 0.

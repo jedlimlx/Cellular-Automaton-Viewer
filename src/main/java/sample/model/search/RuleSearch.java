@@ -54,7 +54,8 @@ public class RuleSearch extends SearchProgram {
             Pattern result = simulator.identify(searchParameters.getMaxPeriod(), true, 40);
             if (result != null && !result.toString().equals("Still Life") && !known.contains(result.toString())) {
                 add(searchResults, result);
-                add(known, result.toString());  // To avoid duplicate speeds & whatnot
+                if (!result.toString().contains("zz") && !result.toString().contains("Linear Growth"))
+                    add(known, result.toString());  // To avoid duplicate speeds & whatnot
             }
 
             synchronized (this) {  // To avoid race conditions

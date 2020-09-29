@@ -22,6 +22,8 @@ Adding custom rule families
 1. Create a new class for your rule family. It should inherit from [RuleFamily.java].
 2. Implement the necessary methods from [RuleFamily.java] and [Rule.java].
 
+You may choose to inherit [BaseHROT.java] if you are implementing any HROT variants.
+
 Do ensure that you also add a dummy constructor with no arguments. 
 This ensures that Jackson is able to construct the rule from the serialised JSON stored in settings.json.
 
@@ -45,6 +47,7 @@ so that the values in these widgets do not change when the rulespace is changed.
 
 [Rule.java]: ../src/main/java/sample/model/rules/Rule.java
 [RuleFamily.java]: ../src/main/java/sample/model/rules/RuleFamily.java
+[BaseHROT.java]: ../src/main/java/sample/model/rules/hrot/BaseHROT.java
 [ApgtableGeneratable.java]: ../src/main/java/sample/model/rules/ApgtableGeneratable.java
 [MinMaxRuleable.java]: ../src/main/java/sample/model/rules/MinMaxRuleable.java
 [RuleWidget.java]: ../src/main/java/sample/controller/dialogs/rule/RuleWidget.java

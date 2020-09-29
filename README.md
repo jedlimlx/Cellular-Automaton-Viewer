@@ -158,10 +158,10 @@ Supported / Planned Rulespaces
         - [x] B0 Rules
         - [x] Neighbourhood Weights
         - [x] Apgtable Generation for all rules
-    - [ ] HROT Regenerating Generations
-        - [ ] B0 Rules
-        - [ ] Neighbourhood Weights
-        - [ ] Apgtable Generation for all rules
+    - [x] HROT Regenerating Generations
+        - [x] B0 Rules
+        - [x] Neighbourhood Weights
+        - [x] Apgtable Generation for all rules
     - [ ] 3-state HROT
     - [ ] Integer HROT
         - [x] Weighted Rules
@@ -187,6 +187,8 @@ Supported / Planned Rulespaces
 - [ ] Naive Rules
     - [ ] Custom Reading Orders
 - [ ] Alternating Rules
+    - [ ] Strobing Rules
+    - [ ] Apgtable Generation
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA
