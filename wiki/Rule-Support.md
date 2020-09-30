@@ -213,7 +213,7 @@ This is an extension of generations rules that allows dying to regenerating (ie.
     * Remains at the same state if it has X neighbours and X is in regen survival
     * Else, it progresses to the (n + 1) % m state
 
-### Rulestring format
+#### Rulestring format
 R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,N\<neighbourhood\> <br>
 R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,N@\<CoordCA\> <br>
 R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,S\<regenSurvival\>,NW\<Neighbourhood Weights\> <br>
@@ -222,18 +222,33 @@ R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,
 The code that simulates HROT Regenerating Generations can be found [here](../src/main/java/sample/model/rules/hrot/HROTRegeneratingGenerations.java).
 
 # Isotropic Non-Totalistic (INT)
-Support for INT rules is planned.
+In INT rules, the transitions take into account not only the total number of live neighbors of a cell, 
+but also the relative configuration of those neighbours. 
+[See](https://conwaylife.com/wiki/Isotropic_non-totalistic_Life-like_cellular_automaton) for more information.
 
 #### Supported / Planned INT Neighbourhoods
-- [ ] Range 1 Moore Isotropic Non-Totalistic
+- [x] Range 1 Moore Isotropic Non-Totalistic
 - [ ] Range 1 Hexagonal Isotropic Non-Totalistic
 - [ ] Range 2 Von Neumann Isotropic Non-Totalistic
 - [ ] Range 2 Checkerboard Isotropic Non-Totalistic
-- [ ] Range 2 Far Corners Isotropic Non-Totalistic
-- [ ] Range 2 Far Edges Isotropic Non-Totalistic
-- [ ] Range 2 Knight Life Isotropic Non-Totalistic
-- [ ] Range 2 Cross Isotropic Non-Totalistic
+- [x] Range 2 Far Corners Isotropic Non-Totalistic
+- [x] Range 2 Knight Life Isotropic Non-Totalistic
+- [x] Range 2 Cross Isotropic Non-Totalistic
 - [ ] Range 3 Cross Isotropic Non-Totalistic
+- [x] Range 3 Far Edges Isotropic Non-Totalistic
+
+
+## 2 state <!-- 1 -->
+* Cells have 2 states, dead and alive. <br>
+* Cells are born (turn from dead to alive) if their neighbourhood configuration is in birth. <br>
+* Cells stay alive  if their neighbourhood configuration is in birth. <br>
+* If not, the cell dies (turn from alive to dead). <br>
+
+B0 rules are supported via emulation by alternating rules. 
+
+Apgtable generation is supported all rules. <br>
+
+The code that simulates 2-state INT rules can be found [here](../src/main/java/sample/model/rules/isotropic/rules/INT.java).
 
 
 # 1D Cellular Automaton
@@ -247,13 +262,31 @@ R\<range\>,C\<states\>,W\<wolframNumber\> <br>
 
 
 # History Rules
-History rules have 7 or more states. They are based on the HistoricalLife rule. See [here](https://conwaylife.com/wiki/OCA:LifeHistory) 
-for more information.
+History rules have 7 or more states. They are based on the HistoricalLife rule and use the notation 
+[R]History where [R] is the rest of the rulestring.
+See [here](https://conwaylife.com/wiki/OCA:LifeHistory) for more information.
 
 History rules are (planned to be) supported by:
 - [x] 2-state HROT
 - [ ] HROT Generations
 - [ ] HROT Extended Generations
+- [ ] 2-state INT
+- [ ] INT Generations
+- [ ] INT Extended Generations
+
+
+# Symbiosis Rules
+Symbiosis rules are an extension of regular 2-state rules. 
+In Symbiosis rules, opposite states will stabilise each other.
+B0 symbiosis rules are undefined. Similar to history rules, the notation is [R]Symbiosis.
+
+Symbiosis rules are (planned to be) supported by:
+- [x] 2-state HROT
+- [ ] HROT Generations
+- [ ] HROT Extended Generations
+- [ ] 2-state INT
+- [ ] INT Generations
+- [ ] INT Extended Generations
 
 
 # B0 rules

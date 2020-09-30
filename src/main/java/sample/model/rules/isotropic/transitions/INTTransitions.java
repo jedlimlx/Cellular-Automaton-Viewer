@@ -1,9 +1,8 @@
-package sample.model.rules.isotropic;
+package sample.model.rules.isotropic.transitions;
 
 import sample.model.Coordinate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class INTTransitions {
@@ -38,6 +37,15 @@ public abstract class INTTransitions {
     }
 
     /**
+     * Sets the transition string of the INT transitions
+     * @param string THe transition string
+     */
+    public void setTransitionString(String string) {
+        parseTransitions(string);
+        transitionString = canoniseTransitions();
+    }
+
+    /**
      * Parses transitions from the provided string
      * @param string The string representation of the INT transitions
      */
@@ -51,10 +59,18 @@ public abstract class INTTransitions {
 
     /**
      * Adds the provided transition to the transitions table and the sorted.
-     * The various symmetries of the INT transition should be applied here.
      * @param transition The INT transition to be added
      */
-    protected abstract void addTransition(ArrayList<Integer> transition);
+    protected void addTransition(ArrayList<Integer> transition) {
+        transitionTable.addAll(getSymmetries(transition));
+    }
+
+    /**
+     * Applies the symmetries to the required transitions
+     * @param transition The transition on which the symmetries will be applied
+     * @return Returns the applied symmetries
+     */
+    protected abstract ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition);
 
     /**
      * Checks if the provided neighbours of the cell satisfy the INT transitions
@@ -62,7 +78,12 @@ public abstract class INTTransitions {
      * @return Returns true if the condition is satisfied, false otherwise
      */
     public boolean checkTransition(int[] neighbours) {
-        return transitionTable.contains(Arrays.asList(neighbours));
+        ArrayList<Integer> neighboursList = new ArrayList<>();
+        for (int neighbour: neighbours) {
+            neighboursList.add(neighbour);
+        }
+
+        return transitionTable.contains(neighboursList);
     }
 
     /**
@@ -88,8 +109,24 @@ public abstract class INTTransitions {
     }
 
     /**
+     * Gets the transition table of the INT transition
+     * @return Returns the transition table
+     */
+    public HashSet<ArrayList<Integer>> getTransitionTable() {
+        return transitionTable;
+    }
+
+    /**
+     * Gets the transition string of the INT transitions
+     * @return Returns the transition string of the INT transitions
+     */
+    public String getTransitionString() {
+        return transitionString;
+    }
+
+    /**
      * Makes a deep copy of the INT transitions
      * @return Returns the deep copy
      */
-    protected abstract Object clone();
+    public abstract Object clone();
 }

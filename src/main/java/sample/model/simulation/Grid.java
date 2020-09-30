@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
  * <pre>
  * Grid grid = new Grid();
  * grid.fromRLE("bo$obo$o2bo$bobo$2bo!", new Coordinate(0, 0))
- * for (Coordinate cell: grid) {
+ * iterateCells(cell -> {
  *      System.out.println(cell);
- * }
+ * });
  * </pre>
  */
 public class Grid implements Iterable<Block>, Iterator<Block> {
@@ -45,7 +45,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     /**
      * The size of the blocks used
      */
-    private final int BLOCK_SIZE = 50;
+    private final int BLOCK_SIZE = 8;
 
     /**
      * Constructs a grid with an empty pattern and a background of 0.

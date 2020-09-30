@@ -7,8 +7,6 @@ import sample.model.NeighbourhoodGenerator;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
 
-import java.io.File;
-
 /**
  * Represents a HROT History rule.
  */
@@ -89,11 +87,10 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
 
     /**
      * Generates an apgtable for apgsearch to use
-     * @param file The file to save the apgtable in
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable(File file) {
+    public APGTable generateApgtable() {
         // Generating the APGTable
         APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
         apgTable.setWeights(weights);

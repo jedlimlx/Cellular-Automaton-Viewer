@@ -19,9 +19,9 @@ import java.util.Set;
  * Simulator simulator = new Simulator(new HROT("B3/S23"));
  * simulator.fromRLE("bo$obo$o2bo$bobo$2bo!", new Coordinate(0, 0));
  * simulator.step();
- * for (Coordinate cell: simulator) {
+ * iterateCells(cell -> {
  *      System.out.println(cell);
- * }
+ * });
  * </pre>
  */
 public class Simulator extends Grid {

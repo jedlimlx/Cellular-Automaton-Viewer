@@ -56,6 +56,7 @@ public class PowerLawPattern extends Pattern {
 
     /**
      * Finds the gradient of a list of points
+     * @return Returns the gradient of the list of points
      */
     public static double regress(ArrayList<Pair<Double, Double>> pointList) {
         double cumX = 0, cumY = 0, cumVar = 0, cumCov = 0; // id

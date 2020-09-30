@@ -724,7 +724,7 @@ public class MainController {
                         throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
                     }
 
-                    APGTable apgTable = ((ApgtableGeneratable) simulator.getRule()).generateApgtable(file);
+                    APGTable apgTable = ((ApgtableGeneratable) simulator.getRule()).generateApgtable();
 
                     FileWriter fileWriter = new FileWriter(file);
                     fileWriter.write("@RULE " + file.getName().replace(".rule", "") + "\n\n");

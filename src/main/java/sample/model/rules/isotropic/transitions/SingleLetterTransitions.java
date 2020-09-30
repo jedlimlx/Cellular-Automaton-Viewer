@@ -1,4 +1,4 @@
-package sample.model.rules.isotropic;
+package sample.model.rules.isotropic.transitions;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * Handles INT transitions that consist of single letters (e.g. 2n3-q4c8, 2an4w)
  */
 public abstract class SingleLetterTransitions extends INTTransitions {
-    private static HashMap<Integer, HashMap<Character, ArrayList<Integer>>> transitionLookup = null;
+    protected HashMap<Integer, HashMap<Character, ArrayList<Integer>>> transitionLookup = null;
 
     /**
      * Constructs INT transitions that consist of single letters
@@ -64,6 +64,7 @@ public abstract class SingleLetterTransitions extends INTTransitions {
     @Override
     protected void parseTransitions(String string) {
         Matcher matcher = Pattern.compile(getRegex()).matcher(string);
+        sortedTransitionTable.clear();
 
         // Looping through all the transitions
         while (matcher.find()) {
@@ -136,19 +137,19 @@ public abstract class SingleLetterTransitions extends INTTransitions {
                 continue;
             }
 
-            regex.append(number).append("[");  // [number][possibleChars] (e.g. 2ak)
+            regex.append(number).append("-[");  // [number]-[possibleChars] (e.g. 2-ak)
             for (char character: transitionLookup.get(number).keySet()) {
                 regex.append(character);
             }
 
-            regex.append("]*|").append(number).append("-[");  // [number]-[possibleChars] (e.g. 2-an)
+            regex.append("]+|").append(number).append("[");  // [number][possibleChars] (e.g. 2an)
             for (char character: transitionLookup.get(number).keySet()) {
                 if (character == '!') break;
                 regex.append(character);
             }
 
-            if (counter < transitionLookup.size() - 1) regex.append("]+|");  // Pipe for OR
-            else regex.append("]+)");  // Closing off the regex
+            if (counter < transitionLookup.size() - 1) regex.append("]*|");  // Pipe for OR
+            else regex.append("]*)");  // Closing off the regex
             counter++;
         }
 

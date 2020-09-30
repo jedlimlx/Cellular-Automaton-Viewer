@@ -13,7 +13,6 @@ import java.io.IOException;
         "Generates an apgtable / ruletable for apgsearch")
 public class ApgtableCommand implements Runnable {
     @CommandLine.Option(names = {"-r", "--rulestring"}, description = "Rulestring of the rule",
-
             required = true)
     private String ruleString;
     
@@ -30,9 +29,11 @@ public class ApgtableCommand implements Runnable {
             if (!(family instanceof ApgtableGeneratable))
                 throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
 
-            APGTable apgTable = ((ApgtableGeneratable) family).generateApgtable(outputFile);
+            APGTable apgTable = ((ApgtableGeneratable) family).generateApgtable();
 
             FileWriter fileWriter = new FileWriter(outputFile);
+            fileWriter.write("@RULE" + outputFile.getName().replace(".rule", ""));
+            fileWriter.write("\n@TABLE\n");
             fileWriter.write(apgTable.compileAPGTable());
             fileWriter.close();
         }

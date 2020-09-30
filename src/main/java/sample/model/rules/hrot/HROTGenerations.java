@@ -8,7 +8,6 @@ import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
 import sample.model.simulation.Grid;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -462,12 +461,11 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
 
     /**
      * Generates an apgtable for apgsearch to use
-     * @param file The file to save the apgtable in
      * @return True if the operation was successful, false otherwise
      * @throws UnsupportedOperationException Thrown if the rule has state weights (state weights are not supported)
      */
     @Override
-    public APGTable generateApgtable(File file) throws UnsupportedOperationException {
+    public APGTable generateApgtable() throws UnsupportedOperationException {
     // Generating the APGTable
         APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
         apgTable.setWeights(weights);

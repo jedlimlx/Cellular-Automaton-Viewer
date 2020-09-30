@@ -47,6 +47,9 @@ public class LinearGrowth extends Pattern {
     /**
      * Gets the period of an interleaving of degree-d polynomials.
      * Totally not stolen from apgsearch 1.x.
+     * @param sequence The sequence of values of the polynomial
+     * @param maxPeriod The max period of the polynomial
+     * @param degree The degree of the polynomial
      * @return Returns the period of the polynomial (-1 for no period)
      */
     public static int deepPeriod(int[] sequence, int maxPeriod, int degree) {

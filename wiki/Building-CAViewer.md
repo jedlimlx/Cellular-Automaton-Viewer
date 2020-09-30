@@ -5,8 +5,6 @@
 * javatuples for tuples
 * Json-Java for reading and writing to *.json files
 * Jackson for serialising and deserialising objects to *.json files
-* ND4J for efficient giffing
-* And many other libraries that are needed by other libraries.
 
 ## Compiling from Source
 CAViewer v2 uses Gradle as a build system.

@@ -2,7 +2,7 @@
 
 #### TODO
 - [ ] More high tech repetition detection function
-- [ ] Identification for linear growth patterns, replicators
+- [x] Identification for linear growth patterns, replicators
 - [ ] Fine tune RNG function manually
 - [ ] Fine tune RNG function via genetic algorithms?
 - [ ] Object seperation?

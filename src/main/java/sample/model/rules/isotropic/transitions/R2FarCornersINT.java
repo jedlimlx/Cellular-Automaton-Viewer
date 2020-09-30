@@ -1,29 +1,29 @@
-package sample.model.rules.isotropic;
+package sample.model.rules.isotropic.transitions;
 
 import sample.model.Coordinate;
 
 import java.util.ArrayList;
 
 /**
- * Represents range 1 moore INT transitions (hensel notation)
+ * Represents range 2 far corners INT transitions (hensel notation)
  */
-public class R1MooreINT extends SingleLetterTransitions {
+public class R2FarCornersINT extends SingleLetterTransitions {
     /**
-     * Constructs the range 1 moore INT transitions with hensel notation
+     * Constructs the range 2 far corners INT transitions with hensel notation
      * @param string The hensel notation string
      */
-    public R1MooreINT(String string) {
+    public R2FarCornersINT(String string) {
         super(string);
 
         neighbourhood = new Coordinate[]{
-                new Coordinate(1, -1),
-                new Coordinate(1, 0),
-                new Coordinate(1, 1),
+                new Coordinate(-2, 2),
                 new Coordinate(0, 1),
-                new Coordinate(-1, 1),
-                new Coordinate(-1, 0),
-                new Coordinate(-1, -1),
-                new Coordinate(0, -1)
+                new Coordinate(2, 2),
+                new Coordinate(1, 0),
+                new Coordinate(2, -2),
+                new Coordinate(0, -1),
+                new Coordinate(-2, -2),
+                new Coordinate(-1, 0)
         };
 
         readTransitionsFromFile(getClass().getResourceAsStream("/int/r1_moore.txt"));
@@ -33,31 +33,35 @@ public class R1MooreINT extends SingleLetterTransitions {
     }
 
     @Override
-    protected void addTransition(ArrayList<Integer> transition) {
+    protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
+        // TODO (Remove unnecessary transitions)
+        ArrayList<ArrayList<Integer>> symmetries = new ArrayList<>();
         ArrayList<Integer> rotate1 = rotate(transition);
         ArrayList<Integer> rotate2 = rotate(rotate1);
         ArrayList<Integer> rotate3 = rotate(rotate2);
 
-        transitionTable.add(transition);
-        transitionTable.add(reflect1(transition));
-        transitionTable.add(reflect2(transition));
+        symmetries.add(transition);
+        symmetries.add(reflect1(transition));
+        symmetries.add(reflect2(transition));
 
-        transitionTable.add(rotate1);
-        transitionTable.add(reflect1(rotate1));
-        transitionTable.add(reflect2(rotate1));
+        symmetries.add(rotate1);
+        symmetries.add(reflect1(rotate1));
+        symmetries.add(reflect2(rotate1));
 
-        transitionTable.add(rotate2);
-        transitionTable.add(reflect1(rotate2));
-        transitionTable.add(reflect2(rotate2));
+        symmetries.add(rotate2);
+        symmetries.add(reflect1(rotate2));
+        symmetries.add(reflect2(rotate2));
 
-        transitionTable.add(rotate3);
-        transitionTable.add(reflect1(rotate3));
-        transitionTable.add(reflect2(rotate3));
+        symmetries.add(rotate3);
+        symmetries.add(reflect1(rotate3));
+        symmetries.add(reflect2(rotate3));
+
+        return symmetries;
     }
-
+    
     @Override
-    protected Object clone() {
-        return new R1MooreINT(transitionString);
+    public Object clone() {
+        return new R2FarCornersINT(transitionString);
     }
 
     private ArrayList<Integer> rotate(ArrayList<Integer> transition) {

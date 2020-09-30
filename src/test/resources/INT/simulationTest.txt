@@ -1,0 +1,14 @@
+#R B2i3-kq4cj5cy6cn7c8/S2-i34cy7c8
+#G 100
+#I bo$2bo$3o15$18b2o$18b2o3$14b2o$14b2o!
+#O 8b3o$9b2o4b2o$9b2o3bo$7b2o5bo2bo$9b2o3bo$9b2o4b2o$8b3o$bo$2o$bo!
+
+#R B2/S/NC2
+#G 100
+#I bo$2bo$3o15$18b2o$18b2o3$14b2o$14b2o!
+#O 14bo$9bo2b2o$9bo3bo5bo2bobo$7bo11b3o3bo$5bo2bobo15bo$7b2o6bo9bo$9b2o2bo4bo6bo$8bob2o2b2o2bo3b2o2bo$7bo4bobo2bo2bo$6b2o3bobo5b2o3b2o$6bo2bo8bo3bo3bo$5bobob2o2bo7bob2o$2bob2o2bo4b2obob2o3bo$4bo3b2o16bo$3bob2o3b2o4bo7b2o$4bo5b2o5b2o5b2o$2bobo15b3o$2bo4bo10bo3bo$bobo3b2o4bobo10bo$5b2obobo7bo3bo2b2o$5bo8b2ob2o4bo4bo$bo5bo14bo$5bo4bo3bob3obo$23bo2bo$6bo4bo2bo3bo5bo$4bo19bob2o$5bo4bo2bo3bo3b2o2bobo$12bo7bo5$28bo2$30bo$31bo2$33bo!
+
+#R B2e3/S24-i
+#G 100
+#I 57b2o$3bo51b2o2b2o$b3o3b2o8bo4bobo3bo5bobo18bo4bo8b2o25bo$bo6bo9bo4bo5b2o3b2o4b3o3b3o5bo6bo5bo2bo10bo6b2o5bobo$2o6b2o12bobo3bobo4bo11b2o5bo6bo4b5o9bobo4bo2bo4bobo$55bo4bo6b3o10bobo4bo2bo3b2ob2o$55b2o2b2o$57b2o!
+#O 96bo$81bo6b2o5bobo$80bobo4bo2bo4bobo$80bobo4bo2bo3b2ob2o44$55bo4bo$57b2o$3bo49bo8bo$b3o3b2o8bo4bobo3bo5bobo20b2o10b2o$bo6bo9bo4bo5b2o3b2o4b3o3b3o5bobo2bobo7bobo$2o6b2o12bobo3bobo4bo11b2o5bobo2bobo$57b2o10b2o$53bo8bo6bo$57b2o$55bo4bo!
