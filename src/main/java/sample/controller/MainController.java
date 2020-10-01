@@ -68,10 +68,7 @@ public class MainController {
     private final int CELL_SIZE = 1;  // Cell size
     private final String SETTINGS_FILE = "settings.json";
 
-    private boolean currentlySelecting = false;
-    private Coordinate startSelection;  // The start of the selection
-    private Coordinate endSelection;  // The end of the selection
-    private Rectangle selectionRectangle;  // Rectangle that represents selection box
+    private SelectionRectangle selectionRectangle;  // Rectangle that represents selection box
 
     private final RuleDialog dialog = new RuleDialog();  // Dialog to set rule
     private final GifferDialog gifferDialog = new GifferDialog();
@@ -114,11 +111,7 @@ public class MainController {
         simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
 
         // Create selection rectangle and set properties
-        selectionRectangle = new Rectangle();
-        selectionRectangle.setOpacity(0.5);
-        selectionRectangle.setFill(Color.rgb(150, 230, 255));
-        selectionRectangle.toFront();
-        selectionRectangle.setVisible(false);
+        selectionRectangle = new SelectionRectangle(CELL_SIZE);
         drawingPane.getChildren().add(selectionRectangle);
 
         // Setting zoom
@@ -239,35 +232,28 @@ public class MainController {
     @FXML // Handle the mouse events
     public void mouseDraggedHandler(MouseEvent event) {
         if (mode == Mode.DRAWING) {
-            setCell((int)event.getX() / CELL_SIZE * CELL_SIZE,
-                    (int)event.getY() / CELL_SIZE * CELL_SIZE,
+            setCell(snapToGrid((int) event.getX()),
+                    snapToGrid((int) event.getY()),
                     currentState);
         }
         else if (mode == Mode.SELECTING) {
-            selectionRectangle.setWidth((int)event.getX() / CELL_SIZE * CELL_SIZE -
-                    startSelection.getX() * CELL_SIZE);
-            selectionRectangle.setHeight((int)event.getY() / CELL_SIZE * CELL_SIZE -
-                    startSelection.getY() * CELL_SIZE);
+            selectionRectangle.select(new Coordinate(snapToGrid((int) event.getX()),
+                    snapToGrid((int) event.getY())));
         }
     }
 
     @FXML
     public void mouseDragStartHandler(MouseEvent event) {
-        if (mode == Mode.SELECTING && !currentlySelecting) {
-            currentlySelecting = true;
-
-            selectionRectangle.setVisible(false);
+        if (mode == Mode.SELECTING) {
+            selectionRectangle.unselect();
             selectionRectangle.toFront();
 
-            selectionRectangle.setX((int)event.getX() / CELL_SIZE * CELL_SIZE);
-            selectionRectangle.setY((int)event.getY() / CELL_SIZE * CELL_SIZE);
-            startSelection = new Coordinate((int)event.getX() / CELL_SIZE,
-                    (int)event.getY() / CELL_SIZE);
-
-            selectionRectangle.setVisible(true);
+            Coordinate startSelection = new Coordinate(snapToGrid((int) event.getX()),
+                    snapToGrid((int) event.getY()));
+            selectionRectangle.select(startSelection, startSelection);
         }
         else if (mode == Mode.PASTING) {
-            insertCells(pasteStuff, (int)(event.getX() / CELL_SIZE), (int)event.getY() / CELL_SIZE);
+            insertCells(pasteStuff, convertToGrid((int) event.getX()), convertToGrid((int)event.getY()));
             pasteSelection.setVisible(false);
 
             mode = Mode.SELECTING;
@@ -276,24 +262,25 @@ public class MainController {
 
     @FXML
     public void mouseDragDoneHandler(MouseEvent event) {
-        if (mode == Mode.SELECTING && currentlySelecting) {
-            currentlySelecting = false;
-            endSelection = new Coordinate((int)event.getX() / CELL_SIZE,
-                    (int)event.getY() / CELL_SIZE);
+        Coordinate endSelection = null;
+        if (mode == Mode.SELECTING && selectionRectangle.isVisible()) {
+            endSelection = new Coordinate((int)event.getX(), (int)event.getY());
         }
 
-        if (startSelection != null && endSelection != null &&
-                (endSelection.subtract(startSelection).getX() < 1 ||
-                endSelection.subtract(startSelection).getY() < 1)) {
-            selectionRectangle.setVisible(false);
+        if (mode != Mode.PASTING) {
+            if (selectionRectangle.getStart() != null && endSelection != null &&
+                    (endSelection.subtract(selectionRectangle.getStart()).getX() < 1 ||
+                            endSelection.subtract(selectionRectangle.getStart()).getY() < 1)) {
+                selectionRectangle.unselect();
+            }
         }
     }
 
     @FXML
     public void mouseMovedHandler(MouseEvent event) {
         if (mode == Mode.PASTING) {
-            pasteSelection.setTranslateX((int)(event.getX() / CELL_SIZE) * CELL_SIZE);
-            pasteSelection.setTranslateY((int)(event.getY() / CELL_SIZE) * CELL_SIZE);
+            pasteSelection.setTranslateX(snapToGrid((int)(event.getX())));
+            pasteSelection.setTranslateY(snapToGrid((int)(event.getY())));
         }
     }
 
@@ -301,11 +288,11 @@ public class MainController {
     public void generateRandomSoup() {
         // Generate the soup
         Grid soup = SymmetryGenerator.generateSymmetry("C1", 50, new int[]{1},
-                endSelection.getX() - startSelection.getX(),
-                endSelection.getY() - startSelection.getY());
-        
+                selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1,
+                selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1);
+
         // Insert the cells in the pane (automatically inserted in the simulator)
-        insertCells(soup, startSelection.getX(), startSelection.getY());
+        insertCells(soup, selectionRectangle.getStart().getX(), selectionRectangle.getStart().getY());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -314,8 +301,9 @@ public class MainController {
 
     @FXML // Flips selected cells horizontally
     public void flipHorizontalHandler() {
-        simulator.reflectCellsX(startSelection, endSelection);  // Reflect cells in the grid
-        renderCells(startSelection, endSelection);
+        // Reflect cells in the grid
+        simulator.reflectCellsX(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -324,8 +312,8 @@ public class MainController {
 
     @FXML // Flips selected cells vertically
     public void flipVerticalHandler() {
-        simulator.reflectCellsY(startSelection, endSelection);  // Reflect cells in the grid
-        renderCells(startSelection, endSelection);
+        simulator.reflectCellsY(selectionRectangle.getStart(), selectionRectangle.getEnd());  // Reflect cells in the grid
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -334,8 +322,25 @@ public class MainController {
 
     @FXML // Rotates the selected cells clockwise
     public void rotateCWHandler() {
-        simulator.rotateCW(startSelection, endSelection);  // Rotate the cells in the grid
-        renderCells(startSelection, endSelection);
+        // Rotate the cells in the grid
+        Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
+        simulator.rotateCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+
+        // Rotate selection rectangle
+        int centerX = (end.getX() - start.getX()) / 2 + start.getX();
+        int centerY = (end.getY() - start.getY()) / 2 + start.getY();
+
+        int dxEnd = centerX - end.getX();
+        int dyEnd = centerY - end.getY();
+
+        int dxStart = centerX - start.getX();
+        int dyStart = centerY - start.getY();
+
+        selectionRectangle.select(convertToScreen(new Coordinate(centerX - dyStart, centerY + dxEnd)),
+                convertToScreen(new Coordinate(centerX - dyEnd, centerY + dxStart)));
+
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -344,8 +349,25 @@ public class MainController {
 
     @FXML // Rotates the selected cells counter-clockwise
     public void rotateCCWHandler() {
-        simulator.rotateCCW(startSelection, endSelection);  // Rotate the cells in the grid
-        renderCells(startSelection, endSelection);
+        // Rotate the cells in the grid
+        Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
+        simulator.rotateCCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+
+        // Rotate selection rectangle
+        int centerX = (end.getX() - start.getX()) / 2 + start.getX();
+        int centerY = (end.getY() - start.getY()) / 2 + start.getY();
+
+        int dxEnd = centerX - end.getX();
+        int dyEnd = centerY - end.getY();
+
+        int dxStart = centerX - start.getX();
+        int dyStart = centerY - start.getY();
+
+        selectionRectangle.select(convertToScreen(new Coordinate(centerX + dyEnd, centerY - dxStart)),
+                convertToScreen(new Coordinate(centerX + dyStart, centerY - dxEnd)));
+
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -469,20 +491,21 @@ public class MainController {
 
         // Add cell to simulator
         if (updateSimulator)
-            simulator.setCell(x / CELL_SIZE, y / CELL_SIZE, state);
+            simulator.setCell(convertToGrid(x), convertToGrid(y), state);
     }
 
     public void insertCells(Grid cellsToInsert, int x, int y) {
         cellsToInsert.iterateCells(coord -> {
             Coordinate newCell = coord.add(new Coordinate(x, y));
-            setCell(newCell.getX() * CELL_SIZE, newCell.getY() * CELL_SIZE,
+            setCell(convertToScreen(newCell.getX()), convertToScreen(newCell.getY()),
                     cellsToInsert.getCell(coord));
         });
     }
 
     // Renders all cells
     public void renderCells() {
-        simulator.iterateCells(coordinate -> setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE,
+        simulator.iterateCells(coordinate -> setCell(convertToGrid(coordinate.getX()),
+                convertToGrid(coordinate.getY()),
                 simulator.getCell(coordinate),false));
     }
 
@@ -490,7 +513,7 @@ public class MainController {
     public void renderCells(Coordinate startSelection, Coordinate endSelection) {
         for (int i = startSelection.getX(); i < endSelection.getX() + 1; i++) {
             for (int j = startSelection.getY(); j < endSelection.getY() + 1; j++) {
-                setCell(i * CELL_SIZE, j * CELL_SIZE, simulator.getCell(i, j));  // Render the new cells
+                setCell(convertToScreen(i), convertToScreen(j), simulator.getCell(i, j));  // Render the new cells
             }
         }
     }
@@ -554,7 +577,7 @@ public class MainController {
 
                 // Only update cells that changed (for speed)
                 for (Coordinate cell: finalCellsChanged) {
-                    setCell(cell.getX() * CELL_SIZE, cell.getY() * CELL_SIZE, simulator.getCell(cell));
+                    setCell(convertToScreen(cell.getX()), convertToScreen(cell.getY()), simulator.getCell(cell));
                 }
 
                 // Move the grid lines and selection to the front
@@ -589,8 +612,9 @@ public class MainController {
 
         // Add to the gif if the recording is on
         if (recording) {
-            giffer.addGrid(startSelection, endSelection,
-                    simulator.getCells(startSelection, endSelection), simulator.getRule());
+            giffer.addGrid(selectionRectangle.getStart(), selectionRectangle.getEnd(),
+                    simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
+                    simulator.getRule());
         }
     }
 
@@ -690,7 +714,7 @@ public class MainController {
     public void startRuleSearchDialog() {
         // Dialog to get the search parameters
         RuleSearchParametersDialog parametersDialog =
-                new RuleSearchParametersDialog(simulator.getCells(startSelection, endSelection));
+                new RuleSearchParametersDialog(simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()));
         parametersDialog.showAndWait();
 
         if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn;t cancelled
@@ -771,7 +795,8 @@ public class MainController {
     @FXML // Identifies selected object
     public void identifySelection() {
         Simulator simulator = new Simulator(this.simulator.getRule());
-        simulator.insertCells(this.simulator.getCells(startSelection, endSelection), startSelection);
+        simulator.insertCells(this.simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
+                selectionRectangle.getStart());
         simulator.setGeneration(this.simulator.getGeneration());  // Ensure the generation is the same
 
         // Results of the identification
@@ -979,7 +1004,7 @@ public class MainController {
     // Returns the RLE of the pattern
     public String saveRLE() {
         // Add header & comments
-        String rle = simulator.toRLE(startSelection, endSelection);
+        String rle = simulator.toRLE(selectionRectangle.getStart(), selectionRectangle.getEnd());
         StringBuilder rleFinal = new StringBuilder();
 
         // Adding comments
@@ -991,8 +1016,8 @@ public class MainController {
         }
 
         // Adding header
-        rleFinal.append("x = ").append(endSelection.getX() - startSelection.getX()).
-                append(", y = ").append(endSelection.getY() - startSelection.getY()).
+        rleFinal.append("x = ").append(selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX()).
+                append(", y = ").append(selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY()).
                 append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
         rleFinal.append(rle);
 
@@ -1040,7 +1065,7 @@ public class MainController {
 
         // Avoiding ConcurrentModificationException
         for (Coordinate coordinate: coordinates) {
-            setCell(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE, 0);
+            setCell(convertToScreen(coordinate.getX()), convertToScreen(coordinate.getY()), 0);
         }
     }
 
@@ -1092,12 +1117,13 @@ public class MainController {
 
         pasteStuff = new Grid();
         pasteStuff.fromRLE(rleFinal.toString(), new Coordinate(0, 0));
+        pasteStuff.updateBounds();
 
         pasteSelection.getChildren().clear();
         pasteStuff.iterateCells(coordinate -> {
             Rectangle cell = new Rectangle();
-            cell.setX(coordinate.getX() * CELL_SIZE);
-            cell.setY(coordinate.getY() * CELL_SIZE);
+            cell.setX(convertToScreen(coordinate.getX()));
+            cell.setY(convertToScreen(coordinate.getY()));
             cell.setWidth(CELL_SIZE);
             cell.setHeight(CELL_SIZE);
             cell.setFill(simulator.getRule().getColour(pasteStuff.getCell(coordinate)));
@@ -1105,6 +1131,13 @@ public class MainController {
             // Add cell to pane and cell list
             pasteSelection.getChildren().add(cell);
         });
+
+        SelectionRectangle rectangle = new SelectionRectangle(CELL_SIZE);
+        rectangle.setFill(Color.rgb(255, 0, 0));
+        rectangle.select(convertToScreen(pasteStuff.getBounds().getValue0()), convertToScreen(pasteStuff.getBounds().getValue1()));
+        pasteSelection.getChildren().add(rectangle);
+
+        rectangle.toFront();
 
         pasteSelection.setVisible(true);
         pasteSelection.toFront();
@@ -1133,8 +1166,8 @@ public class MainController {
 
     @FXML // Deletes the cells in the selection
     public void deleteCells() {
-        simulator.clearCells(startSelection, endSelection);
-        renderCells(startSelection, endSelection);
+        simulator.clearCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
         selectionRectangle.toFront();
@@ -1174,18 +1207,10 @@ public class MainController {
         // Ctrl + A to select all
         else if (event.getCode().equals(KeyCode.A) && event.isControlDown()) {
             simulator.updateBounds();
-            startSelection = new Coordinate(simulator.getBounds().getValue0().getX() * CELL_SIZE,
-                    simulator.getBounds().getValue0().getY() * CELL_SIZE);
-            endSelection = new Coordinate(simulator.getBounds().getValue1().getX() * CELL_SIZE,
-                    simulator.getBounds().getValue1().getY() * CELL_SIZE);
+            Coordinate start = convertToScreen(simulator.getBounds().getValue0());
+            Coordinate end = convertToScreen(simulator.getBounds().getValue1());
 
-            selectionRectangle.setX(simulator.getBounds().getValue0().getX() * CELL_SIZE);
-            selectionRectangle.setY(simulator.getBounds().getValue0().getY() * CELL_SIZE);
-
-            selectionRectangle.setWidth(simulator.getBounds().getValue1().getX() * CELL_SIZE -
-                    startSelection.getX() * CELL_SIZE + 1);
-            selectionRectangle.setHeight(simulator.getBounds().getValue1().getY() * CELL_SIZE -
-                    startSelection.getY() * CELL_SIZE + 1);
+            selectionRectangle.select(start, end);
 
             selectionRectangle.setVisible(true);
             mode = Mode.SELECTING;
@@ -1254,5 +1279,32 @@ public class MainController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    // Converts grid coordinates to screen coordinate
+    public int convertToScreen(int x) {
+        return x * CELL_SIZE;
+    }
+
+    public Coordinate convertToScreen(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE);
+    }
+
+    // Converts screen coordinates to grid coordinates
+    public int convertToGrid(int x) {
+        return x / CELL_SIZE;
+    }
+
+    public Coordinate convertToGrid(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX() / CELL_SIZE, coordinate.getY() / CELL_SIZE);
+    }
+
+    // Snaps the screen X or Y coordinates to the grid
+    public int snapToGrid(int x) {
+        return x / CELL_SIZE * CELL_SIZE;
+    }
+
+    public Coordinate snapToGrid(Coordinate coordinate) {
+        return convertToGrid(convertToScreen(coordinate));
     }
 }
