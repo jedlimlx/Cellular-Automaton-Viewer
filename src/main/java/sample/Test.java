@@ -1,9 +1,11 @@
 package sample;
 
-import sample.model.rules.isotropic.transitions.R2CrossINT;
+import sample.model.rules.ruleloader.RuleLoader;
+
+import java.util.Arrays;
 
 public class Test {
     public static void main(String[] args) {
-        System.out.println(new R2CrossINT("1").getSortedTransitionTable());
+        System.out.println(Arrays.toString(new RuleLoader().getRegex()));
     }
 }

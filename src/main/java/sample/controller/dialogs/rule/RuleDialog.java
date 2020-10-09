@@ -11,6 +11,7 @@ import sample.controller.dialogs.rule.hrot.*;
 import sample.controller.dialogs.rule.isotropic.INTDialog;
 import sample.controller.dialogs.rule.misc.OneDimensionalDialog;
 import sample.controller.dialogs.rule.misc.TurmitesDialog;
+import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
 import sample.model.rules.RuleFamily;
 
 public class RuleDialog extends Dialog {
@@ -24,10 +25,9 @@ public class RuleDialog extends Dialog {
 
     // Array to store rule widgets
     private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(), new HROTHistoryDialog(),
-            new HROTSymbiosisDialog(),
-            new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog(),
+            new HROTSymbiosisDialog(), new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog(),
             new IntegerHROTDialog(), new DeficientHROTDialog(), new HROTRegeneratingGenerationsDialog(),
-            new INTDialog(), new OneDimensionalDialog(), new TurmitesDialog()};
+            new INTDialog(), new OneDimensionalDialog(), new TurmitesDialog(), new RuleLoaderDialog()};
 
     public RuleDialog(String promptText) {
         super();

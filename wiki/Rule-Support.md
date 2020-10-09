@@ -186,7 +186,7 @@ An extension of a rule described by Mark Niemiec called Integer Life.
 
 * At every step, a cell's neighborhood sum is the arithmetic sum of the values of its neighbors.
 * If a cell is dead and has a neighborhood of exactly Xn and X is in the birth conditions, 
-a new cell of value n is born there; otherwise it stays dead. If a cell can be born into mulitple states, the lowest is chosen.
+a new cell of value n is born there; otherwise it stays dead. If a cell can be born into mulitple states, the highest is chosen.
 * If a cell is alive (n > 0), and has exactly Xn neighbors and X is in the survival conditions, 
 it remains alive; otherwise, it dies.
 * Survival occurs in the range [Xn, (X+1)n)
@@ -227,15 +227,15 @@ but also the relative configuration of those neighbours.
 [See](https://conwaylife.com/wiki/Isotropic_non-totalistic_Life-like_cellular_automaton) for more information.
 
 #### Supported / Planned INT Neighbourhoods
-- [x] Range 1 Moore Isotropic Non-Totalistic
-- [ ] Range 1 Hexagonal Isotropic Non-Totalistic
-- [ ] Range 2 Von Neumann Isotropic Non-Totalistic
-- [ ] Range 2 Checkerboard Isotropic Non-Totalistic
-- [x] Range 2 Far Corners Isotropic Non-Totalistic
-- [x] Range 2 Knight Life Isotropic Non-Totalistic
-- [x] Range 2 Cross Isotropic Non-Totalistic
-- [ ] Range 3 Cross Isotropic Non-Totalistic
-- [x] Range 3 Far Edges Isotropic Non-Totalistic
+- [x] Range 1 Moore Isotropic Non-Totalistic (M)
+- [ ] Range 1 Hexagonal Isotropic Non-Totalistic (H)
+- [ ] Range 2 Von Neumann Isotropic Non-Totalistic (V2)
+- [ ] Range 2 Checkerboard Isotropic Non-Totalistic (B2)
+- [x] Range 2 Far Corners Isotropic Non-Totalistic (FC)
+- [x] Range 2 Knight Life Isotropic Non-Totalistic (K)
+- [x] Range 2 Cross Isotropic Non-Totalistic (C2)
+- [ ] Range 3 Cross Isotropic Non-Totalistic (C3)
+- [x] Range 3 Far Edges Isotropic Non-Totalistic (FE)
 
 
 ## 2 state <!-- 1 -->
@@ -287,6 +287,122 @@ Symbiosis rules are (planned to be) supported by:
 - [ ] 2-state INT
 - [ ] INT Generations
 - [ ] INT Extended Generations
+
+
+# Custom Rules
+For a list of neighbourhood aliases, see [this](../src/main/resources/ruleloader/neighbourhoods.txt)
+Note that when CAViewer finds multiple @TABLE, @TREE and @SQC directives in a rulefile, 
+CAViewer will alternate between them.
+
+### @RULE
+The first line of a .rule file must start with @RULE followed by a space and then the rule name. 
+For example:
+```
+@RULE WireWorld
+```
+
+The supplied rule name should match the name of the .rule file.
+
+### @TABLE
+This section is optional. it contains a transition table that can be loaded by the RuleLoader algorithm. 
+This is a simple example:
+
+```
+# Signals (2/3) pass alongside a wire (1):
+n_states:4
+neighborhood:vonNeumann
+symmetries:rotate4
+var a={2,3}
+var b={2,3}
+var c={2,3}
+a,0,b,1,c,b
+```
+
+Empty lines and anything following the hash symbol "#" are ignored. The following descriptors should appear before content:
+
+n_states: specifies the number of states in the CA (from 0 to n_states-1 inclusive). <br>
+neighborhood: specifies the cell neighborhood for the CA update step. Must be one of: vonNeumann, Moore, hexagonal, oneDimensional or list of coordinates representing the neighbourhood (unlike lifelib, the first and last coordinate need not be (0, 0)) <br>
+Other neighborhoods are supported through emulation, using RuleTableToTree.py, see the RoadMap for a full list. <br>
+symmetries: can be none, permute or one of the symmetries supported for the neighborhood you have chosen. <br>
+(optional) tiling: can be square, hexagonal or triangular (neighbourhood should point down) <br>
+After the descriptors comes the variables and transitions. Each variable line should follow the form given in the above example to list the states. Variables should appear before the first transition that uses them.
+
+Transition lines should have states or variables separated by commas. Only one transition (or variable) should appear on each line.
+
+There are 2 types of variables - bounded and unbounded. <br>
+A bounded variable starts with `var` like this `var a = {1, 2, 3}` <br>
+An unbounded variable starts with `unbound` like this `unbound a = {1, 2, 3}` <br>
+
+Bounded variables must have the same value throughout a transition line. 
+Unbounded variables can take on any of the possible values in a transition line, not just one.
+
+Work is being done to allow CAViewer to switch neighbourhoods and symmetries halfway through the @RULE directive.
+
+Rule tables usually don't specify every possible set of inputs. For those not listed, the central cell remains unchanged.
+
+Transition rules are checked in the order given — the first rule that matches is applied. If you want, you can write rules in the form of general cases and exceptions, as long as the exceptions appear first.
+
+### @TREE
+This section is optional. If present, it contains a rule tree that can be loaded by the RuleLoader algorithm. (If the .rule file also contains a @TABLE section, RuleLoader will use the first one it finds.) The contents of this section is identical to the contents of a .tree file.
+
+Essentially, the tree format allows you to add your own rules to CAViewer without needing to know how to recompile CAViewer and 
+without dealing with the intricacies of external libraries; it generates relatively compact files, 
+and the data structure is designed for very fast execution.
+
+A rule tree is nothing more than a complete transition table for a rule, expressed in a compressed, canonicalized tree format. For an n state rule, each tree node has n children; each child is either another tree node or a next state value. 
+To look up a function of m variables, each of which is a state value, you start at the root node and select the child node corresponding to the value of the first variable. From that node, you select the child node corresponding to the value of the second variable, and so on. When you finally look up the value of the final variable in the last node, the result value is the actual next state value, rather than another node.
+
+The tree format has fixed the order of variables used for these lookups. You may specify arbitary neighbourhoods as a list of cells appended after `num_neighbours=`. Unlike lifelib, the last 2 entries need not be (0, 0).
+
+The header consists of comments (lines starting with a "#") that are ignored, and three required parameter values that must be defined before the first tree node. These values are defined, one per line, starting with the parameter name, then an equals sign, and finally an integer value. The three parameters are num_states, which must be in the range 2..256 inclusive, num_neighbours, which may be 4, 6, 8 or a list of cell coordinates representing an arbitary neighbourhood, and num_nodes, which must match the number of node lines. tiling can also be added to specify square, hexagonal or triangular tilings.
+
+The tree is represented by a sequence of node lines. Each node line consists of exactly num_states+1 integers separated by single spaces. The first integer of each node line is the depth of that node, which must range from 1..num_neighbors+1. The remaining integers for nodes of depth one are state values. The remaining integers for nodes of depth greater than one are node numbers. Nodes are numbered in the order they appear in the file, starting with zero; each node must be defined before its node number is used. The root node, which must be the single node at depth num_neighbors+1, must be the last node defined in the file.
+
+###@SQC
+This represents a Square Cell ruletable.
+Essentially, it is a large transition table specifying the new state of a cell and the necessary neighbourhood sym.
+
+Let's say I have the following neighbourhood weights:
+1 2 3 2 1
+2 4 6 4 2
+3 6 9 6 3
+2 4 6 4 2
+1 2 3 2 1
+
+I also have the following state weights,
+0, -1, 1
+
+Now, let's say I have cells in this configuration:
+0 0 0 1 0
+0 0 1 0 0
+0 0 2 0 0
+0 2 0 0 2
+0 0 0 0 0
+
+The neighbourhood sum would be -1 * 2 + -1 * 6 + 1 * 9 + 1 * 4 + 2 * 2 = -2 + -6 + 9 + 4 + 2 = 7
+Now, looking at the following ruletable
+0,0,0,0,1,0,0,0
+1,1,2,1,1,2,1,1
+2,2,2,2,2,2,1,1
+
+A neighbourhood count of 7 would mean the new cell's state is 1 (the row number is the current state of the cell, the column number is the neighbourhood sum, both 0-indexed).
+
+Before the content of the ruletable, you will need to add the following headers
+```
+neighbourhood:[w * (a, b), ...]
+state_weights:0,1
+(optional) tiling:square/hexagonal/triangular 
+```
+
+###@COLORS
+
+This section is optional and can be used to specify the RGB colors for one or more states using lines with 4 numbers, like these:
+```
+0  48  48  48   dark gray
+1   0 128 255   light blue
+2 255 255 255   white
+3 255 128   0   orange
+```
 
 
 # B0 rules

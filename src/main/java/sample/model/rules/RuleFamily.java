@@ -51,19 +51,24 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * For non-strobing rules, the background is {0}.
      */
     public void updateBackground() {
+        int generations = 0;
         int currentState = 0;
-        ArrayList<Integer> bgStates = new ArrayList<>();
-        while (!bgStates.contains(currentState)) {
-            bgStates.add(currentState);
+        ArrayList<Pair<Integer, Integer>> bgStates = new ArrayList<>();
+        while (!bgStates.contains(new Pair<>(currentState, generations % alternatingPeriod))) {
+            bgStates.add(new Pair<>(currentState, generations % alternatingPeriod));
 
             int[] neighbours = new int[getNeighbourhood().length];
             Arrays.fill(neighbours, currentState);
-            currentState = transitionFunc(neighbours, currentState, 0, new Coordinate());
+            currentState = transitionFunc(neighbours, currentState, generations, new Coordinate());
+
+            generations++;
         }
 
-        background = new int[bgStates.size() - bgStates.indexOf(currentState)];
-        for (int i = bgStates.indexOf(currentState); i < bgStates.size(); i++) {
-            background[i - bgStates.indexOf(currentState)] = bgStates.get(i);
+        Pair<Integer, Integer> stateGenerationPair = new Pair<>(currentState, generations % alternatingPeriod);
+
+        background = new int[bgStates.size() - bgStates.indexOf(stateGenerationPair)];
+        for (int i = bgStates.indexOf(stateGenerationPair); i < bgStates.size(); i++) {
+            background[i - bgStates.indexOf(stateGenerationPair)] = bgStates.get(i).getValue0();
         }
 
         alternatingPeriod = background.length;

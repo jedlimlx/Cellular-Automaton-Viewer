@@ -8,6 +8,7 @@ import sample.model.rules.hrot.symbiosis.HROTSymbiosis;
 import sample.model.rules.isotropic.rules.INT;
 import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.Turmites;
+import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Simulator;
 
 import java.io.File;
@@ -20,7 +21,8 @@ import java.util.regex.Pattern;
 public class CommandUtils {
     public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTSymbiosis(),
             new HROTGenerations(), new HROTExtendedGenerations(), new HROTRegeneratingGenerations(),
-            new IntegerHROT(), new DeficientHROT(), new INT(), new OneDimensional(), new Turmites()};
+            new IntegerHROT(), new DeficientHROT(), new INT(), new OneDimensional(), new Turmites(),
+            new RuleLoader()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 

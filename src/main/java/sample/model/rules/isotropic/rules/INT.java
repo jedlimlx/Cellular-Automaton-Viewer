@@ -125,6 +125,7 @@ public class INT extends BaseINT implements ApgtableGeneratable {
     @Override
     public APGTable generateApgtable() {
         APGTable apgTable = new APGTable(numStates, "none", getNeighbourhood());
+        apgTable.setBackground(background);
 
         apgTable.addUnboundedVariable("death", new int[]{0, 1});
 

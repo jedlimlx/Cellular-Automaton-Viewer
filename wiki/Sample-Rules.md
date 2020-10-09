@@ -41,3 +41,12 @@
 | ------------- | ------------- | ------------- | ------------- |
 | [IntegerLife](../rules/Integer HROT/R1,I8,S2-3,B3,NM/DESCRIPTION.md) | Chaotic | R1,I8,S2-3,B3,NM | A chaotic rule by Mark Niemiec. All patterns in Life work excluding those involving B6. Other than the glider and the xWSS, this rule also has a natural 2c/6o, c/3o and 3/11o. There is also a natural backrake and a gun has been constructed. This collection excludes Life patterns.
 | [?](../rules/Integer HROT/R2,I5,S2-3,B3,N+/DESCRIPTION.md) | Chaotic | R2,I5,S2-3,B3,N+ | B3 cross rules typically cannot escape their bounding box but this does not apply to integer rules. The rule has 4 natural speeds namely c/2o, c/4d, c/13o and c/22o.
+
+
+## Custom Rules
+
+| Name | Character | Rulestring | Description | 
+| ------------- | ------------- | ------------- | ------------- |
+| [SQC_1](../rules/Custom Rules/SQC_1/DESCRIPTION.md) | Chaotic | NIL | This rule uses a variant of the range 2 gaussian weighted neighbourhood. There are a handful of natural speeds such as a (20, 8)c/32 spaceship. P8 oscillators and a P76 gun have also been found.
+
+

@@ -7,6 +7,7 @@ sample.controller.dialogs.rule
 sample.controller.dialogs.rule.hrot
 sample.controller.dialogs.rule.isotropic
 sample.controller.dialogs.rule.misc
+sample.controller.dialogs.rule.ruleloader
 sample.controller.dialogs.search
 sample.model
 sample.model.patterns
@@ -17,5 +18,8 @@ sample.model.rules.hrot.symbiosis
 sample.model.rules.isotropic.rules
 sample.model.rules.isotropic.transitions
 sample.model.rules.misc
+sample.model.rules.ruleloader
+sample.model.rules.ruleloader.ruletable
+sample.model.rules.ruleloader.ruletree
 sample.model.search
 sample.model.simulation

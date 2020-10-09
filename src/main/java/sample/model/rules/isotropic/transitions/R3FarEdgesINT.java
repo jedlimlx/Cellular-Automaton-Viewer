@@ -1,6 +1,7 @@
 package sample.model.rules.isotropic.transitions;
 
 import sample.model.Coordinate;
+import sample.model.rules.ruleloader.ruletable.Symmetry;
 
 import java.util.ArrayList;
 
@@ -34,66 +35,12 @@ public class R3FarEdgesINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        // TODO (Remove unnecessary transitions)
-        ArrayList<ArrayList<Integer>> symmetries = new ArrayList<>();
-        ArrayList<Integer> rotate1 = rotate(transition);
-        ArrayList<Integer> rotate2 = rotate(rotate1);
-        ArrayList<Integer> rotate3 = rotate(rotate2);
-
-        symmetries.add(transition);
-        symmetries.add(reflect1(transition));
-        symmetries.add(reflect2(transition));
-
-        symmetries.add(rotate1);
-        symmetries.add(reflect1(rotate1));
-        symmetries.add(reflect2(rotate1));
-
-        symmetries.add(rotate2);
-        symmetries.add(reflect1(rotate2));
-        symmetries.add(reflect2(rotate2));
-
-        symmetries.add(rotate3);
-        symmetries.add(reflect1(rotate3));
-        symmetries.add(reflect2(rotate3));
-
-        return symmetries;
+        Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(4, 8), (1, 3), (5, 7)]]");
+        return symmetry.applySymmetry(transition);
     }
     
     @Override
     public Object clone() {
         return new R3FarEdgesINT(transitionString);
-    }
-
-    private ArrayList<Integer> rotate(ArrayList<Integer> transition) {
-        int[] rotateSymmetry = new int[]{2, 3, 4, 5, 6, 7, 0, 1};
-
-        ArrayList<Integer> rotated = new ArrayList<>();
-        for (int index: rotateSymmetry) {
-            rotated.add(transition.get(index));
-        }
-
-        return rotated;
-    }
-
-    private ArrayList<Integer> reflect1(ArrayList<Integer> transition) {
-        int[] reflectSymmetry = new int[]{2, 1, 0, 7, 6, 5, 4, 3};
-
-        ArrayList<Integer> reflected = new ArrayList<>();
-        for (int index: reflectSymmetry) {
-            reflected.add(transition.get(index));
-        }
-
-        return reflected;
-    }
-
-    private ArrayList<Integer> reflect2(ArrayList<Integer> transition) {
-        int[] reflectSymmetry = new int[]{6, 5, 4, 3, 2, 1, 0, 7};
-
-        ArrayList<Integer> reflected = new ArrayList<>();
-        for (int index: reflectSymmetry) {
-            reflected.add(transition.get(index));
-        }
-
-        return reflected;
     }
 }

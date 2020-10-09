@@ -1,3 +1,4 @@
+
 # CAViewer [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link]
 
 [Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions
@@ -163,6 +164,9 @@ Supported / Planned Rulespaces
         - [x] Neighbourhood Weights
         - [x] Apgtable Generation for all rules
     - [ ] 3-state HROT
+        - [ ] B0 Rules
+        - [ ] Weighted Rules
+        - [ ] Apgtable Generation for all rules
     - [ ] Integer HROT
         - [x] Weighted Rules
         - [ ] Apgtable Generation for all rules
@@ -171,11 +175,12 @@ Supported / Planned Rulespaces
         - [x] Weighted Rules
         - [x] Apgtable Generation for all rules
     - [ ] Multi-state Cyclic HROT
-        - [ ] B0 Rules
         - [ ] Weighted Rules
         - [ ] Apgtable Generation for all rules
 - [ ] Isotropic Non-Totalistic (INT)
-    - [ ] 2 State INT
+    - [x] 2 State INT
+        - [x] B0 Rules
+        - [x] Apgtable Generation
     - [ ] INT BSFKL
     - [ ] INT Generations
     - [ ] INT Extended Generations
@@ -193,24 +198,36 @@ Supported / Planned Rulespaces
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA
 - [ ] Langton's Ant / Turmites
-- [ ] Block CA
 - [ ] Margolus
 - [x] 1D CA
-- [ ] Golly Ruletrees
-- [ ] Golly Ruletables
-- [ ] Square Cell Ruletables
+- [ ] Custom Rules (*.rule)
+    - [ ] Golly Ruletables
+        - [x] Basic Functionality
+        - [x] Unbounded Variables
+        - [x] Arbitary Neighbourhoods
+        - [x] B0 Rules
+        - [ ] Block CA
+        - [ ] Nutshell-like Syntax
+    - [x] Golly Ruletrees
+        - [x] Basic Functionality
+        - [x] Arbitary Neighbourhoods
+        - [x] B0 Rules
+    - [x] Square Cell Ruletables
+        - [x] Basic Functionality
+        - [x] Arbitary Neighbourhoods
+        - [x] B0 Rules
 
 Supported / Planned INT Neighbourhoods
 ======================================
-- [ ] Range 1 Moore Isotropic Non-Totalistic
-- [ ] Range 1 Hexagonal Isotropic Non-Totalistic
-- [ ] Range 2 Von Neumann Isotropic Non-Totalistic
-- [ ] Range 2 Checkerboard Isotropic Non-Totalistic
-- [ ] Range 2 Far Corners Isotropic Non-Totalistic
-- [ ] Range 2 Far Edges Isotropic Non-Totalistic
-- [ ] Range 2 Knight Life Isotropic Non-Totalistic
-- [ ] Range 2 Cross Isotropic Non-Totalistic
-- [ ] Range 3 Cross Isotropic Non-Totalistic
+- [x] Range 1 Moore Isotropic Non-Totalistic (M)
+- [ ] Range 1 Hexagonal Isotropic Non-Totalistic (H)
+- [ ] Range 2 Von Neumann Isotropic Non-Totalistic (V2)
+- [ ] Range 2 Checkerboard Isotropic Non-Totalistic (B2)
+- [x] Range 2 Far Corners Isotropic Non-Totalistic (FC)
+- [x] Range 2 Knight Life Isotropic Non-Totalistic (K)
+- [x] Range 2 Cross Isotropic Non-Totalistic (C2)
+- [ ] Range 3 Cross Isotropic Non-Totalistic (C3)
+- [x] Range 3 Far Edges Isotropic Non-Totalistic (FE)
 
 Supported / Planned Named HROT Neighbourhoods
 =============================================
@@ -240,7 +257,7 @@ Search Programs
 ===================
 - [ ] Rule Search Program
     - [ ] More high tech repetition detection function
-    - [ ] Identification for linear growth patterns, replicators
+    - [x] Identification for linear growth patterns, replicators
     - [ ] Fine tune RNG function manually
     - [ ] Fine tune RNG function via genetic algorithms?
     - [ ] Object separation?
