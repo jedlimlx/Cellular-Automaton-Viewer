@@ -1,16 +1,20 @@
 package sample.model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Implements a least recently used cache with a hashmap and queue
  * @param <K> The key of the LRU cache
  * @param <V> The values to be stored in the cache
  */
-public class LRUCache<K, V> {
+public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
     private int capacity;
+    private BiConsumer<K, V> deleteFunc;
 
     private Queue<K> keyQueue;
     private HashMap<K, V> hashMap;
@@ -36,7 +40,11 @@ public class LRUCache<K, V> {
         hashMap.put(key, value);
 
         if (keyQueue.size() > capacity) {
-            hashMap.remove(keyQueue.poll());
+            K keyToDelete = keyQueue.poll();
+            if (deleteFunc != null)
+                deleteFunc.accept(keyToDelete, hashMap.get(keyToDelete));
+
+            hashMap.remove(keyToDelete);
         }
     }
 
@@ -64,5 +72,36 @@ public class LRUCache<K, V> {
      */
     public int size() {
         return keyQueue.size();
+    }
+
+    /**
+     * Sets the function that should run when a value is deleted
+     * @param deleteFunc The function to run
+     */
+    public void setDeleteFunc(BiConsumer<K, V> deleteFunc) {
+        this.deleteFunc = deleteFunc;
+    }
+
+    /**
+     * Sets the capacity of the LRU cache
+     * @param capacity Capacity of the LRU cache
+     */
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        return hashMap.keySet().iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return hashMap.keySet().iterator().hasNext();
+    }
+
+    @Override
+    public K next() {
+        return hashMap.keySet().iterator().next();
     }
 }

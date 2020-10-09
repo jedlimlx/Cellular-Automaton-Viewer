@@ -77,6 +77,7 @@ public class MainController {
     private Simulator simulator;  // Simulator to simulate rule
     private ArrayList<Button> stateButtons;  // Buttons to switch between states
     private HashMap<Coordinate, Cell> cellList;  // List of cell objects
+    private LRUCache<Coordinate, Cell> deadCells;  // LRU Cache of dead cells
     private Group gridLines;  // The grid lines of the pattern editor
 
     private Group pasteSelection;  // The group that renders the stuff to be pasted
@@ -103,9 +104,16 @@ public class MainController {
     public void initialize() {
         // Initialise variables
         cellList = new HashMap<>();
+        deadCells = new LRUCache<>(200);
         stateButtons = new ArrayList<>();
         history = new ArrayList<>();
         mode = Mode.DRAWING;
+
+        deadCells.setDeleteFunc((coordinate, cell) -> {
+            // Destroy the cell object (remove all references to it so it is garbage collected)
+            removeCellObject(coordinate.getX(), coordinate.getY());
+            drawingPane.getChildren().remove(cell.getRectangle());
+        });
 
         // Create simulator object
         simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
@@ -438,20 +446,13 @@ public class MainController {
 
     @FXML // Clears the cell cache
     public void clearCellsCache() {
-        ArrayList<Cell> toBeRemoved = new ArrayList<>();
-        for (Coordinate cell: cellList.keySet()) {
-            if (cellList.get(cell).getState() == 0) {
-                try {
-                    toBeRemoved.add(cellList.get(cell));
-                }
-                catch (NullPointerException ignored) {}
-            }
-        }
+        while (deadCells.hasNext()) {
+            Coordinate cell = deadCells.next();  // No ConcurrentModficationException
 
-        for (Cell cell: toBeRemoved) {
             // Destroy the cell object (remove all references to it so it is garbage collected)
-            removeCellObject(cell.getCoordinate().getX(), cell.getCoordinate().getY());
-            drawingPane.getChildren().remove(cell.getRectangle());
+            removeCellObject(cell.getX(), cell.getY());
+            drawingPane.getChildren().remove(deadCells.getValue(cell).getRectangle());
+            deadCells.removeValue(cell);
         }
     }
 
@@ -463,7 +464,7 @@ public class MainController {
     public void setCell(int x, int y, int state, boolean updateSimulator) {
         // Get the cell object at the specified coordinate
         Cell prevCell = getCellObject(x, y);
-        if (prevCell == null) {  // Insert a new cell if one doesn't already exist
+        if (prevCell == null && state != 0) {  // Insert a new cell if one doesn't already exist
             // Create cell
             Rectangle cell = new Rectangle();
             cell.setX(x);
@@ -477,16 +478,13 @@ public class MainController {
             drawingPane.getChildren().add(cell);
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
-        else if (prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            if (state == 0 && cellList.size() > 5000000) {
-                // Destroy the cell object (remove all references to it so it is garbage collected)
-                removeCellObject(x, y);
-                drawingPane.getChildren().remove(prevCell.getRectangle());
-            }
-            else {
-                prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
-                prevCell.setState(state);
-            }
+        else if (prevCell != null && prevCell.getState() != state) {  // Don't bother if the cell didn't change
+            if (prevCell.getState() == 0) deadCells.removeValue(prevCell.getCoordinate());
+
+            prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
+            prevCell.setState(state);
+
+            if (state == 0) deadCells.setValue(new Coordinate(x, y), prevCell);
         }
 
         // Add cell to simulator
@@ -531,11 +529,13 @@ public class MainController {
     }
 
     public void updateStatusText() {
+        deadCells.setCapacity(simulator.getPopulation() * 3);
+
         String simulationString = String.format("Simulation Speed: %.2f step/s",
                 1000.0 / (visualisationTime + simulationTime));
 
         statusLabel.setText("Generation: " + simulator.getGeneration() + ", " +
-                simulationString);
+                simulationString + ", Population: " + simulator.getPopulation());
     }
 
     @FXML // Zooming in and out of the canvas
