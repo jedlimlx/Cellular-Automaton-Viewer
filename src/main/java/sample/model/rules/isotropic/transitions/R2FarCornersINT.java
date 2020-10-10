@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Represents range 2 far corners INT transitions (hensel notation)
  */
 public class R2FarCornersINT extends SingleLetterTransitions {
+    public R2FarCornersINT() {
+        this("");
+    }
+
     /**
      * Constructs the range 2 far corners INT transitions with hensel notation
      * @param string The hensel notation string

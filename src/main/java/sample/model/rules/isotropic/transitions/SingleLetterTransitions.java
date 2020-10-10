@@ -102,7 +102,7 @@ public abstract class SingleLetterTransitions extends INTTransitions {
      * Canonises the transitions based on the currently loaded parameters
      */
     @Override
-    protected String canoniseTransitions() {  // TODO (Make use of the - sign e.g. 2-a instead of 2ceikn)
+    public String canoniseTransitions() {
         StringBuilder canonTransitions = new StringBuilder();
 
         int currentNumber, prevNumber = -1;

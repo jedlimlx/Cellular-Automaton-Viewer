@@ -141,7 +141,7 @@ public class Ruletable extends RuleDirective {
 
     @Override
     public int transitionFunc(int[] neighbours, int cellState) {
-        Integer cached = lruCache.getValue(Arrays.hashCode(neighbours) ^ cellState);
+        Integer cached = lruCache.get(Arrays.hashCode(neighbours) ^ cellState);
         if (cached == null) {
             int result;
             for (Transition transition: transitions) {

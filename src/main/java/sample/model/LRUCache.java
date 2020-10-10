@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Implements a least recently used cache with a hashmap and queue
@@ -14,6 +14,7 @@ import java.util.function.Consumer;
  */
 public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
     private int capacity;
+    private Function<V, Boolean> checkValid;
     private BiConsumer<K, V> deleteFunc;
 
     private Queue<K> keyQueue;
@@ -35,12 +36,20 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
      * @param key Key to associate value with
      * @param value Value to be set
      */
-    public void setValue(K key, V value) {
+    public void put(K key, V value) {
         keyQueue.add(key);
         hashMap.put(key, value);
 
-        if (keyQueue.size() > capacity) {
+        if (hashMap.size() > capacity && capacity != -1) {
             K keyToDelete = keyQueue.poll();
+
+            if (checkValid != null) {
+                while (hashMap.get(keyToDelete) == null || !checkValid.apply(hashMap.get(keyToDelete))) {
+                    hashMap.remove(keyToDelete);
+                    keyToDelete = keyQueue.poll();
+                }
+            }
+
             if (deleteFunc != null)
                 deleteFunc.accept(keyToDelete, hashMap.get(keyToDelete));
 
@@ -50,10 +59,11 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
 
     /**
      * Removes the a value from the LRU cache
+     * O(N) removal by the way
      * @param key Key to associated with the value
      */
-    public void removeValue(K key) {
-        keyQueue.remove(key);
+    public void remove(K key) {
+        //keyQueue.remove(key);
         hashMap.remove(key);
     }
 
@@ -62,7 +72,7 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
      * @param key The key that the value is associated with
      * @return Returns the value
      */
-    public V getValue(K key) {
+    public V get(K key) {
         return hashMap.get(key);
     }
 
@@ -71,7 +81,7 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
      * @return Returns the size of the LRU cache
      */
     public int size() {
-        return keyQueue.size();
+        return hashMap.size();
     }
 
     /**
@@ -80,6 +90,14 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
      */
     public void setDeleteFunc(BiConsumer<K, V> deleteFunc) {
         this.deleteFunc = deleteFunc;
+    }
+
+    /**
+     * Checks if a given value is valid in the LRU cache
+     * @param checkValid The function to run
+     */
+    public void setCheckValid(Function<V, Boolean> checkValid) {
+        this.checkValid = checkValid;
     }
 
     /**

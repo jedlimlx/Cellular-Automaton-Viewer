@@ -5,6 +5,7 @@ import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
+import sample.model.rules.hrot.history.HROTHistory;
 
 /**
  * Represents a HROT Symbiosis rule where opposite states mutually stablise each other.
@@ -166,5 +167,14 @@ public class HROTSymbiosis extends HROT implements ApgtableGeneratable {
         }
 
         return 0;
+    }
+
+    @Override
+    public Object clone() {
+        HROTSymbiosis newRule = new HROTSymbiosis(rulestring);
+        newRule.setWeights(getWeights());
+        newRule.setNeighbourhood(getNeighbourhood(0).clone());
+
+        return newRule;
     }
 }

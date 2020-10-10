@@ -220,7 +220,7 @@ Supported / Planned Rulespaces
 Supported / Planned INT Neighbourhoods
 ======================================
 - [x] Range 1 Moore Isotropic Non-Totalistic (M)
-- [ ] Range 1 Hexagonal Isotropic Non-Totalistic (H)
+- [x] Range 1 Hexagonal Isotropic Non-Totalistic (H)
 - [ ] Range 2 Von Neumann Isotropic Non-Totalistic (V2)
 - [ ] Range 2 Checkerboard Isotropic Non-Totalistic (B2)
 - [x] Range 2 Far Corners Isotropic Non-Totalistic (FC)

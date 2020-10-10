@@ -7,6 +7,7 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.isotropic.transitions.INTTransitions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Represents 2-state isotropic non-totalistic (INT) rules
@@ -52,8 +53,12 @@ public class INT extends BaseINT implements ApgtableGeneratable {
         int counter = 0;
         for (String string: neighbourhoodLookup.keySet()) {
             transitionRegexes[counter] = "(" + neighbourhoodLookup.get(string).getRegex() + ")*";
-            regexes[counter] = "B" + transitionRegexes[counter] + "/S" + transitionRegexes[counter] +
-                    "(/N" + string + ")?";
+            if (string.equals("M")) {
+                regexes[counter] = "[BbSs]" + transitionRegexes[counter] + "[_/]?[BbSs]" + transitionRegexes[counter];
+            } else {
+                regexes[counter] = "[BbSs]" + transitionRegexes[counter] + "[_/]?[BbSs]" + transitionRegexes[counter] +
+                        "([_/]N)?" + string;
+            }
             counter++;
         }
 
@@ -72,11 +77,11 @@ public class INT extends BaseINT implements ApgtableGeneratable {
         for (int i = 0; i < regexes.length; i++) {
             if (rulestring.matches(regexes[i])) {
                 birth = getINTTransition(rulestring);
-                birth.setTransitionString(Utils.matchRegex("B(" + transitionRegexes[i] + ")",
+                birth.setTransitionString(Utils.matchRegex("[Bb](" + transitionRegexes[i] + ")",
                         rulestring, 0, 1));
 
                 survival = getINTTransition(rulestring);
-                survival.setTransitionString(Utils.matchRegex("S(" + transitionRegexes[i] + ")",
+                survival.setTransitionString(Utils.matchRegex("[Ss](" + transitionRegexes[i] + ")",
                         rulestring, 0, 1));
 
                 matched = true;
@@ -95,6 +100,14 @@ public class INT extends BaseINT implements ApgtableGeneratable {
     @Override
     public String canonise(String rulestring) {
         return rulestring;
+        /* TODO (Actually canonise rulestrings)
+        if (!neighbourhoodString.equals(""))
+            return "B" + birth.canoniseTransitions() + "/S" + survival.canoniseTransitions() +
+                    "/N" + neighbourhoodString;
+        else
+            return "B" + birth.canoniseTransitions() + "/S" + survival.canoniseTransitions();
+         */
+
     }
 
     /**

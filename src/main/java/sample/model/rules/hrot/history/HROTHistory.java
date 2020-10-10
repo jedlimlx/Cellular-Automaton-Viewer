@@ -189,4 +189,13 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
         if (state == 6) return 6;
         return super.dependsOnNeighbours(state, generation, coordinate);
     }
+
+    @Override
+    public Object clone() {
+        HROTHistory newRule = new HROTHistory(rulestring);
+        newRule.setWeights(getWeights());
+        newRule.setNeighbourhood(getNeighbourhood(0).clone());
+
+        return newRule;
+    }
 }

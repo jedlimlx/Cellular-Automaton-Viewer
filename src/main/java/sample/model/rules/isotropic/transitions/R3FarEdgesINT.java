@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Represents range 3 far edges INT transitions (hensel notation)
  */
 public class R3FarEdgesINT extends SingleLetterTransitions {
+    public R3FarEdgesINT() {
+        this("");
+    }
+
     /**
      * Constructs the range 3 far edges INT transitions with hensel notation
      * @param string The hensel notation string

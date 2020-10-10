@@ -57,7 +57,7 @@ public abstract class INTTransitions {
      * Canonises the transitions based on the currently loaded parameters
      * @return Returns the canonised transitions in the form of a string
      */
-    protected abstract String canoniseTransitions();
+    public abstract String canoniseTransitions();
 
     /**
      * Adds the provided transition to the transitions table and the sorted.

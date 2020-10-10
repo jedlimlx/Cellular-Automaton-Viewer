@@ -77,7 +77,8 @@ public class MainController {
     private Simulator simulator;  // Simulator to simulate rule
     private ArrayList<Button> stateButtons;  // Buttons to switch between states
     private HashMap<Coordinate, Cell> cellList;  // List of cell objects
-    private LRUCache<Coordinate, Cell> deadCells;  // LRU Cache of dead cells
+    private Set<Coordinate> deadCellsSet;
+    private LRUCache<Coordinate, Cell> deadCellsCache;  // LRU Cache of dead cells
     private Group gridLines;  // The grid lines of the pattern editor
 
     private Group pasteSelection;  // The group that renders the stuff to be pasted
@@ -104,16 +105,20 @@ public class MainController {
     public void initialize() {
         // Initialise variables
         cellList = new HashMap<>();
-        deadCells = new LRUCache<>(200);
+        deadCellsCache = new LRUCache<>(200);
         stateButtons = new ArrayList<>();
         history = new ArrayList<>();
+        deadCellsSet = new HashSet<>();
         mode = Mode.DRAWING;
 
-        deadCells.setDeleteFunc((coordinate, cell) -> {
+        deadCellsCache.setDeleteFunc((coordinate, cell) -> {
+            if (cell.getState() != 0) return;
+
             // Destroy the cell object (remove all references to it so it is garbage collected)
             removeCellObject(coordinate.getX(), coordinate.getY());
             drawingPane.getChildren().remove(cell.getRectangle());
         });
+        deadCellsCache.setCheckValid(cell -> cell.getState() == 0);
 
         // Create simulator object
         simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
@@ -446,13 +451,14 @@ public class MainController {
 
     @FXML // Clears the cell cache
     public void clearCellsCache() {
-        while (deadCells.hasNext()) {
-            Coordinate cell = deadCells.next();  // No ConcurrentModficationException
+        while (deadCellsSet.iterator().hasNext()) {
+            Coordinate cell = deadCellsSet.iterator().next();  // No ConcurrentModficationException
+            // if (deadCellsCache.get(cell).getState() != 0) return;
 
             // Destroy the cell object (remove all references to it so it is garbage collected)
+            drawingPane.getChildren().remove(cellList.get(cell).getRectangle());
             removeCellObject(cell.getX(), cell.getY());
-            drawingPane.getChildren().remove(deadCells.getValue(cell).getRectangle());
-            deadCells.removeValue(cell);
+            deadCellsSet.remove(cell);
         }
     }
 
@@ -479,12 +485,14 @@ public class MainController {
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
         else if (prevCell != null && prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            if (prevCell.getState() == 0) deadCells.removeValue(prevCell.getCoordinate());
+            if (prevCell.getState() == 0) deadCellsSet.remove(prevCell.getCoordinate());
+            // if (prevCell.getState() == 0) deadCellsCache.remove(prevCell.getCoordinate());
 
             prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
             prevCell.setState(state);
 
-            if (state == 0) deadCells.setValue(new Coordinate(x, y), prevCell);
+            //if (state == 0) deadCellsCache.put(new Coordinate(x, y), prevCell);
+            if (state == 0) deadCellsSet.add(new Coordinate(x, y));
         }
 
         // Add cell to simulator
@@ -529,7 +537,7 @@ public class MainController {
     }
 
     public void updateStatusText() {
-        deadCells.setCapacity(simulator.getPopulation() * 3);
+        deadCellsCache.setCapacity(simulator.getPopulation() * 5);
 
         String simulationString = String.format("Simulation Speed: %.2f step/s",
                 1000.0 / (visualisationTime + simulationTime));

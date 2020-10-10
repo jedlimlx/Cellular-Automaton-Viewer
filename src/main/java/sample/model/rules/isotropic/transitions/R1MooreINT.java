@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Represents range 1 moore INT transitions (hensel notation)
  */
 public class R1MooreINT extends SingleLetterTransitions {
+    public R1MooreINT() {
+        this("");
+    }
+
     /**
      * Constructs the range 1 moore INT transitions with hensel notation
      * @param string The hensel notation string

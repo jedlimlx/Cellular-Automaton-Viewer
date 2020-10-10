@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Represents range 2 knight INT transitions
  */
 public class R2KnightINT extends SingleLetterTransitions {
+    public R2KnightINT() {
+        this("");
+    }
+
     /**
      * Constructs the range 2 knight INT transitions
      * @param string The string that represents the transitions
