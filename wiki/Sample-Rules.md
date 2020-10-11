@@ -33,6 +33,9 @@
 [?](../rules/HROT Extended Generations/R2,B4,16,21,S8,10-19,G0-1-1,NM/DESCRIPTION.md) | Stable | R2,B4,16,21,S8,10-19,G0-1-1,NM | This is a reverse generations variant of the rule Pigs. It has a failed replicator as well as a 32c/96o linear replicator. In addition, there are many high period oscillators.
 
 ## Deficient Rules
+| Name | Character | Rulestring | Description | 
+| ------------- | ------------- | ------------- | ------------- |
+| [?](../rules/Deficient HROT/R2,D0,S0-3,11,B0-5,NN/DESCRIPTION.md) | Stable | R2,D0,S0-3,11,B0-5,NN | A pretty sparse and stable rule with multiple failed c/2o and c/2d simpified spaceship heads. These failed spaceship heads form multiple interesting oscillators and spaceships.
 
 
 ## Integer Rules

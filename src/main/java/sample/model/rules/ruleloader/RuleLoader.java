@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +30,8 @@ public class RuleLoader extends RuleFamily {
     private ArrayList<Directive> directives;
     private ArrayList<RuleDirective> ruleDirectives;
     private Map<String, Directive> directiveMap;
+
+    private static ArrayList<String> rules;
 
     /**
      * Constructs a new RuleLoader rule.
@@ -44,6 +49,8 @@ public class RuleLoader extends RuleFamily {
 
         directives = new ArrayList<>();
         ruleDirectives = new ArrayList<>();
+
+        rules = new ArrayList<>();
     }
 
     /**
@@ -115,6 +122,10 @@ public class RuleLoader extends RuleFamily {
                     content = new StringBuilder();
                 }
 
+                if (directiveMap.get(line.split("\\s+")[0]) == null)
+                    LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
+                            Level.WARNING, "Unknown directive " + line.split("\\s+")[0] + " found");
+
                 directive = (Directive) directiveMap.get(line.split("\\s+")[0]).clone();
             }
 
@@ -155,25 +166,39 @@ public class RuleLoader extends RuleFamily {
 
     @Override
     public String[] getRegex() {
-        /*
+        if (rules.isEmpty()) {
+            try {
+                String url = "https://conwaylife.com/wiki/Special:AllPages?from=&to=&namespace=3794";
+                while (true) {
+                    InputStream stream = new URL(url).openStream();
+                    Scanner s = new Scanner(stream).useDelimiter("\\A");
+                    String result = s.hasNext() ? s.next() : "";
+
+                    Matcher matcher = Pattern.compile("\"/wiki/Rule:([a-zA-Z0-9_()-]+)\"").matcher(result);
+                    while (matcher.find()) {
+                        rules.add(matcher.group(1));
+                    }
+
+                    Matcher matcher2 = Pattern.compile("<a href=\"(\\S+)\" title=\"Special:AllPages\">" +
+                            "Next page \\(.*?\\)</a>").matcher(result);
+                    if (matcher2.find()) url = "https://conwaylife.com" +
+                            matcher2.group(1).replace("amp;", "");
+                    else break;
+                }
+            } catch (IOException ignored) {}
+        }
+
+        // Fetching from file
         File f = new File(RULE_DIRECTORY);
         String[] pathnames = f.list();
 
         if (pathnames != null) {
-            ArrayList<String> rules = new ArrayList<>();
             for (String pathname: pathnames) {
                 if (pathname.endsWith(".rule")) rules.add(pathname.replace(".rule", ""));
             }
-
-            return rules.toArray(new String[0]);
         }
-        else {
-            return new String[0];
-        }
-         */
 
-        // TODO (Fetch the list of possible rulenames directly)
-        return new String[]{"[a-zA-Z0-9_\\-/()]+"};
+        return rules.toArray(new String[0]);
     }
 
     @Override

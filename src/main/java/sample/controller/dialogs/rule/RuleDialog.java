@@ -14,6 +14,10 @@ import sample.controller.dialogs.rule.misc.TurmitesDialog;
 import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
 import sample.model.rules.RuleFamily;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 public class RuleDialog extends Dialog {
     private RuleFamily chosenRuleFamily;
 
@@ -104,11 +108,23 @@ public class RuleDialog extends Dialog {
         // Update the rule in the rule widget
         try {
             ruleWidget.updateRule(rulestringField.getText());
-        }
-        catch (IllegalArgumentException exception) {
+        } catch (IllegalArgumentException exception) {
+            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
+                    Level.WARNING, exception.getMessage());
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error!");
             alert.setHeaderText("This rulestring is invalid!");
+            alert.setContentText(exception.getMessage() + "\nIf you suspect this is a bug, please report it!");
+            alert.showAndWait();
+            return;
+        } catch (Exception exception) {
+            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
+                    Level.WARNING, exception.getMessage());
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("An error occured!");
             alert.setContentText(exception.getMessage() + "\nIf you suspect this is a bug, please report it!");
             alert.showAndWait();
             return;

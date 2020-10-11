@@ -56,12 +56,6 @@ jobs:
       with:
         name: CAViewer-Windows
         path: build/jpackage/CAViewer
-    - name: Setup GraalVM
-      uses: DeLaGuardo/setup-graalvm@master
-      with:
-        graalvm-version: '20.2.0.java11'
-    - name: Test build with GraalVM
-      run: ./gradlew nativeBuild
         
   macOS:
     name: Build on MacOS

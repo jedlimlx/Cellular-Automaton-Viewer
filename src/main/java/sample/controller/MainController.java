@@ -38,6 +38,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,8 +104,14 @@ public class MainController {
 
     private Giffer giffer;  // For writing to a *.gif
 
+    private Logger logger;
+
     @FXML
     public void initialize() {
+        // Initialise logger
+        logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
+        logger.log(Level.INFO, "GUI Initialising...");
+
         // Initialise variables
         cellList = new HashMap<>();
         deadCellsCache = new LRUCache<>(200);
@@ -218,7 +227,7 @@ public class MainController {
         }
         catch (IOException exception) {
             settings = new JSONObject();
-            exception.printStackTrace();
+            logger.log(Level.WARNING, exception.getMessage());
         }
     }
 
@@ -574,7 +583,9 @@ public class MainController {
                 else cellsChanged = simulator.getCellsChanged();
             }
         }
-        catch (ConcurrentModificationException ignored) {}
+        catch (ConcurrentModificationException exception) {
+            logger.log(Level.WARNING, exception.getMessage());
+        }
 
         simulationTime = (int) (System.currentTimeMillis() - startTime);
 
@@ -595,6 +606,8 @@ public class MainController {
                 visualisationTime = (int) (System.currentTimeMillis() - startTime2);
             }
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
+                logger.log(Level.WARNING, exception.getMessage());
+
                 simulationRunning = false;  // Pause the simulation
 
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -677,7 +690,9 @@ public class MainController {
                 history.add(simulator.deepCopy());
                 break;
             }
-            catch (ConcurrentModificationException ignored) {}
+            catch (ConcurrentModificationException exception) {
+                logger.log(Level.WARNING, exception.getMessage());
+            }
         }
     }
 
@@ -772,16 +787,18 @@ public class MainController {
                     alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
                     alert.showAndWait();
                 }
-            }
-            catch (UnsupportedOperationException exception) {
+            } catch (UnsupportedOperationException exception) {
+                logger.log(Level.WARNING, exception.getMessage());
+
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error in generating APGTable");
                 alert.setHeaderText("APGTable generation is not supported by this rule / rulespace!");
                 alert.setContentText(exception.getMessage());
                 alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
                 alert.showAndWait();
-            }
-            catch (IOException exception) {
+            } catch (IOException exception) {
+                logger.log(Level.WARNING, exception.getMessage());
+
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error in generating APGTable");
                 alert.setHeaderText("The operation was unsuccessful.");
@@ -915,7 +932,7 @@ public class MainController {
             writer.write(settings.toString(4));
             writer.close();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            logger.log(Level.WARNING, exception.getMessage());
         }
     }
 
@@ -1058,6 +1075,8 @@ public class MainController {
 
         }
         catch (IOException exception) {
+            logger.log(Level.WARNING, exception.getMessage());
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Writing to pattern file");
             alert.setHeaderText("An error occuring when writing to the pattern file!");
@@ -1098,6 +1117,8 @@ public class MainController {
             loadPattern(tokens);  // Loads the pattern
         }
         catch (IOException exception) {
+            logger.log(Level.WARNING, exception.getMessage());
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error reading pattern file");
             alert.setHeaderText("There was an error reading the pattern file!");

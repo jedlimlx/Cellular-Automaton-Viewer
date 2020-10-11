@@ -294,6 +294,8 @@ For a list of neighbourhood aliases, see [this](../src/main/resources/ruleloader
 Note that when CAViewer finds multiple @TABLE, @TREE and @SQC directives in a rulefile, 
 CAViewer will alternate between them.
 
+Alternating B0 rules are also supported.
+
 ### @RULE
 The first line of a .rule file must start with @RULE followed by a space and then the rule name. 
 For example:
@@ -324,7 +326,8 @@ n_states: specifies the number of states in the CA (from 0 to n_states-1 inclusi
 neighborhood: specifies the cell neighborhood for the CA update step. Must be one of: vonNeumann, Moore, hexagonal, oneDimensional or list of coordinates representing the neighbourhood (unlike lifelib, the first and last coordinate need not be (0, 0)) <br>
 Other neighborhoods are supported through emulation, using RuleTableToTree.py, see the RoadMap for a full list. <br>
 symmetries: can be none, permute or one of the symmetries supported for the neighborhood you have chosen. <br>
-(optional) tiling: can be square, hexagonal or triangular (neighbourhood should point down) <br>
+(optional) tiling: can be square, hexagonal or triangular (neighbourhood should point down)
+
 After the descriptors comes the variables and transitions. Each variable line should follow the form given in the above example to list the states. Variables should appear before the first transition that uses them.
 
 Transition lines should have states or variables separated by commas. Only one transition (or variable) should appear on each line.
@@ -358,32 +361,38 @@ The header consists of comments (lines starting with a "#") that are ignored, an
 
 The tree is represented by a sequence of node lines. Each node line consists of exactly num_states+1 integers separated by single spaces. The first integer of each node line is the depth of that node, which must range from 1..num_neighbors+1. The remaining integers for nodes of depth one are state values. The remaining integers for nodes of depth greater than one are node numbers. Nodes are numbered in the order they appear in the file, starting with zero; each node must be defined before its node number is used. The root node, which must be the single node at depth num_neighbors+1, must be the last node defined in the file.
 
-###@SQC
+### @SQC
 This represents a Square Cell ruletable.
 Essentially, it is a large transition table specifying the new state of a cell and the necessary neighbourhood sym.
 
 Let's say I have the following neighbourhood weights:
+```
 1 2 3 2 1
 2 4 6 4 2
 3 6 9 6 3
 2 4 6 4 2
 1 2 3 2 1
+```
 
 I also have the following state weights,
-0, -1, 1
+`0, -1, 1`
 
 Now, let's say I have cells in this configuration:
+```
 0 0 0 1 0
 0 0 1 0 0
 0 0 2 0 0
 0 2 0 0 2
 0 0 0 0 0
+```
 
 The neighbourhood sum would be -1 * 2 + -1 * 6 + 1 * 9 + 1 * 4 + 2 * 2 = -2 + -6 + 9 + 4 + 2 = 7
 Now, looking at the following ruletable
+```
 0,0,0,0,1,0,0,0
 1,1,2,1,1,2,1,1
 2,2,2,2,2,2,1,1
+```
 
 A neighbourhood count of 7 would mean the new cell's state is 1 (the row number is the current state of the cell, the column number is the neighbourhood sum, both 0-indexed).
 

@@ -32,8 +32,8 @@ public class ApgtableCommand implements Runnable {
             APGTable apgTable = ((ApgtableGeneratable) family).generateApgtable();
 
             FileWriter fileWriter = new FileWriter(outputFile);
-            fileWriter.write("@RULE" + outputFile.getName().replace(".rule", ""));
-            fileWriter.write("\n@TABLE\n");
+            fileWriter.write("@RULE " + outputFile.getName().replace(".rule", ""));
+            fileWriter.write("\n\n@TABLE\n");
             fileWriter.write(apgTable.compileAPGTable());
             fileWriter.close();
         }

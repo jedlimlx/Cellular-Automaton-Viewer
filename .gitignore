@@ -7,3 +7,5 @@ out
 settings.json
 benchmark.txt
 rules/Test.rule
+log0.log
+log0.log.lck

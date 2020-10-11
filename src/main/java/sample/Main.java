@@ -3,6 +3,12 @@ package sample;
 import picocli.CommandLine;
 import sample.commands.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.LogManager;
+
 @CommandLine.Command(subcommands = {
         GUICommand.class,
         SimulationCommand.class,
@@ -16,6 +22,11 @@ import sample.commands.*;
 })
 public class Main implements Runnable {
     public static void main(String[] args) {
+        try {
+            LogManager.getLogManager().readConfiguration(
+                    Main.class.getResourceAsStream("/logging.properties"));
+        } catch (IOException ignored) {}
+
         if (args.length == 0 || args[0].equals("GUI")) {
             GUICommand.main(args);
             return;
