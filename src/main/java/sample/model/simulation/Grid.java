@@ -3,10 +3,7 @@ package sample.model.simulation;
 import org.javatuples.Pair;
 import sample.model.Coordinate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -467,6 +464,39 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     }
 
     /**
+     * Performs BFS (breath-first search) on the pattern and returns a
+     * list of coordinates represents the cells that are a certain distance from the living cells.
+     * @param distance The "distance" from the living cell
+     * @param neighbourhood The neighbourhood to use in the BFS
+     * @return Returns the list of cells that are a certain distance from the living cells
+     */
+    public List<Coordinate> bfs(int distance, Coordinate[] neighbourhood) {
+        Set<Coordinate> visited = new HashSet<>();
+        Queue<Pair<Coordinate, Integer>> bfsQueue = new LinkedList<>();
+        iterateCells(coordinate -> bfsQueue.add(new Pair<>(coordinate, 0)));
+
+        Pair<Coordinate, Integer> currentPair;
+        Coordinate current, neighbour;
+        while (!bfsQueue.isEmpty()) {
+            currentPair = bfsQueue.poll();  // Pop from queue head
+            current = currentPair.getValue0();
+            visited.add(current);  // Adding to visited
+
+            // Skip the rest since the cell is at max distance
+            if (currentPair.getValue1() >= distance) continue;
+
+            for (Coordinate coordinate: neighbourhood) {
+                neighbour = current.add(coordinate);
+                if (!visited.contains(neighbour)) {
+                    bfsQueue.add(new Pair<>(neighbour, currentPair.getValue1() + 1));
+                }
+            }
+        }
+
+        return new ArrayList<>(visited);
+    }
+
+    /**
      * Deep copies the grid
      * @return A deep copy of the grid
      */
@@ -537,41 +567,26 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     public int hashCode() {
         updateBounds();
 
-        /*
-        int GSF_hash(int x, int y, int wd, int ht)
-        {
-            // calculate a hash value for pattern in given rect
-            int hash = 31415962;
-            int right = x + wd - 1;
-            int bottom = y + ht - 1;
-            int cx, cy;
-            int v = 0;
-            lifealgo* curralgo = currlayer->algo;
-            bool multistate = curralgo->NumCellStates() > 2;
-
-            for ( cy=y; cy<=bottom; cy++ ) {
-                int yshift = cy - y;
-                for ( cx=x; cx<=right; cx++ ) {
-                    int skip = curralgo->nextcell(cx, cy, v);
-                    if (skip >= 0) {
-                        // found next live cell in this row (v is >= 1 if multistate)
-                        cx += skip;
-                        if (cx <= right) {
-                            // need to use a good hash function for patterns like AlienCounter.rle
-                            hash = (hash * 1000003) ^ yshift;
-                            hash = (hash * 1000003) ^ (cx - x);
-                            if (multistate) hash = (hash * 1000003) ^ v;
-                        }
-                    } else {
-                        cx = right;  // done this row
-                    }
-                }
+        AtomicInteger hash = new AtomicInteger(31415962);
+        iterateCells(coordinate -> {
+            int yShift = coordinate.getY() - startCoordinate.getY();
+            if (getCell(coordinate) > 0) {
+                hash.set((hash.get() * 1000003) ^ yShift);
+                hash.set((hash.get() * 1000003) ^ (coordinate.getX() - startCoordinate.getX()));
+                hash.set((hash.get() * 1000003) ^ getCell(coordinate));
             }
+        });
 
-            return hash;
-        }
-         */
+        return hash.get();
+    }
 
+    /**
+     * Gets the hash of the grid.
+     * @param startCoordinate The start coordinate of the region where the hash is calculated
+     * @param endCoordinate The end coordinate of the region where the hash is calculated
+     * @return Returns the grid's hash (uses Golly's hash algorithm).
+     */
+    public int hashCode(Coordinate startCoordinate, Coordinate endCoordinate) {
         int hash = 31415962;
         for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
             int yShift = y - startCoordinate.getY();
@@ -581,6 +596,26 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
                     hash = (hash * 1000003) ^ (x - startCoordinate.getX());
                     hash = (hash * 1000003) ^ getCell(x, y);
                 }
+            }
+        }
+
+        return hash;
+    }
+
+    /**
+     * Gets the hash of the grid.
+     * @param coordinates The coordinates to consider in the hash algorithm
+     * @param startCoordinate The start coordinate of the list of coordinates provided
+     * @return Returns the grid's hash (uses Golly's hash algorithm).
+     */
+    public int hashCode(List<Coordinate> coordinates, Coordinate startCoordinate) {
+        int hash = 31415962;
+        for (Coordinate coordinate: coordinates) {
+            int yShift = coordinate.getY() - startCoordinate.getY();
+            if (getCell(coordinate) > 0) {
+                hash = (hash * 1000003) ^ yShift;
+                hash = (hash * 1000003) ^ (coordinate.getX() - startCoordinate.getX());
+                hash = (hash * 1000003) ^ getCell(coordinate);
             }
         }
 

@@ -21,6 +21,8 @@ import sample.controller.dialogs.About;
 import sample.controller.dialogs.GifferDialog;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.rule.RuleWidget;
+import sample.controller.dialogs.search.CatalystSearchParametersDialog;
+import sample.controller.dialogs.search.CatalystSearchResultsDialog;
 import sample.controller.dialogs.search.RuleSearchParametersDialog;
 import sample.controller.dialogs.search.RuleSearchResultsDialog;
 import sample.model.Cell;
@@ -29,7 +31,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
+import sample.model.search.CatalystSearch;
 import sample.model.search.RuleSearch;
+import sample.model.search.RuleSearchParameters;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
@@ -740,11 +744,34 @@ public class MainController {
                 new RuleSearchParametersDialog(simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()));
         parametersDialog.showAndWait();
 
-        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn;t cancelled
+        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
             RuleSearch ruleSearch = new RuleSearch(parametersDialog.getSearchParameters());
             ruleSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
 
             RuleSearchResultsDialog resultsDialog = new RuleSearchResultsDialog(this, ruleSearch);
+            resultsDialog.show();
+        }
+    }
+
+    @FXML // Starts the catalyst search dialog
+    public void startCatalystSearchDialog() {
+        // Dialog to get the search parameters
+        List<Coordinate> cellCoordinates = new ArrayList<>();
+        for (int i = selectionRectangle.getStart().getX(); i < selectionRectangle.getEnd().getX() + 1; i++) {
+            for (int j = selectionRectangle.getStart().getY(); j < selectionRectangle.getEnd().getY() + 1; j++) {
+                cellCoordinates.add(new Coordinate(i, j));
+            }
+        }
+
+        CatalystSearchParametersDialog parametersDialog =
+                new CatalystSearchParametersDialog(simulator.getRule(), simulator.deepCopy(), cellCoordinates);
+        parametersDialog.showAndWait();
+
+        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
+            CatalystSearch catalystSearch = new CatalystSearch(parametersDialog.getSearchParameters());
+            catalystSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+
+            CatalystSearchResultsDialog resultsDialog = new CatalystSearchResultsDialog(this, catalystSearch);
             resultsDialog.show();
         }
     }

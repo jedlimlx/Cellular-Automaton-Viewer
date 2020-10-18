@@ -13,16 +13,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class RuleSearch extends SearchProgram {
     private HashSet<String> known;
 
-    public RuleSearch(SearchParameters parameters) {
+    public RuleSearch(RuleSearchParameters parameters) {
         super(parameters);
-
-        if (!(parameters instanceof RuleSearchParameters)) {
-            throw new IllegalArgumentException("SearchParameters must be of type RuleSearchParameters");
-        }
     }
 
     public void search(int numRules) throws IllegalArgumentException {
@@ -89,6 +88,8 @@ public class RuleSearch extends SearchProgram {
             return true;
         }
         catch (IOException exception) {
+            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).
+                    log(Level.WARNING, exception.getMessage());
             return false;
         }
     }

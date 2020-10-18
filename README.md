@@ -54,6 +54,7 @@ The Menu Bar
 **Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
 *Run Rule Search* - Starts a search program that randomly enumerates rules to find spaceships & oscillators <br>
+*Run Catalyst Search* - Starts a search program that searches for catalysts <br>
 
 **Help Menu**:<br>
 *About* - Opens the CAViewer Wiki in a built-in browser.<br>
@@ -263,6 +264,8 @@ Search Programs
     - [ ] Object separation?
 - [ ] Agar Search Program
 - [ ] Catalyst Search Program
+    - [x] Mutiple catalysts
+    - [ ] Brute force option
 - [ ] Methuselah Search Program
 
 Long-term TODO List

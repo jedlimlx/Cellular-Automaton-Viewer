@@ -6,6 +6,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import sample.model.search.SearchParameters;
 
+/**
+ * A dialog to obtain search parameters from a search dialog
+ */
 public abstract class SearchParametersDialog extends Dialog {
     protected Spinner<Integer> spinnerThreads;
     protected GridPane grid;
@@ -16,6 +19,9 @@ public abstract class SearchParametersDialog extends Dialog {
     // Number of threads to use
     protected int numThreads;
 
+    /**
+     * Constructs the dialog
+     */
     public SearchParametersDialog() {
         super();
         super.setResizable(true);
@@ -63,16 +69,27 @@ public abstract class SearchParametersDialog extends Dialog {
         super.getDialogPane().setContent(vbox);
     }
 
-    // Method to update the search parameters based on the inputted values
+    /**
+     * Updates the search parameters based on the inputted parameters
+     * @return Returns true if successful, false otherwise
+     */
     public boolean confirmParameters() {
         numThreads = spinnerThreads.getValue();
         return false;
     }
 
+    /**
+     * Gets the search parameters
+     * @return Returns the search parameters
+     */
     public SearchParameters getSearchParameters() {
         return searchParameters;
     }
 
+    /**
+     * Gets the number of threads used
+     * @return Returns the number of threads used
+     */
     public int getNumThreads() {
         return numThreads;
     }

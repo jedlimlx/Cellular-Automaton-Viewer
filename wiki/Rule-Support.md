@@ -324,7 +324,6 @@ Empty lines and anything following the hash symbol "#" are ignored. The followin
 
 n_states: specifies the number of states in the CA (from 0 to n_states-1 inclusive). <br>
 neighborhood: specifies the cell neighborhood for the CA update step. Must be one of: vonNeumann, Moore, hexagonal, oneDimensional or list of coordinates representing the neighbourhood (unlike lifelib, the first and last coordinate need not be (0, 0)) <br>
-Other neighborhoods are supported through emulation, using RuleTableToTree.py, see the RoadMap for a full list. <br>
 symmetries: can be none, permute or one of the symmetries supported for the neighborhood you have chosen. <br>
 (optional) tiling: can be square, hexagonal or triangular (neighbourhood should point down)
 
@@ -403,7 +402,7 @@ state_weights:0,1
 (optional) tiling:square/hexagonal/triangular 
 ```
 
-###@COLORS
+### @COLORS
 
 This section is optional and can be used to specify the RGB colors for one or more states using lines with 4 numbers, like these:
 ```

@@ -92,4 +92,9 @@ public class RuleSearchParametersDialog extends SearchParametersDialog {
 
         return false;
     }
+
+    @Override
+    public RuleSearchParameters getSearchParameters() {
+        return (RuleSearchParameters) super.getSearchParameters();
+    }
 }
