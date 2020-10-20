@@ -2,6 +2,7 @@ package sample.commands;
 
 import org.javatuples.Pair;
 import picocli.CommandLine;
+import sample.model.Utils;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
@@ -34,7 +35,7 @@ public class RuleRangeCommand implements Runnable {
 
             // Loading the pattern
             if (inputFile != null) {
-                CommandUtils.loadPattern(simulator, inputFile);
+                Utils.loadPattern(simulator, inputFile);
             }
             else {
                 System.out.println("Input file must be specified!");

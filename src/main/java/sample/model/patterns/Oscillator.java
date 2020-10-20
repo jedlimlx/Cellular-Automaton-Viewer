@@ -55,4 +55,12 @@ public class Oscillator extends Pattern {
 
         return information;
     }
+
+    /**
+     * Returns the period of the oscillator
+     * @return Returns the period of the oscillator
+     */
+    public int getPeriod() {
+        return period;
+    }
 }

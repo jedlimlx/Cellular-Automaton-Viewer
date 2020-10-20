@@ -1,6 +1,7 @@
 package sample.commands;
 
 import picocli.CommandLine;
+import sample.model.Utils;
 import sample.model.rules.hrot.HROT;
 import sample.model.simulation.Simulator;
 
@@ -31,7 +32,7 @@ IdentifyCommand implements Runnable {
 
             // Loading the pattern
             if (inputFile != null) {
-                CommandUtils.loadPattern(simulator, inputFile);
+                Utils.loadPattern(simulator, inputFile);
             }
             else {
                 System.err.println("Input file must be specified!");

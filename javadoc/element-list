@@ -10,6 +10,7 @@ sample.controller.dialogs.rule.misc
 sample.controller.dialogs.rule.ruleloader
 sample.controller.dialogs.search
 sample.model
+sample.model.database
 sample.model.patterns
 sample.model.rules
 sample.model.rules.hrot

@@ -1,10 +1,7 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
-import sample.model.CommentGenerator;
-import sample.model.Coordinate;
-import sample.model.NeighbourhoodGenerator;
-import sample.model.Utils;
+import sample.model.*;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;

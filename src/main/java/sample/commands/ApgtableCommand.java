@@ -2,6 +2,7 @@ package sample.commands;
 
 import picocli.CommandLine;
 import sample.model.APGTable;
+import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.RuleFamily;
 
@@ -25,7 +26,7 @@ public class ApgtableCommand implements Runnable {
     @Override
     public void run() {
         try {
-            RuleFamily family = CommandUtils.fromRulestring(ruleString);
+            RuleFamily family = Utils.fromRulestring(ruleString);
             if (!(family instanceof ApgtableGeneratable))
                 throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
 

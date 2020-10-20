@@ -2,6 +2,7 @@ package sample.commands;
 
 import org.javatuples.Pair;
 import picocli.CommandLine;
+import sample.model.Utils;
 import sample.model.Coordinate;
 import sample.model.rules.hrot.HROT;
 import sample.model.simulation.Simulator;
@@ -45,7 +46,7 @@ public class SimulationCommand implements Runnable {
 
             // Loading the pattern
             if (inputFile != null) {
-                CommandUtils.loadPattern(simulator, inputFile);
+                Utils.loadPattern(simulator, inputFile);
             }
             else {
                 System.err.println("Input file must be specified!");

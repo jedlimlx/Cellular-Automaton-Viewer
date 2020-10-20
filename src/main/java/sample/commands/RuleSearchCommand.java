@@ -1,6 +1,7 @@
 package sample.commands;
 
 import picocli.CommandLine;
+import sample.model.Utils;
 import sample.model.rules.hrot.HROT;
 import sample.model.search.RuleSearch;
 import sample.model.search.RuleSearchParameters;
@@ -50,7 +51,7 @@ public class RuleSearchCommand implements Runnable {
             Simulator simulator = new Simulator(new HROT("B3/S23"));
 
             if (inputFile != null) {
-                CommandUtils.loadPattern(simulator, inputFile);
+                Utils.loadPattern(simulator, inputFile);
             }
             else {
                 System.err.println("Input file must be specified!");
@@ -63,7 +64,7 @@ public class RuleSearchCommand implements Runnable {
             }
 
             RuleSearchParameters parameters = new RuleSearchParameters(simulator.deepCopy(),
-                    CommandUtils.fromRulestring(minRule), CommandUtils.fromRulestring(maxRule), maxPeriod);
+                    Utils.fromRulestring(minRule), Utils.fromRulestring(maxRule), maxPeriod);
 
             RuleSearch ruleSearch = new RuleSearch(parameters);
             ruleSearch.searchThreaded(numSearch, threads);

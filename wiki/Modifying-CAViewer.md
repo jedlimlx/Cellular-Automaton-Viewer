@@ -38,11 +38,11 @@ supported by CAViewer and [Utils.java] with useful methods for parsing strings a
 3. Create a new class for the rule family's dialog. It should inherit from [RuleWidget.java].
 4. Implement the necessary methods from [RuleWidget.java]. Some other widgets that would be helpful are
 - [x] [NeighbourhoodSelector.java]
-- [x] [StateWeightSelector.java]
+- [ ] [StateWeightSelector.java]
 
-5. Add the new rule family to [CommandUtils.java].
+5. Add the new rule family to [Utils.java] and the new rule dialog to [RuleDialog.java].
 
-If you use these widgets, construct them via the methods in [SharedWidgets.java] 
+If you use these widgets, construct them via the methods in [SharedWidgets.java]
 so that the values in these widgets do not change when the rulespace is changed.
 
 [Rule.java]: ../src/main/java/sample/model/rules/Rule.java
@@ -57,7 +57,7 @@ so that the values in these widgets do not change when the rulespace is changed.
 [Utils.java]: ../src/main/java/sample/model/Utils.java
 [StateWeightSelector.java]: ../src/main/java/sample/controller/StateWeightSelector.java
 [NeighbourhoodSelector.java]: ../src/main/java/sample/controller/NeighbourhoodSelector.java
-[CommandUtils]: ../src/main/java/sample/commands/CommandUtils.java
+[RuleDialog.java]: ../src/main/java/sample/controller/dialogs/rule/RuleDialog.java
 [rules]: ../src/main/java/sample/model/rules
 [javadocs]: ../javadoc/index.html
 

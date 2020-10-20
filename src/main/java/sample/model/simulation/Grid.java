@@ -15,8 +15,7 @@ import java.util.regex.Pattern;
  * <br>
  * Example Usage: <br>
  * <pre>
- * Grid grid = new Grid();
- * grid.fromRLE("bo$obo$o2bo$bobo$2bo!", new Coordinate(0, 0))
+ * Grid grid = new Grid("bo$obo$o2bo$bobo$2bo!");
  * iterateCells(cell -> {
  *      System.out.println(cell);
  * });
@@ -74,6 +73,19 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
 
             this.dictionary.put(coordinate, (Block) block.clone());
         }
+    }
+
+    /**
+     * Constructs a grid the RLE pattern and a background of 0.
+     * @param RLE The RLE of the pattern
+     */
+    public Grid(String RLE) {
+        this.background = 0;
+        this.dictionary = new HashMap<>();
+        this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
+
+        fromRLE(RLE, new Coordinate());
     }
 
     /**

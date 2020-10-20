@@ -7,7 +7,6 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.isotropic.transitions.INTTransitions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Represents 2-state isotropic non-totalistic (INT) rules

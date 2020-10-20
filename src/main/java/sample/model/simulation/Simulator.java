@@ -303,4 +303,18 @@ public class Simulator extends Grid {
             }
         }
     }
+
+    /**
+     * Converts the pattern in the given bounds into an RLE
+     * @param startCoordinate The start coordinate
+     * @param endCoordinate The end coordinate
+     * @return Returns the RLE
+     */
+    @Override
+    public String toRLE(Coordinate startCoordinate, Coordinate endCoordinate) {
+        if (rule.getNumStates() == 2)  // For 2-state rules
+            return super.toRLE(startCoordinate, endCoordinate).replace("A", "o").
+                    replace(".", "b");
+        return super.toRLE(startCoordinate, endCoordinate);
+    }
 }

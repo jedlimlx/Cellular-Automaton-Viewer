@@ -1,6 +1,7 @@
 package sample.commands;
 
 import picocli.CommandLine;
+import sample.model.Utils;
 import sample.model.SymmetryGenerator;
 import sample.model.rules.hrot.HROT;
 import sample.model.simulation.Simulator;
@@ -36,7 +37,7 @@ public class SynthesisCommand implements Runnable {
             Simulator[] spaceships = new Simulator[ships.length];
             for (int i = 0; i < spaceships.length; i++) {
                 spaceships[i] = new Simulator(new HROT("B3/S23"));
-                CommandUtils.loadPattern(spaceships[i], ships[i]);
+                Utils.loadPattern(spaceships[i], ships[i]);
             }
 
             while (true) {
