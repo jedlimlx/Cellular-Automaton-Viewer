@@ -62,7 +62,8 @@ public class INTTest {
                 }
 
                 assert targetPattern != null;
-                assertEquals(targetPattern.toRLE(), inputPattern.toRLE());
+                assertEquals(targetPattern.toRLE(), inputPattern.toRLE().
+                        replace("o", "A").replace("b", "."));
             }
         }
     }
