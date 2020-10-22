@@ -1,18 +1,50 @@
 package sample.model.rules.ruleloader.ruletable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a ruletable transition
+ */
 public class Transition {
+    /**
+     * The values (or state literals) of the transition
+     */
     private final Map<Integer, Integer> values;
+
+    /**
+     * The variables of the transition
+     */
     private final Map<Integer, Variable> variables;
+
+    /**
+     * Stores the information about the bound variable values when checking transitions
+     */
     private Map<String, Integer> boundVariableValue;
 
-    private boolean permute;
-    private int[][] cellNumRange;
+    /**
+     * Is the transition on permute symmetry
+     */
+    private final boolean permute;
 
-    private int numStates;
+    /**
+     * Used in permute symmetry
+     */
+    private final int[][] cellNumRange;
 
+    /**
+     * Number of states of the ruletable using the transition
+     */
+    private final int numStates;
+
+    /**
+     * Constructs a transition
+     * @param numStates The number of states of the ruletable
+     * @param permute Is there permute symmetry?
+     * @param transition The string representing the transition
+     * @param variables The variables representing the transition
+     */
     public Transition(int numStates, boolean permute, String transition, Map<String, Variable> variables) {
         this.numStates = numStates;
         this.permute = permute;
@@ -46,6 +78,12 @@ public class Transition {
         }
     }
 
+    /**
+     * Applies the transition to get the output state
+     * @param cellState The state of the cell
+     * @param neighbours The neighbours of the cell
+     * @return Returns -1 if the transition does not match, returns the cell's next state if it does
+     */
     public int applyTransition(int cellState, int[] neighbours) {
         boundVariableValue = new HashMap<>();
 
@@ -94,5 +132,13 @@ public class Transition {
                 return false;
             }
         }
+    }
+
+    public Map<Integer, Integer> getValues() {
+        return values;
+    }
+
+    public Map<Integer, Variable> getVariables() {
+        return variables;
     }
 }

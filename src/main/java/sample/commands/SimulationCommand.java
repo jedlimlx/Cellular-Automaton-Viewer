@@ -36,7 +36,7 @@ public class SimulationCommand implements Runnable {
     private boolean help;
 
     private Coordinate startingCoordinate;
-    private StringBuilder rleFinal = new StringBuilder();
+    private final StringBuilder rleFinal = new StringBuilder();
 
     @Override
     public void run() {

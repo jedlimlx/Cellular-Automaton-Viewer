@@ -6,6 +6,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletable.Variable;
 import sample.model.simulation.Grid;
 
 import java.util.*;
@@ -27,12 +30,12 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
     /**
      * A map that looks up the state associated with a given birth condition
      */
-    private Map<Integer, Integer> stateLookup;
+    private final Map<Integer, Integer> stateLookup;
 
     /**
      * A map that looks up the birth condition associated with the state
      */
-    private Map<Integer, Integer> transitionLookup;
+    private final Map<Integer, Integer> transitionLookup;
 
     /**
      * Does the rule have permanent deficiency?
@@ -396,67 +399,56 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        // Death Variables
-        int[] death = new int[numStates];
-        for (int i = 0; i < numStates; i++) {
-            death[i] = i;
-        }
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(numStates);
 
-        apgTable.addUnboundedVariable("death", death);
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
+
+        ruletable.addVariable(Ruletable.ANY);
 
         // Living Variables
-        int[] living = new int[numStates - 1];
-        for (int i = 1; i < numStates; i++) {
-            living[i - 1] = i;
-        }
+        Integer[] living = new Integer[numStates - 1];
+        for (int i = 1; i < numStates; i++) living[i - 1] = i;
 
-        apgTable.addUnboundedVariable("living", living);
+        Ruletable.LIVE = new Variable("live", true, new HashSet<>(Arrays.asList(living)));
+        ruletable.addVariable(Ruletable.LIVE);
 
         // Deficient Variables
         for (int transition: birth) {
             int index = 0;
-            int[] deficient = new int[numStates - 2];  // Contains all states but one
+            Integer[] deficient = new Integer[numStates - 2];  // Contains all states but one
             for (int state = 1; state < numStates; state++) {
                 if (state == stateLookup.get(transition)) continue;
                 deficient[index] = state;
                 index++;
             }
 
-            apgTable.addUnboundedVariable("deficient_" + transition, deficient);
+            ruletable.addVariable(new Variable("d" + transition, true,
+                    new HashSet<>(Arrays.asList(deficient))));
         }
 
-        // Birth Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, stateLookup.get(transition), transition,
-                    "0", "deficient_" + transition);
+        // Birth and survival transitions
+        for (int transition: birth)
+            ruletable.addOTTransition(transition, "0", stateLookup.get(transition) + "",
+                    "0", "d" + transition);
+
+        for (int state = 1; state < numStates; state++) {
+            if (permanentDeficiency)
+                ruletable.addOTTransitions(survival, state + "", state + "", "0", "live");
+            else
+                ruletable.addOTTransitions(survival, state + "", "1", "0", "live");
         }
 
-        // Survival Transitions
-        for (int transition: survival) {
-            for (int state = 1; state < numStates; state++) {  // Every state above 1 can survive
-                if (permanentDeficiency) {  // Checking for permanent deficiency
-                    apgTable.addOuterTotalisticTransition(state, state, transition,
-                            "0", "living");
-                }
-                else {
-                    apgTable.addOuterTotalisticTransition(state, 1, transition,
-                            "0", "living");
-                }
-            }
-        }
+        // Death transitions
+        for (int state = 1; state < numStates; state++)
+            ruletable.addOTTransition(0, state + "", "0", "any", "0");
 
-        for (int state = 1; state < numStates; state++) {  // Every state above can die
-            apgTable.addOuterTotalisticTransition(state, 0, maxNeighbourhoodCount,
-                    "0", "death");
-        }
-
-        return apgTable;
+        return new RuleDirective[]{ruletable};
     }
 
     /**

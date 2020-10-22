@@ -15,7 +15,7 @@ import java.util.Map;
 public class OneDimensional extends RuleFamily {
     // TODO (Fix B0 Rules)
     private Coordinate[] neighbourhood;
-    private Map<String, Integer> transitions;
+    private final Map<String, Integer> transitions;
 
     private static final String wolfram = "W[0-9]+";
     private static final String wolframWithRangeAndStates = "R[1-9][0-9]*,C[2-9][0-9]*,W[0-9]+";

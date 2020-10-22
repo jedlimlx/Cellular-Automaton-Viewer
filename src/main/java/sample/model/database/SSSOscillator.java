@@ -9,7 +9,7 @@ import sample.model.simulation.Grid;
  * Represents an oscillator from the Smallest Oscillators Supporting Specific Periods project.
  */
 public class SSSOscillator extends DatabaseEntry {
-    private Oscillator oscillator;
+    private final Oscillator oscillator;
 
     public SSSOscillator(String entry) {
         super(entry);

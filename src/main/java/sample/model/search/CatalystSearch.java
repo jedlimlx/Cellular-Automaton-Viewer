@@ -58,7 +58,7 @@ class PlacedCatalyst {
 }
 
 public class CatalystSearch extends SearchProgram {
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public CatalystSearch(CatalystSearchParameters parameters) {
         super(parameters);

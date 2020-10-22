@@ -14,12 +14,12 @@ public class Catalyst extends Pattern {
     /**
      * Repeat time of the catalyst
      */
-    private int repeatTime;
+    private final int repeatTime;
 
     /**
      * Is the catalyst a partial catalyst?
      */
-    private boolean partial;
+    private final boolean partial;
 
     /**
      * Contructs a catalyst

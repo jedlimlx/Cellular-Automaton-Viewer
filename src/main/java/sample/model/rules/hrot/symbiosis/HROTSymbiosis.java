@@ -1,11 +1,11 @@
 package sample.model.rules.hrot.symbiosis;
 
-import sample.model.APGTable;
 import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
-import sample.model.rules.hrot.history.HROTHistory;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
 
 /**
  * Represents a HROT Symbiosis rule where opposite states mutually stablise each other.
@@ -92,43 +92,35 @@ public class HROTSymbiosis extends HROT implements ApgtableGeneratable {
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        // Death Variables
-        apgTable.addUnboundedVariable("any", new int[]{0, 1, 2});
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
 
-        // Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, 1, transition,
-                    "0", "1");
-            apgTable.addOuterTotalisticTransition(0, 2, transition,
-                    "0", "2");
-        }
+        ruletable.setNumStates(3);
 
-        for (int transition: survival) {
-            apgTable.addOuterTotalisticTransition(1, 1, transition,
-                    "0", "1");
-            apgTable.addOuterTotalisticTransition(2, 2, transition,
-                    "0", "2");
-        }
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
 
-        // Mutual Stabilisation
-        apgTable.addOuterTotalisticTransition(1, 1, maxNeighbourhoodCount - 1,
-                "2", "any");
-        apgTable.addOuterTotalisticTransition(2, 2, maxNeighbourhoodCount - 1,
-                "1", "any");
+        ruletable.addVariable(Ruletable.ANY);
 
-        // Death
-        apgTable.addOuterTotalisticTransition(1, 0, maxNeighbourhoodCount,
-                "0", "any");
-        apgTable.addOuterTotalisticTransition(2, 0, maxNeighbourhoodCount,
-                "0", "any");
+        // Birth and survival transitions
+        ruletable.addOTTransitions(birth, "0", "1", "0", "1");
+        ruletable.addOTTransitions(birth, "0", "2", "0", "2");
 
-        return apgTable;
+        ruletable.addOTTransitions(survival, "1", "1", "0", "1");
+        ruletable.addOTTransitions(survival, "2", "2", "0", "2");
+
+        // Mututal Stabilisation
+        ruletable.addOTTransition(1, "1", "1", "any", "2");
+        ruletable.addOTTransition(2, "2", "2", "any", "1");
+
+        // Death transitions
+        ruletable.addOTTransition(0, "1", "0", "any", "0");
+        ruletable.addOTTransition(0, "2", "0", "any", "0");
+
+        return new RuleDirective[]{ruletable};
     }
 
     @Override

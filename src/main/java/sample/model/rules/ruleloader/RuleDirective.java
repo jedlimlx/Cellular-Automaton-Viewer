@@ -26,12 +26,12 @@ public abstract class RuleDirective extends Directive {
     /**
      * Built-in neighbourhood aliases (read in from ruleloader/neighbourhoods.txt)
      */
-    private Map<String, String> neighbourhoodAliases;
+    private final Map<String, String> neighbourhoodAliases;
 
     /**
      * Built-in symmetry aliases (read in from ruleloader/neighbourhoods.txt)
      */
-    private Map<Pair<Coordinate[], String>, Symmetry> symmetryAliases;
+    private final Map<Pair<Coordinate[], String>, Symmetry> symmetryAliases;
 
     /**
      * Constructs the directive with the provided content
@@ -101,11 +101,13 @@ public abstract class RuleDirective extends Directive {
         // ~~~ to avoid infinte recursion
         if (!content.contains("~~~")) {  // Check for aliases
             for (String aliases: neighbourhoodAliases.keySet()) {
-                if (content.matches("^[a-zA-Z0-9_.:=]*\\s*\\s*" + aliases)) {
+                if (content.matches("^\\S*\\s*" + aliases + "\\s*$")) {
                     return getNeighbourhood(neighbourhoodAliases.get(aliases) + "~~~");
                 }
             }
         }
+
+        content = content.replace("~~~", "");
 
         ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         Matcher matcher = Pattern.compile("(-?\\d+),\\s*(-?\\d+)").matcher(content);
@@ -125,11 +127,13 @@ public abstract class RuleDirective extends Directive {
         // ~~~ to avoid infinte recursion
         if (!content.contains("~~~")) {  // Check for aliases
             for (String aliases: neighbourhoodAliases.keySet()) {
-                if (content.matches("[a-zA-Z0-9_.:=]*\\s*\\s*" + aliases)) {
-                    return getWeights(aliases + "~~~");
+                if (content.matches("^\\S*\\s*" + aliases + "\\s*$")) {
+                    return getWeights(neighbourhoodAliases.get(aliases) + "~~~");
                 }
             }
         }
+
+        content = content.replace("~~~", "");
 
         ArrayList<Integer> weights = new ArrayList<>();
         Matcher matcher = Pattern.compile("((-?\\d+)\\s*\\*)?\\s*\\((-?\\d+,\\s*-?\\d+)\\)").matcher(content);
@@ -156,6 +160,8 @@ public abstract class RuleDirective extends Directive {
      * @return Returns the symmetry obtained
      */
     protected Symmetry getSymmetry(String content) {
+        if (content.equals("none")) return new Symmetry("");
+
         // ~~~ to avoid infinte recursion
         if (!content.contains("~~~")) {  // Check for aliases
             for (Pair<Coordinate[], String> aliases: symmetryAliases.keySet()) {

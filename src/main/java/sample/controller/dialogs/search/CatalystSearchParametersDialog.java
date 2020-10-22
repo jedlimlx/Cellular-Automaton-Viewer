@@ -14,11 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CatalystSearchParametersDialog extends SearchParametersDialog {
-    private Rule rule;
-    private Grid target;
-    private List<Coordinate> coordinateList;
-    private TextArea catalystTextArea;
-    private Spinner<Integer> spinnerMaxRepeatTime, spinnerNumCatalyst;
+    private final Rule rule;
+    private final Grid target;
+    private final List<Coordinate> coordinateList;
+    private final TextArea catalystTextArea;
+    private final Spinner<Integer> spinnerMaxRepeatTime;
+    private final Spinner<Integer> spinnerNumCatalyst;
 
     public CatalystSearchParametersDialog(Rule rule, Grid target, List<Coordinate> coordinateList) {
         this.rule = rule;

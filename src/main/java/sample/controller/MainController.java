@@ -31,6 +31,9 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.RuleLoader;
+import sample.model.rules.ruleloader.RuleNameDirective;
 import sample.model.search.CatalystSearch;
 import sample.model.search.RuleSearch;
 import sample.model.search.RuleSearchParameters;
@@ -798,12 +801,16 @@ public class MainController {
                         throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
                     }
 
-                    APGTable apgTable = ((ApgtableGeneratable) simulator.getRule()).generateApgtable();
+                    RuleDirective[] ruleDirectives = ((ApgtableGeneratable) simulator.getRule()).generateApgtable();
+
+                    RuleLoader ruleLoader = new RuleLoader();
+                    ruleLoader.addDirective(new RuleNameDirective("@RULE " +
+                            file.getName().replace(".rule", "")));
+
+                    for (RuleDirective directive: ruleDirectives) ruleLoader.addRuleDirective(directive);
 
                     FileWriter fileWriter = new FileWriter(file);
-                    fileWriter.write("@RULE " + file.getName().replace(".rule", "") + "\n\n");
-                    fileWriter.write("@TABLE\n");
-                    fileWriter.write(apgTable.compileAPGTable());
+                    fileWriter.write(ruleLoader.export());
                     fileWriter.close();
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);

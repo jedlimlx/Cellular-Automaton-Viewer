@@ -17,8 +17,8 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
     private Function<V, Boolean> checkValid;
     private BiConsumer<K, V> deleteFunc;
 
-    private Queue<K> keyQueue;
-    private HashMap<K, V> hashMap;
+    private final Queue<K> keyQueue;
+    private final HashMap<K, V> hashMap;
 
     /**
      * Constructs an LRU cache with the specified capacity

@@ -1,10 +1,12 @@
 package sample.commands;
 
 import picocli.CommandLine;
-import sample.model.APGTable;
 import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.RuleLoader;
+import sample.model.rules.ruleloader.RuleNameDirective;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,12 +32,17 @@ public class ApgtableCommand implements Runnable {
             if (!(family instanceof ApgtableGeneratable))
                 throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
 
-            APGTable apgTable = ((ApgtableGeneratable) family).generateApgtable();
+            RuleDirective[] ruleDirectives = ((ApgtableGeneratable) family).generateApgtable();
+
+            RuleLoader ruleLoader = new RuleLoader();
+            ruleLoader.addDirective(new RuleNameDirective("@RULE " +
+                    outputFile.getName().replace(".rule", "")));
+
+            for (RuleDirective directive: ruleDirectives)
+                ruleLoader.addRuleDirective(directive);
 
             FileWriter fileWriter = new FileWriter(outputFile);
-            fileWriter.write("@RULE " + outputFile.getName().replace(".rule", ""));
-            fileWriter.write("\n\n@TABLE\n");
-            fileWriter.write(apgTable.compileAPGTable());
+            fileWriter.write(ruleLoader.export());
             fileWriter.close();
         }
         catch (UnsupportedOperationException | IOException exception) {

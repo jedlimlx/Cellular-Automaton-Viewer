@@ -2,6 +2,8 @@ package sample.model.rules.ruleloader;
 
 import sample.model.Coordinate;
 
+import java.util.Arrays;
+
 /**
  * Implements Square Cell Ruletables (@SQC) which are essentially transition tables
  * that work based on neighbourhood sum. <br>
@@ -16,7 +18,7 @@ import sample.model.Coordinate;
  * </pre>
  */
 public class SQC extends RuleDirective {
-    private String content;
+    private final String content;
 
     private Coordinate[] neighbourhood;
     private int[] weights;

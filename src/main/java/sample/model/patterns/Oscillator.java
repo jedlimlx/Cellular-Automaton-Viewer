@@ -14,7 +14,7 @@ public class Oscillator extends Pattern {
     /**
      * The period of the oscillator
      */
-    private int period;
+    private final int period;
 
     /**
      * Constructs an oscillator

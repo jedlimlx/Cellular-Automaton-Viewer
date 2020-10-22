@@ -1,6 +1,6 @@
 package sample.model.rules.ruleloader;
 
-public class RuleNameDirective extends Directive {
+public class RuleNameDirective extends Directive implements Exportable {
     private String name;
 
     public RuleNameDirective(String content) {
@@ -10,7 +10,7 @@ public class RuleNameDirective extends Directive {
 
     @Override
     public void parseContent(String content) {
-        name = content.replace("@RULE", "");
+        name = content.replace("@RULE ", "");
     }
 
     @Override
@@ -20,5 +20,9 @@ public class RuleNameDirective extends Directive {
 
     public String getName() {
         return name;
+    }
+
+    public String export() {
+        return "@RULE " + name + "\n";
     }
 }

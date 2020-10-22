@@ -28,8 +28,8 @@ import java.util.Scanner;
  * </pre>
  */
 public class SSSSSReader extends DatabaseReader {
-    private File file;
-    private List<String> lines;
+    private final File file;
+    private final List<String> lines;
 
     /**
      * Constructs the reader

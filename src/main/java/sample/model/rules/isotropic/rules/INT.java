@@ -1,10 +1,11 @@
 package sample.model.rules.isotropic.rules;
 
-import sample.model.APGTable;
 import sample.model.Coordinate;
 import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.isotropic.transitions.INTTransitions;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
 
 import java.util.ArrayList;
 
@@ -135,33 +136,25 @@ public class INT extends BaseINT implements ApgtableGeneratable {
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        APGTable apgTable = new APGTable(numStates, "none", getNeighbourhood());
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        apgTable.addUnboundedVariable("death", new int[]{0, 1});
+        ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(2);
 
-        for (ArrayList<Integer> transition: birth.getTransitionTable()) {
-            ArrayList<String> stringTransition = new ArrayList<>();
-            for (int state: transition) {
-                stringTransition.add(state + "");
-            }
+        ruletable.setNeighbourhood(birth.getNeighbourhood());
 
-            apgTable.addTransition(0, 1, stringTransition);
-        }
+        ruletable.addVariable(Ruletable.ANY);
 
-        for (ArrayList<Integer> transition: survival.getTransitionTable()) {
-            ArrayList<String> stringTransition = new ArrayList<>();
-            for (int state: transition) {
-                stringTransition.add(state + "");
-            }
+        // Birth and survival transitions
+        ruletable.addINTTransitions(birth, "0", "1", "0", "1");
+        ruletable.addINTTransitions(survival, "1", "1", "0", "1");
 
-            apgTable.addTransition(1, 1, stringTransition);
-        }
+        // Death transitions
+        ruletable.addOTTransition(0, "1", "0", "any", "0");
 
-        apgTable.addOuterTotalisticTransition(1, 0, 0, "death", "1");
-
-        return apgTable;
+        return new RuleDirective[]{ruletable};
     }
 
     /**

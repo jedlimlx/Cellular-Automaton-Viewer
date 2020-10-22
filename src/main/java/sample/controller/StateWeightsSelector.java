@@ -9,7 +9,7 @@ public class StateWeightsSelector extends GridPane {
     /**
      * The number of states of the state weight selector.
      */
-    private int numStates;
+    private final int numStates;
 
     /**
      * Constructs a state weight selector with the specified number of states

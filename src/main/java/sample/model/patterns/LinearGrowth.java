@@ -11,7 +11,7 @@ import java.util.Map;
  * Represents a linear growth
  */
 public class LinearGrowth extends Pattern {
-    private int popPeriod;
+    private final int popPeriod;
 
     /**
      * Constructs a linear growth

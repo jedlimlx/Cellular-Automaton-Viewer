@@ -11,7 +11,9 @@ import java.util.Map;
  * Represents a spaceship
  */
 public class Spaceship extends Pattern {
-    private int period, displacementX, displacementY;
+    private final int period;
+    private final int displacementX;
+    private final int displacementY;
 
     /**
      * Constructs a spaceship

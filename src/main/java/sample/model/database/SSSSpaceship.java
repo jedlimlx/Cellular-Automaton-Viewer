@@ -9,7 +9,7 @@ import sample.model.simulation.Grid;
  * A spaceship from the 5S database
  */
 public class SSSSpaceship extends DatabaseEntry implements Comparable<SSSSpaceship> {
-    private Spaceship spaceship;
+    private final Spaceship spaceship;
 
     public SSSSpaceship(String entry) {
         super(entry);

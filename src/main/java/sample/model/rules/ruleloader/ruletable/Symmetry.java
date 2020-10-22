@@ -14,7 +14,7 @@ public class Symmetry {
     /**
      * The disjoint cycles used to represent the symmetry
      */
-    private int[][][] disjointCycles;
+    private final int[][][] disjointCycles;
 
     /**
      * Constructs a new symmetry with an inputted string.

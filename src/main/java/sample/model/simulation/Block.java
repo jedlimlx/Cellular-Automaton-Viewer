@@ -11,17 +11,17 @@ public class Block implements Cloneable {
     /**
      * The array storing the cells
      */
-    private int[][] cells;
+    private final int[][] cells;
 
     /**
      * The neighbours of the block
      */
-    private ArrayList<Block> neighbours;
+    private final ArrayList<Block> neighbours;
 
     /**
      * The starting coordinate of the block (top-left corner)
      */
-    private Coordinate coordinate;
+    private final Coordinate coordinate;
 
     /**
      * The state of the block (Active, Stable, Oscillating)

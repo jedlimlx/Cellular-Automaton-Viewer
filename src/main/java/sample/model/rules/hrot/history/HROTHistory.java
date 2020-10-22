@@ -1,11 +1,16 @@
 package sample.model.rules.hrot.history;
 
 import javafx.scene.paint.Color;
-import sample.model.APGTable;
 import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.hrot.HROT;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletable.Variable;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Represents a HROT History rule.
@@ -90,44 +95,38 @@ public class HROTHistory extends HROT implements ApgtableGeneratable {
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        // Death Variables
-        apgTable.addUnboundedVariable("living", new int[]{1, 3, 5});
-        apgTable.addUnboundedVariable("dead", new int[]{0, 2, 4});
-        apgTable.addUnboundedVariable("death", new int[]{0, 1, 2, 3, 4, 5, 6});
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(7);
 
-        // Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, 1, transition,
-                    "dead", "living");
-            apgTable.addOuterTotalisticTransition(2, 1, transition,
-                    "dead", "living");
-            apgTable.addOuterTotalisticTransition(4, 3, transition,
-                    "dead", "living");
-        }
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
 
-        for (int transition: survival) {
-            apgTable.addOuterTotalisticTransition(1, 1, transition,
-                    "dead", "living");
-            apgTable.addOuterTotalisticTransition(3, 3, transition,
-                    "dead", "living");
-            apgTable.addOuterTotalisticTransition(5, 5, transition,
-                    "dead", "living");
-        }
+        ruletable.addVariable(Ruletable.ANY);
+        ruletable.addVariable(Ruletable.DEAD);
+        ruletable.addVariable(Ruletable.LIVE);
 
-        apgTable.addOuterTotalisticTransition(1, 2, maxNeighbourhoodCount,
-                "0", "death");
-        apgTable.addOuterTotalisticTransition(3, 4, maxNeighbourhoodCount,
-                "0", "death");
-        apgTable.addOuterTotalisticTransition(5, 4, maxNeighbourhoodCount,
-                "0", "death");
+        Ruletable.DEAD = new Variable("dead", true, new HashSet<>(Arrays.asList(0, 2, 4)));
+        Ruletable.LIVE = new Variable("live", true, new HashSet<>(Arrays.asList(1, 3, 5)));
 
-        return apgTable;
+        // Birth and survival transitions
+        ruletable.addOTTransitions(birth, "0", "1", "dead", "live");
+        ruletable.addOTTransitions(birth, "2", "1", "dead", "live");
+        ruletable.addOTTransitions(birth, "4", "3", "dead", "live");
+
+        ruletable.addOTTransitions(survival, "1", "1", "dead", "live");
+        ruletable.addOTTransitions(survival, "3", "3", "dead", "live");
+        ruletable.addOTTransitions(survival, "5", "5", "dead", "live");
+
+        // Death transitions
+        ruletable.addOTTransition(0, "1", "2", "any", "0");
+        ruletable.addOTTransition(0, "3", "4", "any", "0");
+        ruletable.addOTTransition(0, "5", "4", "any", "0");
+
+        return new RuleDirective[]{ruletable};
     }
 
     @Override

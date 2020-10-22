@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Represents a 2D turing machine or a turmite
  */
 public class Turmites extends RuleFamily {
-    private Map<Pair<Integer, Integer>, Triplet<Integer, Integer, Integer>> transitionTable;
+    private final Map<Pair<Integer, Integer>, Triplet<Integer, Integer, Integer>> transitionTable;
 
     private int turmiteStates, gridStates;
 

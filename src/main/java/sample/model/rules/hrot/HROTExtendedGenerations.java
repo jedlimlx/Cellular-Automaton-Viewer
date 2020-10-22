@@ -6,10 +6,15 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletable.Variable;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 public class HROTExtendedGenerations extends BaseHROT implements MinMaxRuleable, ApgtableGeneratable {
     /**
@@ -387,51 +392,40 @@ public class HROTExtendedGenerations extends BaseHROT implements MinMaxRuleable,
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
+
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(numStates);
+
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
 
         // Active Variables
-        int[] active = activeStates.stream().mapToInt(Number::intValue).toArray();
-        apgTable.addUnboundedVariable("active", active);
-
-        // Active Variables
-        int[] inactive = new int[numStates - activeStates.size()];
+        Set<Integer> inactive = new HashSet<>();
         for (int i = 0; i < numStates; i++) {
-            if (!activeStates.contains(i)) inactive[i] = i;
-        }
-        apgTable.addUnboundedVariable("inactive", inactive);
-
-        // Death Variables
-        int[] death = new int[numStates];
-        for (int i = 0; i < death.length; i++) {
-            death[i] = i;
+            if (!activeStates.contains(i)) inactive.add(i);
         }
 
-        apgTable.addUnboundedVariable("death", death);
+        Ruletable.LIVE = new Variable("live", true, activeStates);
+        Ruletable.DEAD = new Variable("dead", true, inactive);
 
-        // Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, 1, transition,
-                    "inactive", "active");
-        }
+        ruletable.addVariable(Ruletable.ANY);
+        ruletable.addVariable(Ruletable.LIVE);
+        ruletable.addVariable(Ruletable.DEAD);
 
+        // Birth and survival transitions
+        ruletable.addOTTransitions(birth, "0", "1", "dead", "live");
 
-        for (int transition: survival) {
-            for (int state: activeStates) {
-                apgTable.addOuterTotalisticTransition(state, state, transition,
-                        "inactive", "active");
-            }
-        }
+        for (int state: activeStates)
+            ruletable.addOTTransitions(survival, state + "", state + "", "dead", "live");
 
-        for (int state = 1; state < numStates; state++) {
-            apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
-                    "0", "death");
-        }
+        // Decay transitions
+        for (int i = 1; i < numStates; i++)
+            ruletable.addOTTransition(0, i + "", (i + 1) % numStates + "", "any", "0");
 
-        return apgTable;
+        return new RuleDirective[]{ruletable};
     }
 
     /**

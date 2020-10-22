@@ -6,6 +6,8 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
@@ -420,30 +422,26 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
      * @return True if the operation was successful, false otherwise
      */
     @Override
-    public APGTable generateApgtable() {
-        // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        // Death Variables
-        apgTable.addUnboundedVariable("death", new int[]{0, 1});
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(2);
 
-        // Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, 1, transition,
-                    "0", "1");
-        }
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
 
-        for (int transition: survival) {
-            apgTable.addOuterTotalisticTransition(1, 1, transition,
-                    "0", "1");
-        }
+        ruletable.addVariable(Ruletable.ANY);
 
-        apgTable.addOuterTotalisticTransition(1, 0, maxNeighbourhoodCount,
-                "0", "death");
+        // Birth and survival transitions
+        ruletable.addOTTransitions(birth, "0", "1", "0", "1");
+        ruletable.addOTTransitions(survival, "1", "1", "0", "1");
 
-        return apgTable;
+        // Death transitions
+        ruletable.addOTTransition(0, "1", "0", "any", "0");
+
+        return new RuleDirective[]{ruletable};
     }
 
     /**

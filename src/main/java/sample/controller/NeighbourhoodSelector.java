@@ -25,15 +25,15 @@ import java.util.ArrayList;
 public class NeighbourhoodSelector extends GridPane {
     private int range;
 
-    private Button resetButton;
-    private Spinner<Integer> spinnerRange;
+    private final Button resetButton;
+    private final Spinner<Integer> spinnerRange;
 
     private int[][] weights;
     private Button[][] weightButtons;
 
     private Runnable onWeightsChanged;
 
-    private boolean recursed = false;
+    private final boolean recursed = false;
 
     /**
      * Creates a new NeighbourhoodSelector with an initial range of 2

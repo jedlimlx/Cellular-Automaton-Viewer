@@ -66,12 +66,18 @@ public abstract class RuleFamily extends Rule implements Cloneable {
 
         Pair<Integer, Integer> stateGenerationPair = new Pair<>(currentState, generations % alternatingPeriod);
 
-        background = new int[bgStates.size() - bgStates.indexOf(stateGenerationPair)];
+        int[] background = new int[bgStates.size() - bgStates.indexOf(stateGenerationPair)];
         for (int i = bgStates.indexOf(stateGenerationPair); i < bgStates.size(); i++) {
             background[i - bgStates.indexOf(stateGenerationPair)] = bgStates.get(i).getValue0();
         }
 
         alternatingPeriod = background.length;
+
+        this.background = new int[background.length];
+        int startingIndex = bgStates.indexOf(stateGenerationPair);
+        for (int i = startingIndex; i < background.length + startingIndex; i++) {
+            this.background[i % background.length] = background[i - startingIndex];
+        }
     }
 
     /**

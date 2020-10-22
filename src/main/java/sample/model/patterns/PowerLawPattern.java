@@ -14,7 +14,7 @@ import java.util.Map;
  * Essentially apgsearch's zz_REPLICATOR, zz_LINEAR, zz_EXPLOSIVE and zz_QUADRATIC.
  */
 public class PowerLawPattern extends Pattern {
-    private double power;
+    private final double power;
 
     /**
      * Constructs a power law pattern with the specified growth rate

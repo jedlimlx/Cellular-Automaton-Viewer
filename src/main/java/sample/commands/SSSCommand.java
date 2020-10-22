@@ -61,7 +61,7 @@ public class SSSCommand implements Runnable {
 
                 Spaceship result = reader.getShipBySpeed(period, dx, dy);
                 if (result == null) {
-                    System.err.println("No such spaceship found in database!");;
+                    System.err.println("No such spaceship found in database!");
                     System.exit(-1);
                 } else {
                     System.out.println("#C " + result);
@@ -73,7 +73,7 @@ public class SSSCommand implements Runnable {
 
                 Oscillator result = reader.getOscByPeriod(period);
                 if (result == null) {
-                    System.err.println("No such oscillator found in database!");;
+                    System.err.println("No such oscillator found in database!");
                     System.exit(-1);
                 } else {
                     System.out.println("#C " + result);

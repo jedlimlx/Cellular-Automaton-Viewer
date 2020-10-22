@@ -6,6 +6,8 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
@@ -465,47 +467,31 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
      * @throws UnsupportedOperationException Thrown if the rule has state weights (state weights are not supported)
      */
     @Override
-    public APGTable generateApgtable() throws UnsupportedOperationException {
-    // Generating the APGTable
-        APGTable apgTable = new APGTable(numStates, weights == null ? "permute" : "none", neighbourhood);
-        apgTable.setWeights(weights);
-        apgTable.setBackground(background);
+    public RuleDirective[] generateApgtable() throws UnsupportedOperationException {
+        if (stateWeights != null)
+            throw new UnsupportedOperationException("Apgtable generation for rules with state weights is not supported");
 
-        // Decay Variables
-        int[] decay = new int[numStates - 1];
-        for (int i = 0; i < decay.length; i++) {
-            if (i == 0) decay[i] = i;
-            else decay[i] = i + 1;
-        }
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
 
-        apgTable.addUnboundedVariable("decay", decay);
+        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+        ruletable.setNumStates(numStates);
 
-        // Death Variables
-        int[] death = new int[numStates];
-        for (int i = 0; i < death.length; i++) {
-            death[i] = i;
-        }
+        ruletable.setNeighbourhood(neighbourhood);
+        ruletable.setWeights(weights);
 
-        apgTable.addUnboundedVariable("death", death);
+        ruletable.addVariable(Ruletable.ANY);
+        ruletable.addVariable(Ruletable.DEAD);
 
-        // Transitions
-        for (int transition: birth) {
-            apgTable.addOuterTotalisticTransition(0, 1, transition,
-                    "decay", "1");
-        }
+        // Birth and survival transitions
+        ruletable.addOTTransitions(birth, "0", "1", "dead", "1");
+        ruletable.addOTTransitions(survival, "1", "1", "dead", "1");
 
+        // Decay transitions
+        for (int i = 1; i < numStates; i++)
+            ruletable.addOTTransition(0, i + "", (i + 1) % numStates + "", "any", "0");
 
-        for (int transition: survival) {
-            apgTable.addOuterTotalisticTransition(1, 1, transition,
-                    "decay", "1");
-        }
-
-        for (int state = 1; state < numStates; state++) {
-            apgTable.addOuterTotalisticTransition(state, (state + 1) % numStates, maxNeighbourhoodCount,
-                    "0", "death");
-        }
-
-        return apgTable;
+        return new RuleDirective[]{ruletable};
     }
 
     /**

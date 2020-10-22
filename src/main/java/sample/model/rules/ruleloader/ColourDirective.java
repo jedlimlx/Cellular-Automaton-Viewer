@@ -17,7 +17,7 @@ import java.util.Map;
  * 3 255 0 255
  * </pre>
  */
-public class ColourDirective extends Directive {
+public class ColourDirective extends Directive implements Exportable {
     private String content = "";
     private Map<Integer, Color> colourMap;
 
@@ -58,5 +58,16 @@ public class ColourDirective extends Directive {
     @Override
     public Object clone() {
         return new ColourDirective(content);
+    }
+
+    @Override
+    public String export() {
+        StringBuilder builder = new StringBuilder("@COLORS");
+        for (int i = 0; i < colourMap.size(); i++) {
+            builder.append(colourMap.get(i).getRed()).append(" ").append(colourMap.get(i).getGreen()).append(" ").
+                    append(colourMap.get(i).getBlue()).append("\n");
+        }
+
+        return builder.toString();
     }
 }
