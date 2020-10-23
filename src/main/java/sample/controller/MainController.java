@@ -20,6 +20,7 @@ import org.json.JSONTokener;
 import sample.controller.dialogs.About;
 import sample.controller.dialogs.GifferDialog;
 import sample.controller.dialogs.PopulationGraphDialog;
+import sample.controller.dialogs.RandomSoupDialog;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.rule.RuleWidget;
 import sample.controller.dialogs.search.CatalystSearchParametersDialog;
@@ -82,7 +83,7 @@ public class MainController {
     private SelectionRectangle selectionRectangle;  // Rectangle that represents selection box
 
     private final RuleDialog dialog = new RuleDialog();  // Dialog to set rule
-    private final GifferDialog gifferDialog = new GifferDialog();
+    private final GifferDialog gifferDialog = new GifferDialog();  // Dialog to create *.gifs
 
     private Mode mode;  // Mode (Drawing, Selecting, Panning)
     private Simulator simulator;  // Simulator to simulate rule
@@ -97,6 +98,11 @@ public class MainController {
 
     private ArrayList<Integer> populationList;  // The population list
     private ArrayList<Grid> history;  // The history for undo, redo
+
+    private int density;  // The density of the random soup
+    private String symmetry;  // The symmetry of the random soup
+    private ArrayList<Integer> statesToInclude;  // The states to include in the random soup
+    private RandomSoupDialog randomSoupDialog;  // Dialog to adjust random soup settings
 
     private int simulationTime, visualisationTime;  // Time taken for visualisation and simulation
 
@@ -129,6 +135,10 @@ public class MainController {
         populationList = new ArrayList<>();
         deadCellsSet = new HashSet<>();
         mode = Mode.DRAWING;
+
+        symmetry = "C1";
+        density = 50;
+        statesToInclude = new ArrayList<>(Arrays.asList(1));
 
         deadCellsCache.setDeleteFunc((coordinate, cell) -> {
             if (cell.getState() != 0) return;
@@ -318,8 +328,13 @@ public class MainController {
 
     @FXML // Generates random soup in the selection box
     public void generateRandomSoup() {
+        int[] states = new int[statesToInclude.size()];
+        for (int i = 0; i < states.length; i++) {
+            states[i] = statesToInclude.get(i);
+        }
+
         // Generate the soup
-        Grid soup = SymmetryGenerator.generateSymmetry("C1", 50, new int[]{1},
+        Grid soup = SymmetryGenerator.generateSymmetry(symmetry, density, states,
                 selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1,
                 selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1);
 
@@ -485,6 +500,19 @@ public class MainController {
     public void viewPopulationGraph() {
         PopulationGraphDialog dialog = new PopulationGraphDialog(populationList);
         dialog.show();
+    }
+
+    @FXML // Changing the random soup settings
+    public void changeRandomSoupSettings() {
+        randomSoupDialog = new RandomSoupDialog(simulator.getRule().getNumStates(), density, symmetry,
+                statesToInclude);
+        randomSoupDialog.showAndWait();
+
+        if (randomSoupDialog.getResult() == Boolean.TRUE) {
+            density = randomSoupDialog.getDensity();
+            symmetry = randomSoupDialog.getSymmetry();
+            statesToInclude = randomSoupDialog.getStates();
+        }
     }
 
     // Function to set cell at (x, y) to a certain state

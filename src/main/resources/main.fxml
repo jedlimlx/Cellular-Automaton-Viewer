@@ -32,6 +32,8 @@
             <MenuItem mnemonicParsing="false" onAction="#copyCells" text="Copy" />
             <MenuItem mnemonicParsing="false" onAction="#pasteRLE" text="Paste" />
             <MenuItem mnemonicParsing="false" onAction="#deleteCells" text="Delete" />
+         <SeparatorMenuItem mnemonicParsing="false" />
+         <MenuItem mnemonicParsing="false" onAction="#changeRandomSoupSettings" text="Random Soup Settings" />
         </Menu>
       <Menu mnemonicParsing="false" text="Control">
         <items>

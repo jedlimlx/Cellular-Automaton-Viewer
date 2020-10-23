@@ -43,6 +43,7 @@ The Menu Bar
 *Copy* - Copies selected cells to an RLE <br>
 *Paste* - Pastes the cells that are stored as an RLE on the clipboard <br>
 *Delete* - Deletes the selected cells <br>
+*Random Soup Settings* - Settings for the random soup generation <br>
 
 **Control Menu**: <br>
 *Set Generation* - Sets the generation based on user input <br>
@@ -128,10 +129,10 @@ Editing Features
 - [x] Pasting Cells from RLE
 - [x] Undo
 - [x] Select All
+- [x] More Random Soup Symmetries
 - [ ] Reset Pattern to Generation 0
 - [ ] Nudging up / down / left / right
 - [ ] Invert Cells
-- [ ] More Random Soup Symmetries
 - [ ] Simulate in selection
 - [ ] Simulate outside selection
 
