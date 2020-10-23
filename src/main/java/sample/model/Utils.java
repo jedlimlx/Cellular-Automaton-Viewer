@@ -1,15 +1,14 @@
 package sample.model;
 
-import sample.model.Coordinate;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.*;
 import sample.model.rules.hrot.history.HROTHistory;
 import sample.model.rules.hrot.symbiosis.HROTSymbiosis;
 import sample.model.rules.isotropic.rules.INT;
+import sample.model.rules.misc.AlternatingRule;
 import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.Turmites;
 import sample.model.rules.ruleloader.RuleLoader;
-import sample.model.search.SearchParameters;
 import sample.model.simulation.Simulator;
 
 import java.io.File;
@@ -22,7 +21,7 @@ public class Utils {
     public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTSymbiosis(),
             new HROTGenerations(), new HROTExtendedGenerations(), new HROTRegeneratingGenerations(),
             new IntegerHROT(), new DeficientHROT(), new INT(), new OneDimensional(), new Turmites(),
-            new RuleLoader()};
+            new RuleLoader(), new AlternatingRule()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 

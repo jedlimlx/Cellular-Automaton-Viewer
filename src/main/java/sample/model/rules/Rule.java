@@ -6,6 +6,7 @@ import sample.model.Coordinate;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -226,5 +227,14 @@ public abstract class Rule {
             return 0;
         else
             return state;
+    }
+
+    /**
+     * Sets the background of the rule
+     * @param background The background of the rule
+     */
+    public void setBackground(int[] background) {
+        this.alternatingPeriod = background.length;
+        this.background = background;
     }
 }

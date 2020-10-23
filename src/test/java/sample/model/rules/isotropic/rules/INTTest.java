@@ -28,7 +28,6 @@ public class INTTest {
 
     @Test
     public void testSimulation() {
-
         // Loading the testcases
         Scanner scanner = new Scanner(getStream("/INT/simulationTest.txt"));
 

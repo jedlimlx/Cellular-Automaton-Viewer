@@ -192,9 +192,9 @@ Supported / Planned Rulespaces
 - [ ] Primodia
 - [ ] Naive Rules
     - [ ] Custom Reading Orders
-- [ ] Alternating Rules
-    - [ ] Strobing Rules
-    - [ ] Apgtable Generation
+- [x] Alternating Rules
+    - [x] Strobing Rules
+    - [x] Apgtable Generation
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA

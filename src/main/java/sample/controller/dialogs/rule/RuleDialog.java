@@ -9,6 +9,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Window;
 import sample.controller.dialogs.rule.hrot.*;
 import sample.controller.dialogs.rule.isotropic.INTDialog;
+import sample.controller.dialogs.rule.misc.AlternatingDialog;
 import sample.controller.dialogs.rule.misc.OneDimensionalDialog;
 import sample.controller.dialogs.rule.misc.TurmitesDialog;
 import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
@@ -31,7 +32,8 @@ public class RuleDialog extends Dialog {
     private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(), new HROTHistoryDialog(),
             new HROTSymbiosisDialog(), new HROTGenerationsDialog(), new HROTExtendedGenerationsDialog(),
             new IntegerHROTDialog(), new DeficientHROTDialog(), new HROTRegeneratingGenerationsDialog(),
-            new INTDialog(), new OneDimensionalDialog(), new TurmitesDialog(), new RuleLoaderDialog()};
+            new INTDialog(), new OneDimensionalDialog(), new TurmitesDialog(), new AlternatingDialog(),
+            new RuleLoaderDialog()};
 
     public RuleDialog(String promptText) {
         super();

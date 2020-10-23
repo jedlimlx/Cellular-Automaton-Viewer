@@ -124,9 +124,11 @@ public class RuleLoader extends RuleFamily {
                     content = new StringBuilder();
                 }
 
-                if (directiveMap.get(line.split("\\s+")[0]) == null)
+                if (directiveMap.get(line.split("\\s+")[0]) == null) {
                     LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
                             Level.WARNING, "Unknown directive " + line.split("\\s+")[0] + " found");
+                    continue;
+                }
 
                 directive = (Directive) directiveMap.get(line.split("\\s+")[0]).clone();
             }
