@@ -38,8 +38,11 @@
           <MenuItem mnemonicParsing="false" onAction="#setGeneration" text="Set Generation" />
             <MenuItem mnemonicParsing="false" onAction="#setStepSize" text="Set Step Size" />
             <MenuItem mnemonicParsing="false" onAction="#setSimSpeed" text="Set Simulation Speed" />
+            <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#clearCellsCache" text="Clear Cells Cache" />
             <CheckMenuItem fx:id="gridLinesMenuItem" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#viewPopulationGraph" text="View Population Graph" />
         </items>
       </Menu>
         <Menu mnemonicParsing="false" text="Search">

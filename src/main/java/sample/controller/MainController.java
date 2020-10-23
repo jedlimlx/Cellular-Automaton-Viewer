@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import sample.controller.dialogs.About;
 import sample.controller.dialogs.GifferDialog;
+import sample.controller.dialogs.PopulationGraphDialog;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.rule.RuleWidget;
 import sample.controller.dialogs.search.CatalystSearchParametersDialog;
@@ -94,6 +95,7 @@ public class MainController {
     private Group pasteSelection;  // The group that renders the stuff to be pasted
     private Grid pasteStuff;  // The stuff to paste
 
+    private ArrayList<Integer> populationList;  // The population list
     private ArrayList<Grid> history;  // The history for undo, redo
 
     private int simulationTime, visualisationTime;  // Time taken for visualisation and simulation
@@ -124,6 +126,7 @@ public class MainController {
         deadCellsCache = new LRUCache<>(200);
         stateButtons = new ArrayList<>();
         history = new ArrayList<>();
+        populationList = new ArrayList<>();
         deadCellsSet = new HashSet<>();
         mode = Mode.DRAWING;
 
@@ -478,6 +481,12 @@ public class MainController {
         }
     }
 
+    @FXML // Views the population graph
+    public void viewPopulationGraph() {
+        PopulationGraphDialog dialog = new PopulationGraphDialog(populationList);
+        dialog.show();
+    }
+
     // Function to set cell at (x, y) to a certain state
     public void setCell(int x, int y, int state) {
         setCell(x, y, state, true);
@@ -588,6 +597,8 @@ public class MainController {
                 simulator.step();
                 if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
                 else cellsChanged = simulator.getCellsChanged();
+
+                populationList.add(simulator.getPopulation());
             }
         }
         catch (ConcurrentModificationException exception) {
@@ -1049,6 +1060,9 @@ public class MainController {
 
         // Setting the generation count back to 0
         simulator.setGeneration(0);
+
+        // Clear the population list
+        populationList.clear();
     }
 
     public void loadPattern(ArrayList<String> tokens) {
@@ -1128,6 +1142,12 @@ public class MainController {
         for (Coordinate coordinate: coordinates) {
             setCell(convertToScreen(coordinate.getX()), convertToScreen(coordinate.getY()), 0);
         }
+
+        // Setting the generation count back to 0
+        simulator.setGeneration(0);
+
+        // Clear the population list
+        populationList.clear();
     }
 
     @FXML // Loads the pattern from the RLE file

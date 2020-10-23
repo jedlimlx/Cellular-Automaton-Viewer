@@ -50,6 +50,7 @@ The Menu Bar
 *Set Simulation Speed* - Sets the maximum simulation speed <br>
 *Clear Cell Cache* - Clears the cell cache to speed up the simulation (application may hang for a while) <br>
 *Grid Lines* - Toggles between showing and not showing grid lines <br>
+*View Population Graph* - Displays a graph of the population against generation <br>
 
 **Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
