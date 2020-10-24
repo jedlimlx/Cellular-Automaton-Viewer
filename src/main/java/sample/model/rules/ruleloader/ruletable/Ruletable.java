@@ -218,7 +218,7 @@ public class Ruletable extends RuleDirective {
                                 String var0, String var1) {
         if (weights == null) {
             StringBuilder builder = new StringBuilder(input + ",");
-            for (int i = 0; i < maxNeighbourhoodSum; i++) {
+            for (int i = 0; i < neighbourhood.length; i++) {
                 if (i < transition) builder.append(var1);
                 else builder.append(var0);
                 builder.append(",");
@@ -230,7 +230,8 @@ public class Ruletable extends RuleDirective {
             StringBuilder builder;
             for (String transitionString: transitionMap.get(transition)) {
                 builder = new StringBuilder(input + ",");
-                for (int i = 0; i < maxNeighbourhoodSum; i++) {
+                for (int i = 0; i < neighbourhood.length; i++) {
+                    System.out.println(transitionString + " " + i);
                     if (transitionString.charAt(i) == '1') builder.append(var1);
                     else builder.append(var0);
 
