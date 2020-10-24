@@ -183,7 +183,7 @@ public class Ruletable extends RuleDirective {
      */
     public void addTransition(String transitionLine) {
         String[] tokens = transitionLine.split(",\\s*");
-        ArrayList<String> toPermute = new ArrayList<>(Arrays.asList(tokens).subList(1, tokens.length));
+        ArrayList<String> toPermute = new ArrayList<>(Arrays.asList(tokens).subList(1, tokens.length - 1));
 
         StringBuilder reconstructed;
         if (!permute) {
@@ -195,6 +195,7 @@ public class Ruletable extends RuleDirective {
                 }
 
                 reconstructed.append(tokens[tokens.length - 1]);
+                System.out.print(reconstructed + "\n");
 
                 // Adding the transition
                 transitions.add(new Transition(numStates, permute, reconstructed.toString(), variables));
@@ -231,7 +232,6 @@ public class Ruletable extends RuleDirective {
             for (String transitionString: transitionMap.get(transition)) {
                 builder = new StringBuilder(input + ",");
                 for (int i = 0; i < neighbourhood.length; i++) {
-                    System.out.println(transitionString + " " + i);
                     if (transitionString.charAt(i) == '1') builder.append(var1);
                     else builder.append(var0);
 
@@ -239,6 +239,8 @@ public class Ruletable extends RuleDirective {
                 }
 
                 builder.append(output);
+
+                //System.out.println(builder + " " + neighbourhood.length);
                 addTransition(builder.toString());
             }
         }
