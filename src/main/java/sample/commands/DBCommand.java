@@ -95,9 +95,6 @@ public class DBCommand implements Runnable {
         } catch (FileNotFoundException exception) {
             System.err.println("The file specified cannot be found!");
             System.exit(-1);
-        } catch (IOException exception) {
-            System.err.println(exception.getMessage());
-            System.exit(-1);
         }
 
         System.exit(0);
