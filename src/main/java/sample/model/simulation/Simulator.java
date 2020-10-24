@@ -160,8 +160,7 @@ public class Simulator extends Grid {
             step();
 
             int hash = this.hashCode();  // Compute the hash
-            if (hashMap.containsKey(hash) && generation % rule.getAlternatingPeriod() ==
-                    initialGeneration % rule.getAlternatingPeriod()) {
+            if (hashMap.containsKey(hash)) {
                 // Calculates the displacement between the first 2 bounds
                 int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue0()).getX() -
                         getBounds().getValue0().getX();
@@ -223,7 +222,7 @@ public class Simulator extends Grid {
                 }
 
                 // Checking for linear growth / zz_WHATEVER every 50 generations
-                if (i % 50 == 0) {
+                if (i % 50 == 0 && false) {
                     // Taking note of the generation
                     firstPhaseGeneration = initialGeneration;
 

@@ -579,17 +579,19 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     public int hashCode() {
         updateBounds();
 
-        AtomicInteger hash = new AtomicInteger(31415962);
-        iterateCells(coordinate -> {
-            int yShift = coordinate.getY() - startCoordinate.getY();
-            if (getCell(coordinate) > 0) {
-                hash.set((hash.get() * 1000003) ^ yShift);
-                hash.set((hash.get() * 1000003) ^ (coordinate.getX() - startCoordinate.getX()));
-                hash.set((hash.get() * 1000003) ^ getCell(coordinate));
+        int hash = 31415962;
+        for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
+            int yShift = y - startCoordinate.getY();
+            for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
+                if (getCell(x, y) > 0) {
+                    hash = (hash * 1000003) ^ yShift;
+                    hash = (hash * 1000003) ^ (x - startCoordinate.getX());
+                    hash = (hash * 1000003) ^ getCell(x, y);
+                }
             }
-        });
+        }
 
-        return hash.get();
+        return hash;
     }
 
     /**

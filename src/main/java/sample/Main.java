@@ -19,6 +19,8 @@ import java.util.logging.LogManager;
         SynthesisCommand.class,
         ApgtableCommand.class,
         SSSCommand.class,
+        DBCommand.class,
+        DBEntryCommand.class,
         CommandLine.HelpCommand.class
 })
 public class Main implements Runnable {
