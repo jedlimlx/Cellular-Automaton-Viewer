@@ -282,6 +282,7 @@ public class RuleLoader extends RuleFamily {
         if (!permute) exported.append("symmetries:none\n\n");
         else exported.append("symmetries:permute\n\n");
 
+        System.out.println(Arrays.toString(background));
         for (int bgIndex = 0; bgIndex < background.length; bgIndex++) {
             Ruletable ruletable = (Ruletable) ruleDirectives.get(bgIndex % ruleDirectives.size());
 
@@ -324,8 +325,6 @@ public class RuleLoader extends RuleFamily {
 
                 exported.append("\n\n");
             }
-
-            exported.append("\n");
 
             // Adding transition clauses
             for (Transition transition: ruletable.getTransitions()) {
@@ -373,7 +372,13 @@ public class RuleLoader extends RuleFamily {
     private int getCellForBackground(int state, int index) {
         index = Math.floorMod(index, background.length);  // Make index wrap around
 
-        if (state == 0) return background[index] + ((numStates - 1) * index);
+        if (state == 0) {
+            if (background[index] != 0) {
+                return background[index] + ((numStates - 1) * index);
+            } else {
+                return 0;
+            }
+        }
         else if (state == background[index]) return 0;
         return state + (numStates - 1) * index;
     }

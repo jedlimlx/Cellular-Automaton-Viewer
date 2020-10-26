@@ -14,6 +14,7 @@ sample.model.database
 sample.model.patterns
 sample.model.rules
 sample.model.rules.hrot
+sample.model.rules.hrot.enemies
 sample.model.rules.hrot.history
 sample.model.rules.hrot.symbiosis
 sample.model.rules.isotropic.rules

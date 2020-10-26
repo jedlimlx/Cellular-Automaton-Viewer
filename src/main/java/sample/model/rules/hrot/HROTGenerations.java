@@ -39,6 +39,7 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
      */
     private int maxNeighbourhoodCount;
 
+    private final static String mooreRegex = "[0-8]*/[0-8]*/[0-9]+";
     private final static String higherRangePredefined = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" +
             hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
     private final static String higherRangeCustom = "R[0-9]+,C[0-9]+,S" + hrotTransitions +
@@ -197,6 +198,23 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
             Utils.getTransitionsFromStringWithCommas(survival,
                     Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
+        else if (rulestring.matches(mooreRegex)) {
+            // Generate Birth & Survival Transitions
+            Utils.getTransitionsFromString(birth,
+                    Utils.matchRegex("([0-8]*)/", rulestring, 1, 1));
+            Utils.getTransitionsFromString(survival,
+                    Utils.matchRegex("([0-8]*)/", rulestring, 0, 1));
+
+            // Settings number of states
+            numStates = Integer.parseInt(Utils.matchRegex("/([0-8]+)", rulestring, 1, 1));
+
+            // Setting tiling
+            tiling = Tiling.Square;
+
+            // Generate Neighbourhood
+            neighbourhood = NeighbourhoodGenerator.generateMoore(1);
+            weights = null;
+        }
         else {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
@@ -228,6 +246,16 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
 
             // Adding neighbourhood
             rulestringBuilder.append(Utils.matchRegex("N.*", rulestring, 0));
+        }
+        else if (rulestring.matches(mooreRegex)) {
+            // Adding Survival
+            rulestringBuilder.append(Utils.canoniseTransitions(survival));
+
+            // Adding Birth
+            rulestringBuilder.append("/").append(Utils.canoniseTransitions(birth));
+
+            // Adding States
+            rulestringBuilder.append("/").append(numStates);
         }
 
         newRulestring = rulestringBuilder.toString();
@@ -306,7 +334,7 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
      */
     @Override
     public String[] getRegex() {
-        return new String[]{higherRangeCustom, higherRangePredefined,
+        return new String[]{mooreRegex, higherRangeCustom, higherRangePredefined,
                 higherRangeWeightedCustom, higherRangeStateWeightedCustom};
     }
 

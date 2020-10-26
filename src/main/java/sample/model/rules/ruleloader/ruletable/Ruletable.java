@@ -246,6 +246,30 @@ public class Ruletable extends RuleDirective {
         }
     }
 
+
+    /**
+     * Adds an outer totalistic transition with multiple states to the ruletable
+     * @param transition The transition to add to the ruletable
+     * @param input The input state / variable
+     * @param output The output state / variable
+     * @param vars The variables that represent each state
+     */
+    public void addOTTransition(List<Integer> transition, String input, String output,
+                                List<String> vars) {
+        StringBuilder builder = new StringBuilder(input + ",");
+
+        int sum = 0;
+        for (int i = 0; i < transition.size(); i++) {
+            sum += transition.get(i);
+            builder.append((vars.get(i + 1) + ",").repeat(transition.get(i)));
+        }
+
+        builder.append((vars.get(0) + ",").repeat(neighbourhood.length - sum));
+
+        builder.append(output);
+        addTransition(builder.toString());
+    }
+
     /**
      * Adds outer totalistic transitions to the ruletable
      * @param transitions The transitions to add to the ruletable

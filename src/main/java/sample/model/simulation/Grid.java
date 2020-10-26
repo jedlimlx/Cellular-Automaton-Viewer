@@ -389,17 +389,22 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      */
     public String toRLE(Coordinate startCoordinate, Coordinate endCoordinate) {
         // First, add characters to a string
+        ArrayList<Character> buffer = new ArrayList<>();
         ArrayList<Character> rleArray = new ArrayList<>();
         for (int y = startCoordinate.getY(); y < endCoordinate.getY() + 1; y++) {
             for (int x = startCoordinate.getX(); x < endCoordinate.getX() + 1; x++) {
                 if (getCell(x, y) == 0) {
-                    rleArray.add('.');
+                    buffer.add('.');
                 }
                 else {
+                    rleArray.addAll(buffer);
                     rleArray.add((char) (getCell(x, y) + 64));
+
+                    buffer.clear();
                 }
             }
-            rleArray.add('$');
+
+            buffer.add('$');
         }
 
         // Next, compress it (I totally didn't steal this code from somewhere)

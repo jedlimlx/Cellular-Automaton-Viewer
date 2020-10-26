@@ -2,6 +2,7 @@ package sample.model;
 
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.*;
+import sample.model.rules.hrot.enemies.HROTDeadlyEnemies;
 import sample.model.rules.hrot.history.HROTHistory;
 import sample.model.rules.hrot.symbiosis.HROTSymbiosis;
 import sample.model.rules.isotropic.rules.INT;
@@ -19,9 +20,9 @@ import java.util.regex.Pattern;
 
 public class Utils {
     public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTSymbiosis(),
-            new HROTGenerations(), new HROTExtendedGenerations(), new HROTRegeneratingGenerations(),
-            new IntegerHROT(), new DeficientHROT(), new INT(), new OneDimensional(), new Turmites(),
-            new RuleLoader(), new AlternatingRule()};
+            new HROTDeadlyEnemies(), new HROTGenerations(), new HROTExtendedGenerations(),
+            new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(), new MultistateCyclicHROT(),
+            new INT(), new OneDimensional(), new Turmites(), new RuleLoader(), new AlternatingRule()};
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 

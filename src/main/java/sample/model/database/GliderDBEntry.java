@@ -45,25 +45,6 @@ public class GliderDBEntry extends DatabaseEntry {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder(name);
-        builder.append(":").append(discoverer).append(":").
-                append(spaceship.getMinRule()).append(":").
-                append(spaceship.getMaxRule()).append(":").
-                append(spaceship.getPeriod()).append(":").
-                append(spaceship.getDisplacementX()).append(":").
-                append(spaceship.getDisplacementY()).append(":");
-
-        spaceship.updateBounds();
-
-        int width = spaceship.getBounds().getValue1().getX() - spaceship.getBounds().getValue0().getX();
-        int height = spaceship.getBounds().getValue1().getY() - spaceship.getBounds().getValue0().getY();
-        builder.append(width).append(":").append(height).append(":").append(spaceship.toRLE());
-
-        return builder.toString();
-    }
-
     /**
      * Gets the spaceship
      * @return Returns the spaceship
@@ -86,5 +67,42 @@ public class GliderDBEntry extends DatabaseEntry {
      */
     public String getDiscoverer() {
         return discoverer;
+    }
+
+    /**
+     * Sets the entry string
+     * @param entry The entry string
+     */
+    public void setString(String entry) {
+        String[] tokens = entry.split(":");
+
+        // Handle the <period>/2 notation for glide symmetric
+        if (tokens[4].contains("/")) tokens[4] = Integer.parseInt(tokens[4].split("/")[0]) * 2 + "";
+
+        this.name = tokens[0];
+        this.discoverer = tokens[1];
+        this.spaceship = new Spaceship(Utils.fromRulestring(tokens[2]), new Grid(tokens[9]),
+                Integer.parseInt(tokens[4]), Integer.parseInt(tokens[5]), Integer.parseInt(tokens[6]));
+        this.spaceship.setMinRule(Utils.fromRulestring(tokens[2]));
+        this.spaceship.setMaxRule(Utils.fromRulestring(tokens[3]));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(name);
+        builder.append(":").append(discoverer).append(":").
+                append(spaceship.getMinRule()).append(":").
+                append(spaceship.getMaxRule()).append(":").
+                append(spaceship.getPeriod()).append(":").
+                append(spaceship.getDisplacementX()).append(":").
+                append(spaceship.getDisplacementY()).append(":");
+
+        spaceship.updateBounds();
+
+        int width = spaceship.getBounds().getValue1().getX() - spaceship.getBounds().getValue0().getX() + 1;
+        int height = spaceship.getBounds().getValue1().getY() - spaceship.getBounds().getValue0().getY() + 1;
+        builder.append(width).append(":").append(height).append(":").append(spaceship.toRLE());
+
+        return builder.toString();
     }
 }

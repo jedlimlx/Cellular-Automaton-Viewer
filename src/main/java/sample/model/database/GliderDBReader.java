@@ -47,15 +47,18 @@ public class GliderDBReader extends DatabaseReader {
                                           RuleFamily minRule, RuleFamily maxRule,
                                           Comparator<GliderDBEntry> sorter) throws FileNotFoundException {
         Spaceship ship;
-        GliderDBEntry entry;
+        GliderDBEntry entry = null;
         boolean matchPeriod, matchSlope, matchRule;
         List<GliderDBEntry> entries = new ArrayList<>();
 
         Scanner scanner = new Scanner(this.file);
         while (scanner.hasNextLine()) {
-            entry = new GliderDBEntry(scanner.nextLine());
+            if (entry == null) entry = new GliderDBEntry(scanner.nextLine());
+            else entry.setString(scanner.nextLine());
+
             ship = entry.getSpaceship();
 
+            // Check various parameters
             matchPeriod = ship.getPeriod() == period || period == -1;
             matchSlope = (Math.abs(ship.getDisplacementX()) == Math.abs(dx) &&
                     Math.abs(ship.getDisplacementY()) == Math.abs(dy)) ||
@@ -65,7 +68,8 @@ public class GliderDBReader extends DatabaseReader {
                     ((MinMaxRuleable) ship.getRule()).betweenMinMax(minRule, maxRule);
 
             // If it matches all conditions, add to the list of entries
-            if (matchPeriod && matchSlope && matchRule) entries.add(entry);
+            if (matchPeriod && matchSlope && matchRule)
+                entries.add(new GliderDBEntry(entry.getSpaceship(), entry.getDiscoverer(), entry.getName()));
         }
 
         if (sorter != null) entries.sort(sorter);  // Sort the ships
