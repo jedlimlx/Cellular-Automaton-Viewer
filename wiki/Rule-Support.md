@@ -221,6 +221,34 @@ R\<range\>,G\<states\>,L\<birthState\>,B\<birth\>,S\<survival\>,B\<regenBirth\>,
 
 The code that simulates HROT Regenerating Generations can be found [here](../src/main/java/sample/model/rules/hrot/HROTRegeneratingGenerations.java).
 
+## Multi-state Cyclic Rules
+This is a rule family thought of by Yoel. There are plans to support his [notation](https://github.com/yoelmatveyev/Fireworld/blob/master/Multistate_cyclical_CA.md).
+In this rule family, rules are state-symmetric. 
+When all state 1s are replaced by state 2s and state 2s are replaced by state 3s and so on, the pattern should evolve in the same way.
+
+C represents the number of states (including ground 0).
+
+Each transition is a group of numbers that is the same length as the number of states (excluding ground 0). These represent the count of state-1 cells, then state-2, then state-3... Of course, these transitions are cyclical.
+
+The B/M/S describes birth, mutation (alive -> other alive) and survival conditions for every state.
+l is a special character meaning "all", so for exemple Bl2 = B02122232425262, Ml-31 = M01112141516171 and S2l-4-534 = S202122232634 (note that the extra minus signs are necessary to prevent ambiguity).
+
+For a 3 state rule, there is 1 mutation set.
+For a 4-state rule, there are 2 mutation sets and so on.
+
+1st set of mutation transitions (represent transition to state 2)
+2nd set of mutation transitions (represent transition to state 3)
+and so on...
+
+All transitions are expressed from the perspective of state 1 but are applied cyclically to the other states.
+
+For HROT rules, the numbers are separated by commas (e.g. B0,3,l,l-0)
+
+#### Rulestring format
+B<birth>/M<mutate>/M<mutate2>/M.../S<survival>/C<states>
+R<range>,C<states>,B<birth>,M<mutate>,M<mutate2>,...,S<survival>,N<neighbourhood>
+
+
 # Isotropic Non-Totalistic (INT)
 In INT rules, the transitions take into account not only the total number of live neighbors of a cell, 
 but also the relative configuration of those neighbours. 
@@ -281,6 +309,20 @@ In Symbiosis rules, opposite states will stabilise each other.
 B0 symbiosis rules are undefined. Similar to history rules, the notation is [R]Symbiosis.
 
 Symbiosis rules are (planned to be) supported by:
+- [x] 2-state HROT
+- [ ] HROT Generations
+- [ ] HROT Extended Generations
+- [ ] 2-state INT
+- [ ] INT Generations
+- [ ] INT Extended Generations
+
+
+# DeadlyEnemies Rules
+DeadlyEnemies rules are an extension of regular 2-state rules. 
+In DeadlyEnemies rules, opposite states will kill each other.
+B0 deadly enemies rules are undefined. Similar to history rules, the notation is [R]DeadlyEnemies.
+
+DeadlyEnemies rules are (planned to be) supported by:
 - [x] 2-state HROT
 - [ ] HROT Generations
 - [ ] HROT Extended Generations

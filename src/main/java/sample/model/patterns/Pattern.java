@@ -41,8 +41,7 @@ public abstract class Pattern extends Simulator {
                 Pair<RuleFamily, RuleFamily> minMaxRule = ((MinMaxRuleable) getRule()).getMinMaxRule(grids);
                 minRule = minMaxRule.getValue0();
                 maxRule = minMaxRule.getValue1();
-            }
-            catch (UnsupportedOperationException exception) {}
+            } catch (UnsupportedOperationException ignored) {}
         }
     }
 

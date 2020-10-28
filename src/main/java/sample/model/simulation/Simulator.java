@@ -91,7 +91,10 @@ public class Simulator extends Grid {
         }
 
         // If the rule changes, you have to re-evaluate each cell
-        this.iterateCells(coordinate -> cellsChangedArray.get(0).add(coordinate));
+        this.iterateCells(coordinate -> {
+            cellsChangedArray.get(0).add(coordinate);
+            if (getCell(coordinate) >= rule.getNumStates()) setCell(coordinate, 0);
+        });
         this.rule = rule;
     }
 

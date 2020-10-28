@@ -38,7 +38,6 @@ import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.rules.ruleloader.RuleNameDirective;
 import sample.model.search.CatalystSearch;
 import sample.model.search.RuleSearch;
-import sample.model.search.RuleSearchParameters;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
@@ -97,7 +96,6 @@ public class MainController {
     private Grid pasteStuff;  // The stuff to paste
 
     private ArrayList<Integer> populationList;  // The population list
-    private ArrayList<Grid> history;  // The history for undo, redo
 
     private int density;  // The density of the random soup
     private String symmetry;  // The symmetry of the random soup
@@ -131,7 +129,6 @@ public class MainController {
         cellList = new HashMap<>();
         deadCellsCache = new LRUCache<>(200);
         stateButtons = new ArrayList<>();
-        history = new ArrayList<>();
         populationList = new ArrayList<>();
         deadCellsSet = new HashSet<>();
         mode = Mode.DRAWING;
@@ -155,6 +152,9 @@ public class MainController {
         // Create selection rectangle and set properties
         selectionRectangle = new SelectionRectangle(CELL_SIZE);
         drawingPane.getChildren().add(selectionRectangle);
+
+        // Linking with Action class to handle undo / redo
+        Action.setController(this);
 
         // Setting zoom
         drawingPane.setScaleX(5);
@@ -195,7 +195,7 @@ public class MainController {
         for (int i = 0; i < WIDTH; i += CELL_SIZE) {
             Line lineX = new Line();
             lineX.setStroke(Color.GREY);
-            lineX.setStrokeWidth(0.2 * CELL_SIZE);
+            lineX.setStrokeWidth(0.15 * CELL_SIZE);
             lineX.setStartX(i);
             lineX.setEndX(i);
             lineX.setStartY(0);
@@ -205,13 +205,18 @@ public class MainController {
 
             Line lineY = new Line();
             lineY.setStroke(Color.GREY);
-            lineY.setStrokeWidth(0.2 * CELL_SIZE);
+            lineY.setStrokeWidth(0.15 * CELL_SIZE);
             lineY.setStartX(0);
             lineY.setEndX(HEIGHT);
             lineY.setStartY(i);
             lineY.setEndY(i);
             lineY.toFront();
             gridLines.getChildren().add(lineY);
+
+            if (i % 10 == 0) {
+                lineX.setStrokeWidth(0.2 * CELL_SIZE);
+                lineY.setStrokeWidth(0.2 * CELL_SIZE);
+            }
         }
 
         gridLines.setVisible(false);
@@ -274,6 +279,7 @@ public class MainController {
     @FXML // Handle the mouse events
     public void mouseDraggedHandler(MouseEvent event) {
         if (mode == Mode.DRAWING) {
+            Action.addAction();
             setCell(snapToGrid((int) event.getX()),
                     snapToGrid((int) event.getY()),
                     currentState);
@@ -295,6 +301,8 @@ public class MainController {
             selectionRectangle.select(startSelection, startSelection);
         }
         else if (mode == Mode.PASTING) {
+            Action.addAction();
+
             insertCells(pasteStuff, convertToGrid((int) event.getX()), convertToGrid((int)event.getY()));
             pasteSelection.setVisible(false);
 
@@ -348,6 +356,8 @@ public class MainController {
 
     @FXML // Flips selected cells horizontally
     public void flipHorizontalHandler() {
+        Action.addAction();
+
         // Reflect cells in the grid
         simulator.reflectCellsX(selectionRectangle.getStart(), selectionRectangle.getEnd());
         renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
@@ -359,7 +369,10 @@ public class MainController {
 
     @FXML // Flips selected cells vertically
     public void flipVerticalHandler() {
-        simulator.reflectCellsY(selectionRectangle.getStart(), selectionRectangle.getEnd());  // Reflect cells in the grid
+        Action.addAction();
+
+        // Reflect cells in the grid
+        simulator.reflectCellsY(selectionRectangle.getStart(), selectionRectangle.getEnd());
         renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Move the grid lines and selection to the front
@@ -369,6 +382,8 @@ public class MainController {
 
     @FXML // Rotates the selected cells clockwise
     public void rotateCWHandler() {
+        Action.addAction();
+
         // Rotate the cells in the grid
         Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
         simulator.rotateCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
@@ -396,6 +411,8 @@ public class MainController {
 
     @FXML // Rotates the selected cells counter-clockwise
     public void rotateCCWHandler() {
+        Action.addAction();
+
         // Rotate the cells in the grid
         Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
         simulator.rotateCCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
@@ -563,6 +580,8 @@ public class MainController {
 
     // Renders all cells
     public void renderCells() {
+        selectionRectangle.toFront();
+        gridLines.toFront();
         simulator.iterateCells(coordinate -> setCell(convertToGrid(coordinate.getX()),
                 convertToGrid(coordinate.getY()),
                 simulator.getCell(coordinate),false));
@@ -721,6 +740,8 @@ public class MainController {
 
     @FXML  // Toggles simulation on and off
     public void toggleSimulation() {
+        Action.addAction();
+
         simulationRunning = !simulationRunning;  // Toggle the simulation
         if (!simulationRunning) {  // Changing the icon
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
@@ -729,16 +750,6 @@ public class MainController {
         else {
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
                     "/icon/StopButtonEater.png")));
-        }
-
-        while (true) {
-            try {
-                history.add(simulator.deepCopy());
-                break;
-            }
-            catch (ConcurrentModificationException exception) {
-                logger.log(Level.WARNING, exception.getMessage());
-            }
         }
     }
 
@@ -772,6 +783,9 @@ public class MainController {
 
         // Check if the user actually hit `Confirm Rule`
         if (dialog.getRule() != null) {
+            Action.addAction();
+
+            // Set the rule
             simulator.setRule(dialog.getRule());
 
             // Reload the number of state buttons
@@ -1091,6 +1105,9 @@ public class MainController {
 
         // Clear the population list
         populationList.clear();
+
+        // Update the status text
+        updateStatusText();
     }
 
     public void loadPattern(ArrayList<String> tokens) {
@@ -1117,8 +1134,8 @@ public class MainController {
         }
 
         // Adding header
-        rleFinal.append("x = ").append(selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX()).
-                append(", y = ").append(selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY()).
+        rleFinal.append("x = ").append(selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1).
+                append(", y = ").append(selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1).
                 append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
         rleFinal.append(rle);
 
@@ -1163,6 +1180,9 @@ public class MainController {
 
     @FXML // Creates a new pattern
     public void newPattern() {
+        Action.addAction();
+
+        // Add all the cells to a list to avoid ConcurrentModificationException
         ArrayList<Coordinate> coordinates = new ArrayList<>();
         simulator.iterateCells(coordinates::add);
 
@@ -1211,6 +1231,7 @@ public class MainController {
 
     @FXML // Pastes the RLE from the clipboard
     public void pasteRLE() {
+        // Get text from clipboard
         final Clipboard clipboard = Clipboard.getSystemClipboard();
         String RLE = clipboard.getString();
 
@@ -1277,6 +1298,8 @@ public class MainController {
 
     @FXML // Deletes the cells in the selection
     public void deleteCells() {
+        Action.addAction();
+
         simulator.clearCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
         renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
@@ -1295,7 +1318,7 @@ public class MainController {
         }
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {
-            history.add(simulator.deepCopy());
+            Action.addAction();
             updateCells();
         }
         // Delete cells
@@ -1332,11 +1355,11 @@ public class MainController {
         }
         // Ctrl + Z to undo
         else if (event.getCode().equals(KeyCode.Z) && event.isControlDown()) {
-            newPattern();
-            if (history.size() > 1) {
-                insertCells(history.get(history.size() - 1), 0, 0);
-                history.remove(history.size() - 1);
-            }
+            Action.undo();
+        }
+        // Ctrl + Y to redo
+        else if (event.getCode().equals(KeyCode.Y) && event.isControlDown()) {
+            Action.redo();
         }
         // Ctrl + Shift + O to load pattern from clipboard
         else if (event.getCode().equals(KeyCode.O) && event.isShiftDown() && event.isControlDown()) {
@@ -1417,5 +1440,10 @@ public class MainController {
 
     public Coordinate snapToGrid(Coordinate coordinate) {
         return convertToGrid(convertToScreen(coordinate));
+    }
+
+    // Gets the simulator
+    public Simulator getSimulator() {
+        return simulator;
     }
 }

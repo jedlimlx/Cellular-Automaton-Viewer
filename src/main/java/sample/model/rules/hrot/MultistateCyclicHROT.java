@@ -13,8 +13,6 @@ import java.util.regex.Pattern;
 
 /**
  * Implements the multi-state cyclic HROT rulespace
- *
- * TODO (Support weights and arbitary neighbourhoods)
  */
 public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratable {
     private HashMap<ArrayList<Integer>, Integer> transitions;
@@ -22,11 +20,8 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
     private final static String mooreRegex = "B([0-8]|l(-[0-8])*)*/(M([0-8]|l(-[0-8])*)*/)+" +
             "S([0-8]|l(-[0-8])*)*/C[0-9]+";
     private final static String hrotRegex =
-            "R[0-9]+,C[0-9]+,B([0-9]+|l(-[0-9]+)+,?)*,(M([0-9]+|l(-[0-9]+)+,?)*,)+S([0-9]+|l(-[0-9]+)+,?)*,";
-    private final static String higherRangePredefined = hrotRegex + "N[" +
-            NeighbourhoodGenerator.neighbourhoodSymbols + "]";
-    private final static String higherRangeCustom = hrotRegex + "N@([A-Fa-f0-9]+)?[HL]?";
-    private final static String higherRangeWeightedCustom = hrotRegex + "NW[A-Fa-f0-9]+[HL]?";
+            "R[0-9]+,C[0-9]+,B((l(-[0-9]+)*|[0-9]+),?)*,(M((l(-[0-9]+)*|[0-9]+),?)*,)+S((l(-[0-9]+)*|[0-9]+),?)*," +
+                    neighbourhoodRegex;
 
     /**
      * Constructs Yoel's Gluonic rule
@@ -35,6 +30,11 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         this("B002021/M/M/S000011300030003120012201210021102111/C4");
     }
 
+    /**
+     * Creates a multi-state cyclic HROT rule with the given rulestring
+     * @param rulestring The rulestring of the multi-state cyclic HROT rule to be created
+     * @throws IllegalArgumentException Thrown if the rulestring is invalid
+     */
     public MultistateCyclicHROT(String rulestring) {
         // Initialising variables
         name = "Multi-state Cyclic HROT";
@@ -55,18 +55,44 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
             neighbourhood = NeighbourhoodGenerator.generateMoore(1);
             numStates = Integer.parseInt(Utils.matchRegex("C([0-9]+)", rulestring, 0).substring(1));
 
-            String birthString = Utils.matchRegex("B([0-8]|l(-[0-8])+)*", rulestring, 0).substring(1);
-            String survivalString = Utils.matchRegex("S([0-8]|l(-[0-8])+)*", rulestring, 0).substring(1);
+            String birthString = Utils.matchRegex("B(l(-[0-8])*|[0-8])*", rulestring, 0).substring(1);
+            String survivalString = Utils.matchRegex("S(l(-[0-8])*|[0-8])*", rulestring, 0).substring(1);
 
-            parseString(0, 1, birthString);
-            parseString(1, 1, survivalString);
+            parseString(0, 1, birthString, false);
+            parseString(1, 1, survivalString, false);
+
             int counter = 0;
-            Matcher mutateMatcher = Pattern.compile("M([0-8]|l(-[0-8])+)*/").matcher(rulestring);
+            Matcher mutateMatcher = Pattern.compile("M(l(-[0-8])*|[0-8])*/").matcher(rulestring);
             while (mutateMatcher.find()) {
                 String mutate = mutateMatcher.group(1);
-                if (mutate != null) parseString(1, counter, mutate);
+                if (mutate != null) parseString(1, counter, mutate, false);
                 counter++;
             }
+        } else if (rulestring.matches(hrotRegex)) {
+            // Generate Neighbourhood
+            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
+            String specifier = Utils.matchRegex("N["+
+                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0);
+            loadNeighbourhood(range, specifier);
+
+            // Load other parameters
+            numStates = Integer.parseInt(Utils.matchRegex("C([0-9]+)", rulestring, 0).substring(1));
+
+            String birthString = Utils.matchRegex("B((l(-[0-9]+)*|[0-9]+),?)*", rulestring, 0).substring(1);
+            String survivalString = Utils.matchRegex("S((l(-[0-9]+)*|[0-9]+),?)*", rulestring, 0).substring(1);
+
+            parseString(0, 1, birthString, true);
+            parseString(1, 1, survivalString, true);
+
+            int counter = 0;
+            Matcher mutateMatcher = Pattern.compile("M((l(-[0-9]+)*|[0-9]+),?)*,").matcher(rulestring);
+            while (mutateMatcher.find()) {
+                String mutate = mutateMatcher.group(1);
+                if (mutate != null) parseString(1, counter, mutate, true);
+                counter++;
+            }
+        } else {
+            throw new IllegalArgumentException("This rulestring is invalid!");
         }
     }
 
@@ -77,7 +103,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
 
     @Override
     public String[] getRegex() {
-        return new String[]{mooreRegex};
+        return new String[]{mooreRegex, hrotRegex};
     }
 
     @Override
@@ -88,13 +114,16 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
                 "B<birth>/M<mutate>/M<mutate2>/M.../S<survival>/C<states>\n" +
                 "R<range>,C<states>,B<birth>,M<mutate>,M<mutate2>,...,S<survival>,N<neighbourhood>\n\n" +
                 "Examples:\n" +
-                "B002021/M/M/S000300030003120012201210021102111/C4 (Gluonic)\n" +
-                "B002/M/M/S000011l-0l-0l-0/C4 (Gluons)\n" +
+                "B002021/M/M/S000011300030003120012201210021102111/C4 (Gluonic)\n" +
+                "B002/M/M/S000011300030003120012201210021102/C4 (Gluons)\n" +
                 "B30/M/S2030ll-0/C3 (Symbiosis)\n";
     }
 
     @Override
-    public RuleDirective[] generateApgtable() {
+    public RuleDirective[] generateApgtable() throws UnsupportedOperationException {
+        if (weights != null)
+            throw new UnsupportedOperationException("Apgtable generation with weights is not supported!");
+
         Ruletable ruletable = new Ruletable("");
 
         ruletable.setPermute();  // Enable permute symmetry
@@ -139,32 +168,39 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         return output;
     }
 
-    private void parseString(int input, int output, String string) {
+    private void parseString(int input, int output, String string, boolean withCommas) {
         int counter = 0;
         ArrayList<ArrayList<Integer>> transition = null;
 
-        int i = 0;
+        int i = 0, index;
         String transString;
         String[] tokens;
         Set<String> tokenSet;
-        Matcher matcher = Pattern.compile("l(-[0-8])*|[0-8]").matcher(string);
-        while (matcher.find()) {
-            transString = matcher.group();
-            if (transString.matches("[0-8]")) {
-                if (counter == 0) {
-                    if (transition != null) {
-                        for (ArrayList<Integer> trans: transition) addTransition(trans, output);
-                    }
 
-                    // Resetting the transition
-                    transition = new ArrayList<>();
-                    transition.add(new ArrayList<>());
-                    transition.get(0).add(input);  // Add the input state
+        Matcher matcher;
+        if (withCommas) matcher = Pattern.compile("l(-[0-9]+)*|[0-9]+").matcher(string);
+        else matcher = Pattern.compile("l(-[0-8])*|[0-8]").matcher(string);
+        while (matcher.find()) {
+            if (counter == 0) {
+                if (transition != null) {
+                    for (ArrayList<Integer> trans: transition) addTransition(trans, output);
                 }
 
-                for (ArrayList<Integer> trans: transition) trans.add(Integer.parseInt(string.charAt(i) + ""));
-            } else {  // TODO (Fix l-[x] syntax)
-                tokens = transString.substring(2).split("-");
+                // Resetting the transition
+                transition = new ArrayList<>();
+                transition.add(new ArrayList<>());
+                transition.get(0).add(input);  // Add the input state
+            }
+
+            transString = matcher.group();
+            index = matcher.start();
+
+            if (transString.matches("[0-9]+")) {
+                for (ArrayList<Integer> trans: transition) trans.add(Integer.parseInt(string.charAt(index) + ""));
+            } else {
+                if (transString.length() > 2) tokens = transString.substring(2).split("-");
+                else tokens = new String[0];
+
                 tokenSet = new HashSet<>(Arrays.asList(tokens));
 
                 ArrayList<Integer> transClone;
@@ -172,7 +208,9 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
                 transition.clear();
 
                 for (ArrayList<Integer> trans: transitionClone) {
-                    for (int j = 0; j < neighbourhood.length; j++) {
+                    int sum = 0;
+                    for (int j = 1; j < trans.size(); j++) sum += trans.get(j);
+                    for (int j = 0; j < maxNeighbourhoodCount - sum; j++) {
                         if (tokenSet.contains(j + "")) continue;
                         transClone = (ArrayList<Integer>) trans.clone();
                         transClone.add(j);
@@ -184,6 +222,12 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
             i++;
             counter++;  // Cycle from 0 - numStates - 1
             counter %= numStates - 1;
+        }
+
+        if (counter == 0) {
+            if (transition != null) {
+                for (ArrayList<Integer> trans : transition) addTransition(trans, output);
+            }
         }
     }
 

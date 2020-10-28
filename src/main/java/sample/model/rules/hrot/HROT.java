@@ -36,12 +36,8 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
     private final static String moore = "([BSbs][0-8]*/?[BSbs][0-8]*|[BSbs]?[0-8]*/[BSbs]?[0-8]*)";
     private final static String vonNeumann = "([BSbs][0-4]*/?[BSbs][0-4]*?|[BSbs]?[0-4]*/[BSbs]?[0-4]*)V";
     private final static String hexagonal = "([BSbs][0-6]*/?[BSbs][0-6]*|[BSbs]?[0-6]*/[BSbs]?[0-6]*)H";
-    private final static String higherRangePredefined = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" +
-            hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
-    private final static String higherRangeCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?[HL]?";
-    private final static String higherRangeWeightedCustom = "R[0-9]+,C[0|2],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?";
+    private final static String hrot = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" +
+            hrotTransitions + "," + neighbourhoodRegex;
 
     /**
      * Creates a 2-state HROT rule with the Minibugs rule
@@ -121,62 +117,21 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
             neighbourhood = NeighbourhoodGenerator.generateHexagonal(1);
             weights = null;
         }
-        else {
-            if (rulestring.matches(higherRangePredefined)) {
-                // Generate Neighbourhood
-                int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-                char neighbourhoodSymbol = Utils.matchRegex("N["+
-                        NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0).charAt(1);
-
-                neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
-                weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
-                tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
-            }
-            else if (rulestring.matches(higherRangeCustom)) {
-                // Generate Neighbourhood
-                int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-                String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
-                weights = null;
-
-                if (CoordCA.length() > 0) neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
-
-                try {
-                    String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
-                            rulestring, 0, 1);
-                    if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                    else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-                } catch (IllegalStateException exception) {
-                    tiling = Tiling.Square;
-                }
-            }
-            else if (rulestring.matches(higherRangeWeightedCustom)) {
-                // Generate Neighbourhood
-                int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-                String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
-
-                Pair<Coordinate[], int[]> neighbourhoodAndWeights =
-                        NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
-                neighbourhood = neighbourhoodAndWeights.getValue0();
-                weights = neighbourhoodAndWeights.getValue1();
-
-                try {
-                    String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
-                            rulestring, 0, 1);
-                    if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                    else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-                } catch (IllegalStateException exception) {
-                    tiling = Tiling.Square;
-                }
-            }
-            else {
-                throw new IllegalArgumentException("This rulestring is invalid!");
-            }
+        else if (rulestring.matches(hrot)) {
+            // Generate Neighbourhood
+            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
+            String specifier = Utils.matchRegex("N["+
+                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0);
+            loadNeighbourhood(range, specifier);
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
                     Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
             Utils.getTransitionsFromStringWithCommas(survival,
                     Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
+        }
+        else {
+            throw new IllegalArgumentException("This rulestring is invalid!");
         }
 
         // Update the background
@@ -209,8 +164,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
                 rulestringBuilder.append("H");
             }
         } // Using HROT notation
-        else if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
-                rulestring.matches(higherRangeWeightedCustom)) {
+        else if (rulestring.matches(hrot)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,C[0|2],", rulestring, 0));
 
             // Adding Survival
@@ -275,8 +229,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
      */
     @Override
     public String[] getRegex() {
-        return new String[]{moore, vonNeumann, hexagonal,
-                higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
+        return new String[]{moore, vonNeumann, hexagonal, hrot};
     }
 
     /**

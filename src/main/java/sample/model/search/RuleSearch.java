@@ -1,7 +1,11 @@
 package sample.model.search;
 
 import sample.model.Coordinate;
+import sample.model.database.GliderDBEntry;
+import sample.model.patterns.Oscillator;
 import sample.model.patterns.Pattern;
+import sample.model.patterns.PowerLawPattern;
+import sample.model.patterns.Spaceship;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
@@ -18,7 +22,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class RuleSearch extends SearchProgram {
-    private HashSet<String> known;
+    private HashSet<Pattern> known;
 
     public RuleSearch(RuleSearchParameters parameters) {
         super(parameters);
@@ -51,10 +55,10 @@ public class RuleSearch extends SearchProgram {
 
             // Identify the object
             Pattern result = simulator.identify(searchParameters.getMaxPeriod(), true, 40);
-            if (result != null && !result.toString().equals("Still Life") && !known.contains(result.toString())) {
+            if (result != null && !result.toString().equals("Still Life") && !(result instanceof PowerLawPattern) &&
+                    !known.contains(result)) {
                 add(searchResults, result);
-                if (!result.toString().contains("zz") && !result.toString().contains("Linear Growth"))
-                    add(known, result.toString());  // To avoid duplicate speeds & whatnot
+                add(known, result);  // To avoid duplicate speeds & whatnot
             }
 
             synchronized (this) {  // To avoid race conditions
@@ -67,6 +71,8 @@ public class RuleSearch extends SearchProgram {
     public boolean writeToFile(File file) {
         try {
             FileWriter writer = new FileWriter(file);
+            FileWriter writer2 = new FileWriter(new File(file.getParent() + "/ships.db.txt"));
+            FileWriter writer3 = new FileWriter(new File(file.getParent() + "/osc.db.txt"));
 
             // Writing the search parameters
             RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
@@ -81,10 +87,17 @@ public class RuleSearch extends SearchProgram {
                 writer.write("\"" + pattern + "\",\"" + ((RuleFamily) pattern.getRule()).getRulestring() + "\",\"" +
                         pattern.getMinRule().getRulestring() + "\",\"" +
                         pattern.getMaxRule().getRulestring() + "\"\n");
+                if (pattern instanceof Spaceship) {  // Writing to the *.db.txt files
+                    writer2.write(new GliderDBEntry((Spaceship) pattern, "", "").toString() + "\n");
+                } else if (pattern instanceof Oscillator) {
+                    writer3.write(new GliderDBEntry((Oscillator) pattern, "", "").toString() + "\n");
+                }
             }
 
             // Close the file
             writer.close();
+            writer2.close();
+            writer3.close();
             return true;
         }
         catch (IOException exception) {

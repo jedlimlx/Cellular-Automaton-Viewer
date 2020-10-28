@@ -1,6 +1,7 @@
 package sample.model.database;
 
 import sample.model.Utils;
+import sample.model.patterns.Oscillator;
 import sample.model.patterns.Spaceship;
 import sample.model.simulation.Grid;
 
@@ -8,6 +9,7 @@ import sample.model.simulation.Grid;
  * Represents an entry in the GliderDB database
  */
 public class GliderDBEntry extends DatabaseEntry {
+    private Oscillator oscillator;
     private Spaceship spaceship;
     private String discoverer = "", name = "";
 
@@ -40,7 +42,23 @@ public class GliderDBEntry extends DatabaseEntry {
     public GliderDBEntry(Spaceship spaceship, String discoverer, String name) {
         super(spaceship);
 
+        this.oscillator = null;
         this.spaceship = spaceship;
+        this.discoverer = discoverer;
+        this.name = name;
+    }
+
+    /**
+     * Constructs the database entry from an oscillator
+     * @param oscillator The oscillator
+     * @param discoverer The discoverer of the oscillator
+     * @param name The name of the oscillator
+     */
+    public GliderDBEntry(Oscillator oscillator, String discoverer, String name) {
+        super(oscillator);
+
+        this.spaceship = null;
+        this.oscillator = oscillator;
         this.discoverer = discoverer;
         this.name = name;
     }
@@ -90,18 +108,33 @@ public class GliderDBEntry extends DatabaseEntry {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder(name);
-        builder.append(":").append(discoverer).append(":").
-                append(spaceship.getMinRule()).append(":").
-                append(spaceship.getMaxRule()).append(":").
-                append(spaceship.getPeriod()).append(":").
-                append(spaceship.getDisplacementX()).append(":").
-                append(spaceship.getDisplacementY()).append(":");
+        if (oscillator != null) {
+            builder.append(":").append(discoverer).append(":").
+                    append(oscillator.getMinRule()).append(":").
+                    append(oscillator.getMaxRule()).append(":").
+                    append(oscillator.getPeriod()).append(":0:0:");
 
-        spaceship.updateBounds();
+            oscillator.updateBounds();
 
-        int width = spaceship.getBounds().getValue1().getX() - spaceship.getBounds().getValue0().getX() + 1;
-        int height = spaceship.getBounds().getValue1().getY() - spaceship.getBounds().getValue0().getY() + 1;
-        builder.append(width).append(":").append(height).append(":").append(spaceship.toRLE());
+            int width = oscillator.getBounds().getValue1().getX() - oscillator.getBounds().getValue0().getX() + 1;
+            int height = oscillator.getBounds().getValue1().getY() - oscillator.getBounds().getValue0().getY() + 1;
+            builder.append(width).append(":").append(height).append(":").append(oscillator.toRLE());
+
+        } else {
+            builder.append(":").append(discoverer).append(":").
+                    append(spaceship.getMinRule()).append(":").
+                    append(spaceship.getMaxRule()).append(":").
+                    append(spaceship.getPeriod()).append(":").
+                    append(spaceship.getDisplacementX()).append(":").
+                    append(spaceship.getDisplacementY()).append(":");
+
+            spaceship.updateBounds();
+
+            int width = spaceship.getBounds().getValue1().getX() - spaceship.getBounds().getValue0().getX() + 1;
+            int height = spaceship.getBounds().getValue1().getY() - spaceship.getBounds().getValue0().getY() + 1;
+            builder.append(width).append(":").append(height).append(":").append(spaceship.toRLE());
+
+        }
 
         return builder.toString();
     }

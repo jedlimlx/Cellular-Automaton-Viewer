@@ -76,7 +76,7 @@ The Tools Bar
 
 The Status Bar
 --------------
-The generation of the pattern is shown.
+The generation of the pattern, the current population and simulation speed is shown.
 
 Keyboard Shortcuts
 ------------------
@@ -95,6 +95,7 @@ Keyboard Shortcuts
 
 <kbd>Ctrl</kbd> + <kbd>A</kbd> - Select the entire pattern <br>
 <kbd>Ctrl</kbd> + <kbd>Z</kbd> - Undo <br>
+<kbd>Ctrl</kbd> + <kbd>Y</kbd> - Redo <br>
 
 <kbd>Ctrl</kbd> + <kbd>R</kbd> - Change Rule <br>
 <kbd>Ctrl</kbd> + <kbd>5</kbd> - Generate Random Soup <br>
@@ -177,9 +178,9 @@ Supported / Planned Rulespaces
         - [x] B0 Rules
         - [x] Weighted Rules
         - [x] Apgtable Generation for all rules
-    - [ ] Multi-state Cyclic HROT
-        - [ ] Weighted Rules
-        - [ ] Apgtable Generation for all rules
+    - [x] Multi-state Cyclic HROT
+        - [x] Weighted Rules
+        - [x] Apgtable Generation for all rules (no weighted yet 😞)
 - [ ] Isotropic Non-Totalistic (INT)
     - [x] 2 State INT
         - [x] B0 Rules
@@ -259,7 +260,7 @@ Supported / Planned Named HROT Neighbourhoods
 Search Programs
 ===================
 - [ ] Rule Search Program
-    - [ ] More high tech repetition detection function
+    - [x] More high tech repetition detection function
     - [x] Identification for linear growth patterns, replicators
     - [ ] Fine tune RNG function manually
     - [ ] Fine tune RNG function via genetic algorithms?
@@ -269,6 +270,7 @@ Search Programs
     - [x] Mutiple catalysts
     - [ ] Brute force option
 - [ ] Methuselah Search Program
+- [ ] Ship / Oscillator Search Program
 
 Long-term TODO List
 ===================

@@ -4,8 +4,10 @@ import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.simulation.Grid;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a spaceship
@@ -14,6 +16,11 @@ public class Spaceship extends Pattern {
     private final int period;
     private final int displacementX;
     private final int displacementY;
+
+    /**
+     * Phases of the oscillator
+     */
+    private Grid[] phases;
 
     /**
      * Constructs a spaceship
@@ -30,6 +37,14 @@ public class Spaceship extends Pattern {
         this.displacementX = displacementX;
         this.displacementY = displacementY;
         this.insertCells(pattern, new Coordinate(0, 0));
+    }
+
+    @Override
+    public void generateMinMaxRule(Grid[] grids) {
+        super.generateMinMaxRule(grids);
+
+        phases = new Grid[grids.length];
+        for (int i = 0; i < grids.length; i++) phases[i] = grids[i].deepCopy();
     }
 
     @Override
@@ -55,6 +70,18 @@ public class Spaceship extends Pattern {
         }
 
         return information;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Spaceship blocks = (Spaceship) o;
+        return period == blocks.period &&
+                displacementX == blocks.displacementX &&
+                displacementY == blocks.displacementY &&
+                Arrays.equals(phases, blocks.phases);
     }
 
     /**

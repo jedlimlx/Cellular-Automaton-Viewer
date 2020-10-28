@@ -64,8 +64,11 @@ public class GliderDBReader extends DatabaseReader {
                     Math.abs(ship.getDisplacementY()) == Math.abs(dy)) ||
                     (Math.abs(ship.getDisplacementX()) == Math.abs(dy) &&
                     Math.abs(ship.getDisplacementY()) == Math.abs(dx)) || (dx == -1 && dy == -1);
-            matchRule = (minRule == null && maxRule == null) ||
-                    ((MinMaxRuleable) ship.getRule()).betweenMinMax(minRule, maxRule);
+            matchRule = minRule == null || maxRule == null ||
+                    ((MinMaxRuleable) ship.getMinRule()).betweenMinMax(minRule, maxRule) ||
+                    ((MinMaxRuleable) ship.getMaxRule()).betweenMinMax(minRule, maxRule) ||
+                    ((MinMaxRuleable) minRule).betweenMinMax(ship.getMinRule(), ship.getMaxRule()) ||
+                    ((MinMaxRuleable) maxRule).betweenMinMax(ship.getMinRule(), ship.getMaxRule());
 
             // If it matches all conditions, add to the list of entries
             if (matchPeriod && matchSlope && matchRule)
