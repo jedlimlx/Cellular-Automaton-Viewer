@@ -24,7 +24,7 @@ import java.util.logging.LogManager;
         CommandLine.HelpCommand.class
 })
 public class Main implements Runnable {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         try {
             LogManager.getLogManager().readConfiguration(
                     Main.class.getResourceAsStream("/logging.properties"));

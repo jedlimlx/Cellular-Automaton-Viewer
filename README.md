@@ -1,5 +1,5 @@
 
-# CAViewer [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link]
+# CAViewer [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link] ![Test CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Test%20CAViewer/badge.svg)
 
 [Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions
 

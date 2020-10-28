@@ -1180,8 +1180,6 @@ public class MainController {
 
     @FXML // Creates a new pattern
     public void newPattern() {
-        Action.addAction();
-
         // Add all the cells to a list to avoid ConcurrentModificationException
         ArrayList<Coordinate> coordinates = new ArrayList<>();
         simulator.iterateCells(coordinates::add);

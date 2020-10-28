@@ -52,6 +52,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         transitions.clear();
 
         if (rulestring.matches(mooreRegex)) {
+            maxNeighbourhoodCount = 8;
             neighbourhood = NeighbourhoodGenerator.generateMoore(1);
             numStates = Integer.parseInt(Utils.matchRegex("C([0-9]+)", rulestring, 0).substring(1));
 
@@ -61,11 +62,11 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
             parseString(0, 1, birthString, false);
             parseString(1, 1, survivalString, false);
 
-            int counter = 0;
-            Matcher mutateMatcher = Pattern.compile("M(l(-[0-8])*|[0-8])*/").matcher(rulestring);
+            int counter = 2;
+            Matcher mutateMatcher = Pattern.compile("M(l(-[0-8])*|[0-8])*").matcher(rulestring);
             while (mutateMatcher.find()) {
-                String mutate = mutateMatcher.group(1);
-                if (mutate != null) parseString(1, counter, mutate, false);
+                String mutate = mutateMatcher.group().substring(1);
+                parseString(1, counter, mutate, false);
                 counter++;
             }
         } else if (rulestring.matches(hrotRegex)) {
@@ -84,11 +85,11 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
             parseString(0, 1, birthString, true);
             parseString(1, 1, survivalString, true);
 
-            int counter = 0;
+            int counter = 2;
             Matcher mutateMatcher = Pattern.compile("M((l(-[0-9]+)*|[0-9]+),?)*,").matcher(rulestring);
             while (mutateMatcher.find()) {
-                String mutate = mutateMatcher.group(1);
-                if (mutate != null) parseString(1, counter, mutate, true);
+                String mutate = mutateMatcher.group().substring(1);
+                parseString(1, counter, mutate, true);
                 counter++;
             }
         } else {
@@ -115,7 +116,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
                 "R<range>,C<states>,B<birth>,M<mutate>,M<mutate2>,...,S<survival>,N<neighbourhood>\n\n" +
                 "Examples:\n" +
                 "B002021/M/M/S000011300030003120012201210021102111/C4 (Gluonic)\n" +
-                "B002/M/M/S000011300030003120012201210021102/C4 (Gluons)\n" +
+                "B002/M/M/S000011300030003120012201210021102111/C4 (Gluons)\n" +
                 "B30/M/S2030ll-0/C3 (Symbiosis)\n";
     }
 
@@ -172,7 +173,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         int counter = 0;
         ArrayList<ArrayList<Integer>> transition = null;
 
-        int i = 0, index;
+        int index;
         String transString;
         String[] tokens;
         Set<String> tokenSet;
@@ -219,7 +220,6 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
                 }
             }
 
-            i++;
             counter++;  // Cycle from 0 - numStates - 1
             counter %= numStates - 1;
         }
@@ -246,7 +246,8 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
                 transitionClone.add(transition.get(index));
             }
 
-            transitions.put(transitionClone, (output + i) % numStates);
+            int output2 = (output + i) % (numStates - 1);
+            transitions.put(transitionClone, output2 != 0 ? output2 : numStates - 1);
         }
     }
 }
