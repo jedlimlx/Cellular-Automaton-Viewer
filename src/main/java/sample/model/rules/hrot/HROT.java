@@ -120,8 +120,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
         else if (rulestring.matches(hrot)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String specifier = Utils.matchRegex("N["+
-                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0);
+            String specifier = Utils.matchRegex("N.*", rulestring, 0);
             loadNeighbourhood(range, specifier);
 
             // Get transitions

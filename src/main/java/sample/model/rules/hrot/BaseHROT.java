@@ -44,21 +44,22 @@ public abstract class BaseHROT extends RuleFamily {
      * @param specifier The specifier for the neighbourhood
      */
     protected void loadNeighbourhood(int range, String specifier) {
-        if (specifier.matches("N@([A-Fa-f0-9]+)?")) {  // CoordCA Format
+        if (specifier.matches("N@([A-Fa-f0-9]+)?[HL]?")) {  // CoordCA Format
             weights = null;
 
             if (specifier.length() > 0)
-                neighbourhood = NeighbourhoodGenerator.fromCoordCA(specifier.substring(2), range);
+                neighbourhood = NeighbourhoodGenerator.fromCoordCA(specifier.substring(2).
+                        replaceAll("[HL]", ""), range);
 
             try {
                 String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
-                        rulestring, 0, 1);
+                        specifier, 0, 1);
                 if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
                 else if (tilingString.equals("L")) tiling = Tiling.Triangular;
             } catch (IllegalStateException exception) {
                 tiling = Tiling.Square;
             }
-        } else if (specifier.matches("NW[A-Fa-f0-9]+([HL]?)")) {  // Weighted Rules
+        } else if (specifier.matches("NW[A-Fa-f0-9]+[HL]?")) {  // Weighted Rules
             Pair<Coordinate[], int[]> neighbourhoodAndWeights =
                     NeighbourhoodGenerator.getNeighbourhoodWeights(specifier.substring(2), range);
             neighbourhood = neighbourhoodAndWeights.getValue0();

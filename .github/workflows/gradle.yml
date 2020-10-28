@@ -97,7 +97,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Gradle
-        run: ./gradlew build --build-file build2.gradle
+        run: ./gradlew build --build-file build2.gradle -x:test
       - shell: bash
         run: |
           ls -R
