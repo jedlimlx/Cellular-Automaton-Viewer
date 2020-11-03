@@ -72,8 +72,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         } else if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String specifier = Utils.matchRegex("N["+
-                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0);
+            String specifier = Utils.matchRegex("N.*", rulestring, 0);
             loadNeighbourhood(range, specifier);
 
             // Load other parameters

@@ -55,7 +55,8 @@ public class PowerLawPattern extends Pattern {
     }
 
     /**
-     * Finds the gradient of a list of points
+     * Finds the gradient of a list of points.
+     * Totally not stolen from apgsearch 1.x.
      * @param pointList The list of points
      * @return Returns the gradient of the list of points
      */

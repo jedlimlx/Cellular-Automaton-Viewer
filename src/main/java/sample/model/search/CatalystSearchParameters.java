@@ -13,17 +13,22 @@ public class CatalystSearchParameters extends SearchParameters {
     private final List<Coordinate> coordinateList;
 
     private final boolean bruteForce;
+    private final boolean rotateCatalyst;
+    private final boolean flipCatalyst;
+
     private final int maxRepeatTime;
     private final int numCatalysts;
 
     private final Rule rule;
 
     public CatalystSearchParameters(int maxRepeatTime, int numCatalysts, boolean bruteForce,
-                                    List<Grid> catalysts, Grid target,
+                                    boolean rotateCatalyst, boolean flipCatalyst, List<Grid> catalysts, Grid target,
                                     List<Coordinate> coordinateList, Rule rule) {
         this.maxRepeatTime = maxRepeatTime;
         this.numCatalysts = numCatalysts;
         this.bruteForce = bruteForce;
+        this.rotateCatalyst = rotateCatalyst;
+        this.flipCatalyst = flipCatalyst;
         this.catalysts = catalysts;
         this.target = target;
         this.coordinateList = coordinateList;
@@ -40,6 +45,14 @@ public class CatalystSearchParameters extends SearchParameters {
 
     public boolean getBruteForce() {
         return bruteForce;
+    }
+
+    public boolean getRotateCatalyst() {
+        return rotateCatalyst;
+    }
+
+    public boolean getFlipCatalyst() {
+        return flipCatalyst;
     }
 
     public List<Grid> getCatalysts() {

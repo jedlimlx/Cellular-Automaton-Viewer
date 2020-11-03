@@ -8,9 +8,7 @@ import sample.model.simulation.Simulator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -58,6 +56,7 @@ class PlacedCatalyst {
 }
 
 public class CatalystSearch extends SearchProgram {
+    private Set<Catalyst> known;
     private final Random random = new Random();
 
     public CatalystSearch(CatalystSearchParameters parameters) {
@@ -72,6 +71,7 @@ public class CatalystSearch extends SearchProgram {
         if (searchParameters.getBruteForce()) {
             // TODO (Brute force)
         } else {
+            known = new HashSet<>();
             searchResults = new ArrayList<>(); // Initialise search results
 
             int initialGeneration = -1, repeatTime = -1;
@@ -79,10 +79,14 @@ public class CatalystSearch extends SearchProgram {
             List<PlacedCatalyst> placedCatalysts;
             for (int i = 0; i < num; i++) {
                 simulator = new Simulator(searchParameters.getRule());
-                simulator.insertCells(searchParameters.getTarget(), new Coordinate());
+                System.out.println(i);
 
                 initialGeneration = -1;
                 placedCatalysts = randomAddCatalyst(simulator, searchParameters);
+                if (placedCatalysts == null) continue;  // The catalysts overlap and are not still lives
+
+                // Inserting the target
+                simulator.insertCells(searchParameters.getTarget(), new Coordinate());
 
                 Grid original = simulator.deepCopy();
                 for (int j = 0; j < searchParameters.getMaxRepeatTime(); j++) {
@@ -112,16 +116,16 @@ public class CatalystSearch extends SearchProgram {
 
                     // Every single catalyst regenerated so its not a partial
                     if (numRegen == numInteracted && numInteracted >= 1) {
-                        System.out.println(initialGeneration + " " + simulator.getGeneration());
-                        add(searchResults, new Catalyst(simulator.getRule(), original, repeatTime, false));
+                        Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime, false);
+                        add(searchResults, catalyst);
                         break;
                     }
                 }
 
                 // Not every single catalyst regenerated so its a partial
                 if (numRegen < numInteracted && numInteracted >= 1 && numRegen >= 1) {
-                    System.out.println(initialGeneration + " " + simulator.getGeneration());
-                    add(searchResults, new Catalyst(simulator.getRule(), original, repeatTime, true));
+                    Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime, true);
+                    add(searchResults, catalyst);
                 }
             }
         }
@@ -131,6 +135,7 @@ public class CatalystSearch extends SearchProgram {
     public boolean writeToFile(File file) {
         try {
             FileWriter fileWriter = new FileWriter(file);
+
             fileWriter.write("Catalyst,RLE\n");
             for (Grid pattern: searchResults) {
                 fileWriter.write(pattern + "," + pattern.toRLE() + "\n");
@@ -145,7 +150,7 @@ public class CatalystSearch extends SearchProgram {
         }
     }
 
-    private List<PlacedCatalyst> randomAddCatalyst(Grid grid, CatalystSearchParameters searchParameters) {
+    private List<PlacedCatalyst> randomAddCatalyst(Simulator grid, CatalystSearchParameters searchParameters) {
         int index;
         Grid catalyst;
         Coordinate coordinate;
@@ -155,7 +160,27 @@ public class CatalystSearch extends SearchProgram {
             coordinate = searchParameters.getCoordinateList().get(index);
 
             index = random.nextInt(searchParameters.getCatalysts().size());
-            catalyst = searchParameters.getCatalysts().get(index);
+            catalyst = searchParameters.getCatalysts().get(index).deepCopy();
+
+            if (searchParameters.getRotateCatalyst()) {
+                catalyst.updateBounds();
+                for (int j = 0; j < random.nextInt(4); j++)
+                    catalyst.rotateCW(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+            }
+
+            if (searchParameters.getFlipCatalyst()) {
+                catalyst.updateBounds();
+
+                int randomInt = random.nextInt(4);
+                if (randomInt == 0) {
+                    catalyst.reflectCellsX(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+                } else if (randomInt == 1) {
+                    catalyst.reflectCellsY(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+                } else if (randomInt == 2) {
+                    catalyst.reflectCellsX(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+                    catalyst.reflectCellsY(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+                }
+            }
 
             grid.insertCells(catalyst, coordinate);
 
@@ -168,6 +193,7 @@ public class CatalystSearch extends SearchProgram {
                 if (coordinate3.getY() > coordinate2.getY())
                     coordinate3 = new Coordinate(coordinate3.getX(), coordinate2.getY());
             }
+
             int hash = catalyst.hashCode(bfsResult, coordinate3);
 
             for (int j = 0; j < bfsResult.size(); j++) bfsResult.set(j, bfsResult.get(j).add(coordinate));
@@ -180,6 +206,10 @@ public class CatalystSearch extends SearchProgram {
 
             placedCatalysts.add(new PlacedCatalyst(hash, coordinate, bfsResult));
         }
+
+        // if (!grid.identify(2).toString().equals("Still Life")) {
+        //    return null;
+        // }
 
         return placedCatalysts;
     }

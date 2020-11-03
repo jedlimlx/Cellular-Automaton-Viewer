@@ -64,7 +64,8 @@ public class RuleSearchCommand implements Runnable {
             }
 
             RuleSearchParameters parameters = new RuleSearchParameters(simulator.deepCopy(),
-                    Utils.fromRulestring(minRule), Utils.fromRulestring(maxRule), maxPeriod);
+                    Utils.fromRulestring(minRule), Utils.fromRulestring(maxRule), maxPeriod, 0, 300,
+                    40, 40);
 
             RuleSearch ruleSearch = new RuleSearch(parameters);
             ruleSearch.searchThreaded(numSearch, threads);

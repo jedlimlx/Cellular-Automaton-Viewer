@@ -18,7 +18,7 @@ public class Spaceship extends Pattern {
     private final int displacementY;
 
     /**
-     * Phases of the oscillator
+     * Phases of the spaceship
      */
     private Grid[] phases;
 
@@ -43,8 +43,18 @@ public class Spaceship extends Pattern {
     public void generateMinMaxRule(Grid[] grids) {
         super.generateMinMaxRule(grids);
 
+        // Finding smallest phase of the spaceship
+        int minPop = Integer.MAX_VALUE;
+        Grid minPhase = new Grid();
+
         phases = new Grid[grids.length];
-        for (int i = 0; i < grids.length; i++) phases[i] = grids[i].deepCopy();
+        for (int i = 0; i < grids.length; i++) {
+            phases[i] = grids[i].deepCopy();
+            if (grids[i].getPopulation() < minPop) minPhase = phases[i];
+        }
+
+        this.clearCells();
+        this.insertCells(minPhase, new Coordinate(0, 0));
     }
 
     @Override
@@ -82,6 +92,13 @@ public class Spaceship extends Pattern {
                 displacementX == blocks.displacementX &&
                 displacementY == blocks.displacementY &&
                 Arrays.equals(phases, blocks.phases);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (1 << period ^ displacementX << 2) ^ displacementY << 3;
+        result = 31 * result + Arrays.hashCode(phases);
+        return result;
     }
 
     /**

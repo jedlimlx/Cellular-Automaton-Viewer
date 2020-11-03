@@ -178,6 +178,13 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     }
 
     /**
+     * Clears all cells in the grid
+     */
+    public void clearCells() {
+        dictionary.clear();
+    }
+
+    /**
      * Gets the state of the cell at the specified coordinate
      * @param coordinate The coordinate of the cell
      * @return Returns the state of the cell
@@ -345,6 +352,14 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     public void rotateCW(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
 
+        if ((endCoordinate.getX() - startCoordinate.getX()) % 2 == 1) {
+            endCoordinate = new Coordinate(endCoordinate.getX() + 1, endCoordinate.getY());
+        }
+
+        if ((endCoordinate.getY() - startCoordinate.getY()) % 2 == 1) {
+            endCoordinate = new Coordinate(endCoordinate.getX(), endCoordinate.getY() + 1);
+        }
+
         int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
         int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();
 
@@ -366,6 +381,14 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      */
     public void rotateCCW(Coordinate startCoordinate, Coordinate endCoordinate) {
         Grid grid = this.deepCopy();  // Make a deep copy for reference
+
+        if ((endCoordinate.getX() - startCoordinate.getX()) % 2 == 1) {
+            endCoordinate = new Coordinate(endCoordinate.getX() + 1, endCoordinate.getY());
+        }
+
+        if ((endCoordinate.getY() - startCoordinate.getY()) % 2 == 1) {
+            endCoordinate = new Coordinate(endCoordinate.getX(), endCoordinate.getY() + 1);
+        }
 
         int centerX = (endCoordinate.getX() - startCoordinate.getX()) / 2 + startCoordinate.getX();
         int centerY = (endCoordinate.getY() - startCoordinate.getY()) / 2 + startCoordinate.getY();

@@ -8,7 +8,7 @@ import sample.model.simulation.Grid;
 
 public class RuleSearchParametersDialog extends SearchParametersDialog {
     private final Grid targetPattern;
-    private final Spinner<Integer> spinnerMaxPeriod;
+    private final Spinner<Integer> spinnerMaxPeriod, spinnerMinPop, spinnerMaxPop, spinnerMaxX, spinnerMaxY;
 
     private final RuleDialog minRuleDialog;
     private final RuleDialog maxRuleDialog;
@@ -21,8 +21,7 @@ public class RuleSearchParametersDialog extends SearchParametersDialog {
         maxRuleDialog = new RuleDialog("Enter Max Rule");
 
         // Label for the maximum period
-        Label labelMaxPeriod = new Label("Max Period:");
-        grid.add(labelMaxPeriod, 0, 2);
+        grid.add(new Label("Max Period:"), 0, 2);
 
         // The maximum period for period detection
         SpinnerValueFactory<Integer> maxPeriodFactory =
@@ -32,15 +31,57 @@ public class RuleSearchParametersDialog extends SearchParametersDialog {
         spinnerMaxPeriod.setValueFactory(maxPeriodFactory);
         grid.add(spinnerMaxPeriod, 0, 3);
 
+        // The minimum and maximum population for period detection
+        SpinnerValueFactory<Integer> populationFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 0);
+
+        grid.add(new Label("Min Population:"), 0, 4);
+
+        spinnerMinPop = new Spinner<>();
+        spinnerMinPop.setEditable(true);
+        spinnerMinPop.setValueFactory(populationFactory);
+        grid.add(spinnerMinPop, 0, 5);
+
+        SpinnerValueFactory<Integer> populationFactory2 =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 100);
+
+        grid.add(new Label("Max Population:"), 0, 6);
+
+        spinnerMaxPop = new Spinner<>();
+        spinnerMaxPop.setEditable(true);
+        spinnerMaxPop.setValueFactory(populationFactory2);
+        grid.add(spinnerMaxPop, 0, 7);
+
+        // Maximum bounding box for period detection
+        SpinnerValueFactory<Integer> boundingBoxFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 40);
+
+        grid.add(new Label("Max Width:"), 0, 8);
+
+        spinnerMaxX = new Spinner<>();
+        spinnerMaxX.setEditable(true);
+        spinnerMaxX.setValueFactory(boundingBoxFactory);
+        grid.add(spinnerMaxX, 0, 9);
+
+        grid.add(new Label("Max Height:"), 0, 10);
+
+        SpinnerValueFactory<Integer> boundingBoxFactory2 =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 40);
+
+        spinnerMaxY = new Spinner<>();
+        spinnerMaxY.setEditable(true);
+        spinnerMaxY.setValueFactory(boundingBoxFactory2);
+        grid.add(spinnerMaxY, 0, 11);
+
         // Button to select min rule
         Button buttonMinRule = new Button("Set Minimum Rule");
         buttonMinRule.setOnAction(event -> minRuleDialog.showAndWait());
-        grid.add(buttonMinRule, 0, 4);
+        grid.add(buttonMinRule, 0, 12);
 
         // Button to select max rule
         Button buttonMaxRule = new Button("Set Maximum Rule");
         buttonMaxRule.setOnAction(event -> maxRuleDialog.showAndWait());
-        grid.add(buttonMaxRule, 0, 5);
+        grid.add(buttonMaxRule, 0, 13);
 
         // Setting the target pattern
         this.targetPattern = targetPattern;
@@ -63,7 +104,9 @@ public class RuleSearchParametersDialog extends SearchParametersDialog {
             }
 
             searchParameters = new RuleSearchParameters(targetPattern,
-                    minRuleDialog.getRule(), maxRuleDialog.getRule(), spinnerMaxPeriod.getValue());
+                    minRuleDialog.getRule(), maxRuleDialog.getRule(), spinnerMaxPeriod.getValue(),
+                    spinnerMinPop.getValue(), spinnerMaxPop.getValue(), spinnerMaxX.getValue(),
+                    spinnerMaxY.getValue());
             return true;
         }
         catch (NullPointerException exception) {

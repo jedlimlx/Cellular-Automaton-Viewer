@@ -4,10 +4,7 @@ import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.simulation.Grid;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents an oscillator
@@ -40,8 +37,18 @@ public class Oscillator extends Pattern {
     public void generateMinMaxRule(Grid[] grids) {
         super.generateMinMaxRule(grids);
 
+        // Finding smallest phase of oscillator
+        int minPop = Integer.MAX_VALUE;
+        Grid minPhase = new Grid();
+
         phases = new Grid[grids.length];
-        for (int i = 0; i < grids.length; i++) phases[i] = grids[i].deepCopy();
+        for (int i = 0; i < grids.length; i++) {
+            phases[i] = grids[i].deepCopy();
+            if (grids[i].getPopulation() < minPop) minPhase = phases[i];
+        }
+
+        this.clearCells();
+        this.insertCells(minPhase, new Coordinate(0, 0));
     }
 
     @Override
@@ -79,6 +86,11 @@ public class Oscillator extends Pattern {
         Oscillator that = (Oscillator) o;
         return period == that.period &&
                 Arrays.equals(phases, that.phases);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * period + Arrays.hashCode(phases);
     }
 
     /**

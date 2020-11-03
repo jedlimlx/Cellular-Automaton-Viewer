@@ -29,7 +29,6 @@ public class RuleSearch extends SearchProgram {
     }
 
     public void search(int numRules) throws IllegalArgumentException {
-        // TODO (Implement a more high-tech repetition checker)
         // TODO (Do whatever WildMyron says that searchPatt-matchPatt does with the min / max rule)
         Simulator simulator;
         RuleSearchParameters searchParameters = (RuleSearchParameters) this.searchParameters;
@@ -54,8 +53,17 @@ public class RuleSearch extends SearchProgram {
             }
 
             // Identify the object
-            Pattern result = simulator.identify(searchParameters.getMaxPeriod(), true, 40);
-            if (result != null && !result.toString().equals("Still Life") && !(result instanceof PowerLawPattern) &&
+            Pattern result = simulator.identify(searchParameters.getMaxPeriod(), grid -> {
+                grid.updateBounds();
+                return grid.getPopulation() < searchParameters.getMaxPop() &&
+                        grid.getPopulation() > searchParameters.getMinPop() &&
+                        (grid.getBounds().getValue1().getX() - grid.getBounds().getValue0().getX()) <
+                                searchParameters.getMaxX() &&
+                        (grid.getBounds().getValue1().getY() - grid.getBounds().getValue0().getY()) <
+                                searchParameters.getMaxY();
+            });
+
+            if (result != null && !result.toString().equals("Still Life") &&
                     !known.contains(result)) {
                 add(searchResults, result);
                 add(known, result);  // To avoid duplicate speeds & whatnot

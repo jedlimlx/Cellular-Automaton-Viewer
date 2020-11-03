@@ -6,6 +6,7 @@ import sample.model.simulation.Grid;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a catalyst
@@ -54,5 +55,21 @@ public class Catalyst extends Pattern {
         }
 
         return information;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Catalyst catalyst = (Catalyst) o;
+        return repeatTime == catalyst.repeatTime &&
+                partial == catalyst.partial &&
+                this.hashCode() == catalyst.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), repeatTime, partial);
     }
 }

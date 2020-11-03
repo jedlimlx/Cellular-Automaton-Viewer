@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Simulations are run using Simulator. <br>
@@ -120,17 +121,16 @@ public class Simulator extends Grid {
      * @return The identified pattern
      */
     public Pattern identify(int maxPeriod) {
-        return identify(maxPeriod, false, 0);
+        return identify(maxPeriod, null);
     }
 
     /**
      * Identify a pattern (still life / oscillator / spaceship) with the specified max period
      * @param maxPeriod The max period to check for periodicity
-     * @param checkBoundExpansion Should the bounding box expansion be checked
-     * @param maxBound The maximum bounding box of the pattern. Only matters of checkBoundExpansion is True.
+     * @param continueIdentification Checks if the identification should continue
      * @return The identified pattern
      */
-    public Pattern identify(int maxPeriod, boolean checkBoundExpansion, int maxBound) {
+    public Pattern identify(int maxPeriod, Function<Grid, Boolean> continueIdentification) {
         // TODO (More specific identification for guns and replicators)
         // Hash map to store hashes among other things
         updateBounds();
@@ -216,16 +216,12 @@ public class Simulator extends Grid {
                 popList2[i + 1] = getPopulation() + popList2[i];
                 if (i > maxPeriod / 2) pointList.add(new Pair<>(Math.log10(i), Math.log10(popList2[i] + 1)));
 
-                // If it exceeds the maximum bound
-                if (checkBoundExpansion) {
-                    if ((getBounds().getValue1().getX() - getBounds().getValue0().getX()) > maxBound ||
-                            (getBounds().getValue1().getY() - getBounds().getValue0().getY()) > maxBound) {
-                        return null;
-                    }
-                }
+                // Should identification continue
+                if (!continueIdentification.apply(deepCopy2))
+                    return null;
 
                 // Checking for linear growth / zz_WHATEVER every 50 generations
-                if (i % 50 == 0 && false) {
+                if (i % 50 == 0) {
                     // Taking note of the generation
                     firstPhaseGeneration = initialGeneration;
 

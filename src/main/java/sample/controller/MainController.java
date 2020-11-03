@@ -390,6 +390,9 @@ public class MainController {
         renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Rotate selection rectangle
+        if ((end.getX() - start.getX()) % 2 == 1) end = new Coordinate(end.getX() + 1, end.getY());
+        if ((end.getY() - start.getY()) % 2 == 1) end = new Coordinate(end.getX(), end.getY() + 1);
+
         int centerX = (end.getX() - start.getX()) / 2 + start.getX();
         int centerY = (end.getY() - start.getY()) / 2 + start.getY();
 
@@ -419,6 +422,9 @@ public class MainController {
         renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
         // Rotate selection rectangle
+        if ((end.getX() - start.getX()) % 2 == 1) end = new Coordinate(end.getX() + 1, end.getY());
+        if ((end.getY() - start.getY()) % 2 == 1) end = new Coordinate(end.getX(), end.getY() + 1);
+
         int centerX = (end.getX() - start.getX()) / 2 + start.getX();
         int centerY = (end.getY() - start.getY()) / 2 + start.getY();
 

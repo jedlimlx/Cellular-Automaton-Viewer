@@ -1,9 +1,6 @@
 package sample.controller.dialogs.search;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.search.CatalystSearchParameters;
@@ -20,6 +17,7 @@ public class CatalystSearchParametersDialog extends SearchParametersDialog {
     private final TextArea catalystTextArea;
     private final Spinner<Integer> spinnerMaxRepeatTime;
     private final Spinner<Integer> spinnerNumCatalyst;
+    private final CheckBox rotateCatalystCheckbox, flipCatalystCheckbox;
 
     public CatalystSearchParametersDialog(Rule rule, Grid target, List<Coordinate> coordinateList) {
         this.rule = rule;
@@ -50,14 +48,22 @@ public class CatalystSearchParametersDialog extends SearchParametersDialog {
         spinnerNumCatalyst.setValueFactory(numCatalystFactory);
         grid.add(spinnerNumCatalyst, 0, 5);
 
+        // Should the catalysts be rotated?
+        rotateCatalystCheckbox = new CheckBox("Rotate Catalyst?");
+        grid.add(rotateCatalystCheckbox, 0, 6);
+
+        // Should the catalysts be flipped?
+        flipCatalystCheckbox = new CheckBox("Flip Catalyst?");
+        grid.add(flipCatalystCheckbox, 0, 7);
+
         // Label for the list of catalysts to use
         Label catalystsToUseLabel = new Label("Enter the catalysts to use:");
-        grid.add(catalystsToUseLabel, 0, 6);
+        grid.add(catalystsToUseLabel, 0, 8);
 
         // The list of catalysts to use
         catalystTextArea = new TextArea();
         catalystTextArea.setPromptText("Enter the catalysts to use (one line per headless RLE).");
-        grid.add(catalystTextArea, 0, 7);
+        grid.add(catalystTextArea, 0, 9);
     }
 
     @Override
@@ -73,7 +79,8 @@ public class CatalystSearchParametersDialog extends SearchParametersDialog {
         }
 
         searchParameters = new CatalystSearchParameters(spinnerMaxRepeatTime.getValue(),
-                spinnerNumCatalyst.getValue(), false, catalysts, target, coordinateList, rule);
+                spinnerNumCatalyst.getValue(), false, rotateCatalystCheckbox.isSelected(),
+                flipCatalystCheckbox.isSelected(), catalysts, target, coordinateList, rule);
         return true;
     }
 

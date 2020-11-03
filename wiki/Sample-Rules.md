@@ -37,7 +37,6 @@
 | ------------- | ------------- | ------------- | ------------- |
 | [?](../rules/Deficient HROT/R2,D0,S0-3,11,B0-5,NN/DESCRIPTION.md) | Stable | R2,D0,S0-3,11,B0-5,NN | A pretty sparse and stable rule with multiple failed c/2o and c/2d simpified spaceship heads. These failed spaceship heads form multiple interesting oscillators and spaceships.
 
-
 ## Integer Rules
 
 | Name | Character | Rulestring | Description | 
