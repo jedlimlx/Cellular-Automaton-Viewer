@@ -121,7 +121,7 @@ public class Simulator extends Grid {
      * @return The identified pattern
      */
     public Pattern identify(int maxPeriod) {
-        return identify(maxPeriod, null);
+        return identify(maxPeriod, pattern -> true);
     }
 
     /**
@@ -259,7 +259,16 @@ public class Simulator extends Grid {
      * Step the simulation forward 1 generation
      */
     public void step() {
-        rule.step(super.shallowCopy(), cellsChangedArray, generation);
+        rule.step(super.shallowCopy(), cellsChangedArray, generation, null);
+        generation += 1;
+    }
+
+    /**
+     * Step the a portion simulation forward 1 generation
+     * @param step A function that returns whether the cell at that coordinate should be stepped forward.
+     */
+    public void step(Function<Coordinate, Boolean> step) {
+        rule.step(super.shallowCopy(), cellsChangedArray, generation, step);
         generation += 1;
     }
 

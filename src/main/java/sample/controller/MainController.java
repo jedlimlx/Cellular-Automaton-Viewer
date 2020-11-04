@@ -63,13 +63,13 @@ public class MainController {
     private Label statusLabel;
 
     @FXML
-    private Button startSimulationButton;
+    private Button startSimulationButton, simInsideSelectionButton, simOutsideSelectionButton;
 
     @FXML
     private ToolBar secondaryToolbar;
 
     @FXML
-    private ImageView recordingImage, playButtonImage;
+    private ImageView recordingImage, playButtonImage, playButtonImage1, playButtonImage2;
 
     @FXML
     private CheckMenuItem gridLinesMenuItem;
@@ -112,6 +112,8 @@ public class MainController {
     private boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = true;  // Is the visualisation done?
     private boolean showGridLines = false;  // Are the grid lines being shown?
+
+    private SimulationMode simulationMode = SimulationMode.PAUSED;
 
     private JSONObject settings;  // Store the settings
 
@@ -647,7 +649,18 @@ public class MainController {
         long startTime = System.currentTimeMillis();
         try {
             for (int i = 0; i < stepSize; i++) {
-                simulator.step();
+                if (simulationMode == SimulationMode.IN_SELECTION)
+                    simulator.step(coordinate -> coordinate.getX() >= selectionRectangle.getStart().getX() &&
+                            coordinate.getY() >= selectionRectangle.getStart().getY() &&
+                            coordinate.getX() <= selectionRectangle.getEnd().getX() &&
+                            coordinate.getY() <= selectionRectangle.getEnd().getY());
+                else if (simulationMode == SimulationMode.OUTSIDE_SELECTION)
+                    simulator.step(coordinate -> coordinate.getX() < selectionRectangle.getStart().getX() ||
+                            coordinate.getY() < selectionRectangle.getStart().getY() ||
+                            coordinate.getX() > selectionRectangle.getEnd().getX() ||
+                            coordinate.getY() > selectionRectangle.getEnd().getY());
+                else simulator.step();
+
                 if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
                 else cellsChanged = simulator.getCellsChanged();
 
@@ -679,7 +692,7 @@ public class MainController {
             catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                 logger.log(Level.WARNING, exception.getMessage());
 
-                simulationRunning = false;  // Pause the simulation
+                simulationMode = SimulationMode.PAUSED;
 
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -715,7 +728,7 @@ public class MainController {
         int num = 1;
 
         while (true) {
-            if (simulationRunning) {
+            if (simulationMode != SimulationMode.PAUSED) {
                 // Wait for the visualisation to be done
                 // To avoid ConcurrentModificationException
                 // TODO (Using locks would be more elegant)
@@ -748,14 +761,68 @@ public class MainController {
     public void toggleSimulation() {
         Action.addAction();
 
-        simulationRunning = !simulationRunning;  // Toggle the simulation
-        if (!simulationRunning) {  // Changing the icon
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-        }
-        else {
+        if (simulationMode == SimulationMode.PAUSED) {
+            simulationMode = SimulationMode.RUNNING;
             playButtonImage.setImage(new Image(getClass().getResourceAsStream(
                     "/icon/StopButtonEater.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimOutSelection.png")));
+        } else {
+            simulationMode = SimulationMode.PAUSED;
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimOutSelection.png")));
+        }
+    }
+
+    @FXML  // Toggles simulation on and off
+    public void toggleSimulation1() {
+        Action.addAction();
+
+        if (simulationMode == SimulationMode.PAUSED) {
+            simulationMode = SimulationMode.IN_SELECTION;
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/StopInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimOutSelection.png")));
+        } else {
+            simulationMode = SimulationMode.PAUSED;
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimOutSelection.png")));
+        }
+    }
+
+    @FXML  // Toggles simulation on and off
+    public void toggleSimulation2() {
+        Action.addAction();
+
+        if (simulationMode == SimulationMode.PAUSED) {
+            simulationMode = SimulationMode.OUTSIDE_SELECTION;
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/StopOutSelection.png")));
+        } else {
+            simulationMode = SimulationMode.PAUSED;
+            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png")));
+            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
+                    "/icon/SimInSelection.png")));
+            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
+                        "/icon/SimOutSelection.png")));
         }
     }
 
@@ -1316,9 +1383,17 @@ public class MainController {
     public void keyPressedHandler(KeyEvent event) {
         event.consume();  // No one touches this but me
 
+        // Shift + Enter to simulate in selection
+        if (event.getCode().equals(KeyCode.ENTER) && event.isShiftDown()) {
+            simInsideSelectionButton.fire();
+        }
+        // Ctrl + Enter to siulation outside selection
+        else if (event.getCode().equals(KeyCode.ENTER) && event.isControlDown()) {
+            simOutsideSelectionButton.fire();
+        }
         // Enter to toggle simulation
-        if (event.getCode().equals(KeyCode.ENTER)) {
-            toggleSimulation();
+        else if (event.getCode().equals(KeyCode.ENTER)) {
+            startSimulationButton.fire();
         }
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {

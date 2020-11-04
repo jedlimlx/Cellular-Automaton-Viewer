@@ -10,6 +10,7 @@ import sample.model.simulation.Grid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Implements the alternating rules rulespace
@@ -95,9 +96,10 @@ public class AlternatingRule extends RuleFamily implements ApgtableGeneratable {
     }
 
     @Override
-    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation)
+    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation,
+                     Function<Coordinate, Boolean> step)
             throws IllegalArgumentException {
-        rules.get(generation % rules.size()).step(grid, cellsChanged, generation);
+        rules.get(generation % rules.size()).step(grid, cellsChanged, generation, step);
     }
 
     @Override

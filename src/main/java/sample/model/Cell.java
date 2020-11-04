@@ -11,6 +11,9 @@ public class Cell {
         this.coordinate = coordinate;
         this.state = state;
         this.rectangle = rectangle;
+
+        // Gives that sharp, crisp look that pixelated things should have
+        rectangle.setSmooth(false);
     }
 
     public Cell (int x, int y, int state, Rectangle rectangle) {

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Represents a single rule
@@ -125,9 +126,11 @@ public abstract class Rule {
      *                     and the next entry will contain the cells that changed the previous previous generation
      *                     and so on. It should be the same length as the alternating period of the rule
      * @param generation The current generation of the simulation
+     * @param step A function that returns whether the cell at that coordinate should be stepped forward.
      * @throws IllegalArgumentException Thrown if the length of cellsChanged is not the same as the alternating period
      */
-    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation)
+    public void step(Grid grid, ArrayList<Set<Coordinate>> cellsChanged, int generation,
+                     Function<Coordinate, Boolean> step)
             throws IllegalArgumentException {
         if (cellsChanged.size() != alternatingPeriod)
             throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
@@ -148,13 +151,16 @@ public abstract class Rule {
         // Use a set to avoid duplicates
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate cell: cellSet) {
+                if (step != null && !step.apply(cell)) continue;  // Don't evaluate this cell
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) != Math.floorMod(cell.getY(), 2)) {
                     for (Coordinate neighbour: neighbourhood) {
+                        if (step != null && !step.apply(cell.subtract(neighbour))) continue;
                         cellsToCheck.add(cell.subtract(neighbour));
                     }
                 }
                 else {
                     for (Coordinate neighbour: invertedNeighbourhood) {
+                        if (step != null && !step.apply(cell.subtract(neighbour))) continue;
                         cellsToCheck.add(cell.subtract(neighbour));
                     }
                 }

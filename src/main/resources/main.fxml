@@ -57,7 +57,9 @@
         </Menu>
     </MenuBar>
     <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" onScroll="#changeZoomHandler" prefHeight="400.0" prefWidth="600.0" style="-fx-background: black;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
-        <Pane fx:id="drawingPane" onMouseDragged="#mouseDraggedHandler" onMouseMoved="#mouseMovedHandler" onMousePressed="#mouseDragStartHandler" onMouseReleased="#mouseDragDoneHandler" prefHeight="4096.0" prefWidth="4096.0" style="-fx-background-color: black;" />
+      <content>
+           <Pane fx:id="drawingPane" onMouseDragged="#mouseDraggedHandler" onMouseMoved="#mouseMovedHandler" onMousePressed="#mouseDragStartHandler" onMouseReleased="#mouseDragDoneHandler" prefHeight="4096.0" prefWidth="4096.0" style="-fx-background-color: black;" />
+      </content>
     </ScrollPane>
     <ToolBar prefWidth="600.0">
         <Button fx:id="startSimulationButton" mnemonicParsing="false" onAction="#toggleSimulation">
@@ -70,6 +72,30 @@
                 <Tooltip text="Run Simulation" />
             </tooltip>
         </Button>
+      <Button fx:id="simInsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation1">
+         <graphic>
+            <ImageView fx:id="playButtonImage1" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icon/SimInSelection.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Simulate within selection" />
+         </tooltip>
+      </Button>
+      <Button fx:id="simOutsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation2">
+         <graphic>
+            <ImageView fx:id="playButtonImage2" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icon/SimOutSelection.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Simulate outside selection" />
+         </tooltip>
+      </Button>
         <Button mnemonicParsing="false" onAction="#drawingMode">
             <graphic>
                 <ImageView fx:id="drawingMode" fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">

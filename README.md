@@ -81,8 +81,11 @@ The generation of the pattern, the current population and simulation speed is sh
 Keyboard Shortcuts
 ------------------
 <kbd>Space</kbd> - Step 1 Generation <br>
-<kbd>Enter</kbd> - Toggle Simulation <br>
 <kbd>Delete</kbd> - Deletes cells <br>
+
+<kbd>Enter</kbd> - Toggle Simulation <br>
+<kbd>Shift</kbd> + <kbd>Enter</kbd> - Toggle Simulation (In Selection) <br>
+<kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Toggle Simulation (Outside Selection) <br>
 
 <kbd>Ctrl</kbd> + <kbd>N</kbd> - New Pattern <br>
 <kbd>Ctrl</kbd> + <kbd>O</kbd> - Open Pattern <br>
@@ -131,11 +134,11 @@ Editing Features
 - [x] Undo
 - [x] Select All
 - [x] More Random Soup Symmetries
+- [x] Simulate in selection
+- [x] Simulate outside selection
 - [ ] Reset Pattern to Generation 0
 - [ ] Nudging up / down / left / right
 - [ ] Invert Cells
-- [ ] Simulate in selection
-- [ ] Simulate outside selection
 
 Supported / Planned Rulespaces
 ==============================
