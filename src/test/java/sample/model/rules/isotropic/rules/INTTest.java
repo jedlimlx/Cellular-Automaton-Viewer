@@ -2,6 +2,7 @@ package sample.model.rules.isotropic.rules;
 
 import org.junit.Test;
 import sample.model.Coordinate;
+import sample.model.rules.hrot.HROT;
 import sample.model.rules.isotropic.transitions.R1MooreINT;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
@@ -15,6 +16,33 @@ import static org.junit.Assert.assertNotEquals;
 public class INTTest {
     public InputStream getStream(String resourcePath) {
         return getClass().getResourceAsStream(resourcePath);
+    }
+
+
+    @Test
+    public void testCanonise() {
+        // Loading the testcases
+        Scanner scanner = new Scanner(getStream("/INT/parsingTest.txt"));
+
+        // Run through them
+        String rulestring = "", canonisedRulestring = "";
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.startsWith("#R")) {
+                // Loading rulestring
+                rulestring = line.substring(3);
+            }
+            else if (line.startsWith("#C")) {
+                // Loading canonised rulestring
+                canonisedRulestring = line.substring(3);
+            }
+            else if (!line.startsWith("#")){
+                // Running the testcase
+                INT intRule = new INT(rulestring);
+                assertEquals(canonisedRulestring, intRule.getRulestring());
+            }
+        }
     }
 
     @Test

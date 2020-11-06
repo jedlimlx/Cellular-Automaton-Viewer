@@ -21,14 +21,14 @@ public class R1MooreINT extends SingleLetterTransitions {
         super(string);
 
         neighbourhood = new Coordinate[]{
-                new Coordinate(-1, 1),
                 new Coordinate(0, 1),
-                new Coordinate(1, 1),
-                new Coordinate(1, 0),
-                new Coordinate(1, -1),
-                new Coordinate(0, -1),
+                new Coordinate(-1, 1),
+                new Coordinate(-1, 0),
                 new Coordinate(-1, -1),
-                new Coordinate(-1, 0)
+                new Coordinate(0, -1),
+                new Coordinate(1, -1),
+                new Coordinate(1, 0),
+                new Coordinate(1, 1)
         };
 
         readTransitionsFromFile(getClass().getResourceAsStream("/int/r1_moore.txt"));
@@ -39,7 +39,7 @@ public class R1MooreINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(4, 8), (1, 3), (5, 7)]]");
+        Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(2, 8), (3, 7), (4, 6)]]");
         return symmetry.applySymmetry(transition);
     }
 

@@ -40,6 +40,8 @@ The Menu Bar
 The Tools Bar
 -------------
 *Run Simulation Button* - Runs the simulation <br>
+*Simulate in Selection Button* - Runs the simulation in the selection <br>
+*Simulate outside Selection Button* - Runs the simulation outside the selection <br>
 *Drawing Button* - Go into drawing mode <br>
 *Panning Button* - Go into panning mode <br>
 *Selection Button* - Go into selection mode <br>
@@ -57,8 +59,11 @@ The generation of the pattern, the current population and simulation speed is sh
 Keyboard Shortcuts
 ------------------
 <kbd>Space</kbd> - Step 1 Generation <br>
-<kbd>Enter</kbd> - Toggle Simulation <br>
 <kbd>Delete</kbd> - Deletes cells <br>
+
+<kbd>Enter</kbd> - Toggle Simulation <br>
+<kbd>Shift</kbd> + <kbd>Enter</kbd> - Toggle Simulation (In Selection) <br>
+<kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Toggle Simulation (Outside Selection) <br>
 
 <kbd>Ctrl</kbd> + <kbd>N</kbd> - New Pattern <br>
 <kbd>Ctrl</kbd> + <kbd>O</kbd> - Open Pattern <br>

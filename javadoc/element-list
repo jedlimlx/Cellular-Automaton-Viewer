@@ -18,6 +18,8 @@ sample.model.rules.hrot.enemies
 sample.model.rules.hrot.history
 sample.model.rules.hrot.symbiosis
 sample.model.rules.isotropic.rules
+sample.model.rules.isotropic.rules.energetic
+sample.model.rules.isotropic.rules.history
 sample.model.rules.isotropic.transitions
 sample.model.rules.misc
 sample.model.rules.ruleloader

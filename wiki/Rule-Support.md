@@ -297,10 +297,8 @@ See [here](https://conwaylife.com/wiki/OCA:LifeHistory) for more information.
 History rules are (planned to be) supported by:
 - [x] 2-state HROT
 - [ ] HROT Generations
-- [ ] HROT Extended Generations
-- [ ] 2-state INT
+- [x] 2-state INT
 - [ ] INT Generations
-- [ ] INT Extended Generations
 
 
 # Symbiosis Rules
@@ -311,10 +309,8 @@ B0 symbiosis rules are undefined. Similar to history rules, the notation is [R]S
 Symbiosis rules are (planned to be) supported by:
 - [x] 2-state HROT
 - [ ] HROT Generations
-- [ ] HROT Extended Generations
 - [ ] 2-state INT
 - [ ] INT Generations
-- [ ] INT Extended Generations
 
 
 # DeadlyEnemies Rules
@@ -325,10 +321,25 @@ B0 deadly enemies rules are undefined. Similar to history rules, the notation is
 DeadlyEnemies rules are (planned to be) supported by:
 - [x] 2-state HROT
 - [ ] HROT Generations
-- [ ] HROT Extended Generations
 - [ ] 2-state INT
 - [ ] INT Generations
-- [ ] INT Extended Generations
+
+
+# Energetic Rules
+Energetic rules are an extension of regular 2-state rules by KittyTac and WildMyron 
+where there is matter and anti-matter with on contact form energy cells (i.e. annihiliate).
+
+Energy cells will produce photons in all directions. When 2 or more photons collide, a vacuum is produced.
+When a photons collides with a matter / anti-matter cell, it turns into that cell.
+
+Similar to history rules, the notation is [R]Energetic. 
+
+Energetic Rules are (planned to be) supported by:
+- [ ] 2-state HROT
+- [ ] HROT Generations
+- [x] 2-state INT
+- [ ] INT Generations
+
 
 
 # Custom Rules

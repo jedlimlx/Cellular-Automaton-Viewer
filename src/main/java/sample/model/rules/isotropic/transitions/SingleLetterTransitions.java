@@ -104,14 +104,49 @@ public abstract class SingleLetterTransitions extends INTTransitions {
     @Override
     public String canoniseTransitions() {
         StringBuilder canonTransitions = new StringBuilder();
+        StringBuilder letters = new StringBuilder();
 
         int currentNumber, prevNumber = -1;
         for (String transition: sortedTransitionTable) {
             currentNumber = Integer.parseInt(transition.charAt(0) + "");
-            if (prevNumber == currentNumber) canonTransitions.append(transition.charAt(1));
+            if (prevNumber == currentNumber) {
+                letters.append(transition.charAt(1));
+            }
             else {
-                canonTransitions.append(transition);
+                // Accounting for OT transitions
+                if (prevNumber != -1 && letters.length() < transitionLookup.get(prevNumber).size()) {
+                    // Accounting for negate
+                    if (letters.length() > transitionLookup.get(prevNumber).size() / 2) {
+                        canonTransitions.append("-");
+                        for (char letter: transitionLookup.get(prevNumber).keySet()) {
+                            if (!letters.toString().contains(letter + "")) canonTransitions.append(letter);
+                        }
+                    }
+                    else {  // Adding the letters
+                        canonTransitions.append(letters);
+                    }
+                }
+
+                canonTransitions.append(transition.charAt(0));
+
+                letters = new StringBuilder();  // Clear the letters
+                letters.append(transition.charAt(1));
+
                 prevNumber = currentNumber;
+            }
+        }
+
+        // Accounting for OT transitions
+        if (prevNumber != -1 && letters.length() != transitionLookup.get(prevNumber).size()) {
+            // Accounting for negate
+            if (letters.length() > transitionLookup.get(prevNumber).size() / 2) {
+                canonTransitions.append("-");
+                for (char letter: transitionLookup.get(prevNumber).keySet()) {
+                    if (!letters.toString().contains(letter + "")) canonTransitions.append(letter);
+                }
+            }
+            else {  // Adding the letters
+                canonTransitions.append(letters);
             }
         }
 

@@ -64,6 +64,8 @@ The Menu Bar
 The Tools Bar
 -------------
 *Run Simulation Button* - Runs the simulation <br>
+*Simulate in Selection Button* - Runs the simulation in the selection <br>
+*Simulate outside Selection Button* - Runs the simulation outside the selection <br>
 *Drawing Button* - Go into drawing mode <br>
 *Panning Button* - Go into panning mode <br>
 *Selection Button* - Go into selection mode <br>
@@ -146,7 +148,6 @@ Supported / Planned Rulespaces
     - [x] 2 State HROT
         - [x] B0 rules
         - [x] Weighted rules
-        - [x] History Rule
         - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for weighted rules
@@ -207,6 +208,26 @@ Supported / Planned Rulespaces
 - [ ] Langton's Ant / Turmites
 - [ ] Margolus
 - [x] 1D CA
+- [ ] [R]History
+    - [x] 2-state HROT
+    - [ ] HROT Generations
+    - [x] 2-state INT
+    - [ ] INT Generations
+- [ ] [R]Symbiosis
+    - [x] 2-state HROT
+    - [ ] HROT Generations
+    - [ ] 2-state INT
+    - [ ] INT Generations
+- [ ] [R]DeadlyEnemies
+    - [x] 2-state HROT
+    - [ ] HROT Generations
+    - [ ] 2-state INT
+    - [ ] INT Generations
+- [ ] [R]Energetic
+    - [ ] 2-state HROT
+    - [ ] HROT Generations
+    - [x] 2-state INT
+    - [ ] INT Generations
 - [ ] Custom Rules (*.rule)
     - [ ] Golly Ruletables
         - [x] Basic Functionality

@@ -10,18 +10,18 @@ import sample.model.rules.ruleloader.ruletable.Ruletable;
 import java.util.ArrayList;
 
 /**
- * Represents 2-state isotropic non-totalistic (INT) rules
+ * Implements 2-state isotropic non-totalistic (INT) rules
  */
 public class INT extends BaseINT implements ApgtableGeneratable {
     /**
      * The birth transitions of the INT rule
      */
-    private INTTransitions birth;
+    protected INTTransitions birth;
 
     /**
      * The survival transitions of the INT rule
      */
-    private INTTransitions survival;
+    protected INTTransitions survival;
 
     private static String[] transitionRegexes;
     private static String[] regexes;
@@ -99,15 +99,11 @@ public class INT extends BaseINT implements ApgtableGeneratable {
      */
     @Override
     public String canonise(String rulestring) {
-        return rulestring;
-        /* TODO (Actually canonise rulestrings)
         if (!neighbourhoodString.equals(""))
             return "B" + birth.canoniseTransitions() + "/S" + survival.canoniseTransitions() +
                     "/N" + neighbourhoodString;
         else
             return "B" + birth.canoniseTransitions() + "/S" + survival.canoniseTransitions();
-         */
-
     }
 
     /**
@@ -139,8 +135,6 @@ public class INT extends BaseINT implements ApgtableGeneratable {
     public RuleDirective[] generateApgtable() {
         // Generating the ruletable
         Ruletable ruletable = new Ruletable("");
-
-        ruletable.setPermute();  // Enable permute symmetry
         ruletable.setNumStates(2);
 
         ruletable.setNeighbourhood(birth.getNeighbourhood());
