@@ -28,13 +28,14 @@
 
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |
-[?](../rules/HROT Extended Generations/R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN/DESCRIPTION.md) | Chaotic | R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN | A very active rule with a common glide-symmetric 8c/28o that moves from right to left to right.
-[efiL8draobrekcehC](../rules/HROT Extended Generations/R2,B3,S2,3,8,G0-1-1,NB/DESCRIPTION.md) | Stable | R2,B3,S2,3,8,G0-1-1,NB | A stable snoitreneg rule with common P4 oscillators and a c/2o. Still lives exist although they are fairly uncommon. The P4 oscillator can eat the c/2o and the c/2o can pass through the P4 destroying it. In fact, any oscillator and spaceship pair that each have consist of only one state and have opposite states are able to destroy the other without being affected.
-[?](../rules/HROT Extended Generations/R2,B4,16,21,S8,10-19,G0-1-1,NM/DESCRIPTION.md) | Stable | R2,B4,16,21,S8,10-19,G0-1-1,NM | This is a reverse generations variant of the rule Pigs. It has a failed replicator as well as a 32c/96o linear replicator. In addition, there are many high period oscillators.
+| [?](../rules/HROT Extended Generations/R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN/DESCRIPTION.md) | Chaotic | R2,B3,8,10-12,S1-2,10,G0-1-1-3,NN | A very active rule with a common glide-symmetric 8c/28o that moves from right to left to right.
+| [efiL8draobrekcehC](../rules/HROT Extended Generations/R2,B3,S2,3,8,G0-1-1,NB/DESCRIPTION.md) | Stable | R2,B3,S2,3,8,G0-1-1,NB | A stable snoitreneg rule with common P4 oscillators and a c/2o. Still lives exist although they are fairly uncommon. The P4 oscillator can eat the c/2o and the c/2o can pass through the P4 destroying it. In fact, any oscillator and spaceship pair that each have consist of only one state and have opposite states are able to destroy the other without being affected.
+| [?](../rules/HROT Extended Generations/R2,B4,16,21,S8,10-19,G0-1-1,NM/DESCRIPTION.md) | Stable | R2,B4,16,21,S8,10-19,G0-1-1,NM | This is a reverse generations variant of the rule Pigs. It has a failed replicator as well as a 32c/96o linear replicator. In addition, there are many high period oscillators.
 
 ## Deficient Rules
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |
+| [?](../rules/Deficient HROT/R1,D0,S2-3,B1,4,NN/DESCRIPTION.md) | Chaotic | R1,D0,S2-3,B1,4,NN | This rule has a wide variety of oscillators as well as a puffer engine coined "oscillator-laying switch engine". In addition, there is a natural [3c/56d ship](SHIP_1.rle).
 | [?](../rules/Deficient HROT/R2,D0,S0-3,11,B0-5,NN/DESCRIPTION.md) | Stable | R2,D0,S0-3,11,B0-5,NN | A pretty sparse and stable rule with multiple failed c/2o and c/2d simpified spaceship heads. These failed spaceship heads form multiple interesting oscillators and spaceships.
 
 ## Integer Rules

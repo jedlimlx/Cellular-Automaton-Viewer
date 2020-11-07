@@ -195,7 +195,6 @@ public class Ruletable extends RuleDirective {
                 }
 
                 reconstructed.append(tokens[tokens.length - 1]);
-                System.out.print(reconstructed + "\n");
 
                 // Adding the transition
                 transitions.add(new Transition(numStates, permute, reconstructed.toString(), variables));
@@ -284,7 +283,7 @@ public class Ruletable extends RuleDirective {
     }
 
     /**
-     * Adds isotropic non-totalistic transition to the ruletable
+     * Adds isotropic non-totalistic transitions to the ruletable
      * @param transitions The transitions to add to the ruletable
      * @param input The input state / variable
      * @param output The output state / variable
@@ -305,6 +304,52 @@ public class Ruletable extends RuleDirective {
 
             builder.append(output);
             addTransition(builder.toString());
+        }
+    }
+
+    /**
+     * Adds isotropic non-totalistic transitions to the ruletable
+     * @param transitions1 The 1st transition to add to the ruletable
+     * @param transitions2 The 2nd transition to add to the ruletable
+     * @param input The input state / variable
+     * @param output The output state / variable
+     * @param var0 The state / variable that represents state 0
+     * @param var1 The state / variable that represents state 1
+     * @param var2 The state / variable that represents state 2
+     */
+    public void addINTTransitions(INTTransitions transitions1, INTTransitions transitions2,
+                                  String input, String output, String var0, String var1, String var2) {
+        StringBuilder builder;
+        for (ArrayList<Integer> transition1: transitions1.getTransitionTable()) {
+            for (ArrayList<Integer> transition2: transitions2.getTransitionTable()) {
+                // Creating the transition
+                ArrayList<Integer> transition = (ArrayList<Integer>) transition1.clone();
+                for (int i = 0; i < transition2.size(); i++) {
+                    if (transition2.get(i) == 1) {
+                        if (transition.get(i) == 0) {
+                            transition.set(i, 2);
+                        } else {  // Not a possible condition (1 and 2 overlap)
+                            transition = null;
+                            break;
+                        }
+                    }
+                }
+
+                if (transition == null) continue;  // Move on to the next transition
+
+                // Writing the transition into the ruletable
+                builder = new StringBuilder(input + ",");
+                for (int number: transition) {
+                    if (number == 1) builder.append(var1);
+                    else if (number == 2) builder.append(var2);
+                    else builder.append(var0);
+
+                    builder.append(",");
+                }
+
+                builder.append(output);
+                addTransition(builder.toString());
+            }
         }
     }
 

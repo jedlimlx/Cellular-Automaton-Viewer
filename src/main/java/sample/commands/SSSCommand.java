@@ -84,6 +84,9 @@ public class SSSCommand implements Runnable {
         } catch (IOException exception) {
             System.err.println(exception.getMessage());
             System.exit(-1);
+        } catch (IllegalStateException exception) {
+            System.err.println("Invalid velocity inputted!");
+            System.exit(-1);
         }
 
         System.exit(0);

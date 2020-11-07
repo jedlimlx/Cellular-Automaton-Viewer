@@ -2,16 +2,22 @@ package sample.model.rules.isotropic.rules.energetic;
 
 import javafx.scene.paint.Color;
 import sample.model.Coordinate;
+import sample.model.Utils;
+import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.isotropic.rules.INT;
 import sample.model.rules.isotropic.transitions.R1MooreINT;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletable.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Implements Energetic INT rules where anti-matter and matter annihilate to produce photons
  */
-public class INTEnergetic extends INT {
+public class INTEnergetic extends INT implements ApgtableGeneratable {
     /**
      * Creates an Energetic INT rule with the rule LifeEnergetic
      */
@@ -37,7 +43,7 @@ public class INTEnergetic extends INT {
      */
     @Override
     protected void fromRulestring(String rulestring) throws IllegalArgumentException {
-        super.fromRulestring(rulestring.replace("Energetic", ""));
+        super.fromRulestring(rulestring.replaceAll("E(x)?nergetic", ""));
 
         numStates = 4 + getNeighbourhood().length;
     }
@@ -49,7 +55,8 @@ public class INTEnergetic extends INT {
      */
     @Override
     public String canonise(String rulestring) {
-        return super.canonise(rulestring.replace("Energetic", "")) + "Energetic";
+        return super.canonise(rulestring.replaceAll("E(x)?nergetic", "")) +
+                Utils.matchRegex("E(x)?nergetic", rulestring, 0);
     }
 
     /**
@@ -60,8 +67,8 @@ public class INTEnergetic extends INT {
     public String[] getRegex() {
         String[] prevRegex = super.getRegex();
         String[] updatedRegex = new String[prevRegex.length];
-        for (int i = 0; i < prevRegex.length; i++) {  // Regex is [R]Energetic
-            updatedRegex[i] = prevRegex[i] + "Energetic";
+        for (int i = 0; i < prevRegex.length; i++) {  // Regex is [R][Anti]E[x]nergetic
+            updatedRegex[i] = prevRegex[i] + "E(x)?nergetic";
         }
 
         return updatedRegex;
@@ -77,7 +84,180 @@ public class INTEnergetic extends INT {
                 "In this rulespace, when matter and anti-matter cells collide, " +
                 "they form energy cells which explode into 8 photons.\n" +
                 "The format is as follows:\n" +
-                "B<birth>/S<survival>Energetic";
+                "B<birth>/S<survival>Energetic\n" +
+                "B<birth>/S<survival>Exnergetic\n";
+    }
+
+    /**
+     * Generates an apgtable for apgsearch to use
+     * @return True if the operation was successful, false otherwise
+     */
+    @Override
+    public RuleDirective[] generateApgtable() {
+        // Generating the ruletable
+        Ruletable ruletable = new Ruletable("");
+        ruletable.setNumStates(numStates);
+        ruletable.setNeighbourhood(birth.getNeighbourhood());
+
+        ruletable.addVariable(Ruletable.ANY);
+
+        // Variable for live states
+        Ruletable.LIVE = new Variable("live", true, new HashSet<>(Arrays.asList(1, 2)));
+        ruletable.addVariable(Ruletable.LIVE);
+
+        // Variable for dead states
+        HashSet<Integer> dead = new HashSet<>();
+        dead.add(0);
+        for (int i = 3; i < numStates; i++) dead.add(i);
+
+        Ruletable.DEAD = new Variable("dead", true, dead);
+        ruletable.addVariable(Ruletable.DEAD);
+
+        // Variable for states that are not matter
+        HashSet<Integer> notMatter = new HashSet<>();
+        for (int i = 0; i < numStates; i++) notMatter.add(i);
+        notMatter.remove(1);
+
+        ruletable.addVariable(new Variable("not_matter", true, notMatter));
+
+        // Variable for states that are not antimatter
+        HashSet<Integer> notAntimatter = new HashSet<>();
+        for (int i = 0; i < numStates; i++) notAntimatter.add(i);
+        notAntimatter.remove(2);
+
+        ruletable.addVariable(new Variable("not_antimatter", true, notAntimatter));
+
+        // Variables for photons
+        for (int i = 4; i < numStates; i++) {
+            // Variable for states that are not photon i
+            HashSet<Integer> notPhoton = new HashSet<>();
+            for (int j = 0; j < numStates; j++) notPhoton.add(j);
+            notPhoton.remove(i);
+            notPhoton.remove(3);
+
+            ruletable.addVariable(new Variable("not_p" + i, true, notPhoton));
+
+            // Variable for energy + photon i
+            ruletable.addVariable(new Variable("e" + i, true, new HashSet<>(Arrays.asList(3, i))));
+        }
+
+        // Energy Particle Creation (Both birth conditions fulfilled)
+        ruletable.addINTTransitions(birth, birth, "0", "3", "dead", "1", "2");
+
+        // Energy Particle Creation (Matter & Anti-matter annihilate)
+        StringBuilder builder;
+        for (int i = 0; i < getNeighbourhood().length; i++) {
+            // Matter -> Energy
+            builder = new StringBuilder("1,");
+            for (int j = 0; j < getNeighbourhood().length; j++) {
+                builder.append(j == i ? "2," : "any,");
+            }
+            builder.append("3");
+            ruletable.addTransition(builder.toString());
+
+            // Anti-matter -> Energy
+            builder = new StringBuilder("2,");
+            for (int j = 0; j < getNeighbourhood().length; j++) {
+                builder.append(j == i ? "1," : "any,");
+            }
+            builder.append("3");
+            ruletable.addTransition(builder.toString());
+        }
+
+        // Birth and survival transitions
+        ruletable.addINTTransitions(birth, "0", "1", "not_matter", "1");
+        ruletable.addINTTransitions(survival, "1", "1", "not_matter", "1");
+
+        ruletable.addINTTransitions(birth, "0", "2", "not_antimatter", "2");
+        ruletable.addINTTransitions(survival, "2", "2", "not_antimatter", "2");
+
+        // All Photons -> Energy Cell
+        builder = new StringBuilder("0,");
+        for (int i = 0; i < getNeighbourhood().length; i++) {
+            builder.append(getOppositeIndex(i) + 4).append(",");
+        }
+
+        builder.append("3");
+        ruletable.addTransition(builder.toString());
+
+        if (birth instanceof R1MooreINT) {  // 2 Energy Cells -> Photons
+            // Variable for states that are not energy cells
+            HashSet<Integer> notEnergy = new HashSet<>();
+            for (int i = 0; i < numStates; i++) notEnergy.add(i);
+            notEnergy.remove(3);
+
+            ruletable.addVariable(new Variable("not_energy", true, notEnergy));
+
+            for (int i = 0; i < getNeighbourhood().length; i++) {
+                builder = new StringBuilder("0,");
+                for (int j = 0; j < getNeighbourhood().length; j++) {
+                    if (i == j) builder.append("3,");
+                    else if (i == (j + 1) % getNeighbourhood().length) builder.append("3,");
+                    else builder.append("not_energy,");
+                }
+
+                int photonIndex = getOppositeIndex(i);
+                builder.append(photonIndex % 2 == 1 ? photonIndex + 3 : (photonIndex + 3) / 2 * 2 + 2);
+                ruletable.addTransition(builder.toString());
+            }
+        }
+
+        // Photon Creation and Movement
+        for (int i = 0; i < getNeighbourhood().length; i++) {
+            builder = new StringBuilder("0,");
+            for (int j = 0; j < getNeighbourhood().length; j++) {
+                builder.append(j == i ? "e" + (getOppositeIndex(j) + 4) + "," :
+                        "not_p" + (getOppositeIndex(j) + 4) + ",");
+            }
+
+            builder.append(getOppositeIndex(i) + 4);
+            ruletable.addTransition(builder.toString());
+        }
+
+        // Photon Conversion
+        if (rulestring.contains("Exnergetic")) {  // [R]Exnergetic
+            for (int i = 0; i < getNeighbourhood().length; i++) {
+                // Collision with Matter -> Antimatter
+                builder = new StringBuilder((i + 4) + ",");
+                for (int j = 0; j < getNeighbourhood().length; j++) {
+                    builder.append(j == i ? "1," : "any,");
+                }
+                builder.append("2");
+                ruletable.addTransition(builder.toString());
+
+                // Collision with Antimatter -> Matter
+                builder = new StringBuilder((i + 4) + ",");
+                for (int j = 0; j < getNeighbourhood().length; j++) {
+                    builder.append(j == i ? "2," : "any,");
+                }
+                builder.append("1");
+                ruletable.addTransition(builder.toString());
+            }
+        } else {  // [R]Energetic
+            for (int i = 0; i < getNeighbourhood().length; i++) {
+                // Collision with Matter -> Matter
+                builder = new StringBuilder((i + 4) + ",");
+                for (int j = 0; j < getNeighbourhood().length; j++) {
+                    builder.append(j == i ? "1," : "any,");
+                }
+                builder.append("1");
+                ruletable.addTransition(builder.toString());
+
+                // Collision with Antimatter -> Antimatter
+                builder = new StringBuilder((i + 4) + ",");
+                for (int j = 0; j < getNeighbourhood().length; j++) {
+                    builder.append(j == i ? "2," : "any,");
+                }
+                builder.append("2");
+                ruletable.addTransition(builder.toString());
+            }
+        }
+
+        // Death transitions
+        for (int i = 1; i < numStates; i++)
+            ruletable.addOTTransition(0, i + "", "0", "any", "0");
+
+        return new RuleDirective[]{ruletable};
     }
 
     @Override
@@ -86,6 +266,13 @@ public class INTEnergetic extends INT {
         boolean containsMatter = cellState == 1, containsAntimatter = cellState == 2;
         boolean prevEnergy = false;
 
+        int numEnergy = 0;
+        if (birth instanceof R1MooreINT) {
+            for (int neighbour: neighbours) {
+                if (neighbour == 3) numEnergy++;
+            }
+        }
+
         int[] binaryNeighbours = new int[neighbours.length];
         int[] binaryNeighbours2 = new int[neighbours.length];
         for (int i = 0; i < neighbours.length; i++) {
@@ -93,9 +280,9 @@ public class INTEnergetic extends INT {
             if (neighbours[i] == 2 && !containsAntimatter) containsAntimatter = true;
 
             // Only applies to R1 Moore rules
-            if (birth instanceof R1MooreINT) {
+            if (birth instanceof R1MooreINT && cellState == 0) {
                 // Adjacent energy cells -> photons are born
-                if (prevEnergy && neighbours[i] == 3) {
+                if (prevEnergy && neighbours[i] == 3 && numEnergy == 2) {
                     if (i % 2 == 1) return i + 3;
                     else return (i + 3) / 2 * 2 + 2;
                 }
@@ -109,8 +296,10 @@ public class INTEnergetic extends INT {
 
             // Photon Transformation
             if (cellState >= 4 && i == getOppositeIndex(cellState - 4) &&
-                    (neighbours[i] == 1 || neighbours[i] == 2))
-                return neighbours[i];
+                    (neighbours[i] == 1 || neighbours[i] == 2)) {
+                if (rulestring.contains("Exnergetic")) return neighbours[i] == 1 ? 2 : 1;
+                else return neighbours[i];
+            }
 
             // Counting number of photons heading here
             if (neighbours[i] == 3 || (neighbours[i] >= 4 && neighbours[i] - 4 == i))
@@ -126,7 +315,7 @@ public class INTEnergetic extends INT {
         }
 
         // Only applies to R1 Moore rules
-        if (birth instanceof R1MooreINT) {
+        if (birth instanceof R1MooreINT && cellState == 0 && numEnergy == 2) {
             // Adjacent energy cells -> photons are born
             if (prevEnergy && neighbours[0] == 3) return 4;
         }

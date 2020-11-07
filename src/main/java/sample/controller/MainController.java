@@ -33,6 +33,7 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.hrot.HROT;
+import sample.model.rules.ruleloader.ColourDirective;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.rules.ruleloader.RuleNameDirective;
@@ -932,6 +933,16 @@ public class MainController {
                     RuleLoader ruleLoader = new RuleLoader();
                     ruleLoader.addDirective(new RuleNameDirective("@RULE " +
                             file.getName().replace(".rule", "")));
+
+                    StringBuilder colourDirective = new StringBuilder("@COLORS\n");
+                    for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
+                        colourDirective.append(i).
+                                append(" ").append((int) (simulator.getRule().getColour(i).getRed() * 255)).
+                                append(" ").append((int) (simulator.getRule().getColour(i).getGreen() * 255)).
+                                append(" ").append((int) (simulator.getRule().getColour(i).getBlue() * 255)).
+                                append("\n");
+                    }
+                    ruleLoader.addDirective(new ColourDirective(colourDirective.toString()));
 
                     for (RuleDirective directive: ruleDirectives) ruleLoader.addRuleDirective(directive);
 

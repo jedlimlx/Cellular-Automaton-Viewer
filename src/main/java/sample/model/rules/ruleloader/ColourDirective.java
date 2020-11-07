@@ -62,10 +62,12 @@ public class ColourDirective extends Directive implements Exportable {
 
     @Override
     public String export() {
-        StringBuilder builder = new StringBuilder("@COLORS");
+        StringBuilder builder = new StringBuilder("@COLORS\n");
         for (int i = 0; i < colourMap.size(); i++) {
-            builder.append(colourMap.get(i).getRed()).append(" ").append(colourMap.get(i).getGreen()).append(" ").
-                    append(colourMap.get(i).getBlue()).append("\n");
+            builder.append(i).append(" ").
+                    append((int) (colourMap.get(i).getRed() * 255)).append(" ").
+                    append((int) (colourMap.get(i).getGreen() * 255)).append(" ").
+                    append((int) (colourMap.get(i).getBlue() * 255)).append("\n");
         }
 
         return builder.toString();

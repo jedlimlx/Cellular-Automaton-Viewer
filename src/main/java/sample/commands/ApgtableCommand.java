@@ -4,6 +4,7 @@ import picocli.CommandLine;
 import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.ruleloader.ColourDirective;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.rules.ruleloader.RuleNameDirective;
@@ -37,6 +38,16 @@ public class ApgtableCommand implements Runnable {
             RuleLoader ruleLoader = new RuleLoader();
             ruleLoader.addDirective(new RuleNameDirective("@RULE " +
                     outputFile.getName().replace(".rule", "")));
+
+            StringBuilder colourDirective = new StringBuilder("@COLORS\n");
+            for (int i = 0; i < family.getNumStates(); i++) {
+                colourDirective.append(i).
+                        append(" ").append((int) (family.getColour(i).getRed() * 255)).
+                        append(" ").append((int) (family.getColour(i).getGreen() * 255)).
+                        append(" ").append((int) (family.getColour(i).getBlue() * 255)).
+                        append("\n");
+            }
+            ruleLoader.addDirective(new ColourDirective(colourDirective.toString()));
 
             for (RuleDirective directive: ruleDirectives)
                 ruleLoader.addRuleDirective(directive);
