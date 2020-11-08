@@ -541,6 +541,22 @@ public class MainController {
         }
     }
 
+    @FXML  // Displays information about the current rule
+    public void getRuleInformation() {
+        StringBuilder contentText = new StringBuilder();
+        Map<String, String> information = ((RuleFamily) simulator.getRule()).getRuleInfo();
+        for (String key: information.keySet()) {
+            contentText.append(key).append(": ").append(information.get(key)).append("\n");
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Rule Information");
+        alert.setHeaderText("Information");
+        alert.setContentText(contentText.toString());
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+        alert.showAndWait();
+    }
+
     // Function to set cell at (x, y) to a certain state
     public void setCell(int x, int y, int state) {
         setCell(x, y, state, true);

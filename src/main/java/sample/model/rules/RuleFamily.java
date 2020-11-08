@@ -4,8 +4,7 @@ import org.javatuples.Pair;
 import sample.model.Coordinate;
 import sample.model.simulation.Grid;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * Represents a family of rules or a rulespace
@@ -91,6 +90,19 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @return Description of the rule family
      */
     public abstract String getDescription();
+
+    /**
+     * Gets information about the rule
+     * @return Returns information about the rule in a map
+     */
+    public Map<String, String> getRuleInfo() {
+        LinkedHashMap<String, String> information = new LinkedHashMap<>();
+        information.put("Rulestring", rulestring + "");
+        information.put("Number of States", numStates + "");
+        information.put("Tiling", tiling + "");
+        information.put("Background", Arrays.toString(background));
+        return information;
+    }
 
     /**
      * Generates comments that will be placed in the RLE.
@@ -190,5 +202,18 @@ public abstract class RuleFamily extends Rule implements Cloneable {
         }
 
         return neighboursList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RuleFamily that = (RuleFamily) o;
+        return Objects.equals(rulestring, that.rulestring);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rulestring);
     }
 }

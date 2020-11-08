@@ -18,9 +18,11 @@ import java.util.logging.LogManager;
         RandomSoupCommand.class,
         SynthesisCommand.class,
         ApgtableCommand.class,
+        RuleInfoCommand.class,
         SSSCommand.class,
         DBCommand.class,
         DBEntryCommand.class,
+        CanonDBCommand.class,
         CommandLine.HelpCommand.class
 })
 public class Main implements Runnable {

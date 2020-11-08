@@ -1,11 +1,14 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
+import sample.model.CommentGenerator;
 import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.Utils;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
+
+import java.util.Map;
 
 /**
  * The base class of all HROT rules
@@ -48,7 +51,8 @@ public abstract class BaseHROT extends RuleFamily {
             weights = null;
 
             if (specifier.length() > 0)
-                neighbourhood = NeighbourhoodGenerator.fromCoordCA(specifier.substring(2).
+                neighbourhood = NeighbourhoodGenerator.fromCoordCA(
+                        Utils.matchRegex("N@([A-Fa-f0-9]+)?([HL]?)", specifier, 0).substring(2).
                         replaceAll("[HL]", ""), range);
 
             try {
@@ -61,7 +65,8 @@ public abstract class BaseHROT extends RuleFamily {
             }
         } else if (specifier.matches("NW[A-Fa-f0-9]+[HL]?")) {  // Weighted Rules
             Pair<Coordinate[], int[]> neighbourhoodAndWeights =
-                    NeighbourhoodGenerator.getNeighbourhoodWeights(specifier.substring(2), range);
+                    NeighbourhoodGenerator.getNeighbourhoodWeights(Utils.matchRegex("NW([A-Fa-f0-9]+)([HL]?)",
+                            specifier, 0).substring(2).replaceAll("[HL]", ""), range);
             neighbourhood = neighbourhoodAndWeights.getValue0();
             weights = neighbourhoodAndWeights.getValue1();
 
@@ -134,5 +139,18 @@ public abstract class BaseHROT extends RuleFamily {
      */
     public int[] getWeights() {
         return weights;
+    }
+
+    @Override
+    public Map<String, String> getRuleInfo() {
+        Map<String, String> map = super.getRuleInfo();
+
+        StringBuilder weightsString = new StringBuilder("\n");
+        for (String string: CommentGenerator.generateFromWeights(weights, neighbourhood)) {
+            weightsString.append(string.replaceAll("#R\\s*", "")).append("\n");
+        }
+
+        map.put("Weights / Neighbourhood", weightsString.toString());
+        return map;
     }
 }

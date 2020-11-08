@@ -5,7 +5,6 @@ import sample.model.*;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
-import sample.model.rules.Tiling;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.rules.ruleloader.ruletable.Variable;
@@ -48,12 +47,8 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
      */
     private int maxNeighbourhoodCount;
 
-    private final static String higherRangePredefined = "R[0-9]+,D[0|1],S" + hrotTransitions + ",B" +
-            hrotTransitions + ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
-    private final static String higherRangeCustom = "R[0-9]+,D[0|1],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",N@([A-Fa-f0-9]+)?[HL]?";
-    private final static String higherRangeWeightedCustom = "R[0-9]+,D[0|1],S" + hrotTransitions +
-            ",B" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?";
+    private final static String hrotRegex = "R[0-9]+,D[0|1],S" + hrotTransitions + ",B" +
+            hrotTransitions + "," + neighbourhoodRegex;
 
     /**
      * Creates a Deficient HROT rule with the Minibugs rule
@@ -93,52 +88,17 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
         birth.clear();
         survival.clear();
 
-        if (rulestring.matches(higherRangePredefined)) {
+        if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            char neighbourhoodSymbol = Utils.matchRegex("N["+
-                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0).charAt(1);
+            String specifier = Utils.matchRegex("N.*", rulestring, 0);
+            loadNeighbourhood(range, specifier);
 
-            neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
-            weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
-            tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
-        }
-        else if (rulestring.matches(higherRangeCustom)) {
-            // Generate Neighbourhood
-            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
-            weights = null;
-
-            if (CoordCA.length() > 0)
-                neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
-
-            try {
-                String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
-                        rulestring, 0, 1);
-                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-            } catch (IllegalStateException exception) {
-                tiling = Tiling.Square;
-            }
-        }
-        else if (rulestring.matches(higherRangeWeightedCustom)) {
-            // Generate Neighbourhood
-            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
-
-            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
-                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
-            neighbourhood = neighbourhoodAndWeights.getValue0();
-            weights = neighbourhoodAndWeights.getValue1();
-
-            try {
-                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
-                        rulestring, 0, 1);
-                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-            } catch (IllegalStateException exception) {
-                tiling = Tiling.Square;
-            }
+            // Get transitions
+            Utils.getTransitionsFromStringWithCommas(birth,
+                    Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
+            Utils.getTransitionsFromStringWithCommas(survival,
+                    Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
         }
         else {
             throw new IllegalArgumentException("This rulestring is invalid!");
@@ -180,8 +140,7 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
         String newRulestring = "";
         StringBuilder rulestringBuilder = new StringBuilder(newRulestring);
 
-        if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
-                rulestring.matches(higherRangeWeightedCustom)) {
+        if (rulestring.matches(hrotRegex)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,D[0|1],", rulestring, 0));
 
             // Adding Survival
@@ -248,7 +207,7 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
      */
     @Override
     public String[] getRegex() {
-        return new String[]{higherRangeCustom, higherRangePredefined, higherRangeWeightedCustom};
+        return new String[]{hrotRegex};
     }
 
     /**

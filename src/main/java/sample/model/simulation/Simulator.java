@@ -6,10 +6,7 @@ import sample.model.patterns.*;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -112,7 +109,7 @@ public class Simulator extends Grid {
      * @return The identified pattern
      */
     public Pattern identify() {
-        return identify(500);
+        return identify(2000);
     }
 
     /**
@@ -162,7 +159,7 @@ public class Simulator extends Grid {
         for (int i = 0; i < maxPeriod; i++) {
             step();
 
-            int hash = this.hashCode();  // Compute the hash
+            int hash = this.hashCode() + 31 * generation % rule.getAlternatingPeriod();  // Compute the hash
             if (hashMap.containsKey(hash)) {
                 // Calculates the displacement between the first 2 bounds
                 int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue0()).getX() -
@@ -198,7 +195,10 @@ public class Simulator extends Grid {
                 firstPhaseGeneration = (int) hashMap.get(hash)[0];
 
                 // Add the last phase into the dictionary
-                grids.add(this.deepCopy());
+                Grid deepCopy = this.deepCopy();
+                deepCopy.setBackground(rule.convertState(0, generation));
+
+                grids.add(deepCopy);
                 break;
             }
             else {
@@ -221,7 +221,7 @@ public class Simulator extends Grid {
                     return null;
 
                 // Checking for linear growth / zz_WHATEVER every 50 generations
-                if (i % 50 == 0) {
+                if (i == maxPeriod - 1) {
                     // Taking note of the generation
                     firstPhaseGeneration = initialGeneration;
 
@@ -264,7 +264,7 @@ public class Simulator extends Grid {
     }
 
     /**
-     * Step the a portion simulation forward 1 generation
+     * Step a portion of the simulation forward 1 generation
      * @param step A function that returns whether the cell at that coordinate should be stepped forward.
      */
     public void step(Function<Coordinate, Boolean> step) {

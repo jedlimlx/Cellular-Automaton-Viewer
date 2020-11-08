@@ -72,6 +72,14 @@ public class GliderDBEntry extends DatabaseEntry {
     }
 
     /**
+     * Gets the oscillator
+     * @return Returns the oscillator
+     */
+    public Oscillator getOscillator() {
+        return oscillator;
+    }
+
+    /**
      * Gets the name of the spaceship
      * @return Returns the name of the spaceship
      */

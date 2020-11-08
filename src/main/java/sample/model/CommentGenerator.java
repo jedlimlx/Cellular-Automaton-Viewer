@@ -16,6 +16,11 @@ public class CommentGenerator {
      * @return Returns an arraylist containing the comments each starting with "#R"
      */
     public static ArrayList<String> generateFromWeights(int[] weights, Coordinate[] neighbourhood) {
+        if (weights == null) {
+            weights = new int[neighbourhood.length];
+            Arrays.fill(weights, 1);
+        }
+
         int range = 0;
         ArrayList<Coordinate> neighbourhoodList = new ArrayList<>();
         for (Coordinate coordinate: neighbourhood) {

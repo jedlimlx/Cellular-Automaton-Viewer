@@ -54,6 +54,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
             <MenuItem mnemonicParsing="false" onAction="#startAboutDialog" text="About" />
+         <MenuItem mnemonicParsing="false" onAction="#getRuleInformation" text="Rule Info" />
         </Menu>
     </MenuBar>
     <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" onScroll="#changeZoomHandler" prefHeight="400.0" prefWidth="600.0" style="-fx-background: black;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">

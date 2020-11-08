@@ -1,5 +1,6 @@
 package sample.model.rules.isotropic.rules;
 
+import sample.model.CommentGenerator;
 import sample.model.Utils;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.isotropic.transitions.*;
@@ -52,5 +53,19 @@ public abstract class BaseINT extends RuleFamily {
             neighbourhoodString = "";
             return new R1MooreINT("");
         }
+    }
+
+
+    @Override
+    public Map<String, String> getRuleInfo() {
+        Map<String, String> map = super.getRuleInfo();
+
+        StringBuilder weightsString = new StringBuilder("\n");
+        for (String string: CommentGenerator.generateFromWeights(null, getNeighbourhood())) {
+            weightsString.append(string.replaceAll("#R\\s*", "")).append("\n");
+        }
+
+        map.put("Weights / Neighbourhood", weightsString.toString());
+        return map;
     }
 }

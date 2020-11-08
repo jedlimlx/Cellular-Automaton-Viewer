@@ -21,14 +21,14 @@ public class R3FarEdgesINT extends SingleLetterTransitions {
         super(string);
 
         neighbourhood = new Coordinate[]{
-                new Coordinate(-1, 1),
                 new Coordinate(0, 3),
                 new Coordinate(1, 1),
                 new Coordinate(3, 0),
                 new Coordinate(1, -1),
                 new Coordinate(0, -3),
                 new Coordinate(-1, -1),
-                new Coordinate(-3, 0)
+                new Coordinate(-3, 0),
+                new Coordinate(-1, 1)
         };
 
         readTransitionsFromFile(getClass().getResourceAsStream("/int/r1_moore.txt"));

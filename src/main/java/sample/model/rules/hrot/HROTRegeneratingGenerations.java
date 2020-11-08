@@ -5,7 +5,6 @@ import sample.model.*;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
-import sample.model.rules.Tiling;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.simulation.Grid;
@@ -54,15 +53,9 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
      */
     private int birthState;
 
-    private final static String higherRangePredefined = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
-            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions +
-            ",N[" + NeighbourhoodGenerator.neighbourhoodSymbols + "]";
-    private final static String higherRangeCustom = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
-            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions + ",N@([A-Fa-f0-9]+)?[HL]?";
-    private final static String higherRangeWeightedCustom = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
-            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?";
-    private final static String higherRangeStateWeightedCustom = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
-            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions + ",NW[A-Fa-f0-9]+[HL]?,[A-Fa-f0-9]+";
+    private final static String hrotRegex = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
+            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions + "," +
+            neighbourhoodRegex + "(,([A-Fa-f0-9]+))?";
 
     /**
      * Creates a HROT Regenerating Generations rule with the rule RegenLife
@@ -104,98 +97,28 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
         regenBirth.clear();
         regenSurvival.clear();
 
-        if (rulestring.matches(higherRangePredefined)) {
+        if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            char neighbourhoodSymbol = Utils.matchRegex("N["+
-                    NeighbourhoodGenerator.neighbourhoodSymbols +"]", rulestring, 0).charAt(1);
+            String neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, rulestring, 0);
 
-            neighbourhood = NeighbourhoodGenerator.generateFromSymbol(neighbourhoodSymbol, range);
-            weights = NeighbourhoodGenerator.generateWeightsFromSymbol(neighbourhoodSymbol, range);
-            tiling = NeighbourhoodGenerator.generateTilingFromSymbol(neighbourhoodSymbol);
+            loadNeighbourhood(range, neighbourhoodString);
             stateWeights = null;
-
-            // Set the number of states
-            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
-        }
-        else if (rulestring.matches(higherRangeCustom)) {
-            // Generate Neighbourhood
-            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String CoordCA = Utils.matchRegex("N@([A-Fa-f0-9]+)?", rulestring, 0).substring(2);
-            weights = null;
-            stateWeights = null;
-
-            if (CoordCA.length() > 0)
-                neighbourhood = NeighbourhoodGenerator.fromCoordCA(CoordCA, range);
-
-            // Set the number of states
-            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
-
-            try {  // Getting the tiling
-                String tilingString = Utils.matchRegex("N@(?:[A-Fa-f0-9]+)?([HL]?)",
-                        rulestring, 0, 1);
-                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-            } catch (IllegalStateException exception) {
-                tiling = Tiling.Square;
-            }
-        }
-        else if (rulestring.matches(higherRangeWeightedCustom)) {
-            // Generate Neighbourhood
-            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
-
-            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
-                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
-            neighbourhood = neighbourhoodAndWeights.getValue0();
-            weights = neighbourhoodAndWeights.getValue1();
-
-            stateWeights = null;
-
-            // Set the number of states
-            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
-
-            try {  // Getting the tiling
-                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
-                        rulestring, 0, 1);
-                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
-            } catch (IllegalStateException exception) {
-                tiling = Tiling.Square;
-            }
-        }
-        else if (rulestring.matches(higherRangeStateWeightedCustom)) {
-            // Generate Neighbourhood
-            int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String LifeViewer = Utils.matchRegex("NW[A-Fa-f0-9]+", rulestring, 0).substring(2);
-
-            Pair<Coordinate[], int[]> neighbourhoodAndWeights =
-                    NeighbourhoodGenerator.getNeighbourhoodWeights(LifeViewer, range);
-            neighbourhood = neighbourhoodAndWeights.getValue0();
-            weights = neighbourhoodAndWeights.getValue1();
-
-            // Set the number of states
-            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
 
             // State Weights
-            String LifeViewerStateWeights = Utils.matchRegex("NW([A-Fa-f0-9]+),([A-Fa-f0-9]+)",
-                    rulestring, 0, 2);
-            if (LifeViewerStateWeights.length() == numStates)
-                stateWeights = NeighbourhoodGenerator.getStateWeights(LifeViewerStateWeights);
-            else
-                throw new IllegalArgumentException("State weights must have the same length as number of states");
-
-            try {  // Getting the tiling
-                String tilingString = Utils.matchRegex("NW[A-Fa-f0-9]+([HL]?)",
-                        rulestring, 0, 1);
-                if (tilingString.equals("H")) tiling = Tiling.Hexagonal;
-                else if (tilingString.equals("L")) tiling = Tiling.Triangular;
+            try {
+                String LifeViewerStateWeights = Utils.matchRegex("NW([A-Fa-f0-9]+),([A-Fa-f0-9]+)",
+                        rulestring, 0, 2);
+                if (LifeViewerStateWeights.length() == numStates)
+                    stateWeights = NeighbourhoodGenerator.getStateWeights(LifeViewerStateWeights);
+                else
+                    throw new IllegalArgumentException("State weights must have the same length as number of states");
             } catch (IllegalStateException exception) {
-                tiling = Tiling.Square;
+                stateWeights = null;
             }
-        }
-        else {
-            throw new IllegalArgumentException("This rulestring is invalid!");
+
+            // Set the number of states
+            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
         }
 
         // Get transitions
@@ -225,9 +148,7 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
         String newRulestring = "";
         StringBuilder rulestringBuilder = new StringBuilder(newRulestring);
 
-        if (rulestring.matches(higherRangeCustom) || rulestring.matches(higherRangePredefined) ||
-                rulestring.matches(higherRangeWeightedCustom) ||
-                rulestring.matches(higherRangeStateWeightedCustom)) {
+        if (rulestring.matches(hrotRegex)) {
             rulestringBuilder.append(Utils.matchRegex("R[0-9]+,G[0-9]+,L[0-9]+,", rulestring, 0));
 
             // Adding Birth
@@ -256,8 +177,7 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
      */
     @Override
     public String[] getRegex() {
-        return new String[]{higherRangeCustom, higherRangePredefined,
-                higherRangeWeightedCustom, higherRangeStateWeightedCustom};
+        return new String[]{hrotRegex};
     }
 
     /**
@@ -275,7 +195,7 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
                 "N<" + NeighbourhoodGenerator.neighbourhoodSymbols + "> or\n" +
                 "R<range>,C<numStates>,L<birthState>,B<birth>,S<survival>,RB<regenBirth>,RS<regenSurvival>,N@<CoordCA> or\n" +
                 "R<range>,C<numStates>,L<birthState>,B<birth>,S<survival>,RB<regenBirth>,RS<regenSurvival>,NW<Weights> or\n" +
-                "R<range>,C<numStates>,L<birthState>,B<birth>,S<survival>,RB<regenBirth>,RS<regenSurvival>,NW<Weights>, <State Weights> or\n" +
+                "R<range>,C<numStates>,L<birthState>,B<birth>,S<survival>,RB<regenBirth>,RS<regenSurvival>,NW<Weights>,<State Weights> or\n" +
                 "Examples:\n" +
                 "R1,G3,L1,B3,S2-3,RB3,6,RS5,8,NM (RegenLife)";
     }

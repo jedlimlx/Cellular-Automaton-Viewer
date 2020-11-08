@@ -301,6 +301,7 @@ public class NeighbourhoodGenerator {
 
     // Get Neighbourhood from CoordCA Format
     public static Coordinate[] fromCoordCA(String CoordCA, int range) {
+        if (CoordCA.equals("")) return null;
         if (!CoordCA.matches("[A-Fa-f0-9]+")) {
             throw new IllegalArgumentException("Invalid character in CoordCA neighbourhood specification.");
         }
