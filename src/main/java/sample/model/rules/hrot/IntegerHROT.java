@@ -1,10 +1,12 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
-import sample.model.*;
+import sample.model.CommentGenerator;
+import sample.model.Coordinate;
+import sample.model.NeighbourhoodGenerator;
+import sample.model.Utils;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
-import sample.model.rules.Tiling;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 /**
- * Represents the Integer HROT rule family
+ * Implements the Integer HROT rule family
  */
 public class IntegerHROT extends BaseHROT  implements MinMaxRuleable {
     /**

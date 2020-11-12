@@ -293,6 +293,12 @@ Search Programs
 - [ ] Catalyst Search Program
     - [x] Mutiple catalysts
     - [ ] Brute force option
+    - [ ] Symmetries
+    - [ ] Repetition detection
+- [ ] Brute Force / Soup Search Program
+    - [ ] Object seperation
+    - [ ] Symmetries
+    - [ ] Finish Documentation
 - [ ] Methuselah Search Program
 - [ ] Ship / Oscillator Search Program
 

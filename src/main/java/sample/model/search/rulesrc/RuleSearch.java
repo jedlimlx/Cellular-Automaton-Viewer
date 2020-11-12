@@ -1,14 +1,15 @@
-package sample.model.search;
+package sample.model.search.rulesrc;
 
 import sample.model.Coordinate;
+import sample.model.Utils;
 import sample.model.database.GliderDBEntry;
 import sample.model.patterns.Oscillator;
 import sample.model.patterns.Pattern;
-import sample.model.patterns.PowerLawPattern;
 import sample.model.patterns.Spaceship;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
+import sample.model.search.SearchProgram;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
@@ -21,13 +22,25 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+/**
+ * Implements CAViewer's rule search program - rulesrc
+ */
 public class RuleSearch extends SearchProgram {
     private HashSet<Pattern> known;
 
+    /**
+     * Constructs the rulesrc program
+     * @param parameters The parameters of the search
+     */
     public RuleSearch(RuleSearchParameters parameters) {
         super(parameters);
     }
 
+    /**
+     * Searches numRules for a spaceship / oscillator that matches the target pattern
+     * @param numRules The number of rules to search
+     * @throws IllegalArgumentException Thrown if the search parameters are invalid
+     */
     public void search(int numRules) throws IllegalArgumentException {
         // TODO (Do whatever WildMyron says that searchPatt-matchPatt does with the min / max rule)
         Simulator simulator;
@@ -41,6 +54,7 @@ public class RuleSearch extends SearchProgram {
         known = new HashSet<>();  // Hash set to store known things
         searchResults = new ArrayList<>(); // Initialise search results
 
+        long startTime = System.currentTimeMillis();
         for (int i = 0; i < numRules; i++) {
             // Create a new simulator object each time
             simulator = new Simulator((Rule) searchParameters.getMinRule().clone());
@@ -67,9 +81,37 @@ public class RuleSearch extends SearchProgram {
                     !known.contains(result)) {
                 add(searchResults, result);
                 add(known, result);  // To avoid duplicate speeds & whatnot
+
+                if (result instanceof Spaceship) {
+                    // Report oblique spaceships
+                    if (Math.abs(((Spaceship) result).getDisplacementX()) !=
+                            Math.abs(((Spaceship) result).getDisplacementY()) &&
+                            ((Spaceship) result).getDisplacementX() != 0 &&
+                            ((Spaceship) result).getDisplacementY() != 0) {
+                        System.out.println();
+                        System.out.println("Found oblique " + result + " ship!");
+                        System.out.println(Utils.fullRLE(result));
+                        System.out.println();
+                    }
+
+                    // Report high period spaceships
+                    else if (((Spaceship) result).getPeriod() > 100) {
+                        System.out.println();
+                        System.out.println("Found high period " + result + " ship!");
+                        System.out.println(Utils.fullRLE(result));
+                        System.out.println();
+                    }
+                }
             }
 
             synchronized (this) {  // To avoid race conditions
+                if (numSearched % 5000 == 0 && numSearched != 0) {
+                    System.out.println(numSearched + " rules searched (" +
+                            5000000 / (System.currentTimeMillis() - startTime) +
+                            " rules/s), " + searchResults.size() + " objects found!");
+                    startTime = System.currentTimeMillis();
+                }
+
                 numSearched++;
             }
         }

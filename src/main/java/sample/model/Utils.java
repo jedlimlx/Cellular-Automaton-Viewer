@@ -56,19 +56,21 @@ public class Utils {
             }
         }
 
-        RuleFamily rule = fromRulestring(rulestring);
+        if (rulestring != "") {
+            RuleFamily rule = fromRulestring(rulestring);
 
-        if (rule != null) {
-            // Generate the additional information from comments
-            String[] commentsArray = new String[comments.size()];
-            for (int i = 0; i < commentsArray.length; i++) {
-                commentsArray[i] = comments.get(i);
+            if (rule != null) {
+                // Generate the additional information from comments
+                String[] commentsArray = new String[comments.size()];
+                for (int i = 0; i < commentsArray.length; i++) {
+                    commentsArray[i] = comments.get(i);
+                }
+
+                rule.loadComments(commentsArray);
+
+                // Set the rulestring
+                simulator.setRule(rule);
             }
-
-            rule.loadComments(commentsArray);
-
-            // Set the rulestring
-            simulator.setRule(rule);
         }
 
         // Inserting cells

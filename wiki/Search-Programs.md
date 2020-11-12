@@ -1,7 +1,7 @@
 ## Rule Search
 
 #### TODO
-- [ ] More high tech repetition detection function
+- [x] More high tech repetition detection function
 - [x] Identification for linear growth patterns, replicators
 - [ ] Fine tune RNG function manually
 - [ ] Fine tune RNG function via genetic algorithms?
@@ -27,6 +27,10 @@ It is similar to [searchRule-matchPatt2.py](https://github.com/apaap/sssss/blob/
 
 *Number of Threads:* Number of threads used for multi-threading <br>
 *Max Period:* Maximum period to detect <br>
+*Min Population:* Minimum population before quitting identification <br>
+*Max Population:* Maximum population before quitting identification <br>
+*Max Width:* Maximum width before quitting identification <br>
+*Max Height:* Maximum height before quitting identification <br>
 *Minimum Rule:* Minimum rule for randomisation <br>
 *Maximum Rule:* Maximum rule for randomisation <br>
 
@@ -40,6 +44,7 @@ Right click on each item for some options. You may click on the top of the table
 *Copy RLE to Clipboard:* Copies the RLE of the pattern to the clipboard. <br>
 
 There are also some buttons at the bottom. <br>
+*Reload Data:* Reloads the table for new search results <br>
 *Terminate Search:* Terminates the search <br>
 *Save Results:* Saves the results in a *.csv file. <br>
 
@@ -49,7 +54,52 @@ A good seed is crucial for getting good results. Typically, good seeds are stuff
 It is also important to suitably restrict the rule range. For example, a Minibugs ship should have a rule range of something like `R2,C2,S6-8,B7,NM - R2,C2,S0-3,6-9,12-24,B7-8,12-24,NM` to get decent results.
 
 ## Catalyst Search
-Support for a catalyst search program in CAViewer is planned.
+
+#### TODO
+- [x] Mutiple catalysts
+- [ ] Brute force option
+- [ ] Symmetries
+- [ ] Repetition detection
+
+### How it works
+Catalyst search works by randomly enumerates configurations of still lives in a search area. 
+When a still life is interacted with and regenerates after a period of time in the same place, it is known as a catalyst. 
+The time taken for the catalyst to regenerate and become usable again is known as the repeat time.
+
+### Usage & Parameters
+1. Draw the target pattern in the simulator
+2. Select the search area where the catalysts will be placed with the selection tool. For example, like this:
+![IMG](https://cdn.discordapp.com/attachments/483875686860455955/769077094302875688/unknown.png)
+3. Click *Run Catalyst Search* under *Search*
+4. Fill in the parameters and click *Confirm Parameters*.
+
+*Number of Threads:* Number of threads used for multi-threading <br>
+*Maximum Repeat Time:* Maximum repeat time to check for <br>
+*Number of Catalysts:* Number of catalysts to place in the search area <br>
+*Rotate Catalysts:* Should the catalysts be rotated? <br>
+*Flip Catalysts:* Should the catalysts be flipped? <br>
+*Catalysts:* Add the catalysts to use a headerless RLEs in the textbox one per line <br>
+
+![IMG](images/catsrc.png)
+
+5. Another dialog will open to show the search results.
+
+Right click on each item for some options. You may click on the top of the table to sort the items alphabetically.
+
+*Show in Application:*  Shows the catalyst in the application. <br>
+*Copy RLE to Clipboard:* Copies the RLE of the catalyst to the clipboard. <br>
+
+There are also some buttons at the bottom. <br>
+*Reload Data:* Reloads the table for new search results <br>
+*Terminate Search:* Terminates the search <br>
+*Save Results:* Saves the results in a *.csv file. <br>
+
+## Brute Force / Soup Search
+
+#### TODO
+- [ ] Object seperation
+- [ ] Symmetries
+- [ ] Finish Documentation
 
 ## Agar Search
 Support for an agar search program in CAViewer is planned.

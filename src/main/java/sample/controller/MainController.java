@@ -23,10 +23,7 @@ import sample.controller.dialogs.PopulationGraphDialog;
 import sample.controller.dialogs.RandomSoupDialog;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.rule.RuleWidget;
-import sample.controller.dialogs.search.CatalystSearchParametersDialog;
-import sample.controller.dialogs.search.CatalystSearchResultsDialog;
-import sample.controller.dialogs.search.RuleSearchParametersDialog;
-import sample.controller.dialogs.search.RuleSearchResultsDialog;
+import sample.controller.dialogs.search.*;
 import sample.model.Cell;
 import sample.model.*;
 import sample.model.rules.ApgtableGeneratable;
@@ -37,8 +34,9 @@ import sample.model.rules.ruleloader.ColourDirective;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.rules.ruleloader.RuleNameDirective;
-import sample.model.search.CatalystSearch;
-import sample.model.search.RuleSearch;
+import sample.model.search.catsrc.CatalystSearch;
+import sample.model.search.csearch.BruteForceSearch;
+import sample.model.search.rulesrc.RuleSearch;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
@@ -110,7 +108,7 @@ public class MainController {
     private int currentState = 1;  // State to draw with
 
     private boolean recording = false;  // Is the recording on?
-    private boolean simulationRunning = false;  // Is the simulation running?
+    private final boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = true;  // Is the visualisation done?
     private boolean showGridLines = false;  // Are the grid lines being shown?
 
@@ -918,6 +916,22 @@ public class MainController {
             catalystSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
 
             CatalystSearchResultsDialog resultsDialog = new CatalystSearchResultsDialog(this, catalystSearch);
+            resultsDialog.show();
+        }
+    }
+
+    @FXML // Starts the brute force search dialog
+    public void startBruteForceSearchDialog() {
+        // Dialog to get the search parameters
+        BruteForceSearchParametersDialog parametersDialog =
+                new BruteForceSearchParametersDialog(simulator.getRule());
+        parametersDialog.showAndWait();
+
+        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
+            BruteForceSearch bruteForceSearch = new BruteForceSearch(parametersDialog.getSearchParameters());
+            bruteForceSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+
+            BruteForceSearchResultsDialog resultsDialog = new BruteForceSearchResultsDialog(this, bruteForceSearch);
             resultsDialog.show();
         }
     }

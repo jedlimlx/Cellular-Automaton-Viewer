@@ -1,6 +1,7 @@
-package sample.model.search;
+package sample.model.search.rulesrc;
 
 import sample.model.rules.RuleFamily;
+import sample.model.search.SearchParameters;
 import sample.model.simulation.Grid;
 
 public class RuleSearchParameters extends SearchParameters {

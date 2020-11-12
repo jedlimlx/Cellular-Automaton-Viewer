@@ -3,10 +3,7 @@ package sample;
 import picocli.CommandLine;
 import sample.commands.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.logging.LogManager;
 
 @CommandLine.Command(subcommands = {
@@ -15,6 +12,7 @@ import java.util.logging.LogManager;
         IdentifyCommand.class,
         RuleRangeCommand.class,
         RuleSearchCommand.class,
+        CatalystSearchCommand.class,
         RandomSoupCommand.class,
         SynthesisCommand.class,
         ApgtableCommand.class,

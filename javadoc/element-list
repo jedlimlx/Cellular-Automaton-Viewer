@@ -26,4 +26,8 @@ sample.model.rules.ruleloader
 sample.model.rules.ruleloader.ruletable
 sample.model.rules.ruleloader.ruletree
 sample.model.search
+sample.model.search.catsrc
+sample.model.search.cfind
+sample.model.search.csearch
+sample.model.search.rulesrc
 sample.model.simulation

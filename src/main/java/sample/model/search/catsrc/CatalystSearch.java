@@ -1,7 +1,8 @@
-package sample.model.search;
+package sample.model.search.catsrc;
 
 import sample.model.Coordinate;
 import sample.model.patterns.Catalyst;
+import sample.model.search.SearchProgram;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
@@ -74,12 +75,12 @@ public class CatalystSearch extends SearchProgram {
             known = new HashSet<>();
             searchResults = new ArrayList<>(); // Initialise search results
 
+            long startTime = System.currentTimeMillis();
             int initialGeneration = -1, repeatTime = -1;
             int hash, numRegen = 0, numInteracted = 0;
             List<PlacedCatalyst> placedCatalysts;
             for (int i = 0; i < num; i++) {
                 simulator = new Simulator(searchParameters.getRule());
-                System.out.println(i);
 
                 initialGeneration = -1;
                 placedCatalysts = randomAddCatalyst(simulator, searchParameters);
@@ -109,23 +110,27 @@ public class CatalystSearch extends SearchProgram {
                         // To consider a catalyst valid,
                         // 1. At least one of the sub-catalysts must have been interacted with
                         // 2. All interacted catalysts must have been regenerated
-                        // 3. If only one is regenerated, it's a partial
                         if (catalyst.hasInteracted()) numInteracted++;
                         if (catalyst.hasInteracted() && catalyst.hasRegenerated()) numRegen++;
                     }
 
-                    // Every single catalyst regenerated so its not a partial
+                    // Every single catalyst regenerated
                     if (numRegen == numInteracted && numInteracted >= 1) {
-                        Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime, false);
+                        Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime);
                         add(searchResults, catalyst);
                         break;
                     }
                 }
 
-                // Not every single catalyst regenerated so its a partial
-                if (numRegen < numInteracted && numInteracted >= 1 && numRegen >= 1) {
-                    Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime, true);
-                    add(searchResults, catalyst);
+                synchronized (this) {  // To avoid race conditions
+                    if (numSearched % 5000 == 0 && numSearched != 0) {
+                        System.out.println(numSearched + " potential catalysts searched (" +
+                                5000000 / (System.currentTimeMillis() - startTime) +
+                                " potential catalysts/s), " + searchResults.size() + " catalysts found!");
+                        startTime = System.currentTimeMillis();
+                    }
+
+                    numSearched++;
                 }
             }
         }
@@ -135,10 +140,11 @@ public class CatalystSearch extends SearchProgram {
     public boolean writeToFile(File file) {
         try {
             FileWriter fileWriter = new FileWriter(file);
-
+            fileWriter.write("# Running search in " + ((CatalystSearchParameters) searchParameters).getRule() +
+                    "\n");
             fileWriter.write("Catalyst,RLE\n");
-            for (Grid pattern: searchResults) {
-                fileWriter.write(pattern + "," + pattern.toRLE() + "\n");
+            for (int i = 0; i < searchResults.size(); i++) {
+                fileWriter.write(searchResults.get(i) + "," + searchResults.get(i).toRLE() + "\n");
             }
 
             fileWriter.close();

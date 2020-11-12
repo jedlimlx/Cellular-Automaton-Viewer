@@ -1,7 +1,10 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
-import sample.model.*;
+import sample.model.CommentGenerator;
+import sample.model.Coordinate;
+import sample.model.NeighbourhoodGenerator;
+import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
@@ -13,7 +16,7 @@ import sample.model.simulation.Grid;
 import java.util.*;
 
 /**
- * Represents the Deficient HROT rule family
+ * Implements the Deficient HROT rule family
  */
 public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratable {
     /**

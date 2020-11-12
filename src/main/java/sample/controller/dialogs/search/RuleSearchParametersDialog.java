@@ -3,7 +3,7 @@ package sample.controller.dialogs.search;
 import javafx.scene.control.*;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.model.rules.MinMaxRuleable;
-import sample.model.search.RuleSearchParameters;
+import sample.model.search.rulesrc.RuleSearchParameters;
 import sample.model.simulation.Grid;
 
 public class RuleSearchParametersDialog extends SearchParametersDialog {

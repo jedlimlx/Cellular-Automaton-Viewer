@@ -6,8 +6,8 @@ import javafx.scene.control.TableColumn;
 import sample.controller.MainController;
 import sample.model.patterns.Pattern;
 import sample.model.rules.RuleFamily;
-import sample.model.search.RuleSearchParameters;
 import sample.model.search.SearchProgram;
+import sample.model.search.rulesrc.RuleSearchParameters;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;

@@ -22,8 +22,6 @@ public class CatalystSearchResultsDialog extends SearchResultsDialog {
         columnPattern.prefWidthProperty().bind(tableView.prefWidthProperty());
         columnPattern.setCellValueFactory(pattern -> new ReadOnlyObjectWrapper(pattern.getValue()));
         tableView.getColumns().add(columnPattern);
-
-
     }
 
     @Override

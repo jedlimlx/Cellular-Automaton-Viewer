@@ -1,10 +1,10 @@
-package sample.model.search;
+package sample.model.search.catsrc;
 
 import sample.model.Coordinate;
 import sample.model.rules.Rule;
+import sample.model.search.SearchParameters;
 import sample.model.simulation.Grid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CatalystSearchParameters extends SearchParameters {

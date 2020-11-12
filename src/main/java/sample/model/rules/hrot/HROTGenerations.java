@@ -1,7 +1,10 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
-import sample.model.*;
+import sample.model.CommentGenerator;
+import sample.model.Coordinate;
+import sample.model.NeighbourhoodGenerator;
+import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
@@ -15,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Represents the HROT Generations rule family
+ * Implements the HROT Generations rule family
  */
 public class HROTGenerations extends BaseHROT implements MinMaxRuleable, ApgtableGeneratable {
     /**

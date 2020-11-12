@@ -77,6 +77,15 @@ public class LRUCache<K, V> implements Iterable<K>, Iterator<K> {
     }
 
     /**
+     * Checks if the key can be found in the cache
+     * @param key The key to search for
+     * @return Returns true if the key is found, false otherwise
+     */
+    public boolean containsKey(K key) {
+        return hashMap.containsKey(key);
+    }
+
+    /**
      * Size of the LRU cache
      * @return Returns the size of the LRU cache
      */

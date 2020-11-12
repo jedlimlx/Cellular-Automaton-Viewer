@@ -18,29 +18,21 @@ public class Catalyst extends Pattern {
     private final int repeatTime;
 
     /**
-     * Is the catalyst a partial catalyst?
-     */
-    private final boolean partial;
-
-    /**
      * Contructs a catalyst
      * @param rule The rule the catalyst operates in
      * @param pattern The catalyst's pattern
      * @param repeatTime The catalyst's repeat time
-     * @param partial Is the catalyst a partial catalyst (not all still lives interacted with are regenerated)
      */
-    public Catalyst(Rule rule, Grid pattern, int repeatTime, boolean partial) {
+    public Catalyst(Rule rule, Grid pattern, int repeatTime) {
         super(rule);
 
-        this.partial = partial;
         this.repeatTime = repeatTime;
         this.insertCells(pattern, new Coordinate());
     }
 
     @Override
     public String toString() {
-        if (partial) return "Partial catalyst of repeat time " + repeatTime;
-        else return "Catalyst of repeat time " + repeatTime;
+        return "Catalyst of repeat time " + repeatTime;
     }
 
     @Override
@@ -64,12 +56,11 @@ public class Catalyst extends Pattern {
         if (!super.equals(o)) return false;
         Catalyst catalyst = (Catalyst) o;
         return repeatTime == catalyst.repeatTime &&
-                partial == catalyst.partial &&
                 this.hashCode() == catalyst.hashCode();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), repeatTime, partial);
+        return Objects.hash(super.hashCode(), repeatTime);
     }
 }

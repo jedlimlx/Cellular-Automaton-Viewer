@@ -3,8 +3,7 @@ package sample.controller.dialogs.search;
 import javafx.scene.control.*;
 import sample.model.Coordinate;
 import sample.model.rules.Rule;
-import sample.model.search.CatalystSearchParameters;
-import sample.model.search.SearchParameters;
+import sample.model.search.catsrc.CatalystSearchParameters;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
