@@ -22,7 +22,6 @@ import sample.controller.dialogs.GifferDialog;
 import sample.controller.dialogs.PopulationGraphDialog;
 import sample.controller.dialogs.RandomSoupDialog;
 import sample.controller.dialogs.rule.RuleDialog;
-import sample.controller.dialogs.rule.RuleWidget;
 import sample.controller.dialogs.search.*;
 import sample.model.Cell;
 import sample.model.*;
@@ -1022,7 +1021,7 @@ public class MainController {
     public void identifySelection() {
         Simulator simulator = new Simulator(this.simulator.getRule());
         simulator.insertCells(this.simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
-                selectionRectangle.getStart());
+                new Coordinate());
         simulator.setGeneration(this.simulator.getGeneration());  // Ensure the generation is the same
 
         // Results of the identification
@@ -1166,23 +1165,7 @@ public class MainController {
         }
 
         // Identify the rule family based on regex
-        boolean found = false;
-        RuleFamily rule = null;
-        for (RuleWidget widget: dialog.getRuleWidgets()) {
-            for (String regex: widget.getRuleFamily().getRegex()) {
-                if (rulestring.matches(regex)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            // Completely break out of the loop
-            if (found) {
-                widget.getRuleFamily().setRulestring(rulestring);
-                rule = widget.getRuleFamily();
-                break;
-            }
-        }
+        RuleFamily rule = Utils.fromRulestring(rulestring);
 
         if (rule != null) {
             // Generate the additional information from comments

@@ -15,6 +15,7 @@ import sample.controller.dialogs.rule.misc.AlternatingDialog;
 import sample.controller.dialogs.rule.misc.OneDimensionalDialog;
 import sample.controller.dialogs.rule.misc.TurmitesDialog;
 import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
+import sample.model.Coordinate;
 import sample.model.rules.RuleFamily;
 
 import java.util.logging.Level;
@@ -136,9 +137,12 @@ public class RuleDialog extends Dialog {
         }
 
         chosenRuleFamily = ruleWidget.getRuleFamily();
+        if (chosenRuleFamily.getBoundedGrid() != null) {
+            chosenRuleFamily.getBoundedGrid().setInitialCoordinate(new Coordinate(1800, 1800));
+        }
 
         // Canonise the rulestring in the text field
-        rulestringField.setText(chosenRuleFamily.canonise(rulestringField.getText()));
+        rulestringField.setText(chosenRuleFamily.getRulestring());
 
         // Close the dialog
         super.setResult(Boolean.TRUE);
@@ -149,7 +153,7 @@ public class RuleDialog extends Dialog {
         boolean found = false;
         for (RuleWidget widget: ruleWidgets) {
             for (String regex: widget.getRuleFamily().getRegex()) {
-                if (rulestringField.getText().matches(regex)) {
+                if (rulestringField.getText().split(":")[0].matches(regex)) {
                     found = true;
                     break;
                 }
@@ -209,7 +213,7 @@ public class RuleDialog extends Dialog {
         boolean found = false;
         for (RuleWidget widget: ruleWidgets) {
             for (String regex: widget.getRuleFamily().getRegex()) {
-                if (rule.getRulestring().matches(regex)) {
+                if (rule.getRulestring().split(":")[0].matches(regex)) {
                     found = true;
                     break;
                 }
@@ -219,7 +223,13 @@ public class RuleDialog extends Dialog {
             if (found) {
                 rulestringField.setText(rule.getRulestring());
                 widget.setRuleFamily(rule);
-                changeRuleFamily(widget);  // Change to the widget who regex matches
+                changeRuleFamily(widget);  // Change to the widget whose regex matches
+
+                // Move the initial coordinate
+                if (rule.getBoundedGrid() != null) {
+                    rule.getBoundedGrid().setInitialCoordinate(new Coordinate(1800, 1800));
+                }
+
                 break;
             }
         }

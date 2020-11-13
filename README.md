@@ -320,7 +320,7 @@ Long-term TODO List
     - [ ] Identification
     - [ ] GUI
 - [ ] Bounded Grids
-    - [ ] Torus
+    - [x] Torus
     - [ ] Klein Bottle & Cross Surface
     - [ ] Spherical
 - [ ] Hexagonal Rendering

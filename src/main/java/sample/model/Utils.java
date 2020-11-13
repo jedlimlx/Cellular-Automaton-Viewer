@@ -13,6 +13,8 @@ import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.Turmites;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Simulator;
+import sample.model.simulation.bounds.BoundedGrid;
+import sample.model.simulation.bounds.Torus;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,6 +28,8 @@ public class Utils {
             new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(), new MultistateCyclicHROT(),
             new INT(), new INTHistory(), new INTEnergetic(), new OneDimensional(), new Turmites(),
             new RuleLoader(), new AlternatingRule()};
+    public static BoundedGrid[] boundedGrids = {new Torus()};
+
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
 
@@ -86,7 +90,7 @@ public class Utils {
         RuleFamily rule = null;
         for (RuleFamily ruleFamily: ruleFamilies) {
             for (String regex: ruleFamily.getRegex()) {
-                if (rulestring.matches(regex)) {
+                if (rulestring.split(":")[0].matches(regex)) {
                     found = true;
                     break;
                 }
@@ -94,14 +98,38 @@ public class Utils {
 
             // Completely break out of the loop
             if (found) {
-                ruleFamily.setRulestring(rulestring);
                 rule = (RuleFamily) ruleFamily.clone();
+                rule.setRulestring(rulestring);
                 break;
             }
         }
 
         if (!found) throw new IllegalArgumentException("The rulestring is invalid!");
         return rule;
+    }
+
+    public static BoundedGrid getBoundedGrid(String rulestring) {
+        boolean found = false;
+        BoundedGrid boundedGrid = null;
+        if (rulestring.contains(":")) {
+            String specifier = rulestring.split(":")[1];
+            for (BoundedGrid grid: boundedGrids) {
+                for (String regex: grid.getRegex()) {
+                    if (specifier.matches(regex)) {
+                        found = true;
+                        boundedGrid = (BoundedGrid) grid.clone();
+                        boundedGrid.setSpecifier(specifier);
+                        break;
+                    }
+                }
+
+                if (found) break;
+            }
+
+            if (!found) throw new IllegalArgumentException("This bounded grid specifier is invalid!");
+        }
+
+        return boundedGrid;
     }
 
     public static String fullRLE(Simulator simulator) {

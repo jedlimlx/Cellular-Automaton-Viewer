@@ -2,6 +2,7 @@ package sample.model.rules;
 
 import org.javatuples.Pair;
 import sample.model.Coordinate;
+import sample.model.Utils;
 import sample.model.simulation.Grid;
 
 import java.util.*;
@@ -40,6 +41,9 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @param rulestring Rulestring of the rule
      */
     public void setRulestring(String rulestring) {
+        this.boundedGrid = Utils.getBoundedGrid(rulestring);
+
+        rulestring = rulestring.split(":")[0];
         fromRulestring(rulestring);
         this.rulestring = canonise(rulestring);
     }
@@ -141,7 +145,8 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @return Rulestring of the rule
      */
     public String getRulestring() {
-        return rulestring;
+        if (boundedGrid != null) return rulestring + ":" + boundedGrid.getSpecifier();
+        else return rulestring;
     }
 
     @Override
@@ -163,7 +168,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
             grids[i].updateBounds();  // Getting the bounds of the grid
             Pair<Coordinate, Coordinate> bounds = grids[i].getBounds();
 
-            Coordinate coordinate;  // Current coordinate
+            Coordinate coordinate, neighbour;  // Current coordinate
             Coordinate[] neighbourhood = getNeighbourhood(i);
 
             // Inverting neighbourhood for triangular rules
@@ -179,17 +184,33 @@ public abstract class RuleFamily extends Rule implements Cloneable {
                     coordinate = new Coordinate(x, y);
                     if (dependsOnNeighbours(grids[i].getCell(coordinate), i, coordinate) != -1) continue;
 
+                    // Apply the bounded grid
+                    if (boundedGrid != null && boundedGrid.atEdge(coordinate))
+                        coordinate = boundedGrid.map(coordinate);
+
                     // Computes the neighbourhood sum for every cell
                     int[] neighbours = new int[getNeighbourhood(i).length + 2];
                     if (tiling != Tiling.Triangular ||
                             Math.floorMod(coordinate.getX(), 2) == Math.floorMod(coordinate.getY(), 2)) {
                         for (int j = 0; j < neighbourhood.length; j++) {
-                            neighbours[j + 1] = grids[i].getCell(coordinate.add(neighbourhood[j]));
+                            neighbour = coordinate.add(neighbourhood[j]);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            neighbours[j + 1] = grids[i].getCell(neighbour);
                         }
                     }
                     else {
                         for (int j = 0; j < neighbourhood.length; j++) {
-                            neighbours[j + 1] = grids[i].getCell(coordinate.add(invertedNeighbourhood[j]));
+                            neighbour = coordinate.add(invertedNeighbourhood[j]);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            neighbours[j + 1] = grids[i].getCell(neighbour);
                         }
                     }
 

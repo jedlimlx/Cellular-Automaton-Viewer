@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.paint.Color;
 import sample.model.Coordinate;
 import sample.model.simulation.Grid;
+import sample.model.simulation.bounds.BoundedGrid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -38,6 +38,11 @@ public abstract class Rule {
      * The tiling of the rule
      */
     protected Tiling tiling = Tiling.Square;
+
+    /**
+     * Bounded grid used by the rule
+     */
+    protected BoundedGrid boundedGrid;
 
     /**
      * This method returns the neighbourhood of a given cell at a generation 0
@@ -119,6 +124,14 @@ public abstract class Rule {
     }
 
     /**
+     * Gets the bounded grid of the rule
+     * @return Returns the bounded grid of the rule
+     */
+    public BoundedGrid getBoundedGrid() {
+        return boundedGrid;
+    }
+
+    /**
      * Steps the grid provided forward one generation
      * @param grid The grid that will be stepped forward one generation
      * @param cellsChanged An array of sets that contains the cells the changed in the previous generations.
@@ -149,21 +162,38 @@ public abstract class Rule {
 
         // Generate set of cells to run update function on
         // Use a set to avoid duplicates
+        Coordinate neighbour;
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate cell: cellSet) {
                 if (step != null && !step.apply(cell)) continue;  // Don't evaluate this cell
+
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) != Math.floorMod(cell.getY(), 2)) {
-                    for (Coordinate neighbour: neighbourhood) {
+                    for (Coordinate neighbour2: neighbourhood) {
+                        neighbour = cell.subtract(neighbour2);
                         if (step != null && !step.apply(cell.subtract(neighbour))) continue;
-                        cellsToCheck.add(cell.subtract(neighbour));
+
+                        // Apply the bounded grid
+                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                            neighbour = boundedGrid.map(neighbour);
+
+                        cellsToCheck.add(neighbour);
                     }
                 }
                 else {
-                    for (Coordinate neighbour: invertedNeighbourhood) {
+                    for (Coordinate neighbour2: invertedNeighbourhood) {
+                        neighbour = cell.subtract(neighbour2);
                         if (step != null && !step.apply(cell.subtract(neighbour))) continue;
-                        cellsToCheck.add(cell.subtract(neighbour));
+
+                        // Apply the bounded grid
+                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                            neighbour = boundedGrid.map(neighbour);
+
+                        cellsToCheck.add(neighbour);
                     }
                 }
+
+                // Apply the bounded grid
+                if (boundedGrid != null && boundedGrid.atEdge(cell)) cell = boundedGrid.map(cell);
 
                 cellsToCheck.add(cell);
             }
@@ -179,14 +209,26 @@ public abstract class Rule {
                 neighbours = new int[neighbourhood.length];
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
                     for (int i = 0; i < neighbourhood.length; i++) {
+                        neighbour = cell.add(neighbourhood[i]);
+
+                        // Apply the bounded grid
+                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                            neighbour = boundedGrid.map(neighbour);
+
                         // Converting based on background
-                        neighbours[i] = convertState(gridCopy.getCell(cell.add(neighbourhood[i])), generation);
+                        neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
                     }
                 }
                 else {
                     for (int i = 0; i < neighbourhood.length; i++) {
+                        neighbour = cell.add(invertedNeighbourhood[i]);
+
+                        // Apply the bounded grid
+                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                            neighbour = boundedGrid.map(neighbour);
+
                         // Converting based on background
-                        neighbours[i] = convertState(gridCopy.getCell(cell.add(invertedNeighbourhood[i])), generation);
+                        neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
                     }
                 }
 
@@ -242,5 +284,13 @@ public abstract class Rule {
     public void setBackground(int[] background) {
         this.alternatingPeriod = background.length;
         this.background = background;
+    }
+
+    /**
+     * Sets the bounded grid of the rule
+     * @param boundedGrid The bounded grid of the rule
+     */
+    public void setBoundedGrid(BoundedGrid boundedGrid) {
+        this.boundedGrid = boundedGrid;
     }
 }

@@ -2,16 +2,8 @@ package sample.commands;
 
 import picocli.CommandLine;
 import sample.model.Utils;
-import sample.model.rules.ApgtableGeneratable;
-import sample.model.rules.RuleFamily;
-import sample.model.rules.ruleloader.ColourDirective;
-import sample.model.rules.ruleloader.RuleDirective;
-import sample.model.rules.ruleloader.RuleLoader;
-import sample.model.rules.ruleloader.RuleNameDirective;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Map;
 
 @CommandLine.Command(name = "info", aliases = {"information"}, description =
         "Get more information about a particular rule")
@@ -25,7 +17,12 @@ public class RuleInfoCommand implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(Utils.fromRulestring(ruleString).getRuleInfo());
+        Map<String, String> info = Utils.fromRulestring(ruleString).getRuleInfo();
+
+        for (String key: info.keySet()) {
+            System.out.println(key + ": " + info.get(key));
+        }
+
         System.exit(0);
     }
 }
