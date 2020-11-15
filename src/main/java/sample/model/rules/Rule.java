@@ -170,11 +170,12 @@ public abstract class Rule {
                 if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) != Math.floorMod(cell.getY(), 2)) {
                     for (Coordinate neighbour2: neighbourhood) {
                         neighbour = cell.subtract(neighbour2);
-                        if (step != null && !step.apply(cell.subtract(neighbour))) continue;
 
                         // Apply the bounded grid
                         if (boundedGrid != null && boundedGrid.atEdge(neighbour))
                             neighbour = boundedGrid.map(neighbour);
+
+                        if (step != null && !step.apply(neighbour)) continue;
 
                         cellsToCheck.add(neighbour);
                     }
@@ -182,11 +183,12 @@ public abstract class Rule {
                 else {
                     for (Coordinate neighbour2: invertedNeighbourhood) {
                         neighbour = cell.subtract(neighbour2);
-                        if (step != null && !step.apply(cell.subtract(neighbour))) continue;
 
                         // Apply the bounded grid
                         if (boundedGrid != null && boundedGrid.atEdge(neighbour))
                             neighbour = boundedGrid.map(neighbour);
+
+                        if (step != null && !step.apply(neighbour)) continue;
 
                         cellsToCheck.add(neighbour);
                     }
