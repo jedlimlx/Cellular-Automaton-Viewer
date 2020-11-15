@@ -6,7 +6,10 @@ import sample.model.patterns.*;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -105,7 +108,7 @@ public class Simulator extends Grid {
     }
 
     /**
-     * Identify a pattern (still life / oscillator / spaceship) with a max period of 5000
+     * Identify a pattern (still life / oscillator / spaceship) with a max period of 2000
      * @return The identified pattern
      */
     public Pattern identify() {
@@ -220,7 +223,7 @@ public class Simulator extends Grid {
                 if (!continueIdentification.apply(deepCopy2))
                     return null;
 
-                // Checking for linear growth / zz_WHATEVER every 50 generations
+                // Checking for linear growth / zz_WHATEVER at the end of period detection
                 if (i == maxPeriod - 1) {
                     // Taking note of the generation
                     firstPhaseGeneration = initialGeneration;

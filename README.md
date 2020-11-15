@@ -190,7 +190,9 @@ Supported / Planned Rulespaces
         - [x] B0 Rules
         - [x] Apgtable Generation
     - [ ] INT BSFKL
-    - [ ] INT Generations
+    - [x] INT Generations
+        - [x] B0 Rules
+        - [x] Apgtable Generation
     - [ ] INT Extended Generations
     - [ ] INT Regenerating Generations
     - [ ] 3-state INT

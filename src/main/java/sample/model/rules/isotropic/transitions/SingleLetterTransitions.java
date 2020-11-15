@@ -1,10 +1,7 @@
 package sample.model.rules.isotropic.transitions;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +10,7 @@ import java.util.regex.Pattern;
  */
 public abstract class SingleLetterTransitions extends INTTransitions {
     protected HashMap<Integer, HashMap<Character, ArrayList<Integer>>> transitionLookup = null;
+    protected HashMap<ArrayList<Integer>, String> reverseTransitionLookup = null;
 
     /**
      * Constructs INT transitions that consist of single letters
@@ -30,15 +28,18 @@ public abstract class SingleLetterTransitions extends INTTransitions {
         if (transitionLookup == null) {
             Scanner scanner = new Scanner(stream);
             transitionLookup = new HashMap<>();
+            reverseTransitionLookup = new HashMap<>();
 
             String line;
             HashMap<Character, ArrayList<Integer>> hashMap = null;
 
+            int number = 0;
             while (scanner.hasNextLine()) {
                 line = scanner.nextLine();
                 if (line.matches("\\d\\s*")) {
                     hashMap = new HashMap<>();
-                    transitionLookup.put(Integer.parseInt(line), hashMap);
+                    number = Integer.parseInt(line);
+                    transitionLookup.put(number, hashMap);
                 }
                 else if (!line.matches("\\s*")) {
                     String[] tokens = line.split("\\s+");
@@ -50,6 +51,11 @@ public abstract class SingleLetterTransitions extends INTTransitions {
 
                     assert hashMap != null;
                     hashMap.put(tokens[0].charAt(0), transition);
+
+                    for (ArrayList<Integer> transition2: getSymmetries(transition)) {
+                        reverseTransitionLookup.put(transition2, number +
+                                "" + tokens[0].charAt(0));
+                    }
                 }
             }
 
@@ -75,7 +81,6 @@ public abstract class SingleLetterTransitions extends INTTransitions {
                 for (char letter: transitionLookup.get(number).keySet()) {
                     if (!transition.contains(letter + "")) {  // Add all but the ones that are specified
                         addTransition(transitionLookup.get(number).get(letter));
-                        sortedTransitionTable.add(number + "" + letter);
                     }
                 }
             }
@@ -83,13 +88,11 @@ public abstract class SingleLetterTransitions extends INTTransitions {
                 if (transition.length() == 1) {  // Check for OT transition
                     for (char letter: transitionLookup.get(number).keySet()) {
                         addTransition(transitionLookup.get(number).get(letter));
-                        sortedTransitionTable.add(number + "" + letter);
                     }
                 }
                 else {
                     for (int i = 1; i < transition.length(); i++) {
                         addTransition(transitionLookup.get(number).get(transition.charAt(i)));
-                        sortedTransitionTable.add(number + "" + transition.charAt(i));
                     }
                 }
             }
@@ -107,6 +110,7 @@ public abstract class SingleLetterTransitions extends INTTransitions {
         StringBuilder letters = new StringBuilder();
 
         int currentNumber, prevNumber = -1;
+        ArrayList<Character> characters;
         for (String transition: sortedTransitionTable) {
             currentNumber = Integer.parseInt(transition.charAt(0) + "");
             if (prevNumber == currentNumber) {
@@ -118,7 +122,10 @@ public abstract class SingleLetterTransitions extends INTTransitions {
                     // Accounting for negate
                     if (letters.length() > transitionLookup.get(prevNumber).size() / 2) {
                         canonTransitions.append("-");
-                        for (char letter: transitionLookup.get(prevNumber).keySet()) {
+
+                        characters = new ArrayList<>(transitionLookup.get(prevNumber).keySet());
+                        Collections.sort(characters);
+                        for (char letter: characters) {
                             if (!letters.toString().contains(letter + "")) canonTransitions.append(letter);
                         }
                     }
@@ -189,5 +196,41 @@ public abstract class SingleLetterTransitions extends INTTransitions {
         }
 
         return regex.toString();
+    }
+
+    /**
+     * Gets the INT transition from the neighbours
+     * @param neighbours The neighbours of the cell
+     * @return Returns the INT transition (e.g. 2n, 3a, 6q)
+     */
+    public String getTransitionsFromNeighbours(ArrayList<Integer> neighbours) {
+        return reverseTransitionLookup.get(neighbours);
+    }
+
+    /**
+     * Adds an INT transition
+     * @param transition The INT transition to add
+     */
+    @Override
+    public void addTransition(String transition) {
+        transitionTable.addAll(getSymmetries(transitionLookup.get(Integer.parseInt(transition.charAt(0) + "")).
+                get(transition.charAt(1))));
+        sortedTransitionTable.add(transition);
+        Collections.sort(sortedTransitionTable);
+
+        // Remove duplicates
+        sortedTransitionTable = new ArrayList<>(new HashSet<>(sortedTransitionTable));
+        Collections.sort(sortedTransitionTable);
+    }
+
+    /**
+     * Removes an INT transition
+     * @param transition The INT transition to remove
+     */
+    @Override
+    public void removeTransition(String transition) {
+        transitionTable.removeAll(getSymmetries(transitionLookup.get(Integer.parseInt(transition.charAt(0) + "")).
+                get(transition.charAt(1))));
+        sortedTransitionTable.remove(transition);
     }
 }

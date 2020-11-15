@@ -47,7 +47,7 @@ public abstract class BaseINT extends RuleFamily {
     protected INTTransitions getINTTransition(String rulestring) {
         try {
             neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, rulestring, 0, 1);
-            return (INTTransitions) neighbourhoodLookup.get(neighbourhoodString).clone();
+            return neighbourhoodLookup.get(neighbourhoodString).getMinTransition();
         }
         catch (IllegalStateException exception) {
             neighbourhoodString = "";

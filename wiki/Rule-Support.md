@@ -278,6 +278,29 @@ Apgtable generation is supported all rules. <br>
 
 The code that simulates 2-state INT rules can be found [here](../src/main/java/sample/model/rules/isotropic/rules/INT.java).
 
+## Generations <!-- 1 -->
+Generations rules are a multistate generalization of 2 state rules in which live cells can exist in different states, and cells that would die in a 2-state cellular automaton instead advance to the next state.
+
+The name "Generations" is due to the conceptualisation of this process as cells "getting older" before eventually dying
+
+* A dead cell
+   * Will become alive if it has X neighbours and X is in birth.
+   * If not, it stays dead.
+* A living cell
+   * Will stay alive if it has X neighbours and X is in survival.
+   * If not, it advances to state 2 in the next generation of the pattern.
+* A cell in state m ≥ 2 will advance to state ((m + 1) mod n) in the next generation of the pattern.
+
+B0 rules are supported via emulation with alternating rules. See [this](./Rule-Support.md#b0-rules) for more information.
+
+Apgtable generation is supported all rules. <br>
+
+The code that simulates generations INT rules can be found [here](../src/main/java/sample/model/rules/isotropic/rules/INTGenerations.java).
+
+#### Rulestring format
+B<birth>/S<survival>/G<states>/N<neighbourhood>
+<survival>/<birth>/<states>/<neighbourhood>
+
 
 # 1D Cellular Automaton
 CAViewer also supports 1D rules via the format used by Wolfram Alpha. This includes B0 rules.

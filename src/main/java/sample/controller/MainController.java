@@ -883,8 +883,9 @@ public class MainController {
     @FXML // Starts the rule search dialog
     public void startRuleSearchDialog() {
         // Dialog to get the search parameters
-        RuleSearchParametersDialog parametersDialog =
-                new RuleSearchParametersDialog(simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()));
+        RuleSearchParametersDialog parametersDialog = new RuleSearchParametersDialog(
+                simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
+                simulator.getRule());
         parametersDialog.showAndWait();
 
         if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled

@@ -47,7 +47,16 @@
 | [?](../rules/Integer HROT/R2,I5,S2-3,B3,N+/DESCRIPTION.md) | Chaotic | R2,I5,S2-3,B3,N+ | B3 cross rules typically cannot escape their bounding box but this does not apply to integer rules. The rule has 4 natural speeds namely c/2o, c/4d, c/13o and c/22o.
 
 
-## Custom Rules
+# Isotropic Non-Totalistic (INT)
+
+## 2 State <!-- 1 -->
+
+| Name | Character | Rulestring | Description | 
+| ------------- | ------------- | ------------- | ------------- |
+| [?](../rules/INT/B2-ahi8_S14_NC2/DESCRIPTION.md) | Chaotic | B2-ahi8/S14/NC2 | A rule with a common puffer, 9c/26d and 4c/26o. Some other ships found include a 2c/4d, 2c/6o and 6c/12d.
+
+
+# Custom Rules
 
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |

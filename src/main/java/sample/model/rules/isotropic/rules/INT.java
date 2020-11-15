@@ -1,18 +1,22 @@
 package sample.model.rules.isotropic.rules;
 
+import org.javatuples.Pair;
 import sample.model.Coordinate;
 import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
+import sample.model.rules.MinMaxRuleable;
+import sample.model.rules.RuleFamily;
 import sample.model.rules.isotropic.transitions.INTTransitions;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
 
 /**
  * Implements 2-state isotropic non-totalistic (INT) rules
  */
-public class INT extends BaseINT implements ApgtableGeneratable {
+public class INT extends BaseINT implements ApgtableGeneratable, MinMaxRuleable {
     /**
      * The birth transitions of the INT rule
      */
@@ -57,7 +61,7 @@ public class INT extends BaseINT implements ApgtableGeneratable {
                 regexes[counter] = "[BbSs]" + transitionRegexes[counter] + "[_/]?[BbSs]" + transitionRegexes[counter];
             } else {
                 regexes[counter] = "[BbSs]" + transitionRegexes[counter] + "[_/]?[BbSs]" + transitionRegexes[counter] +
-                        "([_/]N)?" + string;
+                        "[_/]?N?" + string;
             }
             counter++;
         }
@@ -152,11 +156,117 @@ public class INT extends BaseINT implements ApgtableGeneratable {
     }
 
     /**
+     * Randomise the parameters of the current rule to be between minimum and maximum rules
+     * Used in CAViewer's rule search program
+     * @param minRule The minimum rule for randomisation
+     * @param maxRule The maximum rule for randomisation
+     * @throws IllegalArgumentException Thrown if the minimum and maximum rules are invalid
+     */
+    @Override
+    public void randomise(RuleFamily minRule, RuleFamily maxRule) {
+        if (validMinMax(minRule, maxRule)) {
+            setBirth(INTTransitions.randomise(((INT) minRule).getBirth(), ((INT) maxRule).getBirth()));
+            setSurvival(INTTransitions.randomise(((INT) minRule).getSurvival(), ((INT) maxRule).getSurvival()));
+        } else {
+            throw new IllegalArgumentException("Invalid minimum and maximum rules!");
+        }
+    }
+
+    /**
+     * Returns the minimum and maximum rule of the provided evolutionary sequence
+     * @param grids An array of grids representing the evolutionary sequence
+     * @return A pair containing the min rule as the first value and the max rule as the second value
+     */
+    @Override
+    public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids) {
+        // Getting min and max transitions
+        INTTransitions minBirth = birth.getMinTransition(), minSurvival = survival.getMinTransition();
+        INTTransitions maxBirth = birth.getMaxTransition(), maxSurvival = survival.getMaxTransition();
+
+        // Running through every generation and check what transitions are required
+        for (int[] neighbours: getNeighbourList(grids)) {
+            // Determining the required birth / survival condition
+            int currentCell = neighbours[0];
+            int nextCell = neighbours[neighbours.length - 1];
+
+            ArrayList<Integer> cellNeighbours = new ArrayList<>();
+            for (int i = 1; i < neighbours.length - 1; i++)
+                cellNeighbours.add(neighbours[i]);
+
+            if (currentCell == 0 && nextCell == 1) {  // Birth (0 -> 1)
+                minBirth.addTransition(cellNeighbours);
+            }
+            else if (currentCell == 0 && nextCell == 0) {  // No Birth (0 -> 0)
+                maxBirth.removeTransition(cellNeighbours);
+            }
+            else if (currentCell == 1 && nextCell == 1) {  // Survival (1 -> 1)
+                minSurvival.addTransition(cellNeighbours);
+            }
+            else if (currentCell == 1 && nextCell == 0) {  // No Survival (1 -> 0)
+                maxSurvival.removeTransition(cellNeighbours);
+            }
+        }
+
+        // Creating the min and max rules
+        INT minRule = (INT) this.clone();
+        minRule.setBirth(minBirth);
+        minRule.setSurvival(minSurvival);
+
+        INT maxRule = (INT) this.clone();
+        maxRule.setBirth(maxBirth);
+        maxRule.setSurvival(maxSurvival);
+
+        return new Pair<>(minRule, maxRule);
+    }
+
+    /**
+     * Checks if the current rule is between the given minimum and maximum rules
+     * @param minRule The minimum rule
+     * @param maxRule The maximum rule
+     * @return True if the current rule is between minimum and maximum rules and false
+     * if the current rule is not between the minimum and maximum rules
+     * @throws IllegalArgumentException Thrown if the minimum rule and maximum rule are invalid
+     */
+    @Override
+    public boolean betweenMinMax(RuleFamily minRule, RuleFamily maxRule) {
+        if (validMinMax(minRule, maxRule)) {
+            return ((INT) minRule).getBirth().checkSubset(birth) &&
+                    ((INT) minRule).getSurvival().checkSubset(survival) &&
+                    birth.checkSubset(((INT) maxRule).getBirth()) &&
+                    survival.checkSubset(((INT) maxRule).getSurvival());
+        }
+
+        throw new IllegalArgumentException("Invalid minimum and maximum rules!");
+    }
+
+    /**
+     * Checks if the minimum rule and maximum rules provided are valid
+     * @param minRule The minimum rule to check
+     * @param maxRule The maximum rule to check
+     * @return True if the minimum and maximum rules are valid and false if the minimum and maximum rules are not valid
+     */
+    @Override
+    public boolean validMinMax(RuleFamily minRule, RuleFamily maxRule) {
+        if (minRule instanceof INT && maxRule instanceof INT) {
+            return ((INT) minRule).getBirth().checkSubset(((INT) maxRule).getBirth()) &&
+                    ((INT) minRule).getSurvival().checkSubset(((INT) maxRule).getSurvival());
+        }
+
+        return false;
+    }
+
+    /**
      * Sets the birth conditions of the INT rule
      * @param birth The birth conditions
      */
     public void setBirth(INTTransitions birth) {
         this.birth = birth;
+
+        // Updating rulestring
+        this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
@@ -165,6 +275,12 @@ public class INT extends BaseINT implements ApgtableGeneratable {
      */
     public void setSurvival(INTTransitions survival) {
         this.survival = survival;
+
+        // Updating rulestring
+        this.rulestring = canonise(rulestring);
+
+        // Updating the background
+        updateBackground();
     }
 
     /**
