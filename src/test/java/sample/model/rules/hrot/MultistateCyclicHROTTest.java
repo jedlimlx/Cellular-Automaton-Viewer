@@ -27,7 +27,6 @@ public class MultistateCyclicHROTTest {
 
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            System.out.println(line);
             if (line.startsWith("#R")) {
                 hrot = new MultistateCyclicHROT(line.substring(3));
             }

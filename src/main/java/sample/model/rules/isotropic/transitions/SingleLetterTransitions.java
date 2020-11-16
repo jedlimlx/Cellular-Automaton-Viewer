@@ -148,7 +148,10 @@ public abstract class SingleLetterTransitions extends INTTransitions {
             // Accounting for negate
             if (letters.length() > transitionLookup.get(prevNumber).size() / 2) {
                 canonTransitions.append("-");
-                for (char letter: transitionLookup.get(prevNumber).keySet()) {
+
+                characters = new ArrayList<>(transitionLookup.get(prevNumber).keySet());
+                Collections.sort(characters);
+                for (char letter: characters) {
                     if (!letters.toString().contains(letter + "")) canonTransitions.append(letter);
                 }
             }

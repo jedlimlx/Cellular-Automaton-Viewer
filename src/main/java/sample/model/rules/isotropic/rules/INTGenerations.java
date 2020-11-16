@@ -112,7 +112,8 @@ public class INTGenerations extends BaseINT implements ApgtableGeneratable, MinM
                         0, 1));
             } catch (IllegalStateException exception) {
                 try {
-                    numStates = Integer.parseInt(rulestring.split("/")[2]);
+                    numStates = Integer.parseInt(Utils.matchRegex("[0-9]+",
+                            rulestring.split("/")[2], 0));
                 } catch (IllegalStateException exception2) {
                     throw new IllegalArgumentException("State count should be specified!");
                 }

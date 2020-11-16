@@ -225,6 +225,47 @@ public class HROTGenerationsTest {
     }
 
     @Test
+    public void testRuleRange() {
+        // Loading the testcases
+        Scanner scanner = new Scanner(getStream("/HROT Generations/ruleRangeTest.txt"));
+
+        HROTGenerations rule = new HROTGenerations(), minRule = null, maxRule = null;
+        Simulator inputPattern = null;
+        String targetPattern = null;
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.startsWith("#R")) {
+                rule = new HROTGenerations(line.substring(3));
+            }
+            else if (line.startsWith("#I")) {
+                inputPattern = new Simulator(rule);
+                inputPattern.fromRLE(line.substring(3), new Coordinate(0, 0));
+            }
+            else if (line.startsWith("#MIN")) {
+                minRule = new HROTGenerations(line.substring(5));
+            }
+            else if (line.startsWith("#MAX")) {
+                maxRule = new HROTGenerations(line.substring(5));
+            }
+            else if (line.startsWith("#T")) {
+                targetPattern = line.substring(3);
+            }
+            else {
+                assert inputPattern != null;
+                sample.model.patterns.Pattern pattern = inputPattern.identify();
+                assertEquals(targetPattern, pattern.toString());
+
+                assert minRule != null;
+                assertEquals(minRule.getRulestring(), pattern.getMinRule().getRulestring());
+
+                assert maxRule != null;
+                assertEquals(maxRule.getRulestring(), pattern.getMaxRule().getRulestring());
+            }
+        }
+    }
+
+    @Test
     public void testClone() {
         HROTGenerations hrot = new HROTGenerations("R3,C3,S6-10,B3,N+");
         HROTGenerations hrotClone = (HROTGenerations) hrot.clone();

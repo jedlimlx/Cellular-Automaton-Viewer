@@ -7,7 +7,6 @@ import sample.model.simulation.Grid;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a spaceship
@@ -59,7 +58,7 @@ public class Spaceship extends Pattern {
 
     @Override
     public String toString() {
-        return "(" + displacementX + "," + displacementY + ")c/" + period;
+        return "(" + -displacementX + "," + displacementY + ")c/" + period;
     }
 
     /**
@@ -71,7 +70,7 @@ public class Spaceship extends Pattern {
     public Map<String, String> additionalInfo() {
         LinkedHashMap<String, String> information = new LinkedHashMap<>();
         information.put("Period", "" + period);
-        information.put("Displacement X", "" + displacementX);
+        information.put("Displacement X", "" + -displacementX);
         information.put("Displacement Y", "" + displacementY);
 
         if (minRule != null && maxRule != null) {
