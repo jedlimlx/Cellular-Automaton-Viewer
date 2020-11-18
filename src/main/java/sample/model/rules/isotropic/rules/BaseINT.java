@@ -55,7 +55,6 @@ public abstract class BaseINT extends RuleFamily {
         }
     }
 
-
     @Override
     public Map<String, String> getRuleInfo() {
         Map<String, String> map = super.getRuleInfo();

@@ -7,11 +7,13 @@ import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
 import sample.model.rules.isotropic.transitions.INTTransitions;
+import sample.model.rules.isotropic.transitions.R1MooreINT;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Implements 2-state isotropic non-totalistic (INT) rules
@@ -302,6 +304,80 @@ public class INT extends BaseINT implements ApgtableGeneratable, MinMaxRuleable 
     @Override
     public Object clone() {
         return new INT(rulestring);
+    }
+
+    @Override
+    public Map<String, String> getRuleInfo() {
+        Map<String, String> info = super.getRuleInfo();
+
+        String neighbourhoodString = info.get("Weights / Neighbourhood");
+        info.remove("Weights / Neighbourhood");
+
+        ArrayList<String> symmetries = new ArrayList<>();
+        if (birth instanceof R1MooreINT) {   // See https://conwaylife.com/wiki/Symmetry
+            if (!birth.getSortedTransitionTable().contains("0!") &&
+                    !birth.getSortedTransitionTable().contains("2c") &&
+                    !birth.getSortedTransitionTable().contains("2i") &&
+                    !birth.getSortedTransitionTable().contains("4i") &&
+                    !birth.getSortedTransitionTable().contains("6i")) {
+                symmetries.add("gO1S0");
+            }
+
+            if (!birth.getSortedTransitionTable().contains("0!") &&
+                    !birth.getSortedTransitionTable().contains("2n") &&
+                    !birth.getSortedTransitionTable().contains("2e") &&
+                    !birth.getSortedTransitionTable().contains("4e") &&
+                    !birth.getSortedTransitionTable().contains("4w") &&
+                    !birth.getSortedTransitionTable().contains("6n")) {
+                symmetries.add("gD1S0");
+            }
+
+            if (!birth.getSortedTransitionTable().contains("0!") &&
+                    !birth.getSortedTransitionTable().contains("1c") &&
+                    !birth.getSortedTransitionTable().contains("2k") &&
+                    !birth.getSortedTransitionTable().contains("2n") &&
+                    !birth.getSortedTransitionTable().contains("3n") &&
+                    !birth.getSortedTransitionTable().contains("4y") &&
+                    !birth.getSortedTransitionTable().contains("4z") &&
+                    !birth.getSortedTransitionTable().contains("5r") &&
+                    !birth.getSortedTransitionTable().contains("6i")) {
+                symmetries.add("gO1S1");
+            }
+
+            if (!birth.getSortedTransitionTable().contains("0!") &&
+                    !birth.getSortedTransitionTable().contains("1c") &&
+                    !birth.getSortedTransitionTable().contains("1e") &&
+                    !birth.getSortedTransitionTable().contains("2a") &&
+                    !birth.getSortedTransitionTable().contains("2k") &&
+                    !birth.getSortedTransitionTable().contains("3k") &&
+                    !birth.getSortedTransitionTable().contains("3q") &&
+                    !birth.getSortedTransitionTable().contains("4q")) {
+                symmetries.add("gD1S1");
+            }
+
+            if (!birth.getSortedTransitionTable().contains("0!") &&
+                    !birth.getSortedTransitionTable().contains("1c") &&
+                    !birth.getSortedTransitionTable().contains("1e") &&
+                    !birth.getSortedTransitionTable().contains("2a") &&
+                    !birth.getSortedTransitionTable().contains("2i") &&
+                    !birth.getSortedTransitionTable().contains("2k") &&
+                    !birth.getSortedTransitionTable().contains("3c") &&
+                    !birth.getSortedTransitionTable().contains("3q") &&
+                    !birth.getSortedTransitionTable().contains("3r") &&
+                    !birth.getSortedTransitionTable().contains("4c") &&
+                    !birth.getSortedTransitionTable().contains("4n") &&
+                    !birth.getSortedTransitionTable().contains("4y") &&
+                    !birth.getSortedTransitionTable().contains("4z") &&
+                    !birth.getSortedTransitionTable().contains("5e") &&
+                    !birth.getSortedTransitionTable().contains("5r") &&
+                    !birth.getSortedTransitionTable().contains("6i")) {
+                symmetries.add("gO1S2");
+            }
+        }
+
+        if (symmetries.size() != 0) info.put("Symmetries", symmetries.toString());
+        info.put("Neighbourhood", neighbourhoodString);
+        return info;
     }
 
     @Override
