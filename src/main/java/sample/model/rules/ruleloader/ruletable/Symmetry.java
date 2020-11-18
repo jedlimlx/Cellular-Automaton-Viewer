@@ -1,7 +1,6 @@
 package sample.model.rules.ruleloader.ruletable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,7 +78,6 @@ public class Symmetry {
                         else symmetry.set(cycle[i - 1] - 1, cycle[i]);
                     }
                 }
-
             }
 
             symmetries.add(symmetry);

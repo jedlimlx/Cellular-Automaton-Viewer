@@ -1,7 +1,10 @@
 package sample.model.rules.isotropic.transitions;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,8 +100,6 @@ public abstract class SingleLetterTransitions extends INTTransitions {
                 }
             }
         }
-
-        Collections.sort(sortedTransitionTable);
     }
 
     /**
@@ -219,11 +220,6 @@ public abstract class SingleLetterTransitions extends INTTransitions {
         transitionTable.addAll(getSymmetries(transitionLookup.get(Integer.parseInt(transition.charAt(0) + "")).
                 get(transition.charAt(1))));
         sortedTransitionTable.add(transition);
-        Collections.sort(sortedTransitionTable);
-
-        // Remove duplicates
-        sortedTransitionTable = new ArrayList<>(new HashSet<>(sortedTransitionTable));
-        Collections.sort(sortedTransitionTable);
     }
 
     /**

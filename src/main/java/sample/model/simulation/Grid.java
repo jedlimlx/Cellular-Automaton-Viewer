@@ -673,6 +673,14 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     }
 
     /**
+     * Gets the background of the grid
+     * @return Returns the background of the grid
+     */
+    public int getBackground() {
+        return background;
+    }
+
+    /**
      * Convert the cell state based on the background
      * Used to for B0 / strobing rules
      * @param state The current state of the cell

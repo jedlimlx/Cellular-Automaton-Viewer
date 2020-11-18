@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * Represents range 1 moore INT transitions (hensel notation)
  */
 public class R1MooreINT extends SingleLetterTransitions {
+    private static final Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(2, 8), (3, 7), (4, 6)]]");
+
     public R1MooreINT() {
         this("");
     }
@@ -39,7 +41,6 @@ public class R1MooreINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(2, 8), (3, 7), (4, 6)]]");
         return symmetry.applySymmetry(transition);
     }
 

@@ -4,6 +4,7 @@ import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.simulation.Grid;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,6 +43,11 @@ public class LinearGrowth extends Pattern {
         }
 
         return map;
+    }
+
+    @Override
+    public void setPhases(Grid[] grids) {
+        super.setPhases(Arrays.copyOfRange(grids, 0, popPeriod + 1));
     }
 
     /**

@@ -252,7 +252,7 @@ public class Simulator extends Grid {
                 gridsArray[i - (firstPhaseGeneration - initialGeneration)] = grids.get(i);
             }
 
-            pattern.generateMinMaxRule(gridsArray);
+            pattern.setPhases(gridsArray);
         }
 
         return pattern;

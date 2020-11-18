@@ -34,7 +34,7 @@ public abstract class Pattern extends Simulator {
         this.maxRule = maxRule;
     }
 
-    public void generateMinMaxRule(Grid[] grids) {
+    public void setPhases(Grid[] grids) {
         // Checking if min / max rules are supported
         if (getRule() instanceof MinMaxRuleable) {
             try {

@@ -12,9 +12,25 @@ import java.util.Map;
  * Represents a spaceship
  */
 public class Spaceship extends Pattern {
+    /**
+     * The period of the spaceship
+     */
     private final int period;
+
+    /**
+     * The x-displacement of the spaceship (taking moving to the right as +ve)
+     */
     private final int displacementX;
+
+    /**
+     * The y-displacement of the spaceship (taking upwards as +ve)
+     */
     private final int displacementY;
+
+    /**
+     * The heat of the oscillator
+     */
+    private double heat;
 
     /**
      * Phases of the spaceship
@@ -39,8 +55,8 @@ public class Spaceship extends Pattern {
     }
 
     @Override
-    public void generateMinMaxRule(Grid[] grids) {
-        super.generateMinMaxRule(grids);
+    public void setPhases(Grid[] grids) {
+        super.setPhases(grids);
 
         // Finding smallest phase of the spaceship
         int minPop = Integer.MAX_VALUE;
@@ -49,11 +65,26 @@ public class Spaceship extends Pattern {
         phases = new Grid[grids.length];
         for (int i = 0; i < grids.length; i++) {
             phases[i] = grids[i].deepCopy();
-            if (grids[i].getPopulation() < minPop) minPhase = phases[i];
+            if (grids[i].getPopulation() < minPop && grids[i].getBackground() == 0) minPhase = phases[i];
+
+            // Calculating heat
+            if (i > 0) {
+                int finalI = i;
+                grids[i].iterateCells(cell -> {
+                    if (grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell)) heat++;
+                });
+
+                grids[i - 1].iterateCells(cell -> {
+                    if (grids[finalI].getCell(cell) == 0 &&
+                            grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell)) heat++;
+                });
+            }
         }
 
         this.clearCells();
         this.insertCells(minPhase, new Coordinate(0, 0));
+
+        heat /= period;
     }
 
     @Override
@@ -72,6 +103,7 @@ public class Spaceship extends Pattern {
         information.put("Period", "" + period);
         information.put("Displacement X", "" + -displacementX);
         information.put("Displacement Y", "" + displacementY);
+        information.put("Heat", String.format("%.2f", heat));
 
         if (minRule != null && maxRule != null) {
             information.put("Minimum Rule", "" + minRule);

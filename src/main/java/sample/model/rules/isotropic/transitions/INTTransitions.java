@@ -6,6 +6,7 @@ import sample.model.Coordinate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.TreeSet;
 
 /**
  * All INT transitions should inherit from this class
@@ -31,7 +32,7 @@ public abstract class INTTransitions {
      * A transition table that is sorted in lexicographical order (useful for deficient rules).
      * Contains all the transitions in string format (e.g. 1c, 1e, 2a, 4c, 4z, 6k...)
      */
-    protected ArrayList<String> sortedTransitionTable;
+    protected TreeSet<String> sortedTransitionTable;
 
     /**
      * Constructs INT transitions from the provided string
@@ -39,7 +40,7 @@ public abstract class INTTransitions {
      */
     public INTTransitions(String string) {
         transitionTable = new HashSet<>();
-        sortedTransitionTable = new ArrayList<>();
+        sortedTransitionTable = new TreeSet<>();
     }
 
     /**
@@ -152,7 +153,7 @@ public abstract class INTTransitions {
      * Gets the sorted transitions
      * @return Returns the sorted transitions
      */
-    public ArrayList<String> getSortedTransitionTable() {
+    public TreeSet<String> getSortedTransitionTable() {
         return sortedTransitionTable;
     }
 
