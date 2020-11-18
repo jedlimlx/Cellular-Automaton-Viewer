@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * Represents range 3 far edges INT transitions (hensel notation)
  */
 public class R3FarEdgesINT extends SingleLetterTransitions {
+    private static final Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(4, 8), (1, 3), (5, 7)]]");
+
     public R3FarEdgesINT() {
         this("");
     }

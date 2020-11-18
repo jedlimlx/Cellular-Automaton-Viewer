@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * Represents range 2 cross INT transitions
  */
 public class R2CrossINT extends SingleLetterTransitions {
+    private static final Symmetry symmetry = new Symmetry("[[(1, 2, 3, 4), (5, 6, 7, 8)], [(2, 4), (6, 8)]]");
+
     public R2CrossINT() {
         this("");
     }
@@ -39,7 +41,6 @@ public class R2CrossINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        Symmetry symmetry = new Symmetry("[[(1, 2, 3, 4), (5, 6, 7, 8)], [(2, 4), (6, 8)]]");
         return symmetry.applySymmetry(transition);
     }
     

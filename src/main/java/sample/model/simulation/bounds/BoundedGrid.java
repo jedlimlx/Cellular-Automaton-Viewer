@@ -58,7 +58,7 @@ public abstract class BoundedGrid {
                     coordinate.getY() < initialCoordinate.getY() ||
                     coordinate.getX() >= initialCoordinate.getX() + width ||
                     coordinate.getY() >= initialCoordinate.getY() + height;
-        } else if (width == 0) {
+        } else if (width != 0) {
             return coordinate.getX() < initialCoordinate.getX() ||
                     coordinate.getX() >= initialCoordinate.getX() + width;
         } else {

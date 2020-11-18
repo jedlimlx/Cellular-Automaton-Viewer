@@ -322,6 +322,7 @@ Long-term TODO List
     - [ ] Identification
     - [ ] GUI
 - [ ] Bounded Grids
+    - [x] Bounded
     - [x] Torus
     - [ ] Klein Bottle & Cross Surface
     - [ ] Spherical

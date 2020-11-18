@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * Represents range 1 hex INT transitions (based on arene substitution patterns)
  */
 public class R1HexINT extends SingleLetterTransitions {
+    private static final Symmetry symmetry = new Symmetry("[[(1, 2, 3, 4, 5, 6)], [(1, 6), (2, 5), (3, 4)]]");
+
     public R1HexINT() {
         this("");
     }
@@ -37,7 +39,6 @@ public class R1HexINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        Symmetry symmetry = new Symmetry("[[(1, 2, 3, 4, 5, 6)], [(1, 6), (2, 5), (3, 4)]]");
         return symmetry.applySymmetry(transition);
     }
 

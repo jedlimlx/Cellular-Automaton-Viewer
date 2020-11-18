@@ -9,6 +9,8 @@ import java.util.ArrayList;
  * Represents range 2 far corners INT transitions (hensel notation)
  */
 public class R2FarCornersINT extends SingleLetterTransitions {
+    private static final Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(4, 8), (1, 3), (5, 7)]]");
+
     public R2FarCornersINT() {
         this("");
     }
@@ -39,7 +41,6 @@ public class R2FarCornersINT extends SingleLetterTransitions {
 
     @Override
     protected ArrayList<ArrayList<Integer>> getSymmetries(ArrayList<Integer> transition) {
-        Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(4, 8), (1, 3), (5, 7)]]");
         return symmetry.applySymmetry(transition);
     }
     

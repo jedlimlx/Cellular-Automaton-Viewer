@@ -14,6 +14,7 @@ import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.Turmites;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Simulator;
+import sample.model.simulation.bounds.Bounded;
 import sample.model.simulation.bounds.BoundedGrid;
 import sample.model.simulation.bounds.Torus;
 
@@ -29,7 +30,7 @@ public class Utils {
             new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(), new MultistateCyclicHROT(),
             new INT(), new INTHistory(), new INTEnergetic(), new INTGenerations(), new OneDimensional(), new Turmites(),
             new RuleLoader(), new AlternatingRule()};
-    public static BoundedGrid[] boundedGrids = {new Torus()};
+    public static BoundedGrid[] boundedGrids = {new Torus(), new Bounded()};
 
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
