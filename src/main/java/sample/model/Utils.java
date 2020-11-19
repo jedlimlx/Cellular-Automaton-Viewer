@@ -11,7 +11,7 @@ import sample.model.rules.isotropic.rules.energetic.INTEnergetic;
 import sample.model.rules.isotropic.rules.history.INTHistory;
 import sample.model.rules.misc.AlternatingRule;
 import sample.model.rules.misc.OneDimensional;
-import sample.model.rules.misc.Turmites;
+import sample.model.rules.misc.turmites.Turmites;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Simulator;
 import sample.model.simulation.bounds.Bounded;

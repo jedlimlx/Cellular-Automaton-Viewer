@@ -1,4 +1,4 @@
-package sample.model.rules.misc;
+package sample.model.rules.misc.turmites;
 
 import javafx.scene.paint.Color;
 import org.javatuples.Pair;
@@ -18,12 +18,10 @@ public class Turmites extends RuleFamily {
     private final Map<Pair<Integer, Integer>, Triplet<Integer, Integer, Integer>> transitionTable;
 
     private int turmiteStates, gridStates;
+    private Neighbourhood neighbourhood;
 
     private static final String langtonAnt = "LangtonAnt_[RL]{2,}";
-    private static final String turmite = "\\{(\\{(\\{([0-9]+,\\s?){2,}[0-9]+}(,\\s)?)+}(,\\s)?)+}";
-
-    private static final int[] oppositeDirections = new int[]{2, 3, 0, 1};
-    private static final Map<Integer, int[]> turn = new HashMap<>();
+    private static final String turmite = "\\{(\\{(\\{([0-9]+,\\s*){2,}[0-9]+}(,\\s*)?)+}(,\\s*)?)+}[VMHL]?";
 
     public Turmites() {
         this("{{{1, 2, 0}, {0, 8, 0}}}");
@@ -37,11 +35,6 @@ public class Turmites extends RuleFamily {
 
         transitionTable = new HashMap<>();
 
-        turn.put(1, new int[]{0, 1, 2, 3});
-        turn.put(2, new int[]{1, 2, 3, 0});
-        turn.put(4, new int[]{2, 3, 0, 1});
-        turn.put(8, new int[]{3, 0, 1, 2});
-
         // Load rulestring
         setRulestring(rulestring);
     }
@@ -49,14 +42,14 @@ public class Turmites extends RuleFamily {
     @Override
     protected void fromRulestring(String rulestring) {
         if (rulestring.matches(turmite)) {
-            Matcher matcher = Pattern.compile("\\{(\\{([0-9]+,\\s){2,}[0-9]+}(,\\s)?)+}").matcher(rulestring);
+            Matcher matcher = Pattern.compile("\\{(\\{([0-9]+,\\s*){2,}[0-9]+}(,\\s*)?)+}").matcher(rulestring);
 
             turmiteStates = 0;
             while (matcher.find()) {
-                Matcher matcher2 = Pattern.compile("\\{(([0-9]+,\\s){2,}[0-9]+)}").matcher(matcher.group());
+                Matcher matcher2 = Pattern.compile("\\{(([0-9]+,\\s*){2,}[0-9]+)}").matcher(matcher.group());
                 gridStates = 0;
                 while (matcher2.find()) {
-                    String[] tokens = matcher2.group(1).split(",\\s?");
+                    String[] tokens = matcher2.group(1).split(",\\s*");
 
                     transitionTable.put(new Pair<>(turmiteStates, gridStates),
                             new Triplet<>(Integer.parseInt(tokens[0]),
@@ -66,19 +59,23 @@ public class Turmites extends RuleFamily {
                 turmiteStates++;
             }
 
-            // System.out.println(turmiteStates + " " + gridStates);
+            // Setting neighbourhood
+            char lastChar = rulestring.charAt(rulestring.length() - 1);
+            switch (lastChar) {
+                case 'H': neighbourhood = new Hexagonal(); break;
+                case 'L': neighbourhood = new Triangular(); break;
+                default: neighbourhood = new VonNeumann(); break;
+            }
 
-            numStates = gridStates + gridStates * turmiteStates * 4;
+            tiling = neighbourhood.getTiling();
+
+            numStates = gridStates + gridStates * turmiteStates * getNeighbourhood().length;
         }
         else {
             throw new IllegalArgumentException("This rulestring is invalid!");
         }
 
         background = new int[]{0};
-
-        //for (var key: transitionTable.keySet()) {
-            //System.out.println(key + ": " + transitionTable.get(key));
-        //}
     }
 
     @Override
@@ -98,7 +95,17 @@ public class Turmites extends RuleFamily {
 
     @Override
     public String getDescription() {
-        return "This implements the turmites rule family which isn't working at the moment.";
+        return "This implements the turmites rule family.\n" +
+                "Currently, only relative turmites are supported.\n" +
+                "See https://github.com/GollyGang/ruletablerepository/wiki/TwoDimensionalTuringMachines " +
+                "for information." +
+                "The format is as follows:\n" +
+                "{{{a1, b1, c1}, {a2, b2, c2}, ...}, {{a3, b3, c3}, {a4, b4, c4}, ...}, ...}[VH]\n\n" +
+                "Examples:\n" +
+                "{{{1, 2, 0}, {0, 8, 0}}} (Langton's Ant)\n" +
+                "{{{1, 2, 0}, {0, 1, 0}}} (Binary Counter)\n" +
+                "{{{1, 10, 0}, {0, 1, 0}}} (Snowflake-like Growth)\n" +
+                "{{{0, 2, 1}, {0, 1, 1}}, {{1, 2, 1}, {1, 8, 0}}} (Contoured Island)";
     }
 
     @Override
@@ -108,17 +115,11 @@ public class Turmites extends RuleFamily {
 
     @Override
     public Coordinate[] getNeighbourhood(int generation) {
-        return new Coordinate[]{
-                new Coordinate(1, 0),
-                new Coordinate(0, -1),
-                new Coordinate(-1, 0),
-                new Coordinate(0, 1)};
+        return neighbourhood.getNeighbourhood();
     }
 
     @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
-        int newColour = getGridColour(cellState);
-
         // Key is (turmiteState, gridState)
         Pair<Integer, Integer> key = new Pair<>(getTurmiteState(cellState), getGridColour(cellState));
 
@@ -127,7 +128,7 @@ public class Turmites extends RuleFamily {
 
         boolean isTurmiteArriving = false;
         int turmiteNewDirection = 0, turmiteNewState = 0;
-        for (int fromDirection = 0; fromDirection < 4; fromDirection++) {
+        for (int fromDirection = 0; fromDirection < neighbours.length; fromDirection++) {
             Pair<Integer, Integer> key2 = new Pair<>(getTurmiteState(neighbours[fromDirection]),
                     getGridColour(neighbours[fromDirection]));
             if (!isTurmite(neighbours[fromDirection])) continue;
@@ -137,11 +138,11 @@ public class Turmites extends RuleFamily {
 
             // Try all possible actions and see if one leads the turmite here
             boolean comingHere = false;
-            for (int action: new int[]{1, 2, 4, 8}) {
+            for (int action: neighbourhood.getActions()) {
                 if ((turmiteTurnAction & action) > 0) {
                     // Turmite perform this action
-                    turmiteNewDirection = turn.get(action)[turmiteFacing];
-                    if (fromDirection == oppositeDirections[turmiteFacing]) {
+                    turmiteNewDirection = neighbourhood.getNewDirection(action, turmiteFacing);
+                    if (fromDirection == neighbourhood.getOppositeDirection(turmiteNewDirection)) {
                         comingHere = true;
                         break;
                     }
@@ -160,25 +161,26 @@ public class Turmites extends RuleFamily {
             }
         }
 
-        if (isTurmiteArriving) return encodeState(newColour, turmiteNewState, turmiteNewDirection);
-        return newColour;
+        if (isTurmiteArriving) return encodeState(getGridColour(cellState), turmiteNewState, turmiteNewDirection);
+        return cellState;
     }
 
     @Override
     public Color getColour(int state) {
-        if (state < gridStates) {
-            if (state == 0) return Color.rgb(0, 0, 0);
-
+        if (state == 0) return Color.rgb(0, 0, 0);
+        else if (state < gridStates) {
             if (gridStates == 2) return Color.rgb(255, 255, 255);
             else return Color.rgb(255, 255 * (state - 1) / (gridStates - 2), 0);
         }
         else {
-            return Color.AQUA;
+            return Color.rgb(0, 255 * (state - gridStates) /
+                    (numStates - gridStates - 1), 255);
         }
     }
 
     private int encodeState(int gridState, int turmiteState, int direction) {
-        return gridStates + 4 * (turmiteStates * gridState + turmiteState) + direction;
+        return gridStates + getNeighbourhood().length *
+                (turmiteStates * gridState + turmiteState) + direction;
     }
 
     private boolean isTurmite(int state) {
@@ -186,15 +188,15 @@ public class Turmites extends RuleFamily {
     }
 
     private int getDirection(int state) {
-        return (state - gridStates) % 4;
+        return (state - gridStates) % getNeighbourhood().length;
     }
 
     private int getTurmiteState(int state) {
-        return (((state - gridStates) - getDirection(state)) / 4) % turmiteStates;
+        return (((state - gridStates) - getDirection(state)) / getNeighbourhood().length) % turmiteStates;
     }
 
     private int getGridColour(int state) {
         if (!isTurmite(state)) return state;
-        else return (state - gridStates) / (turmiteStates * 4);
+        else return (state - gridStates) / (turmiteStates * getNeighbourhood().length);
     }
 }

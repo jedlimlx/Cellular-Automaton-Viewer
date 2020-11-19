@@ -22,6 +22,7 @@ sample.model.rules.isotropic.rules.energetic
 sample.model.rules.isotropic.rules.history
 sample.model.rules.isotropic.transitions
 sample.model.rules.misc
+sample.model.rules.misc.turmites
 sample.model.rules.ruleloader
 sample.model.rules.ruleloader.ruletable
 sample.model.rules.ruleloader.ruletree

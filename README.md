@@ -207,7 +207,12 @@ Supported / Planned Rulespaces
 - [ ] Second Order Rules
 - [ ] Multiple Neighbourhoods Cellular Automaton (MNCA)
 - [ ] MCell Cyclic CA
-- [ ] Langton's Ant / Turmites
+- [x] Langton's Ant / Turmites
+    - [x] Von Neumann Turmites
+    - [x] Hexagonal Turmites
+    - [ ] Moore Turmites
+    - [ ] Triangular Turmites
+    - [ ] Splitting Turmites
 - [ ] Margolus
 - [x] 1D CA
 - [ ] [R]History

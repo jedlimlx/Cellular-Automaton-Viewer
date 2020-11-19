@@ -36,7 +36,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     /**
      * The dictionary that stores the blocks according to their start coordinates
      */
-    private final HashMap<Coordinate, Block> dictionary;
+    private final Hashtable<Coordinate, Block> dictionary;
 
     /**
      * The size of the blocks used
@@ -49,7 +49,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      */
     public Grid() {
         this.background = 0;
-        this.dictionary = new HashMap<>();
+        this.dictionary = new Hashtable<>();
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
     }
@@ -58,13 +58,13 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      * Constructs a grid with the provided dictionary with a background of 0.
      * The bounds of the grid are also uninitialised.
      */
-    private Grid(HashMap<Coordinate, Block> dictionary) {
+    private Grid(Hashtable<Coordinate, Block> dictionary) {
         this.background = 0;
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
 
         // Deep copying
-        this.dictionary = new HashMap<>();
+        this.dictionary = new Hashtable<>();
 
         Block block;
         for (Coordinate coordinate: dictionary.keySet()) {
@@ -81,7 +81,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      */
     public Grid(String RLE) {
         this.background = 0;
-        this.dictionary = new HashMap<>();
+        this.dictionary = new Hashtable<>();
         this.startCoordinate = new Coordinate(Integer.MAX_VALUE, Integer.MAX_VALUE);
         this.endCoordinate = new Coordinate(-Integer.MAX_VALUE, -Integer.MAX_VALUE);
 

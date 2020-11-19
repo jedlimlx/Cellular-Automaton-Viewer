@@ -656,84 +656,86 @@ public class MainController {
 
     @FXML // Updates cells
     public void updateCells() {
-        visualisationDone = false;
+        synchronized (this) {
+            visualisationDone = false;
 
-        Set<Coordinate> cellsChanged = new HashSet<>();
+            Set<Coordinate> cellsChanged = new HashSet<>();
 
-        long startTime = System.currentTimeMillis();
-        try {
-            for (int i = 0; i < stepSize; i++) {
-                if (simulationMode == SimulationMode.IN_SELECTION)
-                    simulator.step(coordinate -> coordinate.getX() >= selectionRectangle.getStart().getX() &&
-                            coordinate.getY() >= selectionRectangle.getStart().getY() &&
-                            coordinate.getX() <= selectionRectangle.getEnd().getX() &&
-                            coordinate.getY() <= selectionRectangle.getEnd().getY());
-                else if (simulationMode == SimulationMode.OUTSIDE_SELECTION)
-                    simulator.step(coordinate -> coordinate.getX() < selectionRectangle.getStart().getX() ||
-                            coordinate.getY() < selectionRectangle.getStart().getY() ||
-                            coordinate.getX() > selectionRectangle.getEnd().getX() ||
-                            coordinate.getY() > selectionRectangle.getEnd().getY());
-                else simulator.step();
-
-                if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
-                else cellsChanged = simulator.getCellsChanged();
-
-                populationList.add(simulator.getPopulation());
-            }
-        }
-        catch (ConcurrentModificationException exception) {
-            logger.log(Level.WARNING, exception.getMessage());
-        }
-
-        simulationTime = (int) (System.currentTimeMillis() - startTime);
-
-        Set<Coordinate> finalCellsChanged = cellsChanged;
-        Platform.runLater(() -> {
+            long startTime = System.currentTimeMillis();
             try {
-                long startTime2 = System.currentTimeMillis();
+                for (int i = 0; i < stepSize; i++) {
+                    if (simulationMode == SimulationMode.IN_SELECTION)
+                        simulator.step(coordinate -> coordinate.getX() >= selectionRectangle.getStart().getX() &&
+                                coordinate.getY() >= selectionRectangle.getStart().getY() &&
+                                coordinate.getX() <= selectionRectangle.getEnd().getX() &&
+                                coordinate.getY() <= selectionRectangle.getEnd().getY());
+                    else if (simulationMode == SimulationMode.OUTSIDE_SELECTION)
+                        simulator.step(coordinate -> coordinate.getX() < selectionRectangle.getStart().getX() ||
+                                coordinate.getY() < selectionRectangle.getStart().getY() ||
+                                coordinate.getX() > selectionRectangle.getEnd().getX() ||
+                                coordinate.getY() > selectionRectangle.getEnd().getY());
+                    else simulator.step();
 
-                // Only update cells that changed (for speed)
-                for (Coordinate cell: finalCellsChanged) {
-                    setCell(convertToScreen(cell.getX()), convertToScreen(cell.getY()), simulator.getCell(cell));
+                    if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
+                    else cellsChanged = simulator.getCellsChanged();
+
+                    populationList.add(simulator.getPopulation());
+                }
+            }
+            catch (ConcurrentModificationException exception) {
+                logger.log(Level.WARNING, exception.getMessage());
+            }
+
+            simulationTime = (int) (System.currentTimeMillis() - startTime);
+
+            Set<Coordinate> finalCellsChanged = cellsChanged;
+            Platform.runLater(() -> {
+                try {
+                    long startTime2 = System.currentTimeMillis();
+
+                    // Only update cells that changed (for speed)
+                    for (Coordinate cell: finalCellsChanged) {
+                        setCell(convertToScreen(cell.getX()), convertToScreen(cell.getY()), simulator.getCell(cell));
+                    }
+
+                    // Move the grid lines and selection to the front
+                    if (selectionRectangle.isVisible()) selectionRectangle.toFront();
+                    if (gridLines.isVisible()) gridLines.toFront();
+
+                    visualisationTime = (int) (System.currentTimeMillis() - startTime2);
+                }
+                catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
+                    logger.log(Level.WARNING, exception.getMessage());
+
+                    simulationMode = SimulationMode.PAUSED;
+
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error!");
+                    alert.setHeaderText("ConcurrentModificationException cause in updateCells.");
+                    alert.setContentText("Please report this as a bug.");
+                    alert.showAndWait();
                 }
 
-                // Move the grid lines and selection to the front
-                if (selectionRectangle.isVisible()) selectionRectangle.toFront();
-                if (gridLines.isVisible()) gridLines.toFront();
+                // Ensure that the minimum simulation time is not "surpassed"
+                int waitTime = minSimTime - (simulationTime + visualisationTime);
+                if (waitTime > 0) {
+                    wait(waitTime);
+                    visualisationTime += waitTime;
+                }
 
-                visualisationTime = (int) (System.currentTimeMillis() - startTime2);
+                // Update the variable to say that the visualisation is done
+                visualisationDone = true;
+
+                // Update the status label
+                updateStatusText();
+            });
+
+            // Add to the gif if the recording is on
+            if (recording) {
+                giffer.addGrid(selectionRectangle.getStart(), selectionRectangle.getEnd(),
+                        simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
+                        simulator.getRule());
             }
-            catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
-                logger.log(Level.WARNING, exception.getMessage());
-
-                simulationMode = SimulationMode.PAUSED;
-
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("ConcurrentModificationException cause in updateCells.");
-                alert.setContentText("Please report this as a bug.");
-                alert.showAndWait();
-            }
-
-            // Ensure that the minimum simulation time is not "surpassed"
-            int waitTime = minSimTime - (simulationTime + visualisationTime);
-            if (waitTime > 0) {
-                wait(waitTime);
-                visualisationTime += waitTime;
-            }
-
-            // Update the variable to say that the visualisation is done
-            visualisationDone = true;
-
-            // Update the status label
-            updateStatusText();
-        });
-
-        // Add to the gif if the recording is on
-        if (recording) {
-            giffer.addGrid(selectionRectangle.getStart(), selectionRectangle.getEnd(),
-                    simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
-                    simulator.getRule());
         }
     }
 
@@ -1422,8 +1424,10 @@ public class MainController {
         }
         // Space to step simulation
         else if (event.getCode().equals(KeyCode.SPACE)) {
-            Action.addAction();
-            updateCells();
+            if (visualisationDone) {
+                Action.addAction();
+                updateCells();
+            }
         }
         // Delete cells
         else if (event.getCode().equals(KeyCode.DELETE)) {
