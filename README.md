@@ -200,7 +200,11 @@ Supported / Planned Rulespaces
 - [ ] Magma's Notation
 - [ ] Primodia
 - [ ] Naive Rules
-    - [ ] Custom Reading Orders
+    - [x] Orthogonal Reading Order (O)
+    - [ ] Diagonal Reading Order (D)
+    - [ ] Snake Reading Order (SN)
+    - [ ] Spiral Reading Order (SP)
+    - [x] Custom Reading Orders
 - [x] Alternating Rules
     - [x] Strobing Rules
     - [x] Apgtable Generation

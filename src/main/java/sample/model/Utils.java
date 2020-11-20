@@ -11,6 +11,8 @@ import sample.model.rules.isotropic.rules.energetic.INTEnergetic;
 import sample.model.rules.isotropic.rules.history.INTHistory;
 import sample.model.rules.misc.AlternatingRule;
 import sample.model.rules.misc.OneDimensional;
+import sample.model.rules.misc.naive.Orthogonal;
+import sample.model.rules.misc.naive.ReadingOrder;
 import sample.model.rules.misc.turmites.Turmites;
 import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Simulator;
@@ -31,6 +33,7 @@ public class Utils {
             new INT(), new INTHistory(), new INTEnergetic(), new INTGenerations(), new OneDimensional(), new Turmites(),
             new RuleLoader(), new AlternatingRule()};
     public static BoundedGrid[] boundedGrids = {new Torus(), new Bounded()};
+    public static ReadingOrder[] readingOrders = {new Orthogonal()};
 
     public static void loadPattern(Simulator simulator, File file) throws FileNotFoundException {
         Scanner scanner = new Scanner(file);
@@ -132,6 +135,35 @@ public class Utils {
         }
 
         return boundedGrid;
+    }
+
+    public static ReadingOrder getReadingOrder(String rulestring) {
+        boolean found = false;
+        ReadingOrder readingOrder = null;
+        if (rulestring.contains(":N")) {
+            String specifier = rulestring.split(":N")[1];
+            for (ReadingOrder order: readingOrders) {
+                for (String regex: order.getRegex()) {
+                    if (specifier.matches(regex)) {
+                        found = true;
+                        readingOrder = (ReadingOrder) order.clone();
+                        readingOrder.setSpecifier(specifier);
+                        break;
+                    }
+                }
+
+                if (found) {
+                    if (rulestring.split(":").length <= 2)
+                        throw new IllegalArgumentException("Naive reading orders can only be applied " +
+                                "in the presence of a bounded grid.");
+                    break;
+                }
+            }
+
+            if (!found) throw new IllegalArgumentException("This reading order specifier is invalid!");
+        }
+
+        return readingOrder;
     }
 
     public static String fullRLE(Simulator simulator) {

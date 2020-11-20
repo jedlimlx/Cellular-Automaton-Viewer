@@ -3,11 +3,13 @@ package sample.model.rules;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.paint.Color;
 import sample.model.Coordinate;
+import sample.model.rules.misc.naive.ReadingOrder;
 import sample.model.simulation.Grid;
 import sample.model.simulation.bounds.BoundedGrid;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -43,6 +45,11 @@ public abstract class Rule {
      * Bounded grid used by the rule
      */
     protected BoundedGrid boundedGrid;
+
+    /**
+     * Naive reading order used by the rule
+     */
+    protected ReadingOrder readingOrder;
 
     /**
      * This method returns the neighbourhood of a given cell at a generation 0
@@ -148,7 +155,6 @@ public abstract class Rule {
         if (cellsChanged.size() != alternatingPeriod)
             throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
 
-        Grid gridCopy = grid.deepCopy();
         HashSet<Coordinate> cellsToCheck = new HashSet<>();
         Coordinate[] neighbourhood = getNeighbourhood(generation);
 
@@ -203,60 +209,155 @@ public abstract class Rule {
 
         int[] neighbours;
         int newState, prevState;
-        for (Coordinate cell: cellsToCheck) {
-            prevState = gridCopy.getCell(cell);
+        if (readingOrder == null) {
+            Grid gridCopy = grid.deepCopy();
+            for (Coordinate cell: cellsToCheck) {
+                prevState = gridCopy.getCell(cell);
 
-            // Getting neighbour states
-            if (dependsOnNeighbours(convertState(prevState, generation), generation, cell) == -1) {
-                neighbours = new int[neighbourhood.length];
-                if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
-                    for (int i = 0; i < neighbourhood.length; i++) {
-                        neighbour = cell.add(neighbourhood[i]);
+                // Getting neighbour states
+                if (dependsOnNeighbours(convertState(prevState, generation), generation, cell) == -1) {
+                    neighbours = new int[neighbourhood.length];
+                    if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                        for (int i = 0; i < neighbourhood.length; i++) {
+                            neighbour = cell.add(neighbourhood[i]);
 
-                        // Apply the bounded grid
-                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
-                            neighbour = boundedGrid.map(neighbour);
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
 
-                        // Converting based on background
-                        neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
+                            // Converting based on background
+                            neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
+                        }
                     }
+                    else {
+                        for (int i = 0; i < neighbourhood.length; i++) {
+                            neighbour = cell.add(invertedNeighbourhood[i]);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            // Converting based on background
+                            neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
+                        }
+                    }
+
+                    // Call the transition function on the new state
+                    // Don't forget to convert back to the current background
+                    newState = convertState(transitionFunc(neighbours,
+                            convertState(prevState, generation), generation, cell), generation + 1);
                 }
                 else {
-                    for (int i = 0; i < neighbourhood.length; i++) {
-                        neighbour = cell.add(invertedNeighbourhood[i]);
-
-                        // Apply the bounded grid
-                        if (boundedGrid != null && boundedGrid.atEdge(neighbour))
-                            neighbour = boundedGrid.map(neighbour);
-
-                        // Converting based on background
-                        neighbours[i] = convertState(gridCopy.getCell(neighbour), generation);
-                    }
+                    newState = convertState(dependsOnNeighbours(convertState(prevState, generation), generation, cell),
+                            generation + 1);
                 }
 
-                // Call the transition function on the new state
-                // Don't forget to convert back to the current background
-                newState = convertState(transitionFunc(neighbours,
-                        convertState(prevState, generation), generation, cell), generation + 1);
-            }
-            else {
-                newState = convertState(dependsOnNeighbours(convertState(prevState, generation), generation, cell),
-                        generation + 1);
-            }
+                if (newState != prevState) {
+                    cellsChanged.get(0).add(cell);
+                    grid.setCell(cell, newState);
+                }
+                else {
+                    for (int i = 0; i < alternatingPeriod; i++) {
+                        if (cellsChanged.get(i).contains(cell)) {
+                            cellsChanged.get(i).remove(cell);
 
-            if (newState != prevState) {
-                cellsChanged.get(0).add(cell);
-                grid.setCell(cell, newState);
-            }
-            else {
-                for (int i = 0; i < alternatingPeriod; i++) {
-                    if (cellsChanged.get(i).contains(cell)) {
-                        cellsChanged.get(i).remove(cell);
-
-                        // Move the cell forward into the next entry until it can't be moved forward anymore
-                        if (i < alternatingPeriod - 1) cellsChanged.get(i + 1).add(cell);
-                        break;
+                            // Move the cell forward into the next entry until it can't be moved forward anymore
+                            if (i < alternatingPeriod - 1) cellsChanged.get(i + 1).add(cell);
+                            break;
+                        }
                     }
+                }
+            }
+        } else {
+            Coordinate cell;
+
+            // Priority queue to ensure the cells are evaluated in the right order
+            PriorityQueue<Coordinate> cellsQueue = new PriorityQueue<>(readingOrder.getCoordinateComparator());
+            cellsQueue.addAll(cellsToCheck);
+
+            for (int i = 0; i < alternatingPeriod; i++) {
+                cellsChanged.get(i).clear();
+            }
+
+            while (!cellsQueue.isEmpty()) {
+                cell = cellsQueue.poll();
+
+                prevState = grid.getCell(cell);
+
+                // Getting neighbour states
+                if (dependsOnNeighbours(convertState(prevState, generation), generation, cell) == -1) {
+                    neighbours = new int[neighbourhood.length];
+                    if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
+                        for (int i = 0; i < neighbourhood.length; i++) {
+                            neighbour = cell.add(neighbourhood[i]);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            // Converting based on background
+                            neighbours[i] = grid.getCell(neighbour);
+                        }
+                    }
+                    else {
+                        for (int i = 0; i < neighbourhood.length; i++) {
+                            neighbour = cell.add(invertedNeighbourhood[i]);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            // Converting based on background
+                            neighbours[i] = grid.getCell(neighbour);
+                        }
+                    }
+
+                    // Call the transition function on the new state
+                    newState = transitionFunc(neighbours, prevState, generation, cell);
+                }
+                else {
+                    newState = dependsOnNeighbours(prevState, generation, cell);
+                }
+
+                if (newState != prevState) {
+                    //if (!cellsQueue.contains(cell)) cellsQueue.add(cell);
+
+                    if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) !=
+                            Math.floorMod(cell.getY(), 2)) {
+                        for (Coordinate neighbour2: neighbourhood) {
+                            neighbour = cell.subtract(neighbour2);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            if (step != null && !step.apply(neighbour)) continue;
+
+                            if (readingOrder.getCoordinateComparator().compare(cell, neighbour) < 0 &&
+                                    !cellsQueue.contains(neighbour)) {
+                                cellsQueue.add(neighbour);
+                            }
+                        }
+                    }
+                    else {
+                        for (Coordinate neighbour2: invertedNeighbourhood) {
+                            neighbour = cell.subtract(neighbour2);
+
+                            // Apply the bounded grid
+                            if (boundedGrid != null && boundedGrid.atEdge(neighbour))
+                                neighbour = boundedGrid.map(neighbour);
+
+                            if (step != null && !step.apply(neighbour)) continue;
+
+                            if (readingOrder.getCoordinateComparator().compare(cell, neighbour) < 0 &&
+                                    !cellsQueue.contains(neighbour)) {
+                                cellsQueue.add(neighbour);
+                            }
+                        }
+                    }
+
+                    cellsChanged.get(0).add(cell);
+                    grid.setCell(cell, newState);
                 }
             }
         }
@@ -294,5 +395,13 @@ public abstract class Rule {
      */
     public void setBoundedGrid(BoundedGrid boundedGrid) {
         this.boundedGrid = boundedGrid;
+    }
+
+    /**
+     * Sets the naive reading order of the rule
+     * @param order The naive reading order the rule should use
+     */
+    public void setReadingOrder(ReadingOrder order) {
+        this.readingOrder = order;
     }
 }

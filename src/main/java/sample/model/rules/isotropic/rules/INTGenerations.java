@@ -350,6 +350,12 @@ public class INTGenerations extends BaseINT implements ApgtableGeneratable, MinM
     }
 
     @Override
+    public int dependsOnNeighbours(int state, int generation, Coordinate coordinate) {
+        if (state < 2) return -1;
+        else return (state + 1) % numStates;
+    }
+
+    @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         for (int i = 0; i < neighbours.length; i++) neighbours[i] = neighbours[i] == 1 ? 1 : 0;
         if (cellState == 0 && birth.checkTransition(neighbours)) {

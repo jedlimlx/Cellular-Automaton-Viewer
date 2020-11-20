@@ -245,8 +245,8 @@ All transitions are expressed from the perspective of state 1 but are applied cy
 For HROT rules, the numbers are separated by commas (e.g. B0,3,l,l-0)
 
 #### Rulestring format
-B<birth>/M<mutate>/M<mutate2>/M.../S<survival>/C<states>
-R<range>,C<states>,B<birth>,M<mutate>,M<mutate2>,...,S<survival>,N<neighbourhood>
+B\<birth\>/M\<mutate\>/M\<mutate2\>/M.../S\<survival\>/C\<states\>
+R\<range\>,C\<states\>,B\<birth\>,M\<mutate\>,M\<mutate2\>,...,S\<survival\>,N\<neighbourhood\>
 
 
 # Isotropic Non-Totalistic (INT)
@@ -278,6 +278,9 @@ Apgtable generation is supported all rules. <br>
 
 The code that simulates 2-state INT rules can be found [here](../src/main/java/sample/model/rules/isotropic/rules/INT.java).
 
+#### Rulestring format
+B\<birth\>/S\<survival\>/N\<neighbourhood\>
+
 ## Generations <!-- 1 -->
 Generations rules are a multistate generalization of 2 state rules in which live cells can exist in different states, and cells that would die in a 2-state cellular automaton instead advance to the next state.
 
@@ -298,8 +301,8 @@ Apgtable generation is supported all rules. <br>
 The code that simulates generations INT rules can be found [here](../src/main/java/sample/model/rules/isotropic/rules/INTGenerations.java).
 
 #### Rulestring format
-B<birth>/S<survival>/G<states>/N<neighbourhood>
-<survival>/<birth>/<states>/<neighbourhood>
+B\<birth\>/S\<survival\>/G\<states\>/N<neighbourhood\>
+\<survival\>/\<birth\>/\<states\>/\<neighbourhood\>
 
 
 # 1D Cellular Automaton

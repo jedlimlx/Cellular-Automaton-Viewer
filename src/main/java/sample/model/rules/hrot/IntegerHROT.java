@@ -94,8 +94,17 @@ public class IntegerHROT extends BaseHROT  implements MinMaxRuleable {
         Utils.getTransitionsFromStringWithCommas(survival,
                 Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
 
-        Collections.sort(this.birth);
-        Collections.sort(this.survival);
+        HashSet<Integer> birth2 = new HashSet<>(birth);
+        HashSet<Integer> survival2 = new HashSet<>(survival);
+
+        birth.clear();
+        birth.addAll(birth2);
+
+        survival.clear();
+        survival.addAll(survival2);
+
+        Collections.sort(birth);
+        Collections.sort(survival);
 
         // Setting number of states
         numStates = Integer.parseInt(Utils.matchRegex("I([0-9]+)", rulestring, 0, 1));

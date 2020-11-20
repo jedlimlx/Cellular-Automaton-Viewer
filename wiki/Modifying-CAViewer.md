@@ -22,7 +22,8 @@ Adding custom rule families
 1. Create a new class for your rule family. It should inherit from [RuleFamily.java].
 2. Implement the necessary methods from [RuleFamily.java] and [Rule.java].
 
-You may choose to inherit [BaseHROT.java] if you are implementing any HROT variants.
+You may choose to inherit [BaseHROT.java] if you are implementing any HROT variants or [BaseINT.java] 
+if you are impementing an INT variant.
 
 Do ensure that you also add a dummy constructor with no arguments. 
 This ensures that Jackson is able to construct the rule from the serialised JSON stored in settings.json.
@@ -77,3 +78,11 @@ coordinates in the first generator function.
 6. Finally, add the symbol used to the static *neighbourhoodSymbols* variable.
 
 [NeighbourhoodGenerator.java]: ../src/main/java/sample/model/NeighbourhoodGenerator.java
+
+Adding custom naive reading orders
+-----------------
+1. Create a new class for your naive reading order. It should inherit from [ReadingOrder.java].
+2. Implement the necessary methods as required. Ensure that it has a no-arg dummy constructor.
+3. Finally, add the new class to the list in [Utils.java].
+
+[ReadingOrder.java]: ../src/main/java/sample/model/rules/misc/naive/ReadingOrder.java

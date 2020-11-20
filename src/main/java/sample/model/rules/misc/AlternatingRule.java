@@ -54,13 +54,17 @@ public class AlternatingRule extends RuleFamily implements ApgtableGeneratable {
         alternatingPeriod = rules.size();
         updateBackground();
 
-        for (RuleFamily ruleFamily: rules) ruleFamily.setBackground(background);
+        for (RuleFamily ruleFamily: rules) {
+            ruleFamily.setBackground(background);
+            ruleFamily.setBoundedGrid(boundedGrid);
+            ruleFamily.setReadingOrder(readingOrder);
+        }
     }
 
     @Override
     public String canonise(String rulestring) {
         StringBuilder canon = new StringBuilder();
-        for (RuleFamily ruleFamily: rules) canon.append(ruleFamily.getRulestring()).append("|");
+        for (RuleFamily ruleFamily: rules) canon.append(ruleFamily.getRulestring().split(":")[0]).append("|");
 
         return canon.substring(0, canon.length() - 1);
     }

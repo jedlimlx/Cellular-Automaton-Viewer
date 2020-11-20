@@ -42,6 +42,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      */
     public void setRulestring(String rulestring) {
         this.boundedGrid = Utils.getBoundedGrid(rulestring);
+        this.readingOrder = Utils.getReadingOrder(rulestring);
 
         rulestring = rulestring.split(":")[0];
         fromRulestring(rulestring);
@@ -145,7 +146,9 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @return Rulestring of the rule
      */
     public String getRulestring() {
-        if (boundedGrid != null) return rulestring + ":" + boundedGrid.getSpecifier();
+        if (readingOrder != null && boundedGrid != null) return rulestring + ":" + boundedGrid.getSpecifier() +
+                ":N" + readingOrder.getSpecifier();
+        else if (boundedGrid != null) return rulestring + ":" + boundedGrid.getSpecifier();
         else return rulestring;
     }
 
@@ -161,6 +164,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * @return Returns the list of neighbours
      */
     protected ArrayList<int[]> getNeighbourList(Grid[] grids) {
+        // TODO (Support naive rules)
         ArrayList<int[]> neighboursList = new ArrayList<>();
 
         // Running through every generation and check what transitions are required
