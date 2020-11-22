@@ -45,21 +45,26 @@ The Menu Bar
 *Delete* - Deletes the selected cells <br>
 *Random Soup Settings* - Settings for the random soup generation <br>
 
+**View Menu**: <br>
+*Adjust Colours* - Adjusts the colours of the current rule <br>
+*Grid Lines* - Toggles between showing and not showing grid lines <br>
+*View Population Graph* - Displays a graph of the population against generation <br>
+
 **Control Menu**: <br>
 *Set Generation* - Sets the generation based on user input <br>
 *Set Step Size* - Sets the step size of the simulation <br>
 *Set Simulation Speed* - Sets the maximum simulation speed <br>
 *Clear Cell Cache* - Clears the cell cache to speed up the simulation (application may hang for a while) <br>
-*Grid Lines* - Toggles between showing and not showing grid lines <br>
-*View Population Graph* - Displays a graph of the population against generation <br>
 
 **Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
 *Run Rule Search* - Starts a search program that randomly enumerates rules to find spaceships & oscillators <br>
 *Run Catalyst Search* - Starts a search program that searches for catalysts <br>
+*Run Brute Force Search* - Starts a brute force search program similiar to gsearch <br>
 
 **Help Menu**:<br>
 *About* - Opens the CAViewer Wiki in a built-in browser.<br>
+*Rule Info* - Provides information about the currently loaded rule.<br>
 
 The Tools Bar
 -------------

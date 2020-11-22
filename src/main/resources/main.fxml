@@ -22,6 +22,14 @@
          <SeparatorMenuItem mnemonicParsing="false" />
          <MenuItem mnemonicParsing="false" onAction="#changeRandomSoupSettings" text="Random Soup Settings" />
         </Menu>
+      <Menu mnemonicParsing="false" text="View">
+         <items>
+            <MenuItem mnemonicParsing="false" onAction="#adjustColours" text="Adjust Colours" />
+            <CheckMenuItem fx:id="gridLinesMenuItem1" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#viewPopulationGraph" text="View Population Graph" />
+         </items>
+      </Menu>
       <Menu mnemonicParsing="false" text="Control">
         <items>
           <MenuItem mnemonicParsing="false" onAction="#setGeneration" text="Set Generation" />
@@ -29,9 +37,6 @@
             <MenuItem mnemonicParsing="false" onAction="#setSimSpeed" text="Set Simulation Speed" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#clearCellsCache" text="Clear Cells Cache" />
-            <CheckMenuItem fx:id="gridLinesMenuItem" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#viewPopulationGraph" text="View Population Graph" />
         </items>
       </Menu>
         <Menu mnemonicParsing="false" text="Search">

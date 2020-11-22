@@ -2,6 +2,8 @@ package sample.controller;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -15,12 +17,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import sample.controller.dialogs.About;
-import sample.controller.dialogs.GifferDialog;
-import sample.controller.dialogs.PopulationGraphDialog;
-import sample.controller.dialogs.RandomSoupDialog;
+import sample.controller.dialogs.*;
 import sample.controller.dialogs.rule.RuleDialog;
 import sample.controller.dialogs.search.*;
 import sample.model.Cell;
@@ -106,6 +106,8 @@ public class MainController {
     private int stepSize = 1;  // Step size of the simulation
     private int currentState = 1;  // State to draw with
 
+    private HashMap<Rule, Color[]> colours;  // Colours to use for each state
+
     private boolean recording = false;  // Is the recording on?
     private final boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = true;  // Is the visualisation done?
@@ -126,6 +128,7 @@ public class MainController {
         logger.log(Level.INFO, "GUI Initialising...");
 
         // Initialise variables
+        colours = new HashMap<>();
         cellList = new HashMap<>();
         deadCellsCache = new LRUCache<>(200);
         stateButtons = new ArrayList<>();
@@ -242,7 +245,28 @@ public class MainController {
             // Setting the rule
             ObjectMapper m = new ObjectMapper();
             m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
             simulator.setRule(m.readValue(settings.get("rule").toString(), Rule.class));
+
+            // Setting the colours
+            TypeFactory typeFactory = m.getTypeFactory();
+            CollectionType ruleListType = typeFactory.constructCollectionType(ArrayList.class, Rule.class);
+            CollectionType colourListType = typeFactory.constructCollectionType(ArrayList.class, String[].class);
+
+            ArrayList<Rule> rules = m.readValue(settings.get("rule").toString(), ruleListType);
+            ArrayList<String[]> colours = m.readValue(settings.get("colours").toString(), colourListType);
+            for (int i = 0; i < rules.size(); i++) {
+                Color[] colourArr = new Color[colours.get(i).length];
+                for (int j = 0; j < colours.get(i).length; j++) {
+                    String[] tokens = colours.get(i)[j].split(" ");
+                    colourArr[j] = Color.rgb((int) (Double.parseDouble(tokens[0]) * 255),
+                            (int) (Double.parseDouble(tokens[1]) * 255),
+                            (int) (Double.parseDouble(tokens[2]) * 255));
+                }
+
+                this.colours.put(rules.get(i), colourArr);
+            }
 
             // Setting the rule of the rule dialog
             dialog.setRule((RuleFamily) simulator.getRule());
@@ -519,6 +543,23 @@ public class MainController {
         }
     }
 
+    @FXML // Opens a dialog to adjust the colours
+    public void adjustColours() {
+        ColourPickerDialog dialog = new ColourPickerDialog(simulator.getRule(), colours.get(simulator.getRule()));
+        dialog.showAndWait();
+
+        if (dialog.getResult() == Boolean.TRUE) {
+            colours.put(simulator.getRule(), dialog.getColours());
+            scrollPane.setStyle("-fx-background: rgb(" + (int) (dialog.getColours()[0].getRed() * 255) + "," +
+                    (int) (dialog.getColours()[0].getGreen() * 255) + "," +
+                    (int) (dialog.getColours()[0].getBlue() * 255) + ")");
+            drawingPane.setStyle("-fx-background: rgb(" + (int) (dialog.getColours()[0].getRed() * 255) + "," +
+                    (int) (dialog.getColours()[0].getGreen() * 255) + "," +
+                    (int) (dialog.getColours()[0].getBlue() * 255) + ")");
+            renderCells();
+        }
+    }
+
     @FXML // Views the population graph
     public void viewPopulationGraph() {
         PopulationGraphDialog dialog = new PopulationGraphDialog(populationList);
@@ -560,6 +601,10 @@ public class MainController {
     }
 
     public void setCell(int x, int y, int state, boolean updateSimulator) {
+        setCell(x, y, state, updateSimulator, false);
+    }
+
+    public void setCell(int x, int y, int state, boolean updateSimulator, boolean updateColours) {
         // Get the cell object at the specified coordinate
         Cell prevCell = getCellObject(x, y);
         if (prevCell == null && state != 0) {  // Insert a new cell if one doesn't already exist
@@ -569,18 +614,28 @@ public class MainController {
             cell.setY(y);
             cell.setWidth(CELL_SIZE);
             cell.setHeight(CELL_SIZE);
-            cell.setFill(simulator.getRule().getColour(state));
+
+            if (colours.get(simulator.getRule()) == null)
+                cell.setFill(simulator.getRule().getColour(state));
+            else
+                cell.setFill(colours.get(simulator.getRule())[state]);
+
             cell.toBack();
 
             // Add cell to pane and cell list
             drawingPane.getChildren().add(cell);
             addCellObject(x, y, new Cell(x, y, state, cell));
         }
-        else if (prevCell != null && prevCell.getState() != state) {  // Don't bother if the cell didn't change
-            if (prevCell.getState() == 0) deadCellsSet.remove(prevCell.getCoordinate());
+        // Don't bother if the cell didn't change
+        else if (prevCell != null && (prevCell.getState() != state || updateColours)) {
+            if (prevCell.getState() == 0 && state != 0) deadCellsSet.remove(prevCell.getCoordinate());
             // if (prevCell.getState() == 0) deadCellsCache.remove(prevCell.getCoordinate());
 
-            prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
+            if (colours.get(simulator.getRule()) == null)
+                prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
+            else
+                prevCell.getRectangle().setFill(colours.get(simulator.getRule())[state]);
+
             prevCell.setState(state);
 
             //if (state == 0) deadCellsCache.put(new Coordinate(x, y), prevCell);
@@ -604,9 +659,11 @@ public class MainController {
     public void renderCells() {
         selectionRectangle.toFront();
         gridLines.toFront();
-        simulator.iterateCells(coordinate -> setCell(convertToGrid(coordinate.getX()),
-                convertToGrid(coordinate.getY()),
-                simulator.getCell(coordinate),false));
+        for (Coordinate coordinate: cellList.keySet()) {
+            setCell(convertToGrid(coordinate.getX()),
+                    convertToGrid(coordinate.getY()),
+                    simulator.getCell(coordinate),false, true);
+        }
     }
 
     // Renders cells between the start and end coordinate
@@ -879,6 +936,25 @@ public class MainController {
 
             // Reload the number of state buttons
             reloadStateButtons();
+
+            // Re-render all the cells
+            if (colours.get(dialog.getRule()) != null) {
+                scrollPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
+                        (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
+                        (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+                drawingPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
+                        (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
+                        (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+            } else {
+                scrollPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
+                        (dialog.getRule().getColour(0).getGreen() * 255) + "," +
+                        (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+                drawingPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
+                        (dialog.getRule().getColour(0).getGreen() * 255) + "," +
+                        (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+            }
+
+            renderCells();
         }
     }
 
@@ -1129,6 +1205,25 @@ public class MainController {
             // Configuring settings
             settings.put("grid_lines", showGridLines);
             settings.put("rule", new JSONObject(m.writeValueAsString(simulator.getRule())));
+
+            // Writing colours
+            ArrayList<Rule> rules = new ArrayList<>();
+            ArrayList<String[]> colours = new ArrayList<>();
+            for (Rule rule: this.colours.keySet()) {
+                rules.add(rule);
+
+                Color[] colourArr = this.colours.get(rule);
+                String[] strings = new String[colourArr.length];
+                for (int i = 0; i < colourArr.length; i++) {
+                    strings[i] = colourArr[i].getRed() + " " + colourArr[i].getGreen() +
+                            " " + colourArr[i].getBlue();
+                }
+
+                colours.add(strings);
+            }
+
+            settings.put("rules", new JSONArray(m.writeValueAsString(rules)));
+            settings.put("colours", new JSONArray(m.writeValueAsString(colours)));
 
             // Writing to file
             FileWriter writer = new FileWriter(SETTINGS_FILE);

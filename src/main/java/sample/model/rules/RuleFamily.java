@@ -1,5 +1,6 @@
 package sample.model.rules;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.javatuples.Pair;
 import sample.model.Coordinate;
 import sample.model.Utils;
@@ -88,18 +89,21 @@ public abstract class RuleFamily extends Rule implements Cloneable {
      * The regexes that will match a valid rulestring
      * @return An array of regexes that will match a valid rulestring
      */
+    @JsonIgnore
     public abstract String[] getRegex();
 
     /**
      * Returns a plain text description of the rule family to be displayed in the Rule Dialog
      * @return Description of the rule family
      */
+    @JsonIgnore
     public abstract String getDescription();
 
     /**
      * Gets information about the rule
      * @return Returns information about the rule in a map
      */
+    @JsonIgnore
     public Map<String, String> getRuleInfo() {
         LinkedHashMap<String, String> information = new LinkedHashMap<>();
         information.put("Rulestring", rulestring + "");

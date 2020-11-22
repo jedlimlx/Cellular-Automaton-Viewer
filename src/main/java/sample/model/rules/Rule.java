@@ -16,7 +16,7 @@ import java.util.function.Function;
 /**
  * Represents a single rule
  */
-@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, property="@class")
 public abstract class Rule {
     /**
      * A list of backgrounds to be used for B0 rules.
