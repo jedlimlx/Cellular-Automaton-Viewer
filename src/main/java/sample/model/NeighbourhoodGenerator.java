@@ -358,15 +358,16 @@ public class NeighbourhoodGenerator {
         }
         else if (LifeViewer.length() == Math.pow(2 * range + 1, 2) * 2) {
             int weight;
-            for (int i = 0; i < LifeViewer.length(); i++) {
-                weight = Integer.parseInt(new BigInteger(LifeViewer.charAt(i) + "", 16).toString(10));
+            for (int i = 0; i < Math.pow(2 * range + 1, 2); i++) {
+                weight = Integer.parseInt(new BigInteger(LifeViewer.charAt(i * 2) + "" +
+                        LifeViewer.charAt(i * 2 + 1), 16).toString(10));
                 if (weight >= 128) {  // Negative weight
                     weights.add(weight - 128);
-                    neighbourhood.add(new Coordinate(i % (2 * range + 1), i / (2 * range + 1)));
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1) - range, i / (2 * range + 1) - range));
                 }
                 else if (weight != 0){
                     weights.add(weight);
-                    neighbourhood.add(new Coordinate(i % (2 * range + 1), i / (2 * range + 1)));
+                    neighbourhood.add(new Coordinate(i % (2 * range + 1) - range, i / (2 * range + 1) - range));
                 }
             }
         }
