@@ -44,7 +44,7 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
 
     private final static String mooreRegex = "[0-8]*/[0-8]*/[0-9]+";
     private final static String hrotRegex = "R[0-9]+,C[0-9]+,S" + hrotTransitions + ",B" +
-            hrotTransitions + "," + neighbourhoodRegex + "(,([A-Fa-f0-9]+))?";
+            hrotTransitions + neighbourhoodRegex + "(,([A-Fa-f0-9]+))?";
 
     /**
      * Creates a HROT Generations rule with the rule Frogs
@@ -84,9 +84,8 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
         if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, rulestring, 0);
+            loadNeighbourhood(range, getNeighbourhoodSpecifier(rulestring));
 
-            loadNeighbourhood(range, neighbourhoodString);
             stateWeights = null;
 
             // Get number of states
@@ -155,7 +154,8 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
             rulestringBuilder.append("B").append(Utils.canoniseTransitionsWithCommas(birth));
 
             // Adding neighbourhood
-            rulestringBuilder.append(Utils.matchRegex("N.*", rulestring, 0));
+            rulestringBuilder.append(getNeighbourhoodSpecifier(rulestring)).
+                    append(Utils.matchRegex("(,([A-Fa-f0-9]+))?", rulestring, 0));
         }
         else if (rulestring.matches(mooreRegex)) {
             // Adding Survival

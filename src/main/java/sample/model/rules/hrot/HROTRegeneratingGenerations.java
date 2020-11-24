@@ -57,7 +57,7 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
     private int birthState;
 
     private final static String hrotRegex = "R[0-9]+,G[0-9]+,L[0-9]+,B" + hrotTransitions + ",S" +
-            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions + "," +
+            hrotTransitions + ",RB" + hrotTransitions + ",RS" + hrotTransitions +
             neighbourhoodRegex + "(,([A-Fa-f0-9]+))?";
 
     /**
@@ -103,9 +103,8 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
         if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, rulestring, 0);
+            loadNeighbourhood(range, getNeighbourhoodSpecifier(rulestring));
 
-            loadNeighbourhood(range, neighbourhoodString);
             stateWeights = null;
 
             // State Weights
@@ -167,7 +166,8 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
             rulestringBuilder.append("RS").append(Utils.canoniseTransitionsWithCommas(regenSurvival));
 
             // Adding neighbourhood
-            rulestringBuilder.append(Utils.matchRegex("N.*", rulestring, 0));
+            rulestringBuilder.append(getNeighbourhoodSpecifier(rulestring)).
+                    append(Utils.matchRegex("(,([A-Fa-f0-9]+))?", rulestring, 0));
         }
 
         newRulestring = rulestringBuilder.toString();

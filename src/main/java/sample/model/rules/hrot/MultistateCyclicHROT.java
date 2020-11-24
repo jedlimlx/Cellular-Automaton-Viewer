@@ -20,7 +20,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
     private final static String mooreRegex = "B([0-8]|l(-[0-8])*)*/(M([0-8]|l(-[0-8])*)*/)+" +
             "S([0-8]|l(-[0-8])*)*/C[0-9]+";
     private final static String hrotRegex =
-            "R[0-9]+,C[0-9]+,B((l(-[0-9]+)*|[0-9]+),?)*,(M((l(-[0-9]+)*|[0-9]+),?)*,)+S((l(-[0-9]+)*|[0-9]+),?)*," +
+            "R[0-9]+,C[0-9]+,B((l(-[0-9]+)*|[0-9]+),?)*,(M((l(-[0-9]+)*|[0-9]+),?)*,)+S((l(-[0-9]+)*|[0-9]+),?)*" +
                     neighbourhoodRegex;
 
     /**
@@ -72,8 +72,7 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
         } else if (rulestring.matches(hrotRegex)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String specifier = Utils.matchRegex("N.*", rulestring, 0);
-            loadNeighbourhood(range, specifier);
+            loadNeighbourhood(range, getNeighbourhoodSpecifier(rulestring));
 
             // Load other parameters
             numStates = Integer.parseInt(Utils.matchRegex("C([0-9]+)", rulestring, 0).substring(1));

@@ -1,7 +1,6 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
-import sample.model.CommentGenerator;
 import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.Utils;
@@ -13,7 +12,6 @@ import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
 import sample.model.simulation.Grid;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -40,7 +38,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
     private final static String vonNeumann = "([BSbs][0-4]*/?[BSbs][0-4]*?|[BSbs]?[0-4]*/[BSbs]?[0-4]*)V";
     private final static String hexagonal = "([BSbs][0-6]*/?[BSbs][0-6]*|[BSbs]?[0-6]*/[BSbs]?[0-6]*)H";
     private final static String hrot = "R[0-9]+,C[0|2],S" + hrotTransitions + ",B" +
-            hrotTransitions + "," + neighbourhoodRegex;
+            hrotTransitions + neighbourhoodRegex;
 
     /**
      * Creates a 2-state HROT rule with the Minibugs rule
@@ -123,8 +121,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
         else if (rulestring.matches(hrot)) {
             // Generate Neighbourhood
             int range = Integer.parseInt(Utils.matchRegex("R[0-9]+", rulestring, 0).substring(1));
-            String specifier = Utils.matchRegex("N.*", rulestring, 0);
-            loadNeighbourhood(range, specifier);
+            loadNeighbourhood(range, getNeighbourhoodSpecifier(rulestring));
 
             // Get transitions
             Utils.getTransitionsFromStringWithCommas(birth,
@@ -176,7 +173,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
             rulestringBuilder.append("B").append(Utils.canoniseTransitionsWithCommas(birth));
 
             // Adding neighbourhood
-            rulestringBuilder.append(Utils.matchRegex("N.*", rulestring, 0));
+            rulestringBuilder.append(getNeighbourhoodSpecifier(rulestring));
         }
 
         newRulestring = rulestringBuilder.toString();
