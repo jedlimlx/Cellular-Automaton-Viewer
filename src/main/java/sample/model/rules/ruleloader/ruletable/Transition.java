@@ -29,11 +29,6 @@ public class Transition {
     private final boolean permute;
 
     /**
-     * Used in permute symmetry
-     */
-    private final int[][] cellNumRange;
-
-    /**
      * Number of states of the ruletable using the transition
      */
     private final int numStates;
@@ -53,24 +48,13 @@ public class Transition {
         this.variables = new HashMap<>();
 
         int index = 0;
-        cellNumRange = new int[numStates][2];
 
         String[] tokens = transition.split(",\\s*");
         for (String value: tokens) {
             if (value.matches("\\d+")) {
-                if (index != 0 && index != tokens.length - 1) {
-                    cellNumRange[Integer.parseInt(value)][0]++;
-                    cellNumRange[Integer.parseInt(value)][1]++;
-                }
-
                 this.values.put(index, Integer.parseInt(value));
             }
             else {
-                if (index != 0 && index != tokens.length - 1) {
-                    for (int i : variables.get(value).getValues()) {
-                        cellNumRange[i][1]++;
-                    }
-                }
                 this.variables.put(index, variables.get(value));
             }
 
@@ -94,10 +78,7 @@ public class Transition {
                 numStatesArray[neighbour]++;
             }
 
-            for (int i = 0; i < numStates; i++) {
-                if (numStatesArray[i] > cellNumRange[i][1]) return -1;
-                if (numStatesArray[i] < cellNumRange[i][0]) return -1;
-            }
+            if (!checkPermute(neighbours, numStatesArray, 1)) return -1;
         }
         else {
             for (int i = 1; i < neighbours.length + 1; i++) {
@@ -105,7 +86,6 @@ public class Transition {
             }
         }
 
-        //System.out.println(values + " " + variables);
         if (values.get(neighbours.length + 1) != null) return values.get(neighbours.length + 1);
         else return boundVariableValue.get(variables.get(neighbours.length + 1).getName());
     }
@@ -128,6 +108,54 @@ public class Transition {
                 }
 
                 return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private boolean checkPermute(int[] neighbours, int[] numStatesArray, int i) {
+        if (i == neighbours.length + 1) {
+            for (int k : numStatesArray) {
+                if (k != 0) return false;
+            }
+
+            return true;
+        }
+
+        if (variables.get(i) != null) {
+            Variable var = variables.get(i);
+            if (!variables.get(i).isUnbounded() && boundVariableValue.get(var.getName()) != null) {
+                if (numStatesArray[boundVariableValue.get(var.getName())] > 0) {
+                    numStatesArray[boundVariableValue.get(var.getName())]--;
+                    return checkPermute(neighbours, numStatesArray, i + 1);
+                } else {
+                    return false;
+                }
+            } else {
+                int[] cloned;
+                for (int value: variables.get(i).getValues()) {
+                    if (numStatesArray[value] > 0) {
+                        cloned = numStatesArray.clone();
+                        cloned[value]--;
+
+                        if (!variables.get(i).isUnbounded()) {
+                            boundVariableValue.putIfAbsent(var.getName(), value);
+                        }
+
+                        if (checkPermute(neighbours, cloned, i + 1)) return true;
+                        else {
+                            boundVariableValue.remove(var.getName());
+                        }
+                    }
+                }
+            }
+
+            return false;
+        } else {
+            if (numStatesArray[values.get(i)] > 0) {
+                numStatesArray[values.get(i)]--;
+                return checkPermute(neighbours, numStatesArray, i + 1);
             } else {
                 return false;
             }

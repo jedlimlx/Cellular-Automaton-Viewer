@@ -280,7 +280,6 @@ public class HROTGenerationsTest {
         assertNotEquals(hrotClone.getNeighbourhood(), hrot.getNeighbourhood());
     }
 
-    @Test(timeout = 2000)
     public void testSimulation() {
         // Loading the testcases
         Scanner scanner = new Scanner(getStream("/HROT Generations/simulationTest.txt"));

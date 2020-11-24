@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Implements the multi-state cyclic HROT rulespace
  */
 public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratable {
-    private HashMap<ArrayList<Integer>, Integer> transitions;
+    private final HashMap<ArrayList<Integer>, Integer> transitions;
 
     private final static String mooreRegex = "B([0-8]|l(-[0-8])*)*/(M([0-8]|l(-[0-8])*)*/)+" +
             "S([0-8]|l(-[0-8])*)*/C[0-9]+";

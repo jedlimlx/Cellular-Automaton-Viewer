@@ -10,9 +10,9 @@ import sample.model.SymmetryGenerator;
 import java.util.ArrayList;
 
 public class RandomSoupDialog extends Dialog {
-    private Slider densitySlider;
-    private ComboBox<String> symmetryCombobox;
-    private ArrayList<CheckBox> statesCheckBox;
+    private final Slider densitySlider;
+    private final ComboBox<String> symmetryCombobox;
+    private final ArrayList<CheckBox> statesCheckBox;
 
     public RandomSoupDialog(int numStates, int density, String symmetry, ArrayList<Integer> states) {
         super();

@@ -2,8 +2,12 @@ package sample.model.rules.ruleloader;
 
 import javafx.scene.paint.Color;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Implements the @COLORS / @COLOURS directive in ruletables.<br>
@@ -35,14 +39,19 @@ public class ColourDirective extends Directive implements Exportable {
 
         colourMap = new HashMap<>();
         for (String line: content.split("\n")) {
+            if (line.equals("@COLOURS") || line.equals("@COLORS")) continue;
+
             try {
-                String[] tokens = line.strip().split("\\s+");
+                String[] tokens = line.strip().split("\\s*,?\\s+");
 
                 colourMap.put(Integer.parseInt(tokens[0]),
                         Color.rgb(Integer.parseInt(tokens[1]),
                                 Integer.parseInt(tokens[2]),
                                 Integer.parseInt(tokens[3])));
-            } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {}
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {
+                LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
+                        Level.WARNING, "Invalid line in @COLORS: " + line);
+            }
         }
     }
 

@@ -109,7 +109,8 @@ public class Ruletable extends RuleDirective {
                 String name = Utils.matchRegex("var\\s*([a-zA-Z0-9_.-]+)\\s*=", line, 0, 1);
 
                 try {
-                    String[] tokens = Utils.matchRegex("\\{?(\\d+,?\\s*)+}?", line, 0).split(",\\s*");
+                    String[] tokens = Utils.matchRegex("\\{?(\\d+,\\s*)+(\\d+\\s*)}?", line, 0).
+                            split(",\\s*");
 
                     HashSet<Integer> values = new HashSet<>();
                     for (String token: tokens) {
@@ -123,7 +124,8 @@ public class Ruletable extends RuleDirective {
                 }
             } else if (line.startsWith("unbound")) {
                 String name = Utils.matchRegex("unbound\\s*([a-zA-Z0-9_.-]+)\\s*=", line, 0, 1);
-                String[] tokens = Utils.matchRegex("\\{?(\\d+,?\\s*)+}?", line, 0).split(",\\s*");
+                String[] tokens = Utils.matchRegex("\\{?(\\d+,\\s*)+(\\d+\\s*)}?", line, 0).
+                        split(",\\s*");
 
                 HashSet<Integer> values = new HashSet<>();
                 for (String token: tokens) {

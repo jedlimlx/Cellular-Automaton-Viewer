@@ -10,12 +10,12 @@ import java.util.Stack;
  * Represents an action that is taken by the user
  */
 public class Action {
-    private Grid grid;
-    private Rule rule;
+    private final Grid grid;
+    private final Rule rule;
 
     private static MainController controller;
-    private static Stack<Action> undoStack = new Stack<>();
-    private static Stack<Action> redoStack = new Stack<>();
+    private static final Stack<Action> undoStack = new Stack<>();
+    private static final Stack<Action> redoStack = new Stack<>();
 
     private Action(Grid grid, Rule rule) {
         this.grid = grid;

@@ -15,12 +15,12 @@ public class LinearReplicator extends Pattern {
     /**
      * Replication rule of the replicator
      */
-    private List<Integer> replicationRule;
+    private final List<Integer> replicationRule;
 
     /**
      * The period of replication of the replicator
      */
-    private int period;
+    private final int period;
 
     /**
      * Constructs a linear replicator

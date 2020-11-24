@@ -16,6 +16,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -72,10 +73,10 @@ public class MainController {
     @FXML
     private CheckMenuItem gridLinesMenuItem;
 
-    private final int WIDTH = 4096;
-    private final int HEIGHT = 4096;
-    private final int CELL_SIZE = 1;  // Cell size
-    private final String SETTINGS_FILE = "settings.json";
+    public final static int WIDTH = 4096;
+    public final static int HEIGHT = 4096;
+    public final static int CELL_SIZE = 1;  // Cell size
+    public final static String SETTINGS_FILE = "settings.json";
 
     private SelectionRectangle selectionRectangle;  // Rectangle that represents selection box
 
@@ -109,7 +110,6 @@ public class MainController {
     private HashMap<Rule, Color[]> colours;  // Colours to use for each state
 
     private boolean recording = false;  // Is the recording on?
-    private final boolean simulationRunning = false;  // Is the simulation running?
     private boolean visualisationDone = true;  // Is the visualisation done?
     private boolean showGridLines = false;  // Are the grid lines being shown?
 
@@ -254,7 +254,7 @@ public class MainController {
             CollectionType ruleListType = typeFactory.constructCollectionType(ArrayList.class, Rule.class);
             CollectionType colourListType = typeFactory.constructCollectionType(ArrayList.class, String[].class);
 
-            ArrayList<Rule> rules = m.readValue(settings.get("rule").toString(), ruleListType);
+            ArrayList<Rule> rules = m.readValue(settings.get("rules").toString(), ruleListType);
             ArrayList<String[]> colours = m.readValue(settings.get("colours").toString(), colourListType);
             for (int i = 0; i < rules.size(); i++) {
                 Color[] colourArr = new Color[colours.get(i).length];
@@ -592,6 +592,23 @@ public class MainController {
         alert.setHeaderText("Information");
         alert.setContentText(contentText.toString());
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+        alert.showAndWait();
+    }
+
+    @FXML  // Sets the rule directory
+    public void setRuleDirectory() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Set Rule Directory");
+
+        File file = directoryChooser.showDialog(null);
+
+        RuleLoader.RULE_DIRECTORY = file.getPath();
+        settings.put("rule_directory", file.getPath());
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Operation Successful");
+        alert.setHeaderText("Operation Successful.");
+        alert.setContentText("Please restart the application for the changes to take effect.");
         alert.showAndWait();
     }
 

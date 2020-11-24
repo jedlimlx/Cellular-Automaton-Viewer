@@ -37,6 +37,7 @@ The Menu Bar
 *Open Pattern* - Opens a pattern file <br>
 *Save Pattern* - Saves the pattern to a file <br>
 *New Rule* - Opens the rule dialog to make a new rule <br>
+*Set Rule Directory* - Sets the directory for CAViewer to look for rules <br>
 *Close* - Closes the application <br> 
 
 **Edit Menu**: <br>
