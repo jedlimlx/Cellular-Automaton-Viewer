@@ -1,6 +1,5 @@
 package sample.model.rules.ruleloader.ruletable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

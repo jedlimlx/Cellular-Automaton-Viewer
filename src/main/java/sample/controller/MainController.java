@@ -90,6 +90,7 @@ public class MainController {
     private Set<Coordinate> deadCellsSet;
     private LRUCache<Coordinate, Cell> deadCellsCache;  // LRU Cache of dead cells
     private Group gridLines;  // The grid lines of the pattern editor
+    private Group boundedGridLines;  // The lines to mark the bounded grid
 
     private Group pasteSelection;  // The group that renders the stuff to be pasted
     private Grid pasteStuff;  // The stuff to paste
@@ -248,6 +249,7 @@ public class MainController {
             m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
             simulator.setRule(m.readValue(settings.get("rule").toString(), Rule.class));
+            drawBoundedGrid();
 
             // Setting the colours
             TypeFactory typeFactory = m.getTypeFactory();
@@ -622,6 +624,9 @@ public class MainController {
     }
 
     public void setCell(int x, int y, int state, boolean updateSimulator, boolean updateColours) {
+        if (simulator.getRule().getBoundedGrid() != null &&  // Skip cells outside the bounded grid
+                simulator.getRule().getBoundedGrid().atEdge(new Coordinate(x, y))) return;
+
         // Get the cell object at the specified coordinate
         Cell prevCell = getCellObject(x, y);
         if (prevCell == null && state != 0) {  // Insert a new cell if one doesn't already exist
@@ -714,6 +719,89 @@ public class MainController {
 
         statusLabel.setText("Generation: " + simulator.getGeneration() + ", " +
                 simulationString + ", Population: " + simulator.getPopulation());
+    }
+
+    // Draws bounded grid for the current rule if necessary
+    public void drawBoundedGrid() {
+        drawingPane.getChildren().remove(boundedGridLines);
+        if (simulator.getRule().getBoundedGrid() == null) return;
+
+        // Creating grid lines
+        boundedGridLines = new Group();
+
+        Line horizontalLine1 = new Line();
+        horizontalLine1.setStroke(Color.GREY);
+        horizontalLine1.setStrokeWidth(CELL_SIZE);
+
+        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
+                simulator.getRule().getBoundedGrid().getWidth() != 0) {
+            horizontalLine1.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+            horizontalLine1.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
+        } else if (simulator.getRule().getBoundedGrid().getWidth() == 0) {
+            horizontalLine1.setStartX(0);
+            horizontalLine1.setEndX(WIDTH);
+        }
+
+        horizontalLine1.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+        horizontalLine1.setEndY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+        horizontalLine1.toFront();
+        boundedGridLines.getChildren().add(horizontalLine1);
+
+        Line horizontalLine2 = new Line();
+        horizontalLine2.setStroke(Color.GREY);
+        horizontalLine2.setStrokeWidth(CELL_SIZE);
+
+        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
+                simulator.getRule().getBoundedGrid().getWidth() != 0) {
+            horizontalLine2.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+            horizontalLine2.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
+        } else if (simulator.getRule().getBoundedGrid().getWidth() == 0) {
+            horizontalLine2.setStartX(0);
+            horizontalLine2.setEndX(WIDTH);
+        }
+
+        horizontalLine2.setStartY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
+        horizontalLine2.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
+        horizontalLine2.toFront();
+        boundedGridLines.getChildren().add(horizontalLine2);
+
+        Line verticalLine1 = new Line();
+        verticalLine1.setStroke(Color.GREY);
+        verticalLine1.setStrokeWidth(CELL_SIZE);
+        verticalLine1.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+        verticalLine1.setEndX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+
+        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
+                simulator.getRule().getBoundedGrid().getWidth() != 0) {
+            verticalLine1.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+            verticalLine1.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
+        } else if (simulator.getRule().getBoundedGrid().getHeight() == 0) {
+            verticalLine1.setStartY(0);
+            verticalLine1.setEndY(HEIGHT);
+        }
+
+        verticalLine1.toFront();
+        boundedGridLines.getChildren().add(verticalLine1);
+
+        Line verticalLine2 = new Line();
+        verticalLine2.setStroke(Color.GREY);
+        verticalLine2.setStrokeWidth(CELL_SIZE);
+        verticalLine2.setStartX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
+        verticalLine2.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
+
+        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
+                simulator.getRule().getBoundedGrid().getWidth() != 0) {
+            verticalLine2.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+            verticalLine2.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
+        } else if (simulator.getRule().getBoundedGrid().getHeight() == 0) {
+            verticalLine2.setStartY(0);
+            verticalLine2.setEndY(HEIGHT);
+        }
+
+        verticalLine2.toFront();
+        boundedGridLines.getChildren().add(verticalLine2);
+
+        drawingPane.getChildren().add(boundedGridLines);
     }
 
     @FXML // Zooming in and out of the canvas
@@ -974,6 +1062,9 @@ public class MainController {
             }
 
             renderCells();
+
+            // Drawing the bounded grid
+            drawBoundedGrid();
         }
     }
 
@@ -1300,7 +1391,25 @@ public class MainController {
         newPattern();  // Clear all cells
         simulator.fromRLE(rleFinal.toString(), // Insert the new cells
                 new Coordinate(1800 / CELL_SIZE, 1800 / CELL_SIZE));
-        renderCells();  // Render the new cells
+
+        // Re-render all the cells
+        if (colours.get(dialog.getRule()) != null) {
+            scrollPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
+                    (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
+                    (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+            drawingPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
+                    (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
+                    (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+        } else {
+            scrollPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
+                    (dialog.getRule().getColour(0).getGreen() * 255) + "," +
+                    (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+            drawingPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
+                    (dialog.getRule().getColour(0).getGreen() * 255) + "," +
+                    (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+        }
+
+        renderCells();
         
         // Centering the viewport
         // scrollPane.setHvalue(0.2);
@@ -1313,6 +1422,9 @@ public class MainController {
 
         // Reloading the state buttons to state the number of states
         reloadStateButtons();
+
+        // Drawing the bounded grid
+        drawBoundedGrid();
 
         // Setting the generation count back to 0
         simulator.setGeneration(0);

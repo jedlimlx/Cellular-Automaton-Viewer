@@ -13,7 +13,6 @@ import sample.model.rules.ruleloader.ruletable.Variable;
 import sample.model.rules.ruleloader.ruletree.Ruletree;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;

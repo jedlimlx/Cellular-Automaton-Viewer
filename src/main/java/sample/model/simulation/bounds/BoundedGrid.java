@@ -100,5 +100,21 @@ public abstract class BoundedGrid {
         this.initialCoordinate = initialCoordinate;
     }
 
+    /**
+     * Gets the width of the bounded grid
+     * @return Returns the width of the bounded grid
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * Gets the height of the bounded grid
+     * @return Returns the height of the bounded grid
+     */
+    public int getHeight() {
+        return height;
+    }
+
     public abstract Object clone();
 }
