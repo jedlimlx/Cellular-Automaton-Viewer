@@ -646,7 +646,6 @@ public class MainController {
         // Don't bother if the cell didn't change
         else if (prevCell != null && (prevCell.getState() != state || updateColours)) {
             if (prevCell.getState() == 0 && state != 0) deadCellsSet.remove(prevCell.getCoordinate());
-            // if (prevCell.getState() == 0) deadCellsCache.remove(prevCell.getCoordinate());
 
             if (colours.get(simulator.getRule()) == null)
                 prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
@@ -655,7 +654,6 @@ public class MainController {
 
             prevCell.setState(state);
 
-            //if (state == 0) deadCellsCache.put(new Coordinate(x, y), prevCell);
             if (state == 0) deadCellsSet.add(new Coordinate(x, y));
         }
 
@@ -681,6 +679,10 @@ public class MainController {
                     convertToGrid(coordinate.getY()),
                     simulator.getCell(coordinate),false, true);
         }
+
+        simulator.iterateCells(coordinate -> setCell(convertToGrid(coordinate.getX()),
+                convertToGrid(coordinate.getY()),
+                simulator.getCell(coordinate),false, true));
     }
 
     // Renders cells between the start and end coordinate
@@ -1259,7 +1261,7 @@ public class MainController {
 
     public void loadPattern(String[] tokens) {
         String rulestring = "";
-        Pattern rulestringRegex = Pattern.compile("rule = \\S+");
+        Pattern rulestringRegex = Pattern.compile("rule = [ \\S]+");
         ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
 
         // Parsing code - Removes headers, comments
