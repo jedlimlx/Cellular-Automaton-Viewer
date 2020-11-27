@@ -19,6 +19,7 @@ import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
 import sample.model.Coordinate;
 import sample.model.rules.RuleFamily;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -128,6 +129,7 @@ public class RuleDialog extends Dialog {
         } catch (Exception exception) {
             LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(
                     Level.WARNING, exception.getMessage());
+            exception.printStackTrace();
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error!");

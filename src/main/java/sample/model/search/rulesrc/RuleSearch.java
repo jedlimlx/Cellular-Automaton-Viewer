@@ -56,6 +56,9 @@ public class RuleSearch extends SearchProgram {
 
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < numRules; i++) {
+            // Check if the search should stop
+            if (stop) break;
+
             // Create a new simulator object each time
             simulator = new Simulator((Rule) searchParameters.getMinRule().clone());
             simulator.insertCells(searchParameters.getTargetPattern(), new Coordinate(0, 0));

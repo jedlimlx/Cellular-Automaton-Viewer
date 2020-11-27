@@ -256,13 +256,13 @@ but also the relative configuration of those neighbours.
 
 #### Supported / Planned INT Neighbourhoods
 - [x] Range 1 Moore Isotropic Non-Totalistic (M)
-- [ ] Range 1 Hexagonal Isotropic Non-Totalistic (H)
-- [ ] Range 2 Von Neumann Isotropic Non-Totalistic (V2)
-- [ ] Range 2 Checkerboard Isotropic Non-Totalistic (B2)
+- [x] Range 1 Hexagonal Isotropic Non-Totalistic (H)
+- [x] Range 2 Von Neumann Isotropic Non-Totalistic (V2)
+- [x] Range 2 Checkerboard Isotropic Non-Totalistic (B2)
 - [x] Range 2 Far Corners Isotropic Non-Totalistic (FC)
 - [x] Range 2 Knight Life Isotropic Non-Totalistic (K)
 - [x] Range 2 Cross Isotropic Non-Totalistic (C2)
-- [ ] Range 3 Cross Isotropic Non-Totalistic (C3)
+- [x] Range 3 Cross Isotropic Non-Totalistic (C3)
 - [x] Range 3 Far Edges Isotropic Non-Totalistic (FE)
 
 

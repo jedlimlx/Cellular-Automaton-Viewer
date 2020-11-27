@@ -6,6 +6,7 @@ import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.isotropic.transitions.DoubleLetterTransitions;
 import sample.model.rules.isotropic.transitions.INTTransitions;
 import sample.model.rules.isotropic.transitions.R1MooreINT;
 import sample.model.rules.ruleloader.RuleDirective;

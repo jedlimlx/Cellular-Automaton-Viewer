@@ -45,7 +45,7 @@ public abstract class INTTransitions {
 
     /**
      * Sets the transition string of the INT transitions
-     * @param string THe transition string
+     * @param string The transition string
      */
     public void setTransitionString(String string) {
         parseTransitions(string);

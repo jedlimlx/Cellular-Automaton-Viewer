@@ -20,7 +20,7 @@ public abstract class BaseINT extends RuleFamily {
     /**
      * Regexes for identifying the neighbourhood
      */
-    protected final String neighbourhoodRegex = "(M|K|H|FC|FE|C2)";
+    protected final String neighbourhoodRegex = "(M|K|H|B|FC|FE|C2|V2|C3)";
 
     /**
      * Looks up which INT neighbourhood corresponds to which neighbourhood identifier
@@ -33,10 +33,13 @@ public abstract class BaseINT extends RuleFamily {
     public BaseINT() {
         neighbourhoodLookup.put("M", new R1MooreINT(""));
         neighbourhoodLookup.put("H", new R1HexINT(""));
-        neighbourhoodLookup.put("C2", new R2CrossINT(""));
         neighbourhoodLookup.put("K", new R2KnightINT(""));
+        neighbourhoodLookup.put("B", new R2CheckerboardINT(""));
         neighbourhoodLookup.put("FC", new R2FarCornersINT(""));
         neighbourhoodLookup.put("FE", new R3FarEdgesINT(""));
+        neighbourhoodLookup.put("C2", new R2CrossINT(""));
+        neighbourhoodLookup.put("V2", new R2VonNeumannINT(""));
+        neighbourhoodLookup.put("C3", new R3CrossINT(""));
     }
 
     /**
@@ -46,7 +49,8 @@ public abstract class BaseINT extends RuleFamily {
      */
     protected INTTransitions getINTTransition(String rulestring) {
         try {
-            neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, rulestring, 0, 1);
+            neighbourhoodString = rulestring.substring(rulestring.length() - 2);
+            neighbourhoodString = Utils.matchRegex(neighbourhoodRegex, neighbourhoodString, 0, 1);
             return neighbourhoodLookup.get(neighbourhoodString).getMinTransition();
         }
         catch (IllegalStateException exception) {

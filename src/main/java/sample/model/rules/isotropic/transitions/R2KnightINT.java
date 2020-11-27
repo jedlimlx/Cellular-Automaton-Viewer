@@ -9,7 +9,8 @@ import java.util.ArrayList;
  * Represents range 2 knight INT transitions
  */
 public class R2KnightINT extends SingleLetterTransitions {
-    private static final Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], [(1, 8), (2, 7), (3, 6), (4, 5)]]");
+    private static final Symmetry symmetry = new Symmetry("[[(1, 3, 5, 7), (2, 4, 6, 8)], " +
+            "[(1, 8), (2, 7), (3, 6), (4, 5)]]");
 
     public R2KnightINT() {
         this("");

@@ -86,6 +86,8 @@ public class AlternatingRule extends RuleFamily implements ApgtableGeneratable {
 
     @Override
     public Object clone() {
+        if (rulestring == null)
+            return new AlternatingRule();
         return new AlternatingRule(rulestring);
     }
 

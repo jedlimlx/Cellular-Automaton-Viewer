@@ -2,6 +2,7 @@ package sample;
 
 import sample.model.Utils;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.misc.naive.ReadingOrder;
 import sample.model.simulation.bounds.BoundedGrid;
 
 import java.io.File;
@@ -22,6 +23,16 @@ public class Regex {
         writer = new FileWriter(new File("regex2.txt"));
         for (BoundedGrid grid: Utils.boundedGrids) {
             for (String string: grid.getRegex()) {
+                writer.write(string + "\n");
+            }
+        }
+
+        writer.close();
+
+
+        writer = new FileWriter(new File("regex3.txt"));
+        for (ReadingOrder readingOrder: Utils.readingOrders) {
+            for (String string: readingOrder.getRegex()) {
                 writer.write(string + "\n");
             }
         }

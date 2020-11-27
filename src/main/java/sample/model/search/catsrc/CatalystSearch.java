@@ -80,6 +80,9 @@ public class CatalystSearch extends SearchProgram {
             int hash, numRegen = 0, numInteracted = 0;
             List<PlacedCatalyst> placedCatalysts;
             for (int i = 0; i < num; i++) {
+                // Check if the search should stop
+                if (stop) break;
+
                 simulator = new Simulator(searchParameters.getRule());
 
                 initialGeneration = -1;

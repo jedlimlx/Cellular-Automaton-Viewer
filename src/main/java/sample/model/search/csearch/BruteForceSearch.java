@@ -64,6 +64,9 @@ public class BruteForceSearch extends SearchProgram {
 
                 // There are n ^ (x * y) possible soups to check
                 for (long i = finalT * (total / numThreads); i < (finalT + 1) * (total / numThreads); i++) {
+                    // Check if the search should stop
+                    if (stop) break;
+
                     // Create a new simulator object each time
                     simulator = new Simulator(searchParameters.getRule());
 

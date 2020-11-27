@@ -18,6 +18,8 @@ public abstract class SearchProgram {
     protected SearchParameters searchParameters;  // The parameters for the search
     protected ArrayList<Grid> searchResults;  // Store search results here
 
+    protected boolean stop = false;  // Tell the search program to stop
+
     /**
      * Constructs a search program with the provided parameters
      * @param parameters The parameters of the search program
@@ -77,6 +79,7 @@ public abstract class SearchProgram {
      */
     public void terminateSearch() {
         executor.shutdownNow();
+        stop = true;
     }
 
     /**
