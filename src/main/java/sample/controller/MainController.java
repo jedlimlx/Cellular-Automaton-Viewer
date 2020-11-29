@@ -1393,20 +1393,20 @@ public class MainController {
                 new Coordinate(1800 / CELL_SIZE, 1800 / CELL_SIZE));
 
         // Re-render all the cells
-        if (colours.get(dialog.getRule()) != null) {
-            scrollPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
-                    (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
-                    (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
-            drawingPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
-                    (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
-                    (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+        if (colours.get(simulator.getRule()) != null) {
+            scrollPane.setStyle("-fx-background: rgb(" + (colours.get(simulator.getRule())[0].getRed() * 255) + "," +
+                    (colours.get(simulator.getRule())[0].getGreen() * 255) + "," +
+                    (colours.get(simulator.getRule())[0].getBlue() * 255) + ")");
+            drawingPane.setStyle("-fx-background: rgb(" + (colours.get(simulator.getRule())[0].getRed() * 255) + "," +
+                    (colours.get(simulator.getRule())[0].getGreen() * 255) + "," +
+                    (colours.get(simulator.getRule())[0].getBlue() * 255) + ")");
         } else {
-            scrollPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
-                    (dialog.getRule().getColour(0).getGreen() * 255) + "," +
-                    (dialog.getRule().getColour(0).getBlue() * 255) + ")");
-            drawingPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
-                    (dialog.getRule().getColour(0).getGreen() * 255) + "," +
-                    (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+            scrollPane.setStyle("-fx-background: rgb(" + (simulator.getRule().getColour(0).getRed() * 255) + "," +
+                    (simulator.getRule().getColour(0).getGreen() * 255) + "," +
+                    (simulator.getRule().getColour(0).getBlue() * 255) + ")");
+            drawingPane.setStyle("-fx-background: rgb(" + (simulator.getRule().getColour(0).getRed() * 255) + "," +
+                    (simulator.getRule().getColour(0).getGreen() * 255) + "," +
+                    (simulator.getRule().getColour(0).getBlue() * 255) + ")");
         }
 
         renderCells();

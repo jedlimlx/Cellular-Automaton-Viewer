@@ -1,5 +1,6 @@
 package sample.model.rules.isotropic.transitions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import sample.model.Coordinate;
 
@@ -26,12 +27,14 @@ public abstract class INTTransitions {
     /**
      * The transition table with the symmetries applied
      */
+    @JsonIgnore
     protected HashSet<ArrayList<Integer>> transitionTable;
 
     /**
      * A transition table that is sorted in lexicographical order (useful for deficient rules).
      * Contains all the transitions in string format (e.g. 1c, 1e, 2a, 4c, 4z, 6k...)
      */
+    @JsonIgnore
     protected TreeSet<String> sortedTransitionTable;
 
     /**
@@ -105,6 +108,7 @@ public abstract class INTTransitions {
      * Gets the regex for the INT transitions
      * @return Returns the regex for the INT transitions
      */
+    @JsonIgnore
     public abstract String getRegex();
 
     /**
@@ -153,6 +157,7 @@ public abstract class INTTransitions {
      * Gets the sorted transitions
      * @return Returns the sorted transitions
      */
+    @JsonIgnore
     public TreeSet<String> getSortedTransitionTable() {
         return sortedTransitionTable;
     }
@@ -161,6 +166,7 @@ public abstract class INTTransitions {
      * Gets the transition table of the INT transition
      * @return Returns the transition table
      */
+    @JsonIgnore
     public HashSet<ArrayList<Integer>> getTransitionTable() {
         return transitionTable;
     }
@@ -204,6 +210,7 @@ public abstract class INTTransitions {
      * Generates an INT transition with the maximum number of transitions possible
      * @return Returns the INT transition with the maximum number of transitions possible
      */
+    @JsonIgnore
     public INTTransitions getMaxTransition() {
         INTTransitions maxTransitions = (INTTransitions) this.clone();
         for (int i = 0; i < Math.pow(2, neighbourhood.length); i++) {
@@ -224,6 +231,7 @@ public abstract class INTTransitions {
      * Generates an INT transition with the minimum number of transitions possible
      * @return Returns the INT transition with the minimum number of transitions possible
      */
+    @JsonIgnore
     public INTTransitions getMinTransition() {
         INTTransitions minTransitions = (INTTransitions) this.clone();
         minTransitions.getSortedTransitionTable().clear();
