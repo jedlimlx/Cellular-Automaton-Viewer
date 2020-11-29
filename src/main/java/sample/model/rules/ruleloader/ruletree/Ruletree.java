@@ -1,6 +1,7 @@
 package sample.model.rules.ruleloader.ruletree;
 
 import sample.model.Coordinate;
+import sample.model.rules.ruleloader.Exportable;
 import sample.model.rules.ruleloader.RuleDirective;
 
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.Arrays;
  * Implements Golly ruletrees with additional features such as arbitary neighbourhoods.
  * See http://golly.sourceforge.net/Help/formats.html for more information.
  */
-public class Ruletree extends RuleDirective {
+public class Ruletree extends RuleDirective implements Exportable {
     /**
      * Content of the ruletree
      */
@@ -48,7 +49,7 @@ public class Ruletree extends RuleDirective {
                 numStates = Integer.parseInt(line.replace("num_states=", ""));
             }
             else if (line.startsWith("num_neighbo")) {  // Account for british and american spelling
-                neighbourhood = getNeighbourhood(line);
+                neighbourhood = getNeighbourhood(line.replaceAll("num_neighbou?rs=", ""));
             }
             else if (line.startsWith("num_nodes")) {
                 nodeList = new Node[Integer.parseInt(line.replace("num_nodes=", ""))];
@@ -87,5 +88,10 @@ public class Ruletree extends RuleDirective {
     @Override
     public Object clone() {
         return new Ruletree(content);
+    }
+
+    @Override
+    public String export() {
+        return content;
     }
 }

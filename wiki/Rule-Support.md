@@ -367,6 +367,15 @@ Energetic Rules are (planned to be) supported by:
 - [ ] INT Generations
 
 
+# Naive Rules
+In naive rules, cells are updated by reading order instead of being updated all at once. This is a mistake made by many 
+beginners when first implementing CGoL, hence the name "naive".
+
+In naive rules, information can travel faster than life, allowing single generation infinite growth 
+patterns known as "lasers" exist. As such, naive rules can only be simulated on a bounded grid.
+
+The notation is \<rule\>:\<bounded grid\>:N\<naive specifier\>. For example, NaiveLife is B3/S23:T100:NO
+
 
 # Custom Rules
 For a list of neighbourhood aliases, see [this](../src/main/resources/ruleloader/neighbourhoods.txt)
@@ -404,7 +413,7 @@ Empty lines and anything following the hash symbol "#" are ignored. The followin
 n_states: specifies the number of states in the CA (from 0 to n_states-1 inclusive). <br>
 neighborhood: specifies the cell neighborhood for the CA update step. Must be one of: vonNeumann, Moore, hexagonal, oneDimensional or list of coordinates representing the neighbourhood (unlike lifelib, the first and last coordinate need not be (0, 0)) <br>
 symmetries: can be none, permute or one of the symmetries supported for the neighborhood you have chosen. <br>
-(optional) tiling: can be square, hexagonal or triangular (neighbourhood should point down)
+(optional) tiling: can be square, hexagonal or triangular (neighbourhood should point downwards and will be flipped up based on the cell's parity)
 
 After the descriptors comes the variables and transitions. Each variable line should follow the form given in the above example to list the states. Variables should appear before the first transition that uses them.
 
@@ -424,7 +433,7 @@ Rule tables usually don't specify every possible set of inputs. For those not li
 Transition rules are checked in the order given — the first rule that matches is applied. If you want, you can write rules in the form of general cases and exceptions, as long as the exceptions appear first.
 
 ### @TREE
-This section is optional. If present, it contains a rule tree that can be loaded by the RuleLoader algorithm. (If the .rule file also contains a @TABLE section, RuleLoader will use the first one it finds.) The contents of this section is identical to the contents of a .tree file.
+This section is optional. If present, it contains a rule tree that can be loaded by the RuleLoader algorithm. (If the .rule file also contains a @TABLE section, RuleLoader will alternate between the 2). 
 
 Essentially, the tree format allows you to add your own rules to CAViewer without needing to know how to recompile CAViewer and 
 without dealing with the intricacies of external libraries; it generates relatively compact files, 
@@ -441,7 +450,7 @@ The tree is represented by a sequence of node lines. Each node line consists of 
 
 ### @SQC
 This represents a Square Cell ruletable.
-Essentially, it is a large transition table specifying the new state of a cell and the necessary neighbourhood sym.
+Essentially, it is a large transition table specifying the new state of a cell and the necessary neighbourhood symmetry.
 
 Let's say I have the following neighbourhood weights:
 ```

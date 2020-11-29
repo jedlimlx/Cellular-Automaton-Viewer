@@ -161,14 +161,14 @@ Supported / Planned Rulespaces
         - [ ] B0, F0 rules
         - [ ] Neighbourhood Weights
         - [ ] Apgtable Generation for all rules
-    - [ ] HROT Generations
+    - [x] HROT Generations
         - [x] B0 Rules
         - [x] State Weights
         - [x] Neighbourhood Weights
         - [x] Apgtable Generation for B0 rules
         - [x] Apgtable Generation for non-B0 rules
         - [x] Apgtable Generation for rules with neighbourhood weights
-        - [ ] Apgtable Generation for rules with both state weights & neighbourhood weights
+        - [x] Apgtable Generation for rules with both state weights & neighbourhood weights
     - [x] HROT Extended Generations
         - [x] B0 Rules
         - [x] Neighbourhood Weights
@@ -181,16 +181,16 @@ Supported / Planned Rulespaces
         - [ ] B0 Rules
         - [ ] Weighted Rules
         - [ ] Apgtable Generation for all rules
-    - [ ] Integer HROT
+    - [x] Integer HROT
         - [x] Weighted Rules
-        - [ ] Apgtable Generation for all rules
+        - [x] Apgtable Generation for all rules
     - [x] Deficient HROT
         - [x] B0 Rules
         - [x] Weighted Rules
         - [x] Apgtable Generation for all rules
     - [x] Multi-state Cyclic HROT
         - [x] Weighted Rules
-        - [x] Apgtable Generation for all rules (no weighted yet 😞)
+        - [x] Apgtable Generation for all rules
 - [ ] Isotropic Non-Totalistic (INT)
     - [x] 2 State INT
         - [x] B0 Rules

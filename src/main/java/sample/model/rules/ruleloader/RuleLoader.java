@@ -266,121 +266,132 @@ public class RuleLoader extends RuleFamily {
                 "# If this ruletable operates in with a range 1 neighbourhood, switch neighbourhood:... with " +
                 "neighbourhood:Moore or any other appropriate neighbourhood to run it in Golly\n\n");
         for (Directive directive: directives) {
-            if (directive instanceof Exportable) exported.append(((Exportable) directive).export()).append("\n");
+            if (directive instanceof Exportable && !(directive instanceof RuleDirective))
+                exported.append(((Exportable) directive).export()).append("\n");
         }
 
         // Pre-processing
-        boolean permute = false, permuteDefined = false;
-        for (RuleDirective directive: ruleDirectives) {
-            if (!(directive instanceof Ruletable))  // TODO (Export ruletrees)
-                throw new UnsupportedOperationException("Cannot export non-ruletable rule directives!");
+        if (ruleDirectives.size() > 1 || (ruleDirectives.size() == 1 && ruleDirectives.get(0) instanceof Ruletable)) {
+            boolean permute = false, permuteDefined = false;
+            for (RuleDirective directive: ruleDirectives) {
+                if (!(directive instanceof Ruletable))
+                    throw new UnsupportedOperationException("Cannot export more than 1 non-ruletable rule directive!");
 
-            Ruletable ruletable = (Ruletable) directive;
-            if (permuteDefined && permute != ruletable.isPermute())
-                throw new UnsupportedOperationException("The ruletable must either all have or " +
-                        "all don't have permute symmetry.");
+                Ruletable ruletable = (Ruletable) directive;
+                if (permuteDefined && permute != ruletable.isPermute())
+                    throw new UnsupportedOperationException("The ruletable must either all have or " +
+                            "all don't have permute symmetry.");
 
-            permute = ruletable.isPermute();
-            permuteDefined = true;
+                permute = ruletable.isPermute();
+                permuteDefined = true;
 
-            numStates = ruletable.getNumStates();
+                numStates = ruletable.getNumStates();
 
-            // All cells will survive
-            if (background.length > 1) {
-                for (int i = 0; i < numStates; i++) ruletable.addOTTransition(0, i + "",
-                        i + "", "any", "0");
+                // All cells will survive
+                if (background.length > 1) {
+                    for (int i = 0; i < numStates; i++) ruletable.addOTTransition(0, i + "",
+                            i + "", "any", "0");
+                }
             }
-        }
 
-        // Adding headers
-        String neighbourhoodString = Arrays.toString(getNeighbourhood());
+            // Adding headers
+            String neighbourhoodString = Arrays.toString(getNeighbourhood());
 
-        exported.append("@TABLE\n");
-        exported.append("n_states:").append((numStates - 1) * background.length + 1).append("\n");
-        exported.append("neighborhood:[(0, 0), ").append(neighbourhoodString, 1,
-                neighbourhoodString.length() - 1).append(", (0, 0)]\n");  // Add the (0, 0) at the front and back
+            exported.append("@TABLE\n");
+            exported.append("n_states:").append((numStates - 1) * background.length + 1).append("\n");
+            exported.append("neighborhood:[(0, 0), ").append(neighbourhoodString, 1,
+                    neighbourhoodString.length() - 1).append(", (0, 0)]\n");  // Add the (0, 0) at the front and back
 
-        if (!permute) exported.append("symmetries:none\n\n");
-        else exported.append("symmetries:permute\n\n");
+            if (!permute) exported.append("symmetries:none\n\n");
+            else exported.append("symmetries:permute\n\n");
 
-        for (int bgIndex = 0; bgIndex < background.length; bgIndex++) {
-            Ruletable ruletable = (Ruletable) ruleDirectives.get(bgIndex % ruleDirectives.size());
+            for (int bgIndex = 0; bgIndex < background.length; bgIndex++) {
+                Ruletable ruletable = (Ruletable) ruleDirectives.get(bgIndex % ruleDirectives.size());
 
-            Variable variable;  // Adding variable clauses
-            for (String name: ruletable.getVariables().keySet()) {
-                variable = ruletable.getVariables().get(name);
+                Variable variable;  // Adding variable clauses
+                for (String name: ruletable.getVariables().keySet()) {
+                    variable = ruletable.getVariables().get(name);
 
-                ArrayList<Integer> tempValues = new ArrayList<>(variable.getValues());
-                ArrayList<Integer> values = new ArrayList<>();
+                    ArrayList<Integer> tempValues = new ArrayList<>(variable.getValues());
+                    ArrayList<Integer> values = new ArrayList<>();
 
-                // Converting the values of the variables according to the background
-                for (Integer tempValue : tempValues) values.add(getCellForBackground(tempValue, bgIndex));
+                    // Converting the values of the variables according to the background
+                    for (Integer tempValue : tempValues) values.add(getCellForBackground(tempValue, bgIndex));
 
-                Collections.sort(values);
+                    Collections.sort(values);
 
-                String valuesString = values.toString().replace("[", "{").
-                        replace("]", "}");
+                    String valuesString = values.toString().replace("[", "{").
+                            replace("]", "}");
 
-                if (variable.isUnbounded()) {
-                    // Need to be handled separately because they are not supported by lifelib and Golly
-                    for (int j = 0; j < getNeighbourhood().length; j++) {
-                        if (j == 0) {
-                            // var _{varName}.{pos}.{bgIndex} = {values}
-                            exported.append("var _").append(variable.getName()).append(".").append(j).
-                                    append(".").append(bgIndex).append(" = ").append(valuesString);
-                        } else {
-                            // var _{varName}.{pos}.{bgIndex} = {1st_bounded_var}
-                            exported.append("var _").append(variable.getName()).append(".").append(j).
-                                    append(".").append(bgIndex).append(" = _").append(variable.getName()).
-                                    append(".0.").append(bgIndex);
+                    if (variable.isUnbounded()) {
+                        // Need to be handled separately because they are not supported by lifelib and Golly
+                        for (int j = 0; j < getNeighbourhood().length; j++) {
+                            if (j == 0) {
+                                // var _{varName}.{pos}.{bgIndex} = {values}
+                                exported.append("var _").append(variable.getName()).append(".").append(j).
+                                        append(".").append(bgIndex).append(" = ").append(valuesString);
+                            } else {
+                                // var _{varName}.{pos}.{bgIndex} = {1st_bounded_var}
+                                exported.append("var _").append(variable.getName()).append(".").append(j).
+                                        append(".").append(bgIndex).append(" = _").append(variable.getName()).
+                                        append(".0.").append(bgIndex);
+                            }
+
+                            if (j != getNeighbourhood().length - 1) exported.append("\n");
                         }
-
-                        if (j != getNeighbourhood().length - 1) exported.append("\n");
+                    } else {
+                        // var {varName}.{bgIndex} = {values}
+                        exported.append("var ").append(variable.getName()).append(".").append(bgIndex).
+                                append(" = ").append(valuesString);
                     }
-                } else {
-                    // var {varName}.{bgIndex} = {values}
-                    exported.append("var ").append(variable.getName()).append(".").append(bgIndex).
-                            append(" = ").append(valuesString);
+
+                    exported.append("\n\n");
                 }
 
-                exported.append("\n\n");
-            }
+                // Adding transition clauses
+                for (Transition transition: ruletable.getTransitions()) {
+                    // Iterate through the variables and values
+                    for (int i = 0; i < transition.getValues().size() + transition.getVariables().size(); i++) {
+                        if (i != getNeighbourhood().length + 1) {
+                            if (transition.getValues().get(i) != null) {
+                                exported.append(getCellForBackground(transition.getValues().get(i), bgIndex));
+                            } else {
+                                if (transition.getVariables().get(i).isUnbounded()) {
+                                    exported.append("_").append(transition.getVariables().get(i).getName()).append(".").
+                                            append(i - 1).append(".").append(bgIndex);
+                                } else {
+                                    exported.append(transition.getVariables().get(i).getName()).append(".").
+                                            append(bgIndex);
+                                }
+                            }
 
-            // Adding transition clauses
-            for (Transition transition: ruletable.getTransitions()) {
-                // Iterate through the variables and values
-                for (int i = 0; i < transition.getValues().size() + transition.getVariables().size(); i++) {
-                    if (i != getNeighbourhood().length + 1) {
-                        if (transition.getValues().get(i) != null) {
-                            exported.append(getCellForBackground(transition.getValues().get(i), bgIndex));
-                        } else {
-                            if (transition.getVariables().get(i).isUnbounded()) {
-                                exported.append("_").append(transition.getVariables().get(i).getName()).append(".").
-                                        append(i - 1).append(".").append(bgIndex);
+                            exported.append(", ");
+                        } else {  // Handle output state differently
+                            if (transition.getValues().get(i) != null) {
+                                exported.append(getCellForBackground(transition.getValues().get(i), bgIndex + 1));
                             } else {
                                 exported.append(transition.getVariables().get(i).getName()).append(".").
-                                        append(bgIndex);
+                                        append((bgIndex + 1) % background.length);
                             }
                         }
-
-                        exported.append(", ");
-                    } else {  // Handle output state differently
-                        if (transition.getValues().get(i) != null) {
-                            exported.append(getCellForBackground(transition.getValues().get(i), bgIndex + 1));
-                        } else {
-                            exported.append(transition.getVariables().get(i).getName()).append(".").
-                                    append((bgIndex + 1) % background.length);
-                        }
                     }
+
+                    exported.append("\n");
                 }
 
                 exported.append("\n");
             }
 
-            exported.append("\n");
+            return exported.toString();
+        } else if (ruleDirectives.size() == 1 && ruleDirectives.get(0) instanceof Exportable) {
+            // Handling other rule directives
+            exported.append(((Exportable) ruleDirectives.get(0)).export()).append("\n");
+            return exported.toString();
+        } else if (ruleDirectives.size() == 0) {
+            throw new IllegalArgumentException("No rule directives provided to export!");
+        } else {
+            throw new IllegalArgumentException("Cannot export more than 1 non-ruletable rule directive!");
         }
-
-        return exported.toString();
     }
 
     /**

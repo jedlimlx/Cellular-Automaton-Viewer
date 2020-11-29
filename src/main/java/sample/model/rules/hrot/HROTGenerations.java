@@ -11,6 +11,7 @@ import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletree.RuleTreeGen;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
@@ -401,12 +402,14 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
     /**
      * Generates an apgtable for apgsearch to use
      * @return True if the operation was successful, false otherwise
-     * @throws UnsupportedOperationException Thrown if the rule has state weights (state weights are not supported)
      */
     @Override
-    public RuleDirective[] generateApgtable() throws UnsupportedOperationException {
-        if (stateWeights != null)
-            throw new UnsupportedOperationException("Apgtable generation for rules with state weights is not supported");
+    public RuleDirective[] generateApgtable() {
+        if (stateWeights != null) {
+            RuleTreeGen ruleTreeGen = new RuleTreeGen(numStates, neighbourhood, (neighbours, cellState) ->
+                    transitionFunc(cellState, neighbours, 0, new Coordinate()));
+            return new RuleDirective[]{ruleTreeGen.getRuleTree()};
+        }
 
         // Generating the ruletable
         Ruletable ruletable = new Ruletable("");

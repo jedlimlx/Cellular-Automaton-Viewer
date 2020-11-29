@@ -1,12 +1,16 @@
 package sample.model.rules.hrot;
 
 import org.javatuples.Pair;
+import sample.controller.dialogs.rule.RuleDialog;
 import sample.model.CommentGenerator;
 import sample.model.Coordinate;
 import sample.model.NeighbourhoodGenerator;
 import sample.model.Utils;
+import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.MinMaxRuleable;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.ruletree.RuleTreeGen;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
@@ -16,7 +20,7 @@ import java.util.HashSet;
 /**
  * Implements the Integer HROT rule family
  */
-public class IntegerHROT extends BaseHROT  implements MinMaxRuleable {
+public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMaxRuleable {
     /**
      * The birth conditions of the Integer HROT rule
      */
@@ -321,6 +325,17 @@ public class IntegerHROT extends BaseHROT  implements MinMaxRuleable {
     }
 
     /**
+     * Generates a ruletree for apgsearch to use
+     * @return Returns a ruletree for apgsearch to use
+     */
+    @Override
+    public RuleDirective[] generateApgtable() {
+        RuleTreeGen ruleTreeGen = new RuleTreeGen(numStates, neighbourhood, (neighbours, cellState) ->
+                transitionFunc(cellState, neighbours, 0, new Coordinate()));
+        return new RuleDirective[]{ruleTreeGen.getRuleTree()};
+    }
+
+    /**
      * The birth conditions of the rule (e.g. {2, 3})
      * @return Birth conditions of the rule
      */
@@ -387,21 +402,19 @@ public class IntegerHROT extends BaseHROT  implements MinMaxRuleable {
         for (int i = 0; i < neighbours.length; i++) {
             if (weights != null) {
                 sum += neighbours[i] * weights[i];
-            }
-            else {
+            } else {
                 sum += neighbours[i];
             }
         }
 
         if (cellState == 0) {  // Check Birth
-            for (int transition: birth) {  // Checking divisibility
+            for (int transition : birth) {  // Checking divisibility
                 if (sum % transition == 0 && sum != 0 && sum / transition < numStates) {
                     return sum / transition;
                 }
             }
-        }
-        else {  // Checking survival
-            for (int transition: survival) {  // Checking divisibility
+        } else {  // Checking survival
+            for (int transition : survival) {  // Checking divisibility
                 if (transition * cellState <= sum && sum < (transition + 1) * cellState) {
                     return cellState;
                 }

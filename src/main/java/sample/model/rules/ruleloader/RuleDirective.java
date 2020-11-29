@@ -26,7 +26,7 @@ public abstract class RuleDirective extends Directive {
     /**
      * Built-in neighbourhood aliases (read in from ruleloader/neighbourhoods.txt)
      */
-    private final Map<String, String> neighbourhoodAliases;
+    private static Map<String, String> neighbourhoodAliases;
 
     /**
      * Built-in symmetry aliases (read in from ruleloader/neighbourhoods.txt)
