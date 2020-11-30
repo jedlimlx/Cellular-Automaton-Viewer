@@ -123,6 +123,15 @@ public abstract class Rule {
     }
 
     /**
+     * Returns the name of the provided state
+     * @param state The state of the cell
+     * @return The name of the state
+     */
+    public String getName(int state) {
+        return "State " + state;
+    }
+
+    /**
      * Returns the tiling of the rule (Square, Hexagonal or Triangular)
      * @return Returns the rule's tiling
      */

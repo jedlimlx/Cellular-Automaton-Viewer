@@ -455,6 +455,16 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
         return newRule;
     }
 
+    /**
+     * Returns the name of the provided state
+     * @param state The state of the cell
+     * @return The name of the state
+     */
+    public String getName(int state) {
+        if (state == 0) return "Dead";
+        else return "Alive";
+    }
+
     @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         int sum = 0;

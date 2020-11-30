@@ -66,7 +66,6 @@ public class Utils {
         }
 
         if (!rulestring.equals("")) {
-            System.out.println(rulestring);
             RuleFamily rule = fromRulestring(rulestring);
 
             if (rule != null) {

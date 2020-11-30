@@ -190,6 +190,30 @@
                 <Tooltip text="Rotate Counter-Clockwise" />
             </tooltip>
         </Button>
+      <Button mnemonicParsing="false" onAction="#decreaseStepSize">
+         <graphic>
+            <ImageView fx:id="playButtonImage211" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icon/DecreaseStep.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Decrease Step Size" />
+         </tooltip>
+      </Button>
+      <Button mnemonicParsing="false" onAction="#increaseStepSize">
+         <graphic>
+            <ImageView fx:id="playButtonImage21" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icon/IncreaseStep.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip>
+            <Tooltip text="Increase Step Size" />
+         </tooltip>
+      </Button>
         <Button mnemonicParsing="false" onAction="#toggleRecording">
             <graphic>
                 <ImageView fx:id="recordingImage" fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">

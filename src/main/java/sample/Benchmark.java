@@ -13,6 +13,7 @@ public class Benchmark {
         File file = new File("benchmark.txt");
         FileWriter fileWriter = new FileWriter(file);
 
+        fileWriter.write("Running R10 Checkerboard Ship...\n");
         for (int j = 1; j < 6; j++) {
             fileWriter.write("Run " + j + "...\n");
 
@@ -23,6 +24,24 @@ public class Benchmark {
             long startTime = System.currentTimeMillis();
 
             for (int i = 0; i < 100; i++) {
+                simulator.step();
+            }
+
+            fileWriter.write("Took " + (System.currentTimeMillis() - startTime) / 1000.0 + " s\n");
+        }
+
+        fileWriter.write("\nRunning B3/S23 Soup...\n");
+        for (int j = 1; j < 6; j++) {
+            fileWriter.write("Run " + j + "...\n");
+
+            Simulator simulator = new Simulator(new HROT("B3/S23"));
+            simulator.fromRLE("4b3o6b2o$bo5bo3b2o2bo$bo2bob3o3bo2bo$2o2b4ob2ob2obo$2b2o2bo2b2obobo$5o" +
+                    "2b2obobo2bo$4bo4bo5bo$b2o4bob4o$b2ob4ob3obo$b4ob5o2bo$3b2o4b2o2bobo$o" +
+                    "2bo3bob3o2bo$2o2b3ob2o2b2o$obob3o2bo$o5bo7bo$2bo3bob3ob2o!", new Coordinate());
+
+            long startTime = System.currentTimeMillis();
+
+            for (int i = 0; i < 5000; i++) {
                 simulator.step();
             }
 

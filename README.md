@@ -78,7 +78,8 @@ The Tools Bar
 <br>
 *Random Soup Button* - Generates a random soup <br>
 *Flip Button* - Flips the pattern horizontally / vertically <br>
-*Rotate Button* - Rotates the pattern clockwise / counter-clockwise (doesn't work) <br>
+*Rotate Button* - Rotates the pattern clockwise / counter-clockwise <br>
+*Increase / Decrease Step Size Button* - Increases / decreases the step size <br>
 *Recording Button* - Records all patterns that move in the selection area and saves it as a \*.gif <br>
 *Identify Button* - Identifies the pattern as a spaceship / oscillator <br>
 

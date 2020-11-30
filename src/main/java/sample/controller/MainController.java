@@ -295,7 +295,10 @@ public class MainController {
         for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
             int index = i;
 
+            Tooltip tooltip = new Tooltip(simulator.getRule().getName(i));
+
             Button stateButton = new Button("" + index);
+            stateButton.setTooltip(tooltip);
             stateButton.setOnAction((event -> {currentState = index; mode = Mode.DRAWING;}));
             stateButtons.add(stateButton);
             secondaryToolbar.getItems().add(stateButton);
@@ -612,6 +615,16 @@ public class MainController {
         alert.setHeaderText("Operation Successful.");
         alert.setContentText("Please restart the application for the changes to take effect.");
         alert.showAndWait();
+    }
+
+    @FXML  // Increases the step size
+    public void increaseStepSize() {
+        stepSize++;
+    }
+
+    @FXML  // Decreases the step size
+    public void decreaseStepSize() {
+        if (stepSize > 1) stepSize--;
     }
 
     // Function to set cell at (x, y) to a certain state
@@ -933,7 +946,11 @@ public class MainController {
                 wait(75);
             }
 
-            wait(1);
+            Platform.runLater(() -> {
+                try {
+                    updateStatusText();
+                } catch (ConcurrentModificationException ignored) {}
+            });
         }
     }
 

@@ -302,6 +302,16 @@ public class INT extends BaseINT implements ApgtableGeneratable, MinMaxRuleable 
         return survival;
     }
 
+    /**
+     * Returns the name of the provided state
+     * @param state The state of the cell
+     * @return The name of the state
+     */
+    public String getName(int state) {
+        if (state == 0) return "Dead";
+        else return "Alive";
+    }
+
     @Override
     public Object clone() {
         return new INT(rulestring);
