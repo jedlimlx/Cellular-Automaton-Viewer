@@ -343,7 +343,7 @@ public abstract class DoubleLetterTransitions extends INTTransitions {
         neighbours.addAll(anisotropicTransitionLookup.get(anisotropicChar));
 
         transitionTable.addAll(getSymmetries(neighbours));
-        sortedTransitionTable.add(transition);
+        sortedTransitionTable.add(reverseTransitionLookup.get(neighbours));
     }
 
     /**
@@ -363,7 +363,7 @@ public abstract class DoubleLetterTransitions extends INTTransitions {
         neighbours.addAll(anisotropicTransitionLookup.get(anisotropicChar));
 
         transitionTable.removeAll(getSymmetries(neighbours));
-        sortedTransitionTable.remove(transition);
+        sortedTransitionTable.remove(reverseTransitionLookup.get(neighbours));
     }
 
     /**

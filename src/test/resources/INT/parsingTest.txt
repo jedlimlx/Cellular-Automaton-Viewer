@@ -27,3 +27,6 @@
 
 #R B2ek2i3re4r/S1c1e2e2a3r4a/NFC
 #C B2eik3er4r/S12ae3r4a/NFC
+
+#R B0xdxf/S2x1ea/NV2
+#C B0xc/S1ea2x/NV2

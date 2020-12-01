@@ -108,6 +108,9 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
 
             stateWeights = null;
 
+            // Set the number of states
+            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
+
             // State Weights
             try {
                 String LifeViewerStateWeights = Utils.matchRegex("NW([A-Fa-f0-9]+),([A-Fa-f0-9]+)",
@@ -119,9 +122,6 @@ public class HROTRegeneratingGenerations extends BaseHROT implements MinMaxRulea
             } catch (IllegalStateException exception) {
                 stateWeights = null;
             }
-
-            // Set the number of states
-            numStates = Integer.parseInt(Utils.matchRegex("G[0-9]+", rulestring, 0).substring(1));
         }
 
         // Get transitions
