@@ -16,6 +16,7 @@ import sample.model.simulation.Grid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 /**
  * Implements the Integer HROT rule family
@@ -24,12 +25,12 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
     /**
      * The birth conditions of the Integer HROT rule
      */
-    private final ArrayList<Integer> birth;
+    private final TreeSet<Integer> birth;
 
     /**
      * The survival conditions of the Integer HROT rule
      */
-    private final ArrayList<Integer> survival;
+    private final TreeSet<Integer> survival;
 
     /**
      * The maximum possible neighbourhood count.
@@ -58,8 +59,8 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
         alternatingPeriod = 1;
         name = "Integer HROT";
 
-        birth = new ArrayList<>();
-        survival = new ArrayList<>();
+        birth = new TreeSet<>();
+        survival = new TreeSet<>();
 
         // Load rulestring
         setRulestring(rulestring);
@@ -96,18 +97,6 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
                 Utils.matchRegex("B" + hrotTransitions, rulestring, 0).substring(1));
         Utils.getTransitionsFromStringWithCommas(survival,
                 Utils.matchRegex("S" + hrotTransitions, rulestring, 0).substring(1));
-
-        HashSet<Integer> birth2 = new HashSet<>(birth);
-        HashSet<Integer> survival2 = new HashSet<>(survival);
-
-        birth.clear();
-        birth.addAll(birth2);
-
-        survival.clear();
-        survival.addAll(survival2);
-
-        Collections.sort(birth);
-        Collections.sort(survival);
 
         // Setting number of states
         numStates = Integer.parseInt(Utils.matchRegex("I([0-9]+)", rulestring, 0, 1));
@@ -228,8 +217,8 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
      */
     @Override
     public Pair<RuleFamily, RuleFamily> getMinMaxRule(Grid[] grids)  {
-        ArrayList<Integer> minBirth = new ArrayList<>(), maxBirth = new ArrayList<>();
-        ArrayList<Integer> minSurvival = new ArrayList<>(), maxSurvival = new ArrayList<>();
+        TreeSet<Integer> minBirth = new TreeSet<>(), maxBirth = new TreeSet<>();
+        TreeSet<Integer> minSurvival = new TreeSet<>(), maxSurvival = new TreeSet<>();
 
         // Populate maxBirth & maxSurvival with numbers from 1 - max neighbour sum
         for (int i = 1; i < maxNeighbourhoodCount + 1; i++) {
@@ -275,12 +264,12 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
 
         // Construct the new rules and return them
         IntegerHROT minRule = (IntegerHROT) this.clone();
-        minRule.setBirth(new ArrayList<>(new HashSet<>(minBirth)));
-        minRule.setSurvival(new ArrayList<>(new HashSet<>(minSurvival)));
+        minRule.setBirth(minBirth);
+        minRule.setSurvival(minSurvival);
 
         IntegerHROT maxRule = (IntegerHROT) this.clone();
-        maxRule.setBirth(new ArrayList<>(new HashSet<>(maxBirth)));
-        maxRule.setSurvival(new ArrayList<>(new HashSet<>(maxSurvival)));
+        maxRule.setBirth(maxBirth);
+        maxRule.setSurvival(maxSurvival);
 
         return new Pair<>(minRule, maxRule);
     }
@@ -339,7 +328,7 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
      * The birth conditions of the rule (e.g. {2, 3})
      * @return Birth conditions of the rule
      */
-    public ArrayList<Integer> getBirth() {
+    public TreeSet<Integer> getBirth() {
         return birth;
     }
 
@@ -347,7 +336,7 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
      * The survival conditions of the rule (e.g. {2, 3})
      * @return Survival conditions of the rule
      */
-    public ArrayList<Integer> getSurvival() {
+    public TreeSet<Integer> getSurvival() {
         return survival;
     }
 
@@ -355,10 +344,9 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
      * Sets the birth conditions of the rule
      * @param birth Birth conditions of the rule
      */
-    public void setBirth(ArrayList<Integer> birth) {
+    public void setBirth(TreeSet<Integer> birth) {
         this.birth.clear();
         this.birth.addAll(birth);
-        Collections.sort(this.birth);
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);
@@ -371,10 +359,9 @@ public class IntegerHROT extends BaseHROT implements ApgtableGeneratable, MinMax
      * Sets the survival conditions of the rule
      * @param survival Birth conditions of the rule
      */
-    public void setSurvival(ArrayList<Integer> survival) {
+    public void setSurvival(TreeSet<Integer> survival) {
         this.survival.clear();
         this.survival.addAll(survival);
-        Collections.sort(this.survival);
 
         // Updating rulestring
         this.rulestring = canonise(rulestring);

@@ -176,7 +176,7 @@ public abstract class Rule {
         }
 
         // Generate set of cells to run update function on
-        // Use a set to avoid duplicates
+        // Use a set to avoid duplicate
         Coordinate neighbour;
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate cell: cellSet) {
@@ -220,12 +220,12 @@ public abstract class Rule {
         int newState, prevState;
         if (readingOrder == null) {
             Grid gridCopy = grid.deepCopy();
+            neighbours = new int[neighbourhood.length];
             for (Coordinate cell: cellsToCheck) {
                 prevState = gridCopy.getCell(cell);
 
                 // Getting neighbour states
                 if (dependsOnNeighbours(convertState(prevState, generation), generation, cell) == -1) {
-                    neighbours = new int[neighbourhood.length];
                     if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) == Math.floorMod(cell.getY(), 2)) {
                         for (int i = 0; i < neighbourhood.length; i++) {
                             neighbour = cell.add(neighbourhood[i]);
@@ -329,8 +329,6 @@ public abstract class Rule {
                 }
 
                 if (newState != prevState) {
-                    //if (!cellsQueue.contains(cell)) cellsQueue.add(cell);
-
                     if (tiling != Tiling.Triangular || Math.floorMod(cell.getX(), 2) !=
                             Math.floorMod(cell.getY(), 2)) {
                         for (Coordinate neighbour2: neighbourhood) {

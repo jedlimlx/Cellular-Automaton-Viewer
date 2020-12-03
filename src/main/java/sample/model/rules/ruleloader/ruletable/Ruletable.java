@@ -65,8 +65,6 @@ public class Ruletable extends RuleDirective {
      */
     public static Variable LIVE, DEAD, ANY;
 
-    private LRUCache<Integer, Integer> lruCache;
-
     /**
      * Constructs the ruletable with the provided content
      * @param content Content of the ruletable
@@ -88,7 +86,6 @@ public class Ruletable extends RuleDirective {
         this.content = content;
         this.transitions = new ArrayList<>();
         this.variables = new HashMap<>();
-        this.lruCache = new LRUCache<>(20000);
 
         for (String line: content.split("\n")) {
             if (line.startsWith("n_states") || line.startsWith("states")) {
@@ -146,24 +143,16 @@ public class Ruletable extends RuleDirective {
 
     @Override
     public int transitionFunc(int[] neighbours, int cellState) {
-        Integer cached = lruCache.get(Arrays.hashCode(neighbours) ^ cellState);
-        if (cached == null) {
-            int result;
-            for (Transition transition: transitions) {
-                result = transition.applyTransition(cellState, neighbours);
-                if (result != -1) {
-                    // lruCache.setValue(Arrays.hashCode(neighbours) ^ cellState, result);
-                    return result;
-                }
+        int result;
+        for (Transition transition: transitions) {
+            result = transition.applyTransition(cellState, neighbours);
+            if (result != -1) {
+                return result;
             }
+        }
 
-            // TODO (Make ruletables faster, somehow...)
-            // lruCache.setValue(Arrays.hashCode(neighbours) ^ cellState, cellState);
-            return cellState;
-        }
-        else {
-            return cached;
-        }
+        // TODO (Make ruletables faster, somehow...)
+        return cellState;
     }
 
     @Override

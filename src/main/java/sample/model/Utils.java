@@ -264,7 +264,7 @@ public class Utils {
         return rulestringBuilder.toString();
     }
 
-    public static String canoniseTransitionsWithCommas(HashSet<Integer> transitions) {
+    public static String canoniseTransitionsWithCommas(Set<Integer> transitions) {
         Object[] array = transitions.toArray();
         int[] sortedTransitions = new int[transitions.size()];
         for (int i = 0; i < transitions.size(); i++) {

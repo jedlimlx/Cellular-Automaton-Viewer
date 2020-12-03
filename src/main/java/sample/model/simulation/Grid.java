@@ -732,6 +732,15 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     }
 
     /**
+     * Gets the block that the cell is in
+     * @param coordinate The coordinate of the cell
+     * @return Returns the block of the cell
+     */
+    public Block getBlock(Coordinate coordinate) {
+        return dictionary.get(getBlockCoordinate(coordinate));
+    }
+
+    /**
      * Gets the population of the grid (all cells above state 0)
      * @return Returns the population of the grid
      */
@@ -742,6 +751,21 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
         }
 
         return population;
+    }
+
+    /**
+     * Gets the blocks in the grid
+     */
+    public Collection<Block> getBlocks() {
+        return dictionary.values();
+    }
+
+    /**
+     * Gets the coordinates of all the blocks in the grid
+     * @return Returns the coordinates of all the blocks in the grid.
+     */
+    public Set<Coordinate> getBlockCoordinates() {
+        return dictionary.keySet();
     }
 
     @Override  // Implementing these methods allow it to be used in a for each loop

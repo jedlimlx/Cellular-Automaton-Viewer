@@ -62,12 +62,12 @@ public class INTGenerations extends BaseINT implements ApgtableGeneratable, MinM
             if (string.equals("M")) {
                 regexes[counter] = "[Gg][0-9]+[_/]?[BbSs]?" + transitionRegexes[counter] + "[_/]?[BbSs]?" +
                         transitionRegexes[counter] + "|[BbSs]?" + transitionRegexes[counter] + "[_/]?[BbSs]?" +
-                        transitionRegexes[counter] + "([_/]?[Gg]|[_/][Gg]?)[0-9]+";
+                        transitionRegexes[counter] + "[_/][0-9]+";
             } else {
                 regexes[counter] = "[Gg][0-9]+[_/]?[BbSs]?" + transitionRegexes[counter] + "[_/]?[BbSs]?" +
                         transitionRegexes[counter] + "[_/]?N?" + string + "|[BbSs]?" +
                         transitionRegexes[counter] + "[_/]?[BbSs]?" +
-                        transitionRegexes[counter] + "([_/]?[Gg]|[_/][Gg]?)[0-9]+[_/]?N?" + string;
+                        transitionRegexes[counter] + "[_/][0-9]+[_/]?N?" + string;
             }
             counter++;
         }
@@ -108,7 +108,7 @@ public class INTGenerations extends BaseINT implements ApgtableGeneratable, MinM
 
         if (matched) {
             try {
-                numStates = Integer.parseInt(Utils.matchRegex("[Gg]([0-9]+)", rulestring,
+                numStates = Integer.parseInt(Utils.matchRegex("^[Gg]([0-9]+)", rulestring,
                         0, 1));
             } catch (IllegalStateException exception) {
                 try {

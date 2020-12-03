@@ -1,8 +1,13 @@
 package sample.model.simulation;
 
 import sample.model.Coordinate;
+import sample.model.rules.Rule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Represents a block of cells
@@ -12,11 +17,6 @@ public class Block implements Cloneable {
      * The array storing the cells
      */
     private final int[][] cells;
-
-    /**
-     * The neighbours of the block
-     */
-    private final ArrayList<Block> neighbours;
 
     /**
      * The starting coordinate of the block (top-left corner)
@@ -40,7 +40,6 @@ public class Block implements Cloneable {
      * @param height Height of the block
      */
     public Block(Coordinate startingCoordinate, int width, int height) {
-        neighbours = new ArrayList<>();
         cells = new int[height][width];
         this.coordinate = startingCoordinate;
     }
@@ -78,11 +77,42 @@ public class Block implements Cloneable {
     }
 
     /**
+     * Checks if the coordinate is within the current block
+     * @param coordinate The coordinate to check
+     * @return Returns true if the coordinate is within the block, false otherwise
+     */
+    public boolean inBlock(Coordinate coordinate) {
+        Coordinate thing = coordinate.subtract(getStartCoordinate());
+        return thing.getX() > 0 && thing.getX() < cells.length && thing.getY() > 0 &&
+                thing.getY() < cells.length;
+    }
+
+    /**
      * Gets the population of alive cells (> state 0) in the block
      * @return Returns the population of the block
      */
     public int getPopulation() {
         return population;
+    }
+
+    /**
+     * Gets the state of the block
+     * @return Returns the state of the block
+     */
+    public BlockState getState() {
+        return state;
+    }
+
+    /**
+     * Sets the state of the block
+     */
+    public void setState(BlockState state) {
+        this.state = state;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(cells);
     }
 
     @Override

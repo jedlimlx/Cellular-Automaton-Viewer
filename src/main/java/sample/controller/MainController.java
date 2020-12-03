@@ -883,6 +883,7 @@ public class MainController {
                 }
                 catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
                     logger.log(Level.WARNING, exception.getMessage());
+                    exception.printStackTrace();
 
                     simulationMode = SimulationMode.PAUSED;
 
