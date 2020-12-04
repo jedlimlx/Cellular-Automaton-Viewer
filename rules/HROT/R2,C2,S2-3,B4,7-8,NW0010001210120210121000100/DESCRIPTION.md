@@ -1,4 +1,4 @@
-## DuopletLife
+## DuopletLife (R2,C2,S2-3,B4,7-8,NW0010001210120210121000100)
 
 A weird rule with an overabundance of P2 duoplets.
 

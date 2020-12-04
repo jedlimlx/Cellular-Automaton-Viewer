@@ -1,3 +1,5 @@
+## R1,D0,S2-3,B1,4,NN
+
 This rule has a wide variety of oscillators as well as a [puffer](PUFF_1.rle) engine coined "oscillator-laying switch engine".
 In addition, there is a natural [3c/56d ship](SHIP_1.rle).
 

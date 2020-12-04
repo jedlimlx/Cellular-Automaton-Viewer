@@ -4,6 +4,7 @@ import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.simulation.Grid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,11 @@ public class Spaceship extends Pattern {
     private Grid[] phases;
 
     /**
+     * Population sequence of the spaceship
+     */
+    private ArrayList<ArrayList<Integer>> populationSeq;
+
+    /**
      * Constructs a spaceship
      * @param rule The rule the spaceship works in
      * @param pattern The pattern of the spaceship
@@ -62,23 +68,39 @@ public class Spaceship extends Pattern {
         int minPop = Integer.MAX_VALUE;
         Grid minPhase = new Grid();
 
+        populationSeq = new ArrayList<>();
+
+        ArrayList<Integer> currPop;
         phases = new Grid[grids.length];
         for (int i = 0; i < grids.length; i++) {
             phases[i] = grids[i].deepCopy();
             if (grids[i].getPopulation() < minPop && grids[i].getBackground() == 0) minPhase = phases[i];
 
+            // Calculating population
+            currPop = new ArrayList<>();
+            for (int j = 0; j < getRule().getNumStates(); j++)
+                currPop.add(0);
+
             // Calculating heat
             if (i > 0) {
                 int finalI = i;
+                ArrayList<Integer> finalCurrPop = currPop;
                 grids[i].iterateCells(cell -> {
                     if (grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell)) heat++;
+                    finalCurrPop.set(grids[finalI].getCell(cell), finalCurrPop.get(grids[finalI].getCell(cell)) + 1);
                 });
 
                 grids[i - 1].iterateCells(cell -> {
                     if (grids[finalI].getCell(cell) == 0 &&
                             grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell)) heat++;
                 });
+            } else {
+                ArrayList<Integer> finalCurrPop = currPop;
+                grids[0].iterateCells(cell ->
+                        finalCurrPop.set(grids[0].getCell(cell), finalCurrPop.get(grids[0].getCell(cell)) + 1));
             }
+
+            populationSeq.add(currPop);
         }
 
         this.clearCells();
@@ -154,5 +176,13 @@ public class Spaceship extends Pattern {
      */
     public int getDisplacementY() {
         return displacementY;
+    }
+
+    /**
+     * Gets the population sequence of the spaceship
+     * @return Returns the population sequence of the spaceship
+     */
+    public ArrayList<ArrayList<Integer>> getPopulationSequence() {
+        return populationSeq;
     }
 }

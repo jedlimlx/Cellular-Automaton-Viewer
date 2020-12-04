@@ -1,3 +1,5 @@
+## R2,C2,S2,B3,9,NN
+
 A stable rule that has a variety of natural speeds as well as an [(5, 8)c/18 puffer] that can be corderised.
 
 There is also a common P8 oscillator that looks like a shaker. 

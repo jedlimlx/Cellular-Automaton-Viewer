@@ -308,13 +308,15 @@ Search Programs
     - [ ] Fine tune RNG function via genetic algorithms?
     - [ ] Object separation?
 - [ ] Agar Search Program
+  - [ ] Better repetition detection
+  - [ ] Better wave detection
 - [ ] Catalyst Search Program
     - [x] Mutiple catalysts
     - [ ] Brute force option
     - [ ] Symmetries
     - [ ] Repetition detection
 - [ ] Brute Force / Soup Search Program
-    - [ ] Object seperation
+    - [ ] Object separation
     - [ ] Symmetries
     - [ ] Finish Documentation
 - [ ] Methuselah Search Program

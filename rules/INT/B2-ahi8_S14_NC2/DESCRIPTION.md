@@ -1,3 +1,5 @@
+## B2-ahi8/S14/NC2
+
 A rule with a common [puffer], [9c/26d] and [4c/26o]. Some other ships found include a [2c/4d], [2c/6o] and [6c/12d].
 
 [Catagolue census](https://catagolue.hatsya.com/census/x13x12x8xb2-ahi8_s14_nc2)

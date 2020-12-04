@@ -1,3 +1,5 @@
+## R2,C2,S5-8,12,16-18,B6,16-18,NH
+
 A hexagonal rule with a common [3c/6o] and [c/2o].
 
 There are also a handful of known oscillator periods.

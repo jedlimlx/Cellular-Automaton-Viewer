@@ -105,6 +105,7 @@ public class Block implements Cloneable {
 
     /**
      * Sets the state of the block
+     * @param state The state of the block
      */
     public void setState(BlockState state) {
         this.state = state;

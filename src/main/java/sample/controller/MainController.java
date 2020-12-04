@@ -36,6 +36,7 @@ import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.rules.ruleloader.RuleNameDirective;
 import sample.model.search.catsrc.CatalystSearch;
 import sample.model.search.csearch.BruteForceSearch;
+import sample.model.search.ocgar2.AgarSearch;
 import sample.model.search.rulesrc.RuleSearch;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
@@ -1138,6 +1139,22 @@ public class MainController {
             bruteForceSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
 
             BruteForceSearchResultsDialog resultsDialog = new BruteForceSearchResultsDialog(this, bruteForceSearch);
+            resultsDialog.show();
+        }
+    }
+
+    @FXML // Starts the agar search dialog
+    public void startAgarSearchDialog() {
+        // Dialog to get the search parameters
+        AgarSearchParametersDialog parametersDialog =
+                new AgarSearchParametersDialog(simulator.getRule());
+        parametersDialog.showAndWait();
+
+        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
+            AgarSearch agarSearch = new AgarSearch(parametersDialog.getSearchParameters());
+            agarSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+
+            AgarSearchResultsDialog resultsDialog = new AgarSearchResultsDialog(this, agarSearch);
             resultsDialog.show();
         }
     }

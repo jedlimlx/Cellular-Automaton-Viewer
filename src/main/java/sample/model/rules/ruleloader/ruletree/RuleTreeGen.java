@@ -71,7 +71,7 @@ public class RuleTreeGen {
       logger.log(Level.INFO, "Rule tree generation took " + (System.currentTimeMillis() - startTime) + " ms");
 
       // Writing the rule tree headers
-      StringBuilder ruletree = new StringBuilder("@TREE");
+      StringBuilder ruletree = new StringBuilder("@TREE\n");
       ruletree.append("num_states=").append(numStates).append("\n");
 
       String neighbourhoodString = Arrays.toString(neighbourhood);

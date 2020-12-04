@@ -1,3 +1,5 @@
+##R2,C6,S2,5-9,B3-4,10,NN
+
 An explosive generations rule that has similar dynamics to star wars.
 
 However, unlike Star Wars, in this rule, stable circuitry is hard to construct.

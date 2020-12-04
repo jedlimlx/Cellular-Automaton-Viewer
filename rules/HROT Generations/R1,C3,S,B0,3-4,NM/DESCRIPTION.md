@@ -1,4 +1,4 @@
-## WalledChaos
+## WalledChaos (/034/3)
 
 A stable / chaotic B0 generation that walls itself up.
 As the pattern evolves, walls tend to form around the main pattern and prevent its expansion.

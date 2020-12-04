@@ -57,6 +57,7 @@
         <Menu mnemonicParsing="false" text="Search">
             <MenuItem mnemonicParsing="false" onAction="#generateAPGTable" text="Generate APGTable" />
             <MenuItem mnemonicParsing="false" onAction="#startRuleSearchDialog" text="Run Rule Search" />
+         <MenuItem mnemonicParsing="false" onAction="#startAgarSearchDialog" text="Run Agar Search" />
          <MenuItem mnemonicParsing="false" onAction="#startCatalystSearchDialog" text="Run Catalyst Search" />
          <MenuItem mnemonicParsing="false" onAction="#startBruteForceSearchDialog" text="Run Brute Force Search" />
         </Menu>

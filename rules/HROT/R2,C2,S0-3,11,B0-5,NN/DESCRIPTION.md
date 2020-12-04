@@ -1,3 +1,5 @@
+## R2,C2,S0-3,11,B0-5,NN
+
 A chaotic B0 rule that has many high period wacky objects such as the [30c/268o] and the [P1396] oscillator.
 
 Multiple [30c/268o]s can be combined to form [puffers](PUFF_1.rle).

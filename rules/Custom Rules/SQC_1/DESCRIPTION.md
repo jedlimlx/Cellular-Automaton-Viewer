@@ -1,3 +1,5 @@
+## SQC_1
+
 This rule uses a variant of the range 2 gaussian weighted neighbourhood. There are a handful of natural speeds 
 such as a [(20, 8)c/32] spaceship. [P8 oscillators] and a [P76 gun] have also been found.
 

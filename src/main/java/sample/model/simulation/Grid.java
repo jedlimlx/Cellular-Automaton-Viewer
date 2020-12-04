@@ -755,6 +755,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
 
     /**
      * Gets the blocks in the grid
+     * @return Returns the blocks in the grid
      */
     public Collection<Block> getBlocks() {
         return dictionary.values();

@@ -4,10 +4,7 @@ import sample.model.Coordinate;
 import sample.model.rules.Rule;
 import sample.model.simulation.Grid;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents an oscillator
@@ -22,6 +19,11 @@ public class Oscillator extends Pattern {
      * Phases of the oscillator
      */
     private Grid[] phases;
+
+    /**
+     * The population sequence of the oscillator
+     */
+    private ArrayList<ArrayList<Integer>> populationSeq;
 
     /**
      * Number of rotor cells in the oscillator
@@ -60,19 +62,28 @@ public class Oscillator extends Pattern {
         Grid minPhase = new Grid();
 
         Map<Coordinate, Boolean> changed = new HashMap<>();
+        populationSeq = new ArrayList<>();
 
+        ArrayList<Integer> currPop;
         phases = new Grid[grids.length];
         for (int i = 0; i < grids.length; i++) {
             phases[i] = grids[i].deepCopy();
             if (grids[i].getPopulation() < minPop && grids[i].getBackground() == 0) minPhase = phases[i];
 
+            // Calculating population
+            currPop = new ArrayList<>();
+            for (int j = 0; j < getRule().getNumStates(); j++)
+                currPop.add(0);
+
             // Calculating heat, stator cells, rotor cells
             if (i > 0) {
                 int finalI = i;
+                ArrayList<Integer> finalCurrPop = currPop;
                 grids[i].iterateCells(cell -> {
                     if (grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell)) heat++;
                     if (changed.get(cell) == null || !changed.get(cell))
                         changed.put(cell, grids[finalI].getCell(cell) != grids[finalI - 1].getCell(cell));
+                    finalCurrPop.set(grids[finalI].getCell(cell), finalCurrPop.get(grids[finalI].getCell(cell)) + 1);
                 });
 
                 grids[i - 1].iterateCells(cell -> {
@@ -81,10 +92,12 @@ public class Oscillator extends Pattern {
                 });
             }
             else {
+                ArrayList<Integer> finalCurrPop = currPop;
                 grids[i].iterateCells(cell -> {
                     if (grids[0].getCell(cell) != grids[grids.length - 1].getCell(cell)) heat++;
                     if (changed.get(cell) == null || !changed.get(cell))
                         changed.put(cell, grids[0].getCell(cell) != grids[grids.length - 1].getCell(cell));
+                    finalCurrPop.set(grids[0].getCell(cell), finalCurrPop.get(grids[0].getCell(cell)) + 1);
                 });
 
                 grids[grids.length - 1].iterateCells(cell -> {
@@ -92,6 +105,8 @@ public class Oscillator extends Pattern {
                             grids[0].getCell(cell) != grids[grids.length - 1].getCell(cell)) heat++;
                 });
             }
+
+            populationSeq.add(currPop);
         }
 
         this.clearCells();
@@ -162,5 +177,13 @@ public class Oscillator extends Pattern {
      */
     public int getPeriod() {
         return period;
+    }
+
+    /**
+     * Gets the population sequence of the spaceship
+     * @return Returns the population sequence of the spaceship
+     */
+    public ArrayList<ArrayList<Integer>> getPopulationSequence() {
+        return populationSeq;
     }
 }

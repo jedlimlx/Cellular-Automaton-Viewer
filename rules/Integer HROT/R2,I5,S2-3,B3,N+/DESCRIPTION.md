@@ -1,3 +1,5 @@
+## R3,I5,S2-3,B3,N+
+
 B3 cross rules typically cannot escape their bounding box but this does not apply to integer rules.
 The rule has 4 natural speeds namely [c/2o], [c/4d], [c/13o] and [c/22o].
 

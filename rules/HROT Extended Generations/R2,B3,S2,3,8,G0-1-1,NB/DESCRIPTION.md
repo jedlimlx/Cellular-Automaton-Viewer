@@ -1,4 +1,4 @@
-## efiL8draobrekcehC
+## efiL8draobrekcehC (R2,B3,S2-3,8,G0-1-1,NB)
 
 A stable snoitreneg rule with common [P4] oscillators and a [c/2o]. Still lives exist although they are fairly uncommon.
 

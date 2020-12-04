@@ -1,3 +1,5 @@
+## R3,C2,S6-9,20-24,B6-8,20,NB
+
 An extremely active but not explosive rule.
 
 The most common oscilator is a [P2] phoenix. There is also a odd-looking [P16].

@@ -1,3 +1,5 @@
+## R3,C2,S6-9,B7-10,NB
+
 An active checkerboard rule with 2 common photons and common P4 oscillators.
 
 Has [P1] & [P2] photons as well as a [2c/10o] spaceship.

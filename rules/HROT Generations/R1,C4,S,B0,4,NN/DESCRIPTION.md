@@ -1,3 +1,5 @@
+## R1,C4,S,B0,4,NN
+
 This rule exhibits complex and interesting behaviour. 
 
 Checkerboard agars tend to be formed and most patterns exist in the checkerboard agars.

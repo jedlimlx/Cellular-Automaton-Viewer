@@ -1,3 +1,5 @@
+## R2,C2,S0-3,B0,2-4,N+
+
 This B0 cross has a rotating [P264] and wide variety of oscillators formed from interactions of the 
 common sparky [P2] and [P4] oscillators.
 
@@ -10,4 +12,4 @@ There is also a [c/34o] spaceship.
 [P2]: OSC_1.rle
 [P4]: OSC_2.rle
 [P264]: OSC_3.rle
-[c/340]: SHIP_1.rle
+[c/34o]: SHIP_1.rle

@@ -1,4 +1,4 @@
-## IntegerLife
+## IntegerLife (R1,I8,S2-3,B3,NM)
 
 A chaotic rule by Mark Niemiec. All patterns in Life work excluding those involving B6. 
 Other than the glider and the xWSS, this rule also has a natural [2c/6o], [c/3o] and [3c/11o]. 
@@ -25,6 +25,9 @@ This collection excludes Life patterns.
 [14] <br>
 [44] <br>
 [58] <br>
+
+**Agars** <br>
+[P6](AGAR_1.rle)
 
 [2]: OSC_1.rle
 [3]: OSC_2.rle

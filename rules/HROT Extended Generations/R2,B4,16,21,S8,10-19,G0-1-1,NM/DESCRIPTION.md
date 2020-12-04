@@ -1,3 +1,5 @@
+#R2,B4,16,21,S8,10-19,G0-1-1,NM
+
 This is a reverse generations variant of the rule Pigs. 
 It has a failed replicator as well as a [32c/96o linear replicator](REP_1.rle).
 In addition, there are many high period oscillators.
