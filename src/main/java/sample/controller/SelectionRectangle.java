@@ -60,6 +60,14 @@ public class SelectionRectangle extends Rectangle {
     }
 
     /**
+     * Is the selection rectangle active
+     * @return Returns whether the selection rectangle is active
+     */
+    public boolean isSelecting() {
+        return super.isVisible();
+    }
+
+    /**
      * Gets the start coordinate of the selection
      * @return Returns the start coordinate of the selection
      */

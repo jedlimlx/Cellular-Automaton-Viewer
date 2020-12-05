@@ -49,6 +49,7 @@ so that the values in these widgets do not change when the rulespace is changed.
 [Rule.java]: ../src/main/java/sample/model/rules/Rule.java
 [RuleFamily.java]: ../src/main/java/sample/model/rules/RuleFamily.java
 [BaseHROT.java]: ../src/main/java/sample/model/rules/hrot/BaseHROT.java
+[BaseINT.java]: ../src/main/java/sample/model/rules/isotropic/rules/BaseINT.java
 [ApgtableGeneratable.java]: ../src/main/java/sample/model/rules/ApgtableGeneratable.java
 [MinMaxRuleable.java]: ../src/main/java/sample/model/rules/MinMaxRuleable.java
 [RuleWidget.java]: ../src/main/java/sample/controller/dialogs/rule/RuleWidget.java

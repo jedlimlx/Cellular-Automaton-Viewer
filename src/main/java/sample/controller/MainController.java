@@ -29,6 +29,7 @@ import sample.model.*;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.Rule;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.Tiling;
 import sample.model.rules.hrot.HROT;
 import sample.model.rules.ruleloader.ColourDirective;
 import sample.model.rules.ruleloader.RuleDirective;
@@ -366,22 +367,30 @@ public class MainController {
 
     @FXML // Generates random soup in the selection box
     public void generateRandomSoup() {
-        int[] states = new int[statesToInclude.size()];
-        for (int i = 0; i < states.length; i++) {
-            states[i] = statesToInclude.get(i);
+        if (selectionRectangle.isSelecting()) {
+            int[] states = new int[statesToInclude.size()];
+            for (int i = 0; i < states.length; i++) {
+                states[i] = statesToInclude.get(i);
+            }
+
+            // Generate the soup
+            Grid soup = SymmetryGenerator.generateSymmetry(symmetry, density, states,
+                    selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1,
+                    selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1);
+
+            // Insert the cells in the pane (automatically inserted in the simulator)
+            insertCells(soup, selectionRectangle.getStart().getX(), selectionRectangle.getStart().getY());
+
+            // Move the grid lines and selection to the front
+            selectionRectangle.toFront();
+            gridLines.toFront();
         }
-
-        // Generate the soup
-        Grid soup = SymmetryGenerator.generateSymmetry(symmetry, density, states,
-                selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1,
-                selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1);
-
-        // Insert the cells in the pane (automatically inserted in the simulator)
-        insertCells(soup, selectionRectangle.getStart().getX(), selectionRectangle.getStart().getY());
-
-        // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("No area selected!");
+            alert.setContentText("No area has been selected!");
+            alert.showAndWait();
+        }
     }
 
     @FXML // Flips selected cells horizontally
@@ -726,8 +735,6 @@ public class MainController {
     }
 
     public void updateStatusText() {
-        deadCellsCache.setCapacity(simulator.getPopulation() * 5);
-
         String simulationString = String.format("Simulation Speed: %.2f step/s",
                 1000.0 / (visualisationTime + simulationTime));
 
@@ -1640,7 +1647,7 @@ public class MainController {
 
     @FXML // Copies the currently selected cells to the clipboard
     public void copyCells() {
-        if (mode == Mode.SELECTING) {
+        if (selectionRectangle.isSelecting()) {
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent content = new ClipboardContent();
 
@@ -1657,14 +1664,22 @@ public class MainController {
 
     @FXML // Deletes the cells in the selection
     public void deleteCells() {
-        Action.addAction();
+        if (selectionRectangle.isSelecting()) {
+            Action.addAction();
 
-        simulator.clearCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+            simulator.clearCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+            renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
 
-        // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+            // Move the grid lines and selection to the front
+            selectionRectangle.toFront();
+            gridLines.toFront();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("No area selected!");
+            alert.setContentText("No area has been selected!");
+            alert.showAndWait();
+        }
     }
 
     // Handles the keyboard shortcuts
