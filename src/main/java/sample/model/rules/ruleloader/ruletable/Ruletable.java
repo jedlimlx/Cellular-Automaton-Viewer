@@ -236,7 +236,6 @@ public class Ruletable extends RuleDirective {
         }
     }
 
-
     /**
      * Adds an outer totalistic transition with multiple states to the ruletable
      * @param transition The transition to add to the ruletable

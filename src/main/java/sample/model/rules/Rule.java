@@ -164,7 +164,10 @@ public abstract class Rule {
         if (cellsChanged.size() != alternatingPeriod)
             throw new IllegalArgumentException("cellsChanged parameter should have length " + alternatingPeriod + "!");
 
-        HashSet<Coordinate> cellsToCheck = new HashSet<>();
+        int totalSize = 0;
+        for (Set<Coordinate> cellSet: cellsChanged) totalSize += cellSet.size();
+
+        HashSet<Coordinate> cellsToCheck = new HashSet<>(totalSize);
         Coordinate[] neighbourhood = getNeighbourhood(generation);
 
         Coordinate[] invertedNeighbourhood = new Coordinate[neighbourhood.length];

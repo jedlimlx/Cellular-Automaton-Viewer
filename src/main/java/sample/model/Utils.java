@@ -5,6 +5,7 @@ import sample.model.rules.hrot.*;
 import sample.model.rules.hrot.enemies.HROTDeadlyEnemies;
 import sample.model.rules.hrot.history.HROTHistory;
 import sample.model.rules.hrot.symbiosis.HROTSymbiosis;
+import sample.model.rules.isotropic.rules.DeficientINT;
 import sample.model.rules.isotropic.rules.INT;
 import sample.model.rules.isotropic.rules.INTGenerations;
 import sample.model.rules.isotropic.rules.energetic.INTEnergetic;
@@ -30,8 +31,8 @@ public class Utils {
     public static RuleFamily[] ruleFamilies = {new HROT(), new HROTHistory(), new HROTSymbiosis(),
             new HROTDeadlyEnemies(), new HROTGenerations(), new HROTExtendedGenerations(),
             new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(), new MultistateCyclicHROT(),
-            new INT(), new INTHistory(), new INTEnergetic(), new INTGenerations(), new OneDimensional(), new Turmites(),
-            new RuleLoader(), new AlternatingRule()};
+            new INT(), new INTHistory(), new INTEnergetic(), new INTGenerations(), new DeficientINT(),
+            new OneDimensional(), new Turmites(), new RuleLoader(), new AlternatingRule()};
     public static BoundedGrid[] boundedGrids = {new Torus(), new Bounded()};
     public static ReadingOrder[] readingOrders = {new Orthogonal()};
 

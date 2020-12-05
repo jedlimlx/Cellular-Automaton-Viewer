@@ -8,7 +8,7 @@ import sample.model.rules.ruleloader.RuleDirective;
 public interface ApgtableGeneratable {
     /**
      * Generates an apgtable for apgsearch to use
-     * @return True if the operation was successful, false otherwise
+     * @return Returns an array of rule directives to be placed in the ruletable
      */
     RuleDirective[] generateApgtable();
 }

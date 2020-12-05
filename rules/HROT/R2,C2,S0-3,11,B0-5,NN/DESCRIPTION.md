@@ -29,5 +29,6 @@ Multiple [30c/268o]s can be combined to form [puffers](PUFF_1.rle).
 [62]: OSC_7.rle
 [76]: OSC_8.rle
 [1396]: OSC_9.rle
+[P1396]: OSC_9.rle
 
 [30c/268o]: SHIP_1.rle

@@ -105,6 +105,15 @@ public abstract class INTTransitions {
     }
 
     /**
+     * Checks if the provided neighbours of the cell satisfy the INT transitions
+     * @param neighbours Neighbours of the cell
+     * @return Returns true if the condition is satisfied, false otherwise
+     */
+    public boolean checkTransition(ArrayList<Integer> neighbours) {
+        return transitionTable.contains(neighbours);
+    }
+
+    /**
      * Gets the regex for the INT transitions
      * @return Returns the regex for the INT transitions
      */
