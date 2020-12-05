@@ -60,6 +60,7 @@ The Menu Bar
 **Search Menu**: <br>
 *Generate Apgtable* - Generates an apgtable to be used with [apgsearch](https://gitlab.com/apgoucher/apgmera) <br>
 *Run Rule Search* - Starts a search program that randomly enumerates rules to find spaceships & oscillators <br>
+*Run Agar Search* - Starts a search program that searches for agars <br>
 *Run Catalyst Search* - Starts a search program that searches for catalysts <br>
 *Run Brute Force Search* - Starts a brute force search program similiar to gsearch <br>
 
@@ -203,7 +204,9 @@ Supported / Planned Rulespaces
     - [ ] INT Extended Generations
     - [ ] INT Regenerating Generations
     - [ ] 3-state INT
-    - [ ] Deficient INT
+    - [x] Deficient INT
+        - [x] B0 Rules
+        - [x] Apgtable Generation
 - [ ] Magma's Notation
 - [ ] Primodia
 - [ ] Naive Rules
@@ -335,9 +338,10 @@ Long-term TODO List
     - [x] Random Soup / Symmetries Generation
 - [ ] Add Unit Tests
     - [x] Write the first one
-    - [ ] Rule Families
-    - [ ] Simulator
-    - [ ] Identification
+    - [x] Rule Families
+    - [x] Identification
+    - [x] Simulator
+    - [ ] Pattern Manipulation
     - [ ] GUI
 - [ ] Bounded Grids
     - [x] Bounded

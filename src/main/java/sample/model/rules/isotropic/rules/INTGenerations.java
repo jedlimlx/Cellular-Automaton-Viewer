@@ -156,7 +156,7 @@ public class INTGenerations extends BaseINT implements ApgtableGeneratable, MinM
         return "This implements Isotropic Non-Totalistic (INT) Generations rules.\n" +
                 "B0 rules are supported via emulation with alternating rules.\n\n" +
                 "The format is as follows:\n" +
-                "B<birth>/S<survival>/C<states>/N<neighbourhood>\n" +
+                "G<state>/B<birth>/S<survival>/N<neighbourhood>\n" +
                 "<survival>/<birth>/<states>/<neighbourhood>";
     }
 

@@ -16,10 +16,13 @@
 #R G3/B24m3o3mp/S106H
 #C 016/234m/3/H
 
-#R B2c2k2a3k3a3j4k4a4y4w5k/S02c2e2k2n3a3n4w5k5a/G18FE
+#R B24m3o3mp/S106/3/H
+#C 016/234m/3/H
+
+#R B2c2k2a3k3a3j4k4a4y4w5k/S02c2e2k2n3a3n4w5k5a/18/FE
 #C 02-ai3an4w5ak/2ack3ajk4akwy5k/18/FE
 
-#R B2a3q3j3r4w4zs1c2e2k2i3q3j3r4wG5/FC
+#R G5B2a3q3j3r4w4zs1c2e2k2i3q3j3r4w/FC
 #C 1c2eik3jqr4w/2a3jqr4wz/5/FC
 
 #R B3cea5/S223eiac/10
