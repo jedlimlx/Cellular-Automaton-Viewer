@@ -6,6 +6,7 @@ import sample.model.Utils;
 import sample.model.rules.ApgtableGeneratable;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletree.RuleTreeGen;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -120,8 +121,11 @@ public class MultistateCyclicHROT extends BaseHROT implements ApgtableGeneratabl
 
     @Override
     public RuleDirective[] generateApgtable() throws UnsupportedOperationException {
-        if (weights != null)
-            throw new UnsupportedOperationException("Apgtable generation with weights is not supported!");
+        if (weights != null) {
+            RuleTreeGen ruleTreeGen = new RuleTreeGen(numStates, neighbourhood, (neighbours, cellState) ->
+                    transitionFunc(cellState, neighbours, 0, new Coordinate()));
+            return new RuleDirective[]{ruleTreeGen.getRuleTree()};
+        }
 
         Ruletable ruletable = new Ruletable("");
 

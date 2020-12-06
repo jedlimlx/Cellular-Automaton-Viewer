@@ -474,7 +474,7 @@ public class DeficientHROT extends BaseHROT implements MinMaxRuleable, ApgtableG
     @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
         int sum = 0;
-        HashSet<Integer> forbiddenTransitions = new HashSet<>();
+        HashSet<Integer> forbiddenTransitions = new HashSet<>(neighbours.length);
         for (int i = 0; i < neighbours.length; i++) {
             if (neighbours[i] == 0) continue;
             if (weights != null) {

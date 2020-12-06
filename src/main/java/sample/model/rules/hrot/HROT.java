@@ -10,8 +10,10 @@ import sample.model.rules.RuleFamily;
 import sample.model.rules.Tiling;
 import sample.model.rules.ruleloader.RuleDirective;
 import sample.model.rules.ruleloader.ruletable.Ruletable;
+import sample.model.rules.ruleloader.ruletree.RuleTreeGen;
 import sample.model.simulation.Grid;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -375,25 +377,66 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
      */
     @Override
     public RuleDirective[] generateApgtable() {
-        // Generating the ruletable
-        Ruletable ruletable = new Ruletable("");
+        if (neighbourhood.length < 24) {
+            // Generating the ruletable
+            Ruletable ruletable = new Ruletable("");
 
-        if (weights == null) ruletable.setPermute();  // Enable permute symmetry
-        ruletable.setNumStates(2);
+            if (weights == null) ruletable.setPermute();  // Enable permute symmetry
+            ruletable.setNumStates(2);
 
-        ruletable.setNeighbourhood(neighbourhood);
-        ruletable.setWeights(weights);
+            ruletable.setNeighbourhood(neighbourhood);
+            ruletable.setWeights(weights);
 
-        ruletable.addVariable(Ruletable.ANY);
+            ruletable.addVariable(Ruletable.ANY);
 
-        // Birth and survival transitions
-        ruletable.addOTTransitions(birth, "0", "1", "0", "1");
-        ruletable.addOTTransitions(survival, "1", "1", "0", "1");
+            // Birth and survival transitions
+            ruletable.addOTTransitions(birth, "0", "1", "0", "1");
+            ruletable.addOTTransitions(survival, "1", "1", "0", "1");
 
-        // Death transitions
-        ruletable.addOTTransition(0, "1", "0", "any", "0");
+            // Death transitions
+            ruletable.addOTTransition(0, "1", "0", "any", "0");
 
-        return new RuleDirective[]{ruletable};
+            return new RuleDirective[]{ruletable};
+        } else {
+            /* TODO (Fix gaussian ruletree generation)
+            // Removing all (0, 0) from the neighbourhood and weights
+            int count = 0, diff = 0, i = 0;
+            for (Coordinate neighbour: neighbourhood) {
+                if (neighbour.getX() == 0 && neighbour.getY() == 0) {
+                    diff += weights[i];
+                    continue;
+                }
+
+                count++;
+                i++;
+            }
+
+            int[] newWeights = new int[count];
+            Coordinate[] newNeighbourhood = new Coordinate[count];
+
+            count = 0;
+            for (i = 0; i < neighbourhood.length; i++) {
+                if (neighbourhood[i].getX() == 0 && neighbourhood[i].getY() == 0) continue;
+                newNeighbourhood[count] = neighbourhood[i];
+                newWeights[count++] = weights[i];
+            }
+
+            weights = newWeights;
+            neighbourhood = newNeighbourhood;
+
+            HashSet<Integer> newSurvival = new HashSet<>();
+            for (int transition: survival) {
+                newSurvival.add(transition - diff);
+            }
+
+            survival.clear();
+            survival.addAll(newSurvival);
+             */
+
+            RuleTreeGen ruleTreeGen = new RuleTreeGen(numStates, neighbourhood, (neighbours, cellState) ->
+                    transitionFunc(cellState, neighbours, 0, new Coordinate()));
+            return new RuleDirective[]{ruleTreeGen.getRuleTree()};
+        }
     }
 
     /**

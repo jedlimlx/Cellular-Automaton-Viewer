@@ -10,6 +10,26 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+class Key {
+   public int[] arr;
+   public Key(int[] arr) {
+      this.arr = arr;
+   }
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Key key = (Key) o;
+      return Arrays.equals(arr, key.arr);
+   }
+
+   @Override
+   public int hashCode() {
+      return Arrays.hashCode(arr);
+   }
+}
+
 /**
  * Mostly taken from Golly
  */
@@ -20,8 +40,8 @@ public class RuleTreeGen {
 
    private int nodeSeq = 0;
    private final int[] params;
-   private final ArrayList<String> r = new ArrayList<>();
-   private final HashMap<String, Integer> world = new HashMap<>();
+   private final ArrayList<Key> r = new ArrayList<>();
+   private final HashMap<Key, Integer> world = new HashMap<>();
 
    private final Logger logger;
 
@@ -40,7 +60,7 @@ public class RuleTreeGen {
       logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
    }
 
-   private int getNode(String n) {
+   private int getNode(Key n) {
       Integer found = world.get(n);
       if (found == null) {
          found = nodeSeq++;
@@ -55,13 +75,14 @@ public class RuleTreeGen {
       if (at == 0)
          return f.apply(params[params.length - 1], Arrays.copyOfRange(params, 0, params.length - 1));
 
-      StringBuilder n = new StringBuilder("" + at);
+      int[] arr = new int[numStates + 1];
+      arr[0] = at;
       for (int i = 0; i < numStates; i++) {
          params[neighbourhood.length + 1 - at] = i;
-         n.append(" ").append(recur(at - 1));
+         arr[i + 1] = recur(at - 1);
       }
 
-      return getNode(n.toString());
+      return getNode(new Key(arr));
    }
 
    public Ruletree getRuleTree() {
@@ -75,12 +96,16 @@ public class RuleTreeGen {
       ruletree.append("num_states=").append(numStates).append("\n");
 
       String neighbourhoodString = Arrays.toString(neighbourhood);
-      ruletree.append("num_neighbors=").append("[(0, 0), ").append(neighbourhoodString, 1,
-              neighbourhoodString.length() - 1).append(", (0, 0)]\n");  // Add the (0, 0) at the front and back
+      ruletree.append("num_neighbors=").append("[").append(neighbourhoodString, 1,
+              neighbourhoodString.length() - 1).append(", (0, 0), (0, 0)]\n");  // Add the 2 (0, 0)s at the back
       ruletree.append("num_nodes=").append(r.size()).append("\n");
 
       // Ruletree body
-      for (String s : r) ruletree.append(s).append("\n");
+      for (Key key: r) {
+         for (int val: key.arr)
+            ruletree.append(val).append(" ");
+         ruletree.append("\n");
+      }
 
       Ruletree ruleTree = new Ruletree("");
       ruleTree.parseContent(ruletree.toString());
