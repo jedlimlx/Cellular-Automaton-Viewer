@@ -18,13 +18,21 @@ class PlacedCatalyst {
     private boolean interacted = false;
     private boolean regenerated = false;
     private final int hash;
-    private final Coordinate startCoordinate;
+    private final Coordinate startCoordinate, startCoordinate2;
     private final List<Coordinate> coordinateList;
+    private final Grid catalyst;
 
-    public PlacedCatalyst(int hash, Coordinate startCoordinate, List<Coordinate> coordinateList) {
+    public PlacedCatalyst(Grid catalyst, int hash, Coordinate startCoordinate, Coordinate startCoordinate2,
+                          List<Coordinate> coordinateList) {
+        this.catalyst = catalyst;
         this.hash = hash;
         this.startCoordinate = startCoordinate;
+        this.startCoordinate2 = startCoordinate2;
         this.coordinateList = coordinateList;
+    }
+
+    public Grid getCatalyst() {
+        return catalyst;
     }
 
     public int getHash() {
@@ -33,6 +41,10 @@ class PlacedCatalyst {
 
     public Coordinate getStartCoordinate() {
         return startCoordinate;
+    }
+
+    public Coordinate getStartCoordinate2() {
+        return startCoordinate2;
     }
 
     public List<Coordinate> getCoordinateList() {
@@ -76,9 +88,9 @@ public class CatalystSearch extends SearchProgram {
             searchResults = new ArrayList<>(); // Initialise search results
 
             long startTime = System.currentTimeMillis();
-            int initialGeneration = -1, repeatTime = -1;
-            int hash, numRegen = 0, numInteracted = 0;
-            List<PlacedCatalyst> placedCatalysts;
+            int initialGeneration, repeatTime = -1;
+            int hash, numRegen, numInteracted;
+            List<PlacedCatalyst> usedCatalysts, placedCatalysts;
             for (int i = 0; i < num; i++) {
                 // Check if the search should stop
                 if (stop) break;
@@ -86,13 +98,13 @@ public class CatalystSearch extends SearchProgram {
                 simulator = new Simulator(searchParameters.getRule());
 
                 initialGeneration = -1;
+                usedCatalysts = new ArrayList<>();
                 placedCatalysts = randomAddCatalyst(simulator, searchParameters);
                 if (placedCatalysts == null) continue;  // The catalysts overlap and are not still lives
 
                 // Inserting the target
                 simulator.insertCells(searchParameters.getTarget(), new Coordinate());
 
-                Grid original = simulator.deepCopy();
                 for (int j = 0; j < searchParameters.getMaxRepeatTime(); j++) {
                     simulator.step();
 
@@ -106,6 +118,7 @@ public class CatalystSearch extends SearchProgram {
                             if (initialGeneration == -1) initialGeneration = simulator.getGeneration();
                         } else if (hash == catalyst.getHash() && catalyst.hasInteracted() &&
                                 !catalyst.hasRegenerated()) {
+                            usedCatalysts.add(catalyst);
                             catalyst.setRegenerated(true);
                             repeatTime = simulator.getGeneration() - initialGeneration;
                         }
@@ -119,8 +132,18 @@ public class CatalystSearch extends SearchProgram {
 
                     // Every single catalyst regenerated
                     if (numRegen == numInteracted && numInteracted >= 1) {
+                        Grid original = new Grid();
+                        original.insertCells(searchParameters.getTarget(), new Coordinate());
+                        for (PlacedCatalyst catalyst: usedCatalysts)
+                            original.insertCells(catalyst.getCatalyst(), catalyst.getStartCoordinate2());
+
                         Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime);
-                        add(searchResults, catalyst);
+
+                        if (!known.contains(catalyst)) {
+                            add(searchResults, catalyst);
+                            add(known, catalyst);
+                        }
+
                         break;
                     }
                 }
@@ -192,6 +215,7 @@ public class CatalystSearch extends SearchProgram {
             }
 
             grid.insertCells(catalyst, coordinate);
+            Coordinate originalCoordinate = coordinate;
 
             List<Coordinate> bfsResult = catalyst.bfs(1, searchParameters.getRule().getNeighbourhood());
 
@@ -213,12 +237,16 @@ public class CatalystSearch extends SearchProgram {
                     coordinate = new Coordinate(coordinate.getX(), coordinate2.getY());
             }
 
-            placedCatalysts.add(new PlacedCatalyst(hash, coordinate, bfsResult));
+            placedCatalysts.add(new PlacedCatalyst(catalyst, hash, coordinate, originalCoordinate, bfsResult));
         }
 
-        // if (!grid.identify(2).toString().equals("Still Life")) {
-        //    return null;
-        // }
+        // Ensuring the catalysts are stable
+        int hash = grid.hashCode();
+        grid.step();
+
+        if (hash != grid.hashCode()) {
+            return null;
+        }
 
         return placedCatalysts;
     }

@@ -1,13 +1,23 @@
 package sample.controller.dialogs.search;
 
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import sample.model.Coordinate;
+import sample.model.Utils;
 import sample.model.rules.Rule;
 import sample.model.search.catsrc.CatalystSearchParameters;
 import sample.model.simulation.Grid;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class CatalystSearchParametersDialog extends SearchParametersDialog {
     private final Rule rule;
@@ -63,6 +73,71 @@ public class CatalystSearchParametersDialog extends SearchParametersDialog {
         catalystTextArea = new TextArea();
         catalystTextArea.setPromptText("Enter the catalysts to use (one line per headless RLE).");
         grid.add(catalystTextArea, 0, 9);
+
+        // HBox to store the stuf
+        HBox box = new HBox();
+        box.setSpacing(5);
+        grid.add(box, 0, 10);
+
+        // Load the catalysts from catagolue?
+        TextField catagolueUrl = new TextField();
+        catagolueUrl.setPromptText("Enter Catagolue URL");
+        box.getChildren().add(catagolueUrl);
+
+        // Button to load
+        Button loadFromCatagolue = new Button("Load from Catagolue");
+        loadFromCatagolue.setOnAction(event -> {
+            try {
+                InputStream stream = new URL(catagolueUrl.getText().replace("census",
+                        "textcensus")).openStream();
+                Scanner s = new Scanner(stream);
+
+                Grid grid;
+                String stillLife, line;
+
+                ArrayList<String> stillLives = new ArrayList<>();
+                while (s.hasNextLine()) {
+                    line = s.nextLine();
+                    if (line.startsWith("\"xs")) {
+                        stillLife = line.split(",")[0].replace("\"", "");
+                        stillLives.add(stillLife);
+                    }
+                }
+
+                stillLives.sort((s1, s2) -> {
+                    int num1 = Integer.parseInt(Utils.matchRegex("xs([0-9]+)_", s1, 0, 1));
+                    int num2 = Integer.parseInt(Utils.matchRegex("xs([0-9]+)_", s2, 0, 1));
+                    return Integer.compare(num1, num2);
+                });
+
+                int count = 0;
+                for (String sl: stillLives) {
+                    grid = new Grid();
+                    grid.fromApgcode(sl, new Coordinate());
+
+                    if (catalystTextArea.getText().length() > 0)
+                        catalystTextArea.setText(catalystTextArea.getText() + "\n" + grid.toRLE());
+                    else
+                        catalystTextArea.setText(grid.toRLE());
+
+                    if (count++ == 100) return;
+                }
+
+            } catch (IOException exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("An error occurred when scraping catagolue.");
+                alert.setContentText("Perhaps you are not connected to the internet or the " +
+                        "census URL inputted is invalid?");
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
+                alert.showAndWait();
+
+
+                LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING,
+                        exception.getMessage());
+            }
+        });
+        box.getChildren().add(loadFromCatagolue);
     }
 
     @Override

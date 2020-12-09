@@ -147,6 +147,23 @@ public abstract class Rule {
         return boundedGrid;
     }
 
+//
+//    /**
+//     * Given D, E, F, G, H, I, E' (Of course extended to larger neighbourhoods)
+//     * find A, B, C <br>
+//     * ABC <br>
+//     * DEF -> E' <br>
+//     * GHI <br>
+//     * @param rows
+//     * @param adjState
+//     * @param cellState
+//     * @param nextState
+//     * @return Returns a list of possible successor states
+//     */
+//    public ArrayList<int[]> getSuccessor(int[][] rows, int[] adjState, int cellState, int nextState) {
+//
+//    }
+
     /**
      * Steps the grid provided forward one generation
      * @param grid The grid that will be stepped forward one generation

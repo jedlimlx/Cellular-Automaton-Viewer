@@ -504,6 +504,50 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     }
 
     /**
+     * Inserts the apgcode into the grid
+     * @param apgcode The apgcode to insert into the grid
+     * @param startCoordinate The coordinate to insert the new cells
+     */
+    public void fromApgcode(String apgcode, Coordinate startCoordinate) {
+        String[] tokens = apgcode.split("_");
+        apgcode = String.join("_", Arrays.copyOfRange(tokens, 1, tokens.length));
+
+        String chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+        char c;
+        boolean blank = false;
+        int x = 0, y = 0, plane = 1;
+        for (int i = 0; i < apgcode.length(); i++) {
+            c = apgcode.charAt(i);
+            if (blank) {
+                x += chars.indexOf(c);
+            } else if (c == 'y') {
+                x += 4;
+                blank = true;
+            } else if (c == 'x') {
+                x += 3;
+            } else if (c == 'w') {
+                x += 2;
+            } else if (c == 'z') {
+                x = 0;
+                y += 5;
+            } else if (c == '_') {
+                x = 0;
+                y = 0;
+                plane += 1;
+            } else {
+                for (int j = 0; j < 5; j++) {
+                    if ((chars.indexOf(c) & (1 << j)) != 0) {
+                        setCell(x + startCoordinate.getX(), y + j + startCoordinate.getY(), plane);
+                    }
+                }
+
+                x += 1;
+            }
+        }
+    }
+
+    /**
      * Performs BFS (breath-first search) on the pattern and returns a
      * list of coordinates represents the cells that are a certain distance from the living cells.
      * @param distance The "distance" from the living cell
