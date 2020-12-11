@@ -96,7 +96,7 @@ public abstract class INTTransitions {
      * @return Returns true if the condition is satisfied, false otherwise
      */
     public boolean checkTransition(int[] neighbours) {
-        ArrayList<Integer> neighboursList = new ArrayList<>();
+        ArrayList<Integer> neighboursList = new ArrayList<>(neighbours.length);
         for (int neighbour: neighbours) {
             neighboursList.add(neighbour);
         }

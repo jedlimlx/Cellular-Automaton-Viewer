@@ -34,9 +34,10 @@ public class RuleDialog extends Dialog {
     private final RuleWidget[] ruleWidgets = new RuleWidget[]{new HROTDialog(), new HROTHistoryDialog(),
             new HROTSymbiosisDialog(), new HROTDeadlyEnemiesDialog(), new HROTGenerationsDialog(),
             new HROTExtendedGenerationsDialog(), new IntegerHROTDialog(), new DeficientHROTDialog(),
-            new HROTRegeneratingGenerationsDialog(), new MultistateCyclicHROTDialog(), new INTDialog(),
-            new INTHistoryDialog(), new INTEnergeticDialog(), new INTGenerationsDialog(), new DeficientINTDialog(),
-            new OneDimensionalDialog(), new TurmitesDialog(), new AlternatingDialog(), new RuleLoaderDialog()};
+            new HROTRegeneratingGenerationsDialog(), new HROTBSFKLDialog(), new MultistateCyclicHROTDialog(),
+            new INTDialog(), new INTHistoryDialog(), new INTEnergeticDialog(), new INTGenerationsDialog(),
+            new DeficientINTDialog(), new OneDimensionalDialog(), new TurmitesDialog(),
+            new AlternatingDialog(), new RuleLoaderDialog()};
 
     public RuleDialog(String promptText) {
         super();

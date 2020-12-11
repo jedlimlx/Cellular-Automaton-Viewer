@@ -203,7 +203,7 @@ public abstract class DoubleLetterTransitions extends INTTransitions {
         StringBuilder transitionString = new StringBuilder();
 
         // Counting the number of neighbours in each transition
-        for (ArrayList<Integer> transition: transitionTable) {
+        for (List<Integer> transition: transitionTable) {
             count = 0;
             for (int state: transition) {
                 if (state == 1) count++;
