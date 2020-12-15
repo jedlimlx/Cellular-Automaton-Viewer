@@ -10,11 +10,13 @@ import javafx.stage.Window;
 import sample.controller.dialogs.rule.hrot.*;
 import sample.controller.dialogs.rule.isotropic.*;
 import sample.controller.dialogs.rule.misc.AlternatingDialog;
+import sample.controller.dialogs.rule.misc.EuclideanDialog;
 import sample.controller.dialogs.rule.misc.OneDimensionalDialog;
 import sample.controller.dialogs.rule.misc.TurmitesDialog;
 import sample.controller.dialogs.rule.ruleloader.RuleLoaderDialog;
 import sample.model.Coordinate;
 import sample.model.rules.RuleFamily;
+import sample.model.rules.misc.Euclidean;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -36,7 +38,7 @@ public class RuleDialog extends Dialog {
             new HROTExtendedGenerationsDialog(), new IntegerHROTDialog(), new DeficientHROTDialog(),
             new HROTRegeneratingGenerationsDialog(), new HROTBSFKLDialog(), new MultistateCyclicHROTDialog(),
             new INTDialog(), new INTHistoryDialog(), new INTEnergeticDialog(), new INTGenerationsDialog(),
-            new DeficientINTDialog(), new OneDimensionalDialog(), new TurmitesDialog(),
+            new DeficientINTDialog(), new EuclideanDialog(), new OneDimensionalDialog(), new TurmitesDialog(),
             new AlternatingDialog(), new RuleLoaderDialog()};
 
     public RuleDialog(String promptText) {

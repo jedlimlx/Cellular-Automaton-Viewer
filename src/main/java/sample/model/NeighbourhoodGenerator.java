@@ -77,6 +77,23 @@ public class NeighbourhoodGenerator {
         return toArray(neighbourhood);
     }
 
+    public static Coordinate[] generateVonNeumann(int range, int prevRange) {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        for (int i = -range; i < range + 1; i++) {
+            for (int j = -range; j < range + 1; j++) {
+                if (i == 0 && j == 0) continue;  // Ignore center cell
+                if ((Math.abs(i) + Math.abs(j)) <= prevRange) continue;  // Ignore previous stuff
+
+                // Ignore center cell and cells whose coordinate sum >range
+                if ((Math.abs(i) + Math.abs(j)) <= range) {
+                    neighbourhood.add(new Coordinate(i, j));
+                }
+            }
+        }
+
+        return toArray(neighbourhood);
+    }
+
     public static Coordinate[] generateHexagonal(int range) {
         ArrayList<Coordinate> neighbourhood = new ArrayList<>();
         for (int i = -range; i < range + 1; i++) {
@@ -114,6 +131,23 @@ public class NeighbourhoodGenerator {
         for (int i = -range; i < range + 1; i++) {
             for (int j = -range; j < range + 1; j++) {
                 if (i == 0 && j == 0) continue;  // Ignore center cell
+
+                // x^2 + y^2 <= r^2 + r
+                if ((i * i + j * j) <= range * range + range) {
+                    neighbourhood.add(new Coordinate(i, j));
+                }
+            }
+        }
+
+        return toArray(neighbourhood);
+    }
+
+    public static Coordinate[] generateCircular(int range, int prevRange) {
+        ArrayList<Coordinate> neighbourhood = new ArrayList<>();
+        for (int i = -range; i < range + 1; i++) {
+            for (int j = -range; j < range + 1; j++) {
+                if (i == 0 && j == 0) continue;  // Ignore center cell
+                if ((i * i + j * j) <= prevRange * prevRange + prevRange) continue;
 
                 // x^2 + y^2 <= r^2 + r
                 if ((i * i + j * j) <= range * range + range) {

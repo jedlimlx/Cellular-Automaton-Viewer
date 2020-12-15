@@ -41,7 +41,7 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
     /**
      * The size of the blocks used
      */
-    private final int BLOCK_SIZE = 8;
+    public static final int BLOCK_SIZE = 8;
 
     /**
      * Constructs a grid with an empty pattern and a background of 0.
@@ -757,10 +757,10 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
      */
     public void iterateCellsInBlock(Consumer<Coordinate> methodToCall, Block block) {
         for (int i = block.getStartCoordinate().getX(); i < block.getStartCoordinate().getX() + BLOCK_SIZE; i++) {
-                for (int j = block.getStartCoordinate().getY(); j < block.getStartCoordinate().getY() + BLOCK_SIZE; j++) {
-                    if (block.getCell(i, j) > 0) methodToCall.accept(new Coordinate(i, j));
-                }
+            for (int j = block.getStartCoordinate().getY(); j < block.getStartCoordinate().getY() + BLOCK_SIZE; j++) {
+                if (block.getCell(i, j) > 0) methodToCall.accept(new Coordinate(i, j));
             }
+        }
     }
 
     /**

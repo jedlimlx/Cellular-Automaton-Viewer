@@ -229,6 +229,10 @@ Supported / Planned Rulespaces
     - [ ] Splitting Turmites
 - [ ] Margolus
 - [x] 1D CA
+- [ ] Euclidean CA
+  - [x] Euclidean Distance
+  - [x] Manhattan Distance
+  - [ ] Accurate Floating-point Summation
 - [ ] [R]History
     - [x] 2-state HROT
     - [ ] HROT Generations
