@@ -54,6 +54,13 @@
 | Name | Character | Rulestring | Description | 
 | ------------- | ------------- | ------------- | ------------- |
 | [?](../rules/INT/B2-ahi8_S14_NC2/DESCRIPTION.md) | Chaotic | B2-ahi8/S14/NC2 | A rule with a common puffer, 9c/26d and 4c/26o. Some other ships found include a 2c/4d, 2c/6o and 6c/12d.
+| [?](../rules/INT/B2ec3aacaeaia4x6x8x_S2x3x_NV2/DESCRIPTION.md) | Chaotic | B2ec3aacaeaia4x6x8x/S2x3x/NV2 | An active rule with a common c/13o and c/4d. c/13os can combine to form P51 OMOSs or combine with oscillators to form higher-period oscillators (P96). Other spaceships such as a c/2o and a 2c/4o have also been found.
+
+## Generations <!--1-->
+
+| Name | Character | Rulestring | Description | 
+| ------------- | ------------- | ------------- | ------------- |
+| [?](../rules/INT Generations/B2aacaeaiakana_S1ca2x3ac4adjanawa_C3_NV2/DESCRIPTION.md) | Stable | 1ca2x3ac4adjanawa/2aacaeaiakana/3/V2 | This rule has a common P20 RRO. Multiple P20 RROs can merge toform various larger oscillators and spaceships.
 
 
 # Custom Rules

@@ -114,6 +114,19 @@ public abstract class RuleDirective extends Directive {
         while (matcher.find()) neighbourhood.add(new Coordinate(Integer.parseInt(matcher.group(1)),
                 Integer.parseInt(matcher.group(2))));
 
+        // Remove the (0, 0) from the ruletrees and ruletables
+        if (neighbourhood.get(0).equals(new Coordinate())) {
+            neighbourhood.remove(0);
+        }
+
+        if (neighbourhood.get(neighbourhood.size() - 1).equals(new Coordinate())) {
+            neighbourhood.remove(neighbourhood.size() - 1);
+        }
+
+        if (neighbourhood.get(neighbourhood.size() - 1).equals(new Coordinate())) {
+            neighbourhood.remove(neighbourhood.size() - 1);
+        }
+
         return neighbourhood.toArray(new Coordinate[0]);
     }
 
@@ -203,10 +216,10 @@ public abstract class RuleDirective extends Directive {
     protected Tiling getTiling(String content) {
         content = content.replaceAll("tiling:\\s*", "");
 
-        if (content.toLowerCase().equals("hexagonal")) {
+        if (content.equalsIgnoreCase("hexagonal")) {
             return Tiling.Hexagonal;
         }
-        else if (content.toLowerCase().equals("triangular")) {
+        else if (content.equalsIgnoreCase("triangular")) {
             return Tiling.Triangular;
         }
         else {

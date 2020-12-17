@@ -2,12 +2,19 @@ package sample.model.rules.hrot;
 
 import org.junit.Test;
 import sample.model.Coordinate;
+import sample.model.SymmetryGenerator;
+import sample.model.rules.ruleloader.RuleDirective;
+import sample.model.rules.ruleloader.RuleLoader;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -235,8 +242,37 @@ public class HROTTest {
         assertNotEquals(hrotClone.getSurvival(), hrot.getSurvival());
         assertNotEquals(hrotClone.getNeighbourhood(), hrot.getNeighbourhood());
     }
+    
+    @Test
+    public void testGenerateApgtable() throws IOException {
+        String[] rules = new String[]{"B3/S23", "R1,C2,S2-3,B3,N@891891", "R2,C2,S9,B0-3,NN",
+                "R2,C2,S5-9,B7-8,NM", "R2,C2,S6-11,B9-11,NW0010003330130310333000100"};
+        for (String rule: rules) {
+            HROT hrotRule = new HROT(rule);
+            Simulator simulator = new Simulator(hrotRule);
+            simulator.insertCells(SymmetryGenerator.generateC1(50, new int[]{1}, 16, 16),
+                    new Coordinate());
 
-    @Test(timeout = 2000)
+            RuleLoader ruleLoader = new RuleLoader();
+            for (RuleDirective ruleDirective: hrotRule.generateApgtable())
+                ruleLoader.addRuleDirective(ruleDirective);
+
+            FileWriter file = new FileWriter("rules/Temp.rule");
+            file.write(ruleLoader.export());
+            file.close();
+
+            Simulator simulator2 = new Simulator(new RuleLoader("Temp"));
+            simulator2.insertCells(simulator, new Coordinate());
+
+            for (int i = 0; i < 5 * hrotRule.getAlternatingPeriod(); i++) simulator.step();
+            for (int i = 0; i < 5 * hrotRule.getAlternatingPeriod(); i++) simulator2.step();
+
+            assertEquals(simulator.toRLE().replace("o", "A").replace("b", "."),
+                    simulator2.toRLE().replace("o", "A").replace("b", "."));
+        }
+    }
+
+    @Test
     public void testSimulation() {
         // Loading the testcases
         Scanner scanner = new Scanner(getStream("/HROT/simulationTest.txt"));

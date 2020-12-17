@@ -31,6 +31,7 @@ Welcome to the CAViewer wiki!
      * [Integer Rules](Sample-Rules.md#integer-rules)
   * [Isotropic Non-Totalistic (INT)](Sample-Rules.md#isotropic-non-totalistic-int)
      * [2 state](Sample-Rules.md#2-state----1---)
+     * [Generations](Sample-Rules.md#generations---1--)
   * [Custom Rules](Sample-Rules.md#custom-rules)
 * [Search Programs](Search-Programs.md)
   * [Rule Search](Search-Programs.md#rule-search)
