@@ -1,4 +1,4 @@
-## R2,C2,S4,6,7,22-24,B6,7,13,14,18,19,22,NM
+## R2,C2,S4,6,7,22-24,B6-7,13-14,18-19,22,NM
 
 An active rule that has a common [P38] oscillator and a glide-symmetric [4c/16o].
 
