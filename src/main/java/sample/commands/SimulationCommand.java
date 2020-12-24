@@ -65,6 +65,10 @@ public class SimulationCommand implements Runnable {
 
             savePattern(outputFile);
         }
+        catch (IllegalArgumentException exception) {
+            System.err.println(exception.getMessage());
+            System.exit(-1);
+        }
         catch (FileNotFoundException exception) {
             System.err.println("Input / Output file could not be found!");
             System.exit(-1);

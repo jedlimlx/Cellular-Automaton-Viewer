@@ -11,7 +11,7 @@ public class SymmetryGenerator {
     /**
      * The list of symmetries
      */
-    public final static String[] symmetries = new String[]{"C1", "C2", "C4", "D2-", "D4+"};
+    public final static String[] symmetries = new String[]{"C1", "C2", "C4", "D2/", "D2-", "D4+", "D4x", "D8"};
 
     /**
      * Generates a symmetry based on the provided symmetry name.
@@ -27,7 +27,10 @@ public class SymmetryGenerator {
             case "C2": return generateC2(density, states, x, y);
             case "C4": return generateC4(density, states, x, y);
             case "D2-": return generateD2(density, states, x, y);
+            case "D2/": return generateD2x(density, states, x, y);
             case "D4+": return generateD4(density, states, x, y);
+            case "D4x": return generateD4x(density, states, x, y);
+            case "D8": return generateD8(density, states, x, y);
             default: return generateC1(density, states, x, y);
         }
     }
@@ -60,6 +63,21 @@ public class SymmetryGenerator {
         return soup;
     }
 
+    public static Grid generateD2x(int density, int[] states, int x, int y) {
+        Random random = new Random();  // Random Number Generator
+        Grid soup = new Grid();  // Stores the soup
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                if (random.nextInt(100) < density / 2) {
+                    soup.setCell(i, j, states[random.nextInt(states.length)]);
+                    soup.setCell(j, i, states[random.nextInt(states.length)]);
+                }
+            }
+        }
+
+        return soup;
+    }
+
     public static Grid generateD4(int density, int[] states, int x, int y) {
         Grid grid = generateD2(density, states, x / 2 + 1, y);
         Grid grid2 = grid.deepCopy();
@@ -69,6 +87,53 @@ public class SymmetryGenerator {
         soup.insertCells(grid, new Coordinate(0, 0));
         if (x % 2 == 0) soup.insertCells(grid2, new Coordinate(x / 2 - 1, 0));
         else soup.insertCells(grid2, new Coordinate(x / 2, 0));
+
+        return soup;
+    }
+
+    public static Grid generateD4x(int density, int[] states, int x, int y) {
+        Grid grid = generateD2x(density, states, x / 2 + 1, y / 2 + 1);
+        Grid grid2 = generateD2x(density, states, x / 2 + 1, y / 2 + 1);
+        Grid grid3 = grid2.deepCopy();
+        grid2.reflectCellsX(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+        grid3.reflectCellsY(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+
+        Grid grid4 = grid.deepCopy();
+        grid4.reflectCellsX(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+        grid4.reflectCellsY(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+
+        Grid soup = new Grid();
+        soup.insertCells(grid, new Coordinate(0, 0));
+        if (x % 2 == 0) soup.insertCells(grid2, new Coordinate(x / 2 - 1, 0));
+        else soup.insertCells(grid2, new Coordinate(x / 2, 0));
+
+        if (y % 2 == 0) soup.insertCells(grid3, new Coordinate(0, y / 2 - 1));
+        else soup.insertCells(grid3, new Coordinate(0, y / 2));
+
+        soup.insertCells(grid4, new Coordinate(x % 2 == 0 ? x / 2 - 1 : x / 2, y % 2 == 0 ? y / 2 - 1 : y / 2));
+
+        return soup;
+    }
+
+    public static Grid generateD8(int density, int[] states, int x, int y) {
+        Grid grid = generateD2x(density, states, x / 2 + 1, y / 2 + 1);
+        Grid grid2 = grid.deepCopy();
+        Grid grid3 = grid.deepCopy();
+        grid2.reflectCellsX(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+        grid3.reflectCellsY(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+
+        Grid grid4 = grid3.deepCopy();
+        grid4.reflectCellsX(new Coordinate(0, 0), new Coordinate(x / 2, y / 2));
+
+        Grid soup = new Grid();
+        soup.insertCells(grid, new Coordinate(0, 0));
+        if (x % 2 == 0) soup.insertCells(grid2, new Coordinate(x / 2 - 1, 0));
+        else soup.insertCells(grid2, new Coordinate(x / 2, 0));
+
+        if (y % 2 == 0) soup.insertCells(grid3, new Coordinate(0, y / 2 - 1));
+        else soup.insertCells(grid3, new Coordinate(0, y / 2));
+
+        soup.insertCells(grid4, new Coordinate(x % 2 == 0 ? x / 2 - 1 : x / 2, y % 2 == 0 ? y / 2 - 1 : y / 2));
 
         return soup;
     }

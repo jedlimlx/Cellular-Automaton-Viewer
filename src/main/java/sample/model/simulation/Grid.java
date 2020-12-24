@@ -66,12 +66,10 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
         // Deep copying
         this.dictionary = new HashMap<>();
 
-        Block block;
-        for (Coordinate coordinate: dictionary.keySet()) {
-            block = dictionary.get(coordinate);
-            if (block.getPopulation() == 0) continue;
+        for (Map.Entry<Coordinate, Block> entry: dictionary.entrySet()) {
+            if (entry.getValue().getPopulation() == 0) continue;
 
-            this.dictionary.put(coordinate, (Block) block.clone());
+            this.dictionary.put(entry.getKey(), (Block) entry.getValue().clone());
         }
     }
 
@@ -97,15 +95,17 @@ public class Grid implements Iterable<Block>, Iterator<Block> {
         state = convertCell(state);
 
         Coordinate blockCoordinate = getBlockCoordinate(coordinate);
-        if (dictionary.get(blockCoordinate) == null) {
-            if (state == 0) return;
-            Block block = new Block(blockCoordinate, BLOCK_SIZE, BLOCK_SIZE);
-            block.setCell(coordinate.getX(), coordinate.getY(), state);
 
-            dictionary.put(blockCoordinate, block);
+        Block block = dictionary.get(blockCoordinate);
+        if (block == null) {
+            if (state == 0) return;
+            Block block2 = new Block(blockCoordinate, BLOCK_SIZE, BLOCK_SIZE);
+            block2.setCell(coordinate.getX(), coordinate.getY(), state);
+
+            dictionary.put(blockCoordinate, block2);
         }
         else {
-            dictionary.get(blockCoordinate).setCell(coordinate.getX(), coordinate.getY(), state);
+            block.setCell(coordinate.getX(), coordinate.getY(), state);
         }
     }
 

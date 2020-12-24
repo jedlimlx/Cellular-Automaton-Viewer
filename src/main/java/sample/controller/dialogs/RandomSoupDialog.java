@@ -1,6 +1,5 @@
 package sample.controller.dialogs;
 
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -8,13 +7,14 @@ import javafx.stage.Window;
 import sample.model.SymmetryGenerator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RandomSoupDialog extends Dialog {
     private final Slider densitySlider;
     private final ComboBox<String> symmetryCombobox;
     private final ArrayList<CheckBox> statesCheckBox;
 
-    public RandomSoupDialog(int numStates, int density, String symmetry, ArrayList<Integer> states) {
+    public RandomSoupDialog(int numStates, int density, String symmetry, List<Integer> states) {
         super();
 
         super.setTitle("Random Soup Settings");

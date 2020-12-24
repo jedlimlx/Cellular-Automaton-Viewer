@@ -26,6 +26,7 @@ import java.util.logging.LogManager;
 public class Main implements Runnable {
     public static void main(String[] args) {
         try {
+            Benchmark.main(args);
             LogManager.getLogManager().readConfiguration(
                     Main.class.getResourceAsStream("/logging.properties"));
         } catch (IOException ignored) {}

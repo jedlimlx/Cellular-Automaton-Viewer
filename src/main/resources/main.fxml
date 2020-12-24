@@ -40,7 +40,7 @@
       <Menu mnemonicParsing="false" text="View">
          <items>
             <MenuItem mnemonicParsing="false" onAction="#adjustColours" text="Adjust Colours" />
-            <CheckMenuItem fx:id="gridLinesMenuItem1" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
+            <CheckMenuItem fx:id="gridLinesMenuItem" mnemonicParsing="false" onAction="#toggleGridLines" text="Grid Lines" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#viewPopulationGraph" text="View Population Graph" />
          </items>

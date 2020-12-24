@@ -92,6 +92,7 @@ public class GliderDBReader extends DatabaseReader {
      * @throws IOException Thrown when there is an issue reading or writing to the file
      */
     public void canoniseDB(File newFile) throws IOException {
+        int alternatingPeriod;
         Pattern pattern;
         Simulator simulator;
         GliderDBEntry entry, entry2;
@@ -102,61 +103,70 @@ public class GliderDBReader extends DatabaseReader {
         Scanner scanner = new Scanner(this.file);
         while (scanner.hasNextLine()) {
             entry = new GliderDBEntry(scanner.nextLine());
-
             if (entry.getOscillator() != null) {
-                simulator = new Simulator(entry.getOscillator().getRule());
-                simulator.insertCells(entry.getOscillator(), new Coordinate(0, 0));
-            }
-            else {
-                simulator = new Simulator(entry.getSpaceship().getRule());
-                simulator.insertCells(entry.getSpaceship(), new Coordinate(0, 0));
+                alternatingPeriod = entry.getOscillator().getRule().getAlternatingPeriod();
+            } else {
+                alternatingPeriod = entry.getSpaceship().getRule().getAlternatingPeriod();
             }
 
-            pattern = simulator.identify(5000);
-
-            if (pattern instanceof Oscillator) {
-                entry2 = new GliderDBEntry((Oscillator) pattern, entry.getDiscoverer(), entry.getName());
-                checkKnown = new Quintet<>(entry2.getOscillator().getMinRule().getRulestring(),
-                        entry2.getOscillator().getMaxRule().getRulestring(),
-                        entry2.getOscillator().getPeriod(), 0, 0);
-                if (known.contains(checkKnown)) {
-                    System.out.println("Removed: " + entry2.toString());
-                    continue;
+            for (int i = 0; i < alternatingPeriod; i++) {
+                if (entry.getOscillator() != null) {
+                    simulator = new Simulator(entry.getOscillator().getRule());
+                    simulator.setGeneration(i);
+                    simulator.insertCells(entry.getOscillator(), new Coordinate(0, 0));
+                } else {
+                    simulator = new Simulator(entry.getSpaceship().getRule());
+                    simulator.setGeneration(i);
+                    simulator.insertCells(entry.getSpaceship(), new Coordinate(0, 0));
                 }
 
-                writer.write(entry2.toString() + "\n");
+                pattern = simulator.identify(5000);
 
-                known.add(checkKnown);
-            } else if (pattern instanceof Spaceship) {
-                entry2 = new GliderDBEntry((Spaceship) pattern, entry.getDiscoverer(), entry.getName());
-                checkKnown = new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
-                        entry2.getSpaceship().getMaxRule().getRulestring(),
-                        entry2.getSpaceship().getPeriod(),
-                        entry2.getSpaceship().getDisplacementX(),
-                        entry2.getSpaceship().getDisplacementY());
-                if (known.contains(checkKnown)) {
-                    System.out.println("Removed: " + entry2.toString());
-                    continue;
+                if (pattern instanceof Oscillator) {
+                    entry2 = new GliderDBEntry((Oscillator) pattern, entry.getDiscoverer(), entry.getName());
+                    checkKnown = new Quintet<>(entry2.getOscillator().getMinRule().getRulestring(),
+                            entry2.getOscillator().getMaxRule().getRulestring(),
+                            entry2.getOscillator().getPeriod(), 0, 0);
+                    if (known.contains(checkKnown)) {
+                        System.out.println("Removed: " + entry2.toString());
+                        break;
+                    }
+
+                    writer.write(entry2.toString() + "\n");
+                    known.add(checkKnown);
+                    break;
+                } else if (pattern instanceof Spaceship) {
+                    entry2 = new GliderDBEntry((Spaceship) pattern, entry.getDiscoverer(), entry.getName());
+                    checkKnown = new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
+                            entry2.getSpaceship().getMaxRule().getRulestring(),
+                            entry2.getSpaceship().getPeriod(),
+                            entry2.getSpaceship().getDisplacementX(),
+                            entry2.getSpaceship().getDisplacementY());
+                    if (known.contains(checkKnown)) {
+                        System.out.println("Removed: " + entry2.toString());
+                        break;
+                    }
+
+                    writer.write(entry2.toString() + "\n");
+
+                    known.add(checkKnown);
+                    known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
+                            entry2.getSpaceship().getMaxRule().getRulestring(),
+                            entry2.getSpaceship().getPeriod(),
+                            -entry2.getSpaceship().getDisplacementX(),
+                            entry2.getSpaceship().getDisplacementY()));
+                    known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
+                            entry2.getSpaceship().getMaxRule().getRulestring(),
+                            entry2.getSpaceship().getPeriod(),
+                            entry2.getSpaceship().getDisplacementX(),
+                            -entry2.getSpaceship().getDisplacementY()));
+                    known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
+                            entry2.getSpaceship().getMaxRule().getRulestring(),
+                            entry2.getSpaceship().getPeriod(),
+                            -entry2.getSpaceship().getDisplacementX(),
+                            -entry2.getSpaceship().getDisplacementY()));
+                    break;
                 }
-
-                writer.write(entry2.toString() + "\n");
-
-                known.add(checkKnown);
-                known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
-                        entry2.getSpaceship().getMaxRule().getRulestring(),
-                        entry2.getSpaceship().getPeriod(),
-                        -entry2.getSpaceship().getDisplacementX(),
-                        entry2.getSpaceship().getDisplacementY()));
-                known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
-                        entry2.getSpaceship().getMaxRule().getRulestring(),
-                        entry2.getSpaceship().getPeriod(),
-                        entry2.getSpaceship().getDisplacementX(),
-                        -entry2.getSpaceship().getDisplacementY()));
-                known.add(new Quintet<>(entry2.getSpaceship().getMinRule().getRulestring(),
-                        entry2.getSpaceship().getMaxRule().getRulestring(),
-                        entry2.getSpaceship().getPeriod(),
-                        -entry2.getSpaceship().getDisplacementX(),
-                        -entry2.getSpaceship().getDisplacementY()));
             }
         }
 

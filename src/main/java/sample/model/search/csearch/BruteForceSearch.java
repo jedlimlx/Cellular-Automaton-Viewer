@@ -72,9 +72,9 @@ public class BruteForceSearch extends SearchProgram {
 
                     // Converting to base n to get the soup
                     if (searchParameters.isRandom()) {
-                        simulator.insertCells(SymmetryGenerator.generateSymmetry("C1", 50, new int[]{1},
-                                searchParameters.getxBound(), searchParameters.getyBound()),
-                                new Coordinate());
+                        simulator.insertCells(SymmetryGenerator.generateSymmetry(searchParameters.getSymmetry(),
+                                searchParameters.getDensity(), searchParameters.getStatesToInclude(),
+                                searchParameters.getxBound(), searchParameters.getyBound()), new Coordinate());
                     } else {
                         int x = 0, y = 0;
                         String charString;

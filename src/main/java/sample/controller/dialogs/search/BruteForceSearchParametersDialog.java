@@ -1,10 +1,16 @@
 package sample.controller.dialogs.search;
 
 import javafx.scene.control.*;
+import sample.controller.dialogs.RandomSoupDialog;
 import sample.model.rules.Rule;
 import sample.model.search.csearch.BruteForceSearchParameters;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class BruteForceSearchParametersDialog extends SearchParametersDialog {
+    private final RandomSoupDialog randomSoupDialog;
+
     private final Rule rule;
     private final CheckBox bruteForce;
     private final Spinner<Integer> spinnerMaxPeriod, spinnerBoundX, spinnerBoundY;
@@ -48,6 +54,14 @@ public class BruteForceSearchParametersDialog extends SearchParametersDialog {
         bruteForce = new CheckBox("Brute Force?");
         grid.add(bruteForce, 0, 8);
 
+        // Random Soup Parameters
+        randomSoupDialog = new RandomSoupDialog(rule.getNumStates(), 50, "C1",
+                Collections.singletonList(1));
+        Button randomSoupParametersButton = new Button("Set Random Soup Parameters");
+        randomSoupParametersButton.setOnAction(event -> randomSoupDialog.showAndWait());
+
+        grid.add(randomSoupParametersButton, 0, 9);
+
         // Setting the rule to search
         this.rule = rule;
     }
@@ -58,30 +72,15 @@ public class BruteForceSearchParametersDialog extends SearchParametersDialog {
 
         try {
             searchParameters = new BruteForceSearchParameters(rule, spinnerMaxPeriod.getValue(),
-                    spinnerBoundX.getValue(), spinnerBoundY.getValue(), !bruteForce.isSelected());
+                    spinnerBoundX.getValue(), spinnerBoundY.getValue(), !bruteForce.isSelected(),
+                    randomSoupDialog.getSymmetry(), randomSoupDialog.getStates(), randomSoupDialog.getDensity());
             return true;
-        }
-        catch (NullPointerException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("The min / max rule is not specified!");
-            alert.setContentText("The min / max rule is not specified!");
-            alert.showAndWait();
-        }
-        catch (UnsupportedOperationException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("Minimum and maximum rules are not supported by this rule family.");
-            alert.setContentText("The minimum and maximum rules are not supported by this rule family. " +
-                    "As a result, you cannot run rule search on rules in this rule family. " +
-                    "If you need this feature, please request for it.");
-            alert.showAndWait();
         }
         catch (IllegalArgumentException exception) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error!");
-            alert.setHeaderText("The min / max rule is invalid!");
-            alert.setContentText("The min / max rule is invalid!");
+            alert.setHeaderText(exception.getMessage());
+            alert.setContentText(exception.getMessage());
             alert.showAndWait();
         }
 
