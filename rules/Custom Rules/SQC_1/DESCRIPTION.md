@@ -12,6 +12,7 @@ such as a [(20, 8)c/32] spaceship. [P8 oscillators] and a [P76 gun] have also be
 [4c/4o] <br>
 [2c/6d] <br>
 [4c/14d] <br>
+[4c/18d] <br>
 [24c/24o] <br>
 [(20, 8)c/32] <br>
 
@@ -30,6 +31,7 @@ such as a [(20, 8)c/32] spaceship. [P8 oscillators] and a [P76 gun] have also be
 [4c/14d]: SHIP_4.rle
 [(20, 8)c/32]: SHIP_5.rle
 [24c/24o]: SHIP_6.rle
+[4c/18d]: SHIP_8.rle
 
 [P8 oscillators]: OSC_1.rle
 

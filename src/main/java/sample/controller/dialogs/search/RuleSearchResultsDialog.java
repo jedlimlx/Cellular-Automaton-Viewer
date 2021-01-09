@@ -1,8 +1,6 @@
 package sample.controller.dialogs.search;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
 import sample.controller.MainController;
 import sample.model.patterns.Pattern;
 import sample.model.rules.RuleFamily;
@@ -10,33 +8,12 @@ import sample.model.search.SearchProgram;
 import sample.model.search.rulesrc.RuleSearchParameters;
 import sample.model.simulation.Grid;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class RuleSearchResultsDialog extends SearchResultsDialog {
-    private int currentIndex;  // The index of the last loaded result
     public RuleSearchResultsDialog(MainController mainController, SearchProgram searchProgram) {
         super(mainController, searchProgram);
         super.setTitle("Rule Search Results");
-
-        // Adding column for the pattern type (P2 Oscillator, c/3 Spaceship, etc.)
-        TableColumn<Grid, String> columnPattern = new TableColumn<>("Pattern");
-        columnPattern.prefWidthProperty().bind(tableView.prefWidthProperty().divide(3.1));
-        columnPattern.setCellValueFactory(pattern -> new ReadOnlyObjectWrapper(pattern.getValue().toString()));
-        tableView.getColumns().add(columnPattern);
-
-        // Adding column for the pattern's min rule
-        TableColumn<Grid, String> columnMinRule = new TableColumn<>("Minimum Rule");
-        columnMinRule.prefWidthProperty().bind(tableView.prefWidthProperty().divide(3.1));
-        columnMinRule.setCellValueFactory(pattern -> new ReadOnlyObjectWrapper(  // Why casting... Why?
-                ((Pattern) pattern.getValue()).getMinRule().getRulestring()));
-        tableView.getColumns().add(columnMinRule);
-
-        // Adding column for the pattern's max rule
-        TableColumn<Grid, String> columnMaxRule = new TableColumn<>("Maximum Rule");
-        columnMaxRule.prefWidthProperty().bind(tableView.prefWidthProperty().divide(3.1));
-        columnMaxRule.setCellValueFactory(pattern -> new ReadOnlyObjectWrapper(  // Why casting... Why?
-                ((Pattern) pattern.getValue()).getMaxRule().getRulestring()));
-        tableView.getColumns().add(columnMaxRule);
 
         // Displays the min rule of the pattern in the application
         MenuItem showMinRule = new MenuItem("Show Min Rule in Application");
@@ -50,18 +27,18 @@ public class RuleSearchResultsDialog extends SearchResultsDialog {
     }
 
     public void loadMinRule() {
-        Pattern pattern = (Pattern) tableView.getSelectionModel().getSelectedItem();  // To get the rule used
+        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
         mainController.loadPattern(getSelectedRLE(pattern.getMinRule()));
     }
 
     public void loadMaxRule() {
-        Pattern pattern = (Pattern) tableView.getSelectionModel().getSelectedItem();  // To get the rule used
+        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
         mainController.loadPattern(getSelectedRLE(pattern.getMaxRule()));
     }
 
     @Override
     public String getSelectedRLE() {
-        Pattern pattern = (Pattern) tableView.getSelectionModel().getSelectedItem();  // To get the rule used
+        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
         return getSelectedRLE((RuleFamily) pattern.getRule());
     }
 
@@ -81,13 +58,7 @@ public class RuleSearchResultsDialog extends SearchResultsDialog {
     }
 
     @Override
-    public void reloadTableView() {
-        ArrayList<Grid> searchResults = searchProgram.getSearchResults();
-        for (int i = currentIndex; i < searchResults.size(); i++) {  // Adding in the new objects
-            data.add(searchResults.get(i));
-        }
-
-        currentIndex = searchResults.size();
-        tableView.setItems(data);  // Updating the items on the table
+    public Map<String, String> getAdditionalInfo(Pattern pattern) {
+        return pattern.additionalInfo();
     }
 }

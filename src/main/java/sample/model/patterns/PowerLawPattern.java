@@ -26,6 +26,7 @@ public class PowerLawPattern extends Pattern {
         super(rule);
 
         this.power = power;
+        this.name = "Chaotic Growth";
         this.insertCells(pattern, new Coordinate(0, 0));
     }
 

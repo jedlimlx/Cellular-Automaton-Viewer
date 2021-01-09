@@ -7,9 +7,11 @@ import sample.model.rules.RuleFamily;
 import sample.model.simulation.Grid;
 import sample.model.simulation.Simulator;
 
+import java.util.Comparator;
 import java.util.Map;
 
 public abstract class Pattern extends Simulator {
+    protected String name;
     protected RuleFamily minRule, maxRule;
     
     public Pattern(Rule rule) {
@@ -23,6 +25,10 @@ public abstract class Pattern extends Simulator {
 
     public RuleFamily getMaxRule() {
         return maxRule;
+    }
+
+    public String getName() {
+        return name;
     }
 
     // Mutators
@@ -50,4 +56,9 @@ public abstract class Pattern extends Simulator {
 
     // Returns a dictionary of attribute: value to be displayed to the user
     public abstract Map<String, String> additionalInfo();
+
+    // Sorts the patterns by their string representations
+    public Comparator<String> compareString() {
+        return String::compareTo;
+    }
 }

@@ -1,8 +1,10 @@
 package sample.model.search;
 
+import sample.model.patterns.Pattern;
 import sample.model.simulation.Grid;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +18,7 @@ public abstract class SearchProgram {
     protected int numSearched;  // Number of whatever searched
     protected ExecutorService executor;  // Stores the threads running the search
     protected SearchParameters searchParameters;  // The parameters for the search
-    protected ArrayList<Grid> searchResults;  // Store search results here
+    protected ArrayList<Pattern> searchResults;  // Store search results here
 
     protected boolean stop = false;  // Tell the search program to stop
 
@@ -86,7 +88,7 @@ public abstract class SearchProgram {
      * Gets the search results
      * @return Returns the search results
      */
-    public ArrayList<Grid> getSearchResults() {
+    public ArrayList<Pattern> getSearchResults() {
         return searchResults;
     }
 

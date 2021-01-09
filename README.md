@@ -1,7 +1,9 @@
 
-# CAViewer [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link] ![Test CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Test%20CAViewer/badge.svg)
+# CAViewer [![Release badge]][Release link] [![Build CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Build%20CAViewer/badge.svg)][Builds link] ![Test CAViewer](https://github.com/jedlimlx/Cellular-Automaton-Viewer/workflows/Test%20CAViewer/badge.svg)
 
 [Builds link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/actions
+[Release badge]: https://img.shields.io/github/v/release/jedlimlx/Cellular-Automaton-Viewer
+[Release link]: https://github.com/jedlimlx/Cellular-Automaton-Viewer/releases/latest
 
 See python branch for CAViewer v1.
 

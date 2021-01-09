@@ -55,6 +55,7 @@ public class Spaceship extends Pattern {
         super(rule);
 
         this.period = period;
+        this.name = "Spaceships";
         this.displacementX = displacementX;
         this.displacementY = displacementY;
         this.insertCells(pattern, new Coordinate(0, 0));

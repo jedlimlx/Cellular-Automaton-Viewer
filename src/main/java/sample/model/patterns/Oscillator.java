@@ -50,6 +50,7 @@ public class Oscillator extends Pattern {
         super(rule);
 
         this.period = period;
+        this.name = "Oscillators";
         this.insertCells(pattern, new Coordinate(0, 0));
     }
 

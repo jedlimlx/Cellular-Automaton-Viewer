@@ -23,6 +23,7 @@ public class LinearGrowth extends Pattern {
     public LinearGrowth(Rule rule, Grid pattern, int popPeriod) {
         super(rule);
 
+        this.name = "Linear Growth";
         this.popPeriod = popPeriod;
         this.insertCells(pattern, new Coordinate(0, 0));
     }

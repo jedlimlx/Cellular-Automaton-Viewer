@@ -8,23 +8,31 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 import sample.controller.MainController;
+import sample.model.patterns.Pattern;
 import sample.model.search.SearchProgram;
 import sample.model.simulation.Grid;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.*;
 
 public abstract class SearchResultsDialog extends Dialog {
     protected GridPane grid;  // Store controls here
-    protected TableView tableView;  // Display the search results in a table
     protected ContextMenu menu;  // Display on right-click
 
     protected SearchProgram searchProgram;  // The search program that is running
     protected MainController mainController;
+
+    protected int index;  // The index of the search results that has been loaded
+    protected Map<String, Map<String, List<Pattern>>> patterns;  // The organised search results
+
+    protected HBox patternLists;  // The HBox to store the list of patterns
 
     // Create initial data
     protected final ObservableList<Grid> data = FXCollections.observableArrayList();
@@ -33,6 +41,8 @@ public abstract class SearchResultsDialog extends Dialog {
         super();
         super.setResizable(true);
         super.initModality(Modality.NONE);
+
+        this.searchProgram = searchProgram;
 
         menu = new ContextMenu();  // The menu that shows on right click
 
@@ -51,25 +61,34 @@ public abstract class SearchResultsDialog extends Dialog {
         grid.setHgap(5);
         grid.setVgap(5);
 
-        // Table to display data
-        tableView = new TableView<>();
-        tableView.setItems(data);
-        tableView.setContextMenu(menu);
+        // HBox to contain pattern lists
+        patternLists = new HBox();
+        patternLists.setSpacing(20);
 
-        // Rescale with window
-        tableView.prefHeightProperty().bind(super.heightProperty());
-        tableView.prefWidthProperty().bind(super.widthProperty());
+        ScrollPane scrollPane = new ScrollPane(patternLists);
+        scrollPane.setStyle("-fx-background-color: transparent;");  // No border
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        grid.add(tableView, 0, 0);
+        grid.add(scrollPane, 0, 0);
+
+        // Building the list of patterns
+        patterns = new TreeMap<>();
+        organiseSearchResults();
+
+        // Converting into nodes
+        generateNodes();
 
         // HBox to contain the buttons
         HBox buttonsBox = new HBox();
-        buttonsBox.setSpacing(5);
+        buttonsBox.setSpacing(10);
         grid.add(buttonsBox, 0, 1);
 
         // Button to reload data
         Button reloadButton = new Button("Reload Data");
-        reloadButton.setOnAction(event -> reloadTableView());
+        reloadButton.setOnAction(event -> {
+            organiseSearchResults();
+            generateNodes();
+        });
         buttonsBox.getChildren().add(reloadButton);
 
         // Button to save data to file
@@ -155,9 +174,65 @@ public abstract class SearchResultsDialog extends Dialog {
         clipboard.setContent(content);
     }
 
+    // Organises the search results
+    public void organiseSearchResults() {
+        Pattern pattern;
+        for (int i = index; i < searchProgram.getSearchResults().size(); i++) {
+            pattern = searchProgram.getSearchResults().get(i);
+            if (patterns.containsKey(pattern.getName())) {
+                if (patterns.get(pattern.getName()).containsKey(pattern.toString())) {
+                    patterns.get(pattern.getName()).get(pattern.toString()).add(pattern);
+                } else {
+                    patterns.get(pattern.getName()).put(pattern.toString(),
+                            new ArrayList<>(Collections.singletonList(pattern)));
+                }
+            } else {
+                patterns.put(pattern.getName(), new TreeMap<>());
+            }
+        }
+
+        index = searchProgram.getSearchResults().size();
+    }
+
+    // Generates the nodes using the organised search results
+    public void generateNodes() {
+        patternLists.getChildren().clear();
+
+        Font headerFont = Font.font("System", FontWeight.BOLD, 24);
+        for (String patternType: patterns.keySet()) {
+            VBox vbox = new VBox();
+            vbox.setSpacing(5);
+
+            // Header Text
+            Label header = new Label(patternType);
+            header.setFont(headerFont);
+            vbox.getChildren().add(header);
+
+            // Adding the hyperlinks
+            for (String patternName: patterns.get(patternType).keySet()) {
+                Hyperlink hyperlink = new Hyperlink(patternName);
+                hyperlink.setOnAction(event -> {
+                    List<Pattern> patList = patterns.get(patternType).get(patternName);
+
+                    int n = patList.size();
+                    List<Map<String, String>> additionalInfo = new ArrayList<>(n);
+                    for (Pattern blocks : patList) additionalInfo.add(getAdditionalInfo(blocks));
+
+                    PatternsDialog dialog = new PatternsDialog(patterns.get(patternType).get(patternName),
+                            additionalInfo, menu);
+                    dialog.showAndWait();
+                });
+                vbox.getChildren().add(hyperlink);
+            }
+
+            // Adding to HBox
+            patternLists.getChildren().add(vbox);
+        }
+    }
+
     // Gets the RLE of the selected pattern
     public abstract String getSelectedRLE();
 
-    // Reloads the table with new data from the spreadsheet
-    public abstract void reloadTableView();
+    // Gets additional informaiton about the provided pattern
+    public abstract Map<String, String> getAdditionalInfo(Pattern pattern);
 }

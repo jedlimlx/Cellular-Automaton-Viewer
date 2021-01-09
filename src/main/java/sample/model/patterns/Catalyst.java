@@ -26,6 +26,7 @@ public class Catalyst extends Pattern {
     public Catalyst(Rule rule, Grid pattern, int repeatTime) {
         super(rule);
 
+        this.name = "Catalysts";
         this.repeatTime = repeatTime;
         this.insertCells(pattern, new Coordinate());
     }

@@ -9,35 +9,22 @@ import sample.model.search.SearchProgram;
 import sample.model.simulation.Grid;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class BruteForceSearchResultsDialog extends SearchResultsDialog {
-    private int currentIndex;
-
     public BruteForceSearchResultsDialog(MainController mainController, SearchProgram searchProgram) {
         super(mainController, searchProgram);
         super.setTitle("Brute Force Search Results");
-
-        // Adding column for the repeat time
-        TableColumn<Grid, String> columnPattern = new TableColumn<>("Pattern");
-        columnPattern.prefWidthProperty().bind(tableView.prefWidthProperty());
-        columnPattern.setCellValueFactory(pattern -> new ReadOnlyObjectWrapper(pattern.getValue()));
-        tableView.getColumns().add(columnPattern);
     }
 
     @Override
     public String getSelectedRLE() {
-        Pattern pattern = (Pattern) tableView.getSelectionModel().getSelectedItem();  // To get the rule used
+        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
         return Utils.fullRLE(pattern);
     }
 
     @Override
-    public void reloadTableView() {
-        ArrayList<Grid> searchResults = searchProgram.getSearchResults();
-        for (int i = currentIndex; i < searchResults.size(); i++) {  // Adding in the new objects
-            data.add(searchResults.get(i));
-        }
-
-        currentIndex = searchResults.size();
-        tableView.setItems(data);  // Updating the items on the table
+    public Map<String, String> getAdditionalInfo(Pattern pattern) {
+        return pattern.additionalInfo();
     }
 }
