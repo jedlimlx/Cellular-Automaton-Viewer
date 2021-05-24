@@ -14,6 +14,7 @@ import java.util.function.Function;
  */
 public class Margolus extends RuleFamily {
     // TODO (Add B0 Margolus)
+    // TODO (Fix Margolus Pattern Identification)
     private static String regex = "M([0-9]+,){15}[0-9]+";
     private ArrayList<Integer> neighbourhoods;
 
@@ -121,8 +122,8 @@ public class Margolus extends RuleFamily {
         for (Set<Coordinate> cellSet: cellsChanged) {
             for (Coordinate coordinate : cellSet) {
                 if (generation % 2 == 0) {
-                    cellsToCheck.add(new Coordinate(coordinate.getX() - coordinate.getX() % 2,
-                            coordinate.getY() - coordinate.getY() % 2));
+                    cellsToCheck.add(new Coordinate(coordinate.getX() - Math.floorMod(coordinate.getX(), 2),
+                            coordinate.getY() - Math.floorMod(coordinate.getY(), 2)));
                 } else {
                     cellsToCheck.add(new Coordinate(
                             coordinate.getX() % 2 == 0 ? coordinate.getX() - 1 : coordinate.getX(),
