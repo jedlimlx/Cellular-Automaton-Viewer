@@ -230,6 +230,11 @@ Supported / Planned Rulespaces
     - [ ] Triangular Turmites
     - [ ] Splitting Turmites
 - [ ] Margolus
+    - [x] Basic 2x2 2-state rules
+    - [x] Alternating Margolus rules
+    - [ ] Naive Margolus
+    - [ ] Multi-state
+    - [ ] Higher range
 - [x] 1D CA
 - [ ] Euclidean CA
   - [x] Euclidean Distance
