@@ -12,6 +12,7 @@ import sample.model.rules.isotropic.rules.energetic.INTEnergetic;
 import sample.model.rules.isotropic.rules.history.INTHistory;
 import sample.model.rules.misc.AlternatingRule;
 import sample.model.rules.misc.Euclidean;
+import sample.model.rules.misc.Margolus;
 import sample.model.rules.misc.OneDimensional;
 import sample.model.rules.misc.naive.Orthogonal;
 import sample.model.rules.misc.naive.ReadingOrder;
@@ -33,7 +34,7 @@ public class Utils {
             new HROTDeadlyEnemies(), new HROTGenerations(), new HROTExtendedGenerations(),
             new HROTRegeneratingGenerations(), new IntegerHROT(), new DeficientHROT(), new MultistateCyclicHROT(),
             new HROTBSFKL(), new INT(), new INTHistory(), new INTEnergetic(), new INTGenerations(), new DeficientINT(),
-            new Euclidean(), new OneDimensional(), new Turmites(), new RuleLoader(), new AlternatingRule()};
+            new Euclidean(), new OneDimensional(), new Turmites(), new Margolus(), new RuleLoader(), new AlternatingRule()};
     public static BoundedGrid[] boundedGrids = {new Torus(), new Bounded()};
     public static ReadingOrder[] readingOrders = {new Orthogonal()};
 

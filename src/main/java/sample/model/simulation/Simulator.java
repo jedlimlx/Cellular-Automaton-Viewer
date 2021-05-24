@@ -283,7 +283,7 @@ public class Simulator extends Grid {
     @Override
     public void setCell(Coordinate coordinate, int state) {
         super.setCell(coordinate, state);
-        cellsChangedArray.get(0).add(coordinate);
+        if (state != getCell(coordinate)) cellsChangedArray.get(0).add(coordinate);
     }
 
     /**
