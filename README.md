@@ -9,7 +9,7 @@ See python branch for CAViewer v1.
 
 Installation
 ============
-CAViewer v2 is written in Java.<br>
+CAViewer v2 is written in Kotlin / Java.<br>
 You will need the Java Runtime Environment / Java Development Kit to run the *.jar file.<br>
 
 If you can't use Java, download the precompiled binaries 

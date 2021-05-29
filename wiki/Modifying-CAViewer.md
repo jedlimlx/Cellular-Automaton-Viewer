@@ -64,7 +64,7 @@ so that the values in these widgets do not change when the rulespace is changed.
 [javadocs]: ../javadoc/index.html
 
 See the [javadocs] for more information on implementation and the other classes.
-Also see the [rules] folder for sample implementations of other rulespaces.
+Also see the [rules] folder for application implementations of other rulespaces.
 
 Adding custom named neighbourhood types
 -----------------

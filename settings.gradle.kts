@@ -1,0 +1,3 @@
+
+rootProject.name = "CAViewer-Kotlin"
+

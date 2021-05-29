@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="application.model.rules.hrot.HROTGenerationsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-05-28T13:30:38" hostname="LAPTOP-6TGQS808" time="1.319">
+  <properties/>
+  <testcase name="testSimulation()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.628"/>
+  <testcase name="testRuleRange()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.11"/>
+  <testcase name="testClone()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.003"/>
+  <testcase name="testGenerateComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.015"/>
+  <testcase name="testCanonise()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.007"/>
+  <testcase name="testFromRulestring()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.004"/>
+  <testcase name="testGenerateApgtable()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.539"/>
+  <testcase name="testLoadComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
