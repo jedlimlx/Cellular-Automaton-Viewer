@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="application.model.rules.hrot.HROTBSFKLTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-05-28T13:30:35" hostname="LAPTOP-6TGQS808" time="2.319">
+<testsuite name="application.model.rules.hrot.HROTBSFKLTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-05-29T14:11:27" hostname="LAPTOP-6TGQS808" time="3.194">
   <properties/>
-  <testcase name="testSimulation()" classname="application.model.rules.hrot.HROTBSFKLTest" time="2.3"/>
-  <testcase name="testClone()" classname="application.model.rules.hrot.HROTBSFKLTest" time="0.008"/>
-  <testcase name="testCanonise()" classname="application.model.rules.hrot.HROTBSFKLTest" time="0.005"/>
+  <testcase name="testSimulation()" classname="application.model.rules.hrot.HROTBSFKLTest" time="3.165"/>
+  <testcase name="testClone()" classname="application.model.rules.hrot.HROTBSFKLTest" time="0.015"/>
+  <testcase name="testCanonise()" classname="application.model.rules.hrot.HROTBSFKLTest" time="0.006"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

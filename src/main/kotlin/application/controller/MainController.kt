@@ -1,1457 +1,1476 @@
-package application.controller;
+package application.controller
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import application.controller.dialogs.*;
-import application.controller.dialogs.rule.RuleDialog;
-import application.controller.dialogs.search.*;
-import application.model.Cell;
-import application.model.*;
-import application.model.rules.ApgtableGeneratable;
-import application.model.rules.Rule;
-import application.model.rules.RuleFamily;
-import application.model.rules.hrot.HROT;
-import application.model.rules.ruleloader.ColourDirective;
-import application.model.rules.ruleloader.RuleDirective;
-import application.model.rules.ruleloader.RuleLoader;
-import application.model.rules.ruleloader.RuleNameDirective;
-import application.model.search.catsrc.CatalystSearch;
-import application.model.search.csearch.BruteForceSearch;
-import application.model.search.ocgar2.AgarSearch;
-import application.model.search.rulesrc.RuleSearch;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
+import application.controller.dialogs.*
+import application.controller.dialogs.rule.RuleDialog
+import application.controller.dialogs.search.*
+import application.model.*
+import application.model.Cell
+import application.model.rules.ApgtableGeneratable
+import application.model.rules.Rule
+import application.model.rules.RuleFamily
+import application.model.rules.hrot.HROT
+import application.model.rules.ruleloader.ColourDirective
+import application.model.rules.ruleloader.RuleLoader
+import application.model.rules.ruleloader.RuleNameDirective
+import application.model.search.catsrc.CatalystSearch
+import application.model.search.csearch.BruteForceSearch
+import application.model.search.ocgar2.AgarSearch
+import application.model.search.rulesrc.RuleSearch
+import application.model.simulation.Grid
+import application.model.simulation.Simulator
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import javafx.application.Platform
+import javafx.event.EventHandler
+import javafx.fxml.FXML
+import javafx.scene.Group
+import javafx.scene.control.*
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.input.*
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
+import javafx.scene.paint.Color
+import javafx.scene.shape.Line
+import javafx.scene.shape.Rectangle
+import javafx.stage.DirectoryChooser
+import javafx.stage.FileChooser
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
+import java.io.FileInputStream
+import java.io.FileWriter
+import java.io.IOException
+import java.util.*
+import java.util.logging.Level
+import java.util.logging.LogManager
+import java.util.logging.Logger
+import kotlin.ConcurrentModificationException
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+class MainController {
+    @FXML private var drawingPane: Pane = Pane()
+    @FXML private var scrollPane: ScrollPane = ScrollPane()
+    @FXML private var statusLabel: Label = Label()
+    @FXML private var startSimulationButton: Button = Button()
+    @FXML private var simInsideSelectionButton: Button = Button()
+    @FXML private var simOutsideSelectionButton: Button = Button()
+    @FXML private var secondaryToolbar: ToolBar = ToolBar()
+    @FXML private var recordingImage: ImageView = ImageView()
+    @FXML private var playButtonImage: ImageView = ImageView()
+    @FXML private var playButtonImage1: ImageView = ImageView()
+    @FXML private var playButtonImage2: ImageView = ImageView()
+    @FXML private var gridLinesMenuItem: CheckMenuItem = CheckMenuItem()
 
-public class MainController {
-    @FXML
-    private Pane drawingPane;
+    private var selectionRectangle: SelectionRectangle? = null // Rectangle that represents selection box
+    private val dialog = RuleDialog() // Dialog to set rule
+    private val gifferDialog = GifferDialog() // Dialog to create *.gifs
+    private var mode: Mode = Mode.DRAWING // Mode (Drawing, Selecting, Panning)
 
-    @FXML
-    private ScrollPane scrollPane;
+    // Gets the simulator
+    var simulator = Simulator(HROT("R2,C2,S6-9,B7-8,NM")) // Simulator to simulate rule
+        private set
+    private var stateButtons: MutableList<Button> = ArrayList() // Buttons to switch between states
+    private var cellList: MutableMap<Coordinate, Cell> = HashMap() // List of cell objects
+    private var deadCellsSet: MutableSet<Coordinate> = HashSet()
+    private var deadCellsCache: LRUCache<Coordinate, Cell> = LRUCache(200) // LRU Cache of dead cells
 
-    @FXML
-    private Label statusLabel;
+    private var gridLines = Group() // The grid lines of the pattern editor
+    private var boundedGridLines: Group? = null // The lines to mark the bounded grid
+    private var pasteSelection = Group() // The group that renders the stuff to be pasted
+    private var pasteStuff: Grid? = null // The stuff to paste
 
-    @FXML
-    private Button startSimulationButton, simInsideSelectionButton, simOutsideSelectionButton;
+    private var populationList: MutableList<Int> = ArrayList() // The population list
 
-    @FXML
-    private ToolBar secondaryToolbar;
+    private var density = 50 // The density of the random soup
+    private var symmetry = "C1" // The symmetry of the random soup
+    private var statesToInclude = listOf(1) // The states to include in the random soup
+    private var randomSoupDialog: RandomSoupDialog? = null // Dialog to adjust random soup settings
 
-    @FXML
-    private ImageView recordingImage, playButtonImage, playButtonImage1, playButtonImage2;
+    private var simulationTime = 0
+    private var visualisationTime = 0 // Time taken for visualisation and simulation
+    private var minSimTime = 0 // Minimum time for one step
+    private var stepSize = 1 // Step size of the simulation
+    private var currentState = 1 // State to draw with
+    private var colours: MutableMap<Rule, Array<Color>> = HashMap() // Colours to use for each state
 
-    @FXML
-    private CheckMenuItem gridLinesMenuItem;
+    private var recording = false // Is the recording on?
+    private var visualisationDone = true // Is the visualisation done?
+    private var showGridLines = false // Are the grid lines being shown?
+    private var simulationMode = SimulationMode.PAUSED
 
-    public final static int WIDTH = 4096;
-    public final static int HEIGHT = 4096;
-    public final static int CELL_SIZE = 1;  // Cell size
-    public final static String SETTINGS_FILE = "settings.json";
+    private var settings = JSONObject(JSONTokener(FileInputStream(SETTINGS_FILE))) // Store the settings
 
-    private SelectionRectangle selectionRectangle;  // Rectangle that represents selection box
-
-    private final RuleDialog dialog = new RuleDialog();  // Dialog to set rule
-    private final GifferDialog gifferDialog = new GifferDialog();  // Dialog to create *.gifs
-
-    private Mode mode;  // Mode (Drawing, Selecting, Panning)
-    private Simulator simulator;  // Simulator to simulate rule
-    private ArrayList<Button> stateButtons;  // Buttons to switch between states
-    private HashMap<Coordinate, Cell> cellList;  // List of cell objects
-    private Set<Coordinate> deadCellsSet;
-    private LRUCache<Coordinate, Cell> deadCellsCache;  // LRU Cache of dead cells
-    private Group gridLines;  // The grid lines of the pattern editor
-    private Group boundedGridLines;  // The lines to mark the bounded grid
-
-    private Group pasteSelection;  // The group that renders the stuff to be pasted
-    private Grid pasteStuff;  // The stuff to paste
-
-    private ArrayList<Integer> populationList;  // The population list
-
-    private int density;  // The density of the random soup
-    private String symmetry;  // The symmetry of the random soup
-    private ArrayList<Integer> statesToInclude;  // The states to include in the random soup
-    private RandomSoupDialog randomSoupDialog;  // Dialog to adjust random soup settings
-
-    private int simulationTime, visualisationTime;  // Time taken for visualisation and simulation
-
-    private int minSimTime = 0;  // Minimum time for one step
-    private int stepSize = 1;  // Step size of the simulation
-    private int currentState = 1;  // State to draw with
-
-    private HashMap<Rule, Color[]> colours;  // Colours to use for each state
-
-    private boolean recording = false;  // Is the recording on?
-    private boolean visualisationDone = true;  // Is the visualisation done?
-    private boolean showGridLines = false;  // Are the grid lines being shown?
-
-    private SimulationMode simulationMode = SimulationMode.PAUSED;
-
-    private JSONObject settings;  // Store the settings
-
-    private Giffer giffer;  // For writing to a *.gif
-
-    private Logger logger;
+    private lateinit var giffer: Giffer // For writing to a *.gif
+    private lateinit var logger: Logger
 
     @FXML
-    public void initialize() {
+    fun initialize() {
         // Initialise logger
-        logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
-        logger.log(Level.INFO, "GUI Initialising...");
+        logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME)
+        logger.log(Level.INFO, "GUI Initialising...")
 
         // Initialise variables
-        colours = new HashMap<>();
-        cellList = new HashMap<>();
-        deadCellsCache = new LRUCache<>(200);
-        stateButtons = new ArrayList<>();
-        populationList = new ArrayList<>();
-        deadCellsSet = new HashSet<>();
-        mode = Mode.DRAWING;
-
-        symmetry = "C1";
-        density = 50;
-        statesToInclude = new ArrayList<>(Arrays.asList(1));
-
-        deadCellsCache.setDeleteFunc((coordinate, cell) -> {
-            if (cell.getState() != 0) return;
+        deadCellsCache.setDeleteFunc { coordinate: Coordinate, cell: Cell ->
+            if (cell.state != 0) return@setDeleteFunc
 
             // Destroy the cell object (remove all references to it so it is garbage collected)
-            removeCellObject(coordinate.getX(), coordinate.getY());
-            drawingPane.getChildren().remove(cell.getRectangle());
-        });
-        deadCellsCache.setCheckValid(cell -> cell.getState() == 0);
-
-        // Create simulator object
-        simulator = new Simulator(new HROT("R2,C2,S6-9,B7-8,NM"));
+            removeCellObject(coordinate.x, coordinate.y)
+            drawingPane.children.remove(cell.rectangle)
+        }
+        deadCellsCache.setCheckValid { cell: Cell -> cell.state == 0 }
 
         // Create selection rectangle and set properties
-        selectionRectangle = new SelectionRectangle(CELL_SIZE);
-        drawingPane.getChildren().add(selectionRectangle);
+        selectionRectangle = SelectionRectangle(CELL_SIZE)
+        drawingPane.children.add(selectionRectangle)
 
         // Linking with Action class to handle undo / redo
-        Action.setController(this);
+        Action.setController(this)
 
         // Setting zoom
-        drawingPane.setScaleX(5);
-        drawingPane.setScaleY(5);
+        drawingPane.scaleX = 5.0
+        drawingPane.scaleY = 5.0
 
         // Disable scrollbars and scrolling
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
 
         // Bind methods
-        scrollPane.setOnScroll(this::changeZoomHandler);
-        scrollPane.addEventFilter(ScrollEvent.ANY, this::changeZoomHandler);
-
-        scrollPane.setOnKeyPressed(this::keyPressedHandler);
-        scrollPane.addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressedHandler);
+        scrollPane.onScroll = EventHandler { event: ScrollEvent -> changeZoomHandler(event) }
+        scrollPane.addEventFilter(ScrollEvent.ANY) { event: ScrollEvent -> changeZoomHandler(event) }
+        scrollPane.onKeyPressed = EventHandler { event: KeyEvent -> keyPressedHandler(event) }
+        scrollPane.addEventFilter(KeyEvent.KEY_PRESSED) { event: KeyEvent -> keyPressedHandler(event) }
 
         // Move the center of the ScrollPane
-        scrollPane.setHvalue(0.2);
-        scrollPane.setVvalue(0.2);
+        scrollPane.hvalue = 0.2
+        scrollPane.vvalue = 0.2
 
         // Setting the scroll pane in focus
-        drawingPane.requestFocus();
+        drawingPane.requestFocus()
 
         // Load the correct number of state buttons
-        reloadStateButtons();
+        reloadStateButtons()
 
         // Start Simulation Thread
-        Thread simulationThread = new Thread(this::runSimulation);
-        simulationThread.setName("Simulation Thread");
-        simulationThread.setDaemon(true);
-        simulationThread.start();
+        val simulationThread = Thread { runSimulation() }
+        simulationThread.name = "Simulation Thread"
+        simulationThread.isDaemon = true
+        simulationThread.start()
 
         // Setting the rule of the rule dialog
-        dialog.setRule((RuleFamily) simulator.getRule());
+        dialog.rule = simulator.rule as RuleFamily
 
         // Creating grid lines
-        gridLines = new Group();
-        for (int i = 0; i < WIDTH; i += CELL_SIZE) {
-            Line lineX = new Line();
-            lineX.setStroke(Color.GREY);
-            lineX.setStrokeWidth(0.15 * CELL_SIZE);
-            lineX.setStartX(i);
-            lineX.setEndX(i);
-            lineX.setStartY(0);
-            lineX.setEndY(HEIGHT);
-            lineX.toFront();
-            gridLines.getChildren().add(lineX);
+        var i = 0
+        while (i < WIDTH) {
+            val lineX = Line().apply {
+                stroke = Color.GREY
+                strokeWidth = 0.15 * CELL_SIZE
+                startX = i.toDouble()
+                endX = i.toDouble()
+                startY = 0.0
+                endY = HEIGHT.toDouble()
+                toFront()
+            }
 
-            Line lineY = new Line();
-            lineY.setStroke(Color.GREY);
-            lineY.setStrokeWidth(0.15 * CELL_SIZE);
-            lineY.setStartX(0);
-            lineY.setEndX(HEIGHT);
-            lineY.setStartY(i);
-            lineY.setEndY(i);
-            lineY.toFront();
-            gridLines.getChildren().add(lineY);
+            gridLines.children.add(lineX)
+
+            val lineY = Line().apply {
+                stroke = Color.GREY
+                strokeWidth = 0.15 * CELL_SIZE
+                startX = 0.0
+                endX = HEIGHT.toDouble()
+                startY = i.toDouble()
+                endY = i.toDouble()
+                toFront()
+            }
+
+            gridLines.children.add(lineY)
 
             if (i % 10 == 0) {
-                lineX.setStrokeWidth(0.2 * CELL_SIZE);
-                lineY.setStrokeWidth(0.2 * CELL_SIZE);
+                lineX.strokeWidth = 0.2 * CELL_SIZE
+                lineY.strokeWidth = 0.2 * CELL_SIZE
             }
+
+            i += CELL_SIZE
         }
 
-        gridLines.setVisible(false);
-        drawingPane.getChildren().add(gridLines);
+        gridLines.isVisible = false
+        drawingPane.children.add(gridLines)
 
         // Pane for pasting
-        pasteSelection = new Group();
-        drawingPane.getChildren().add(pasteSelection);
-        pasteSelection.setVisible(true);
+        drawingPane.children.add(pasteSelection)
+        pasteSelection.isVisible = true
 
         // Loading settings
         try {  // Reading settings from settings file
-            JSONTokener tokener = new JSONTokener(new FileInputStream(SETTINGS_FILE));
-            settings = new JSONObject(tokener);
-
             // Grid lines
             if (settings.getBoolean("grid_lines")) {
-                showGridLines = true;
-                gridLines.setVisible(true);
-                gridLinesMenuItem.setSelected(true);
+                showGridLines = true
+                gridLines.isVisible = true
+                gridLinesMenuItem.isSelected = true
             }
 
             // Setting the rule
-            ObjectMapper m = new ObjectMapper();
-            m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            val m = ObjectMapper()
+            m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
 
-            simulator.setRule(m.readValue(settings.get("rule").toString(), Rule.class));
-            drawBoundedGrid();
+            simulator.rule = m.readValue(settings["rule"].toString(), Rule::class.java)
+            drawBoundedGrid()
 
             // Setting the colours
-            TypeFactory typeFactory = m.getTypeFactory();
-            CollectionType ruleListType = typeFactory.constructCollectionType(ArrayList.class, Rule.class);
-            CollectionType colourListType = typeFactory.constructCollectionType(ArrayList.class, String[].class);
+            val typeFactory = m.typeFactory
+            val ruleListType = typeFactory.constructCollectionType(
+                ArrayList::class.java, Rule::class.java
+            )
 
-            ArrayList<Rule> rules = m.readValue(settings.get("rules").toString(), ruleListType);
-            ArrayList<String[]> colours = m.readValue(settings.get("colours").toString(), colourListType);
-            for (int i = 0; i < rules.size(); i++) {
-                Color[] colourArr = new Color[colours.get(i).length];
-                for (int j = 0; j < colours.get(i).length; j++) {
-                    String[] tokens = colours.get(i)[j].split(" ");
-                    colourArr[j] = Color.rgb((int) (Double.parseDouble(tokens[0]) * 255),
-                            (int) (Double.parseDouble(tokens[1]) * 255),
-                            (int) (Double.parseDouble(tokens[2]) * 255));
-                }
+            val colourListType = typeFactory.constructCollectionType(
+                ArrayList::class.java, Array<String>::class.java
+            )
 
-                this.colours.put(rules.get(i), colourArr);
+            val rules = m.readValue<List<Rule>>(
+                settings["rules"].toString(), ruleListType
+            )
+
+            val colours = m.readValue<List<Array<String>>>(
+                settings["colours"].toString(), colourListType
+            )
+
+            colours.forEachIndexed { index, it ->
+                this.colours[rules[index]] = it.map {
+                    val tokens = it.split(" ").toTypedArray()
+                    Color.rgb(
+                        (tokens[0].toDouble() * 255).toInt(),
+                        (tokens[1].toDouble() * 255).toInt(),
+                        (tokens[2].toDouble() * 255).toInt()
+                    )
+                }.toTypedArray()
             }
 
             // Setting the rule of the rule dialog
-            dialog.setRule((RuleFamily) simulator.getRule());
+            dialog.rule = simulator.rule as RuleFamily
 
             // Reloads the state buttons
-            reloadStateButtons();
-        }
-        catch (IOException exception) {
-            settings = new JSONObject();
-            logger.log(Level.WARNING, exception.getMessage());
+            reloadStateButtons()
+        } catch (exception: IOException) {
+            settings = JSONObject()
+            logger.log(Level.WARNING, exception.message)
         }
     }
 
     @FXML
-    public void reloadStateButtons() {
-        for (Button button: stateButtons) {
-            secondaryToolbar.getItems().remove(button);
-        }
+    fun reloadStateButtons() {
+        for (button in stateButtons)
+            secondaryToolbar.items.remove(button)
 
         // Clearing stateButtons
-        stateButtons.clear();
+        stateButtons.clear()
 
         // Add buttons to the secondary toolbar
-        for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
-            int index = i;
+        for (i in 0 until simulator.rule.numStates) {
+            val tooltip = Tooltip(simulator.rule.getName(i))
+            secondaryToolbar.items.add(Button("" + i).apply {
+                this.tooltip = tooltip
+                onAction = EventHandler {
+                    currentState = i
+                    mode = Mode.DRAWING
+                }
 
-            Tooltip tooltip = new Tooltip(simulator.getRule().getName(i));
-
-            Button stateButton = new Button("" + index);
-            stateButton.setTooltip(tooltip);
-            stateButton.setOnAction((event -> {currentState = index; mode = Mode.DRAWING;}));
-            stateButtons.add(stateButton);
-            secondaryToolbar.getItems().add(stateButton);
+                stateButtons.add(this)
+            })
         }
     }
 
     @FXML // Handle the mouse events
-    public void mouseDraggedHandler(MouseEvent event) {
+    fun mouseDraggedHandler(event: MouseEvent) {
         if (mode == Mode.DRAWING) {
-            Action.addAction();
-            setCell(snapToGrid((int) event.getX()),
-                    snapToGrid((int) event.getY()),
-                    currentState);
-        }
-        else if (mode == Mode.SELECTING) {
-            selectionRectangle.select(new Coordinate(snapToGrid((int) event.getX()),
-                    snapToGrid((int) event.getY())));
+            Action.addAction()
+            setCell(
+                snapToGrid(event.x.toInt()),
+                snapToGrid(event.y.toInt()),
+                currentState
+            )
+        } else if (mode == Mode.SELECTING) {
+            selectionRectangle!!.select(
+                Coordinate(
+                    snapToGrid(event.x.toInt()),
+                    snapToGrid(event.y.toInt())
+                )
+            )
         }
     }
 
     @FXML
-    public void mouseDragStartHandler(MouseEvent event) {
+    fun mouseDragStartHandler(event: MouseEvent) {
         if (mode == Mode.SELECTING) {
-            selectionRectangle.unselect();
-            selectionRectangle.toFront();
-
-            Coordinate startSelection = new Coordinate(snapToGrid((int) event.getX()),
-                    snapToGrid((int) event.getY()));
-            selectionRectangle.select(startSelection, startSelection);
-        }
-        else if (mode == Mode.PASTING) {
-            Action.addAction();
-
-            insertCells(pasteStuff, convertToGrid((int) event.getX()), convertToGrid((int)event.getY()));
-            pasteSelection.setVisible(false);
-
-            mode = Mode.SELECTING;
+            selectionRectangle!!.unselect()
+            selectionRectangle!!.toFront()
+            val startSelection = Coordinate(
+                snapToGrid(event.x.toInt()),
+                snapToGrid(event.y.toInt())
+            )
+            selectionRectangle!!.select(startSelection, startSelection)
+        } else if (mode == Mode.PASTING) {
+            Action.addAction()
+            insertCells(pasteStuff, convertToGrid(event.x.toInt()), convertToGrid(event.y.toInt()))
+            pasteSelection.isVisible = false
+            mode = Mode.SELECTING
         }
     }
 
     @FXML
-    public void mouseDragDoneHandler(MouseEvent event) {
-        Coordinate endSelection = null;
-        if (mode == Mode.SELECTING && selectionRectangle.isVisible()) {
-            endSelection = new Coordinate((int)event.getX(), (int)event.getY());
+    fun mouseDragDoneHandler(event: MouseEvent) {
+        var endSelection: Coordinate? = null
+        if (mode == Mode.SELECTING && selectionRectangle!!.isVisible) {
+            endSelection = Coordinate(event.x.toInt(), event.y.toInt())
         }
-
         if (mode != Mode.PASTING) {
-            if (selectionRectangle.getStart() != null && endSelection != null &&
-                    (endSelection.subtract(selectionRectangle.getStart()).getX() < 1 ||
-                            endSelection.subtract(selectionRectangle.getStart()).getY() < 1)) {
-                selectionRectangle.unselect();
+            if (selectionRectangle!!.start != null && endSelection != null &&
+                (endSelection.subtract(selectionRectangle!!.start).x < 1 ||
+                        endSelection.subtract(selectionRectangle!!.start).y < 1)
+            ) {
+                selectionRectangle!!.unselect()
             }
         }
     }
 
     @FXML
-    public void mouseMovedHandler(MouseEvent event) {
+    fun mouseMovedHandler(event: MouseEvent) {
         if (mode == Mode.PASTING) {
-            pasteSelection.setTranslateX(snapToGrid((int)(event.getX())));
-            pasteSelection.setTranslateY(snapToGrid((int)(event.getY())));
+            pasteSelection.translateX = snapToGrid(event.x.toInt()).toDouble()
+            pasteSelection.translateY = snapToGrid(event.y.toInt()).toDouble()
         }
     }
 
     @FXML // Generates random soup in the selection box
-    public void generateRandomSoup() {
-        if (selectionRectangle.isSelecting()) {
-            int[] states = new int[statesToInclude.size()];
-            for (int i = 0; i < states.length; i++) {
-                states[i] = statesToInclude.get(i);
-            }
+    fun generateRandomSoup() {
+        if (selectionRectangle!!.isSelecting) {
+            val states = statesToInclude.toIntArray()
 
             // Generate the soup
-            Grid soup = SymmetryGenerator.generateSymmetry(symmetry, density, states,
-                    selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1,
-                    selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1);
+            val soup = SymmetryGenerator.generateSymmetry(
+                symmetry, density, states,
+                selectionRectangle!!.end.x - selectionRectangle!!.start.x + 1,
+                selectionRectangle!!.end.y - selectionRectangle!!.start.y + 1
+            )
 
             // Insert the cells in the pane (automatically inserted in the simulator)
-            insertCells(soup, selectionRectangle.getStart().getX(), selectionRectangle.getStart().getY());
+            insertCells(soup, selectionRectangle!!.start.x, selectionRectangle!!.start.y)
 
             // Move the grid lines and selection to the front
-            selectionRectangle.toFront();
-            gridLines.toFront();
-        }
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("No area selected!");
-            alert.setContentText("No area has been selected!");
-            alert.showAndWait();
+            selectionRectangle!!.toFront()
+            gridLines.toFront()
+        } else {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "No area selected!"
+            alert.contentText = "No area has been selected!"
+            alert.showAndWait()
         }
     }
 
     @FXML // Flips selected cells horizontally
-    public void flipHorizontalHandler() {
-        Action.addAction();
+    fun flipHorizontalHandler() {
+        Action.addAction()
 
         // Reflect cells in the grid
-        simulator.reflectCellsX(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        simulator.reflectCellsX(selectionRectangle!!.start, selectionRectangle!!.end)
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+        selectionRectangle!!.toFront()
+        gridLines.toFront()
     }
 
     @FXML // Flips selected cells vertically
-    public void flipVerticalHandler() {
-        Action.addAction();
+    fun flipVerticalHandler() {
+        Action.addAction()
 
         // Reflect cells in the grid
-        simulator.reflectCellsY(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        simulator.reflectCellsY(selectionRectangle!!.start, selectionRectangle!!.end)
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+        selectionRectangle!!.toFront()
+        gridLines.toFront()
     }
 
     @FXML // Rotates the selected cells clockwise
-    public void rotateCWHandler() {
-        Action.addAction();
+    fun rotateCWHandler() {
+        Action.addAction()
 
         // Rotate the cells in the grid
-        Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
-        simulator.rotateCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        val start = selectionRectangle!!.start
+        var end = selectionRectangle!!.end
+        simulator.rotateCW(selectionRectangle!!.start, selectionRectangle!!.end)
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Rotate selection rectangle
-        if ((end.getX() - start.getX()) % 2 == 1) end = new Coordinate(end.getX() + 1, end.getY());
-        if ((end.getY() - start.getY()) % 2 == 1) end = new Coordinate(end.getX(), end.getY() + 1);
+        if ((end.x - start.x) % 2 == 1) end = Coordinate(end.x + 1, end.y)
+        if ((end.y - start.y) % 2 == 1) end = Coordinate(end.x, end.y + 1)
 
-        int centerX = (end.getX() - start.getX()) / 2 + start.getX();
-        int centerY = (end.getY() - start.getY()) / 2 + start.getY();
+        val centerX = (end.x - start.x) / 2 + start.x
+        val centerY = (end.y - start.y) / 2 + start.y
 
-        int dxEnd = centerX - end.getX();
-        int dyEnd = centerY - end.getY();
+        val dxEnd = centerX - end.x
+        val dyEnd = centerY - end.y
 
-        int dxStart = centerX - start.getX();
-        int dyStart = centerY - start.getY();
+        val dxStart = centerX - start.x
+        val dyStart = centerY - start.y
 
-        selectionRectangle.select(convertToScreen(new Coordinate(centerX - dyStart, centerY + dxEnd)),
-                convertToScreen(new Coordinate(centerX - dyEnd, centerY + dxStart)));
-
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        selectionRectangle!!.select(
+            convertToScreen(Coordinate(centerX - dyStart, centerY + dxEnd)),
+            convertToScreen(Coordinate(centerX - dyEnd, centerY + dxStart))
+        )
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+        selectionRectangle!!.toFront()
+        gridLines.toFront()
     }
 
     @FXML // Rotates the selected cells counter-clockwise
-    public void rotateCCWHandler() {
-        Action.addAction();
+    fun rotateCCWHandler() {
+        Action.addAction()
 
         // Rotate the cells in the grid
-        Coordinate start = selectionRectangle.getStart(), end = selectionRectangle.getEnd();
-        simulator.rotateCCW(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        val start = selectionRectangle!!.start
+        var end = selectionRectangle!!.end
+
+        simulator.rotateCCW(selectionRectangle!!.start, selectionRectangle!!.end)
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Rotate selection rectangle
-        if ((end.getX() - start.getX()) % 2 == 1) end = new Coordinate(end.getX() + 1, end.getY());
-        if ((end.getY() - start.getY()) % 2 == 1) end = new Coordinate(end.getX(), end.getY() + 1);
+        if ((end.x - start.x) % 2 == 1) end = Coordinate(end.x + 1, end.y)
+        if ((end.y - start.y) % 2 == 1) end = Coordinate(end.x, end.y + 1)
 
-        int centerX = (end.getX() - start.getX()) / 2 + start.getX();
-        int centerY = (end.getY() - start.getY()) / 2 + start.getY();
+        val centerX = (end.x - start.x) / 2 + start.x
+        val centerY = (end.y - start.y) / 2 + start.y
 
-        int dxEnd = centerX - end.getX();
-        int dyEnd = centerY - end.getY();
+        val dxEnd = centerX - end.x
+        val dyEnd = centerY - end.y
 
-        int dxStart = centerX - start.getX();
-        int dyStart = centerY - start.getY();
+        val dxStart = centerX - start.x
+        val dyStart = centerY - start.y
 
-        selectionRectangle.select(convertToScreen(new Coordinate(centerX + dyEnd, centerY - dxStart)),
-                convertToScreen(new Coordinate(centerX + dyStart, centerY - dxEnd)));
-
-        renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+        selectionRectangle!!.select(
+            convertToScreen(Coordinate(centerX + dyEnd, centerY - dxStart)),
+            convertToScreen(Coordinate(centerX + dyStart, centerY - dxEnd))
+        )
+        renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
         // Move the grid lines and selection to the front
-        selectionRectangle.toFront();
-        gridLines.toFront();
+        selectionRectangle!!.toFront()
+        gridLines.toFront()
     }
 
     @FXML // Sets the generation
-    public void setGeneration() {
+    fun setGeneration() {
         // Getting the generation number from the user
-        TextInputDialog inputDialog = new TextInputDialog(simulator.getGeneration() + "");
-        inputDialog.setTitle("Set Generation");
-        inputDialog.setHeaderText("Enter the generation number:");
-        inputDialog.showAndWait();
+        val inputDialog = TextInputDialog(simulator.generation.toString() + "").apply {
+            title = "Set Generation"
+            headerText = "Enter the generation number:"
+        }
+        inputDialog.showAndWait()
 
         try {
-            simulator.setGeneration(Integer.parseInt(inputDialog.getResult()));
-            updateStatusText();
-        }
-        catch (NumberFormatException exception) {
+            simulator.generation = inputDialog.result.toInt()
+            updateStatusText()
+        } catch (exception: NumberFormatException) {
             // Ensure it's an integer
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
-            alert.showAndWait();
+            Alert(Alert.AlertType.ERROR).apply {
+                title = "Error!"
+                headerText = inputDialog.result.toString() + " is not a valid integer!"
+            }.showAndWait()
         }
     }
 
     @FXML // Sets the step size
-    public void setStepSize() {
+    fun setStepSize() {
         // Getting the step size from the user
-        TextInputDialog inputDialog = new TextInputDialog(stepSize + "");
-        inputDialog.setTitle("Set Step Size:");
-        inputDialog.setHeaderText("Enter the step size:");
-        inputDialog.showAndWait();
-
+        val inputDialog = TextInputDialog(stepSize.toString() + "")
+        inputDialog.title = "Set Step Size:"
+        inputDialog.headerText = "Enter the step size:"
+        inputDialog.showAndWait()
         try {
-            stepSize = Integer.parseInt(inputDialog.getResult());
-            updateStatusText();
-        }
-        catch (NumberFormatException exception) {
+            stepSize = inputDialog.result.toInt()
+            updateStatusText()
+        } catch (exception: NumberFormatException) {
             // Ensure it's an integer
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
-            alert.showAndWait();
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error!"
+            alert.headerText = inputDialog.result.toString() + " is not a valid integer!"
+            alert.showAndWait()
         }
     }
 
     @FXML // Sets the maximum simulation speed (gen/s)
-    public void setSimSpeed() {
+    fun setSimSpeed() {
         // Getting the generation number from the user
-        TextInputDialog inputDialog = new TextInputDialog(1000 / (minSimTime + 1) + "");
-        inputDialog.setTitle("Set Maximum Simulation Speed (gen/s)");
-        inputDialog.setHeaderText("Enter the simulation speed (gen/s):");
-        inputDialog.showAndWait();
+        val inputDialog = TextInputDialog((1000 / (minSimTime + 1)).toString() + "").apply {
+            title = "Set Maximum Simulation Speed (gen/s)"
+            headerText = "Enter the simulation speed (gen/s):"
+        }
+        inputDialog.showAndWait()
 
         try {
-            minSimTime = 1000 / Integer.parseInt(inputDialog.getResult());
-        }
-        catch (NumberFormatException exception) {
+            minSimTime = 1000 / inputDialog.result.toInt()
+        } catch (exception: NumberFormatException) {
             // Ensure it's an integer
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText(inputDialog.getResult() + " is not a valid integer!");
-            alert.showAndWait();
+            Alert(Alert.AlertType.ERROR).apply {
+                title = "Error!"
+                headerText = inputDialog.result.toString() + " is not a valid integer!"
+            }.showAndWait()
         }
     }
 
     @FXML // Clears the cell cache
-    public void clearCellsCache() {
+    fun clearCellsCache() {
         while (deadCellsSet.iterator().hasNext()) {
-            Coordinate cell = deadCellsSet.iterator().next();  // No ConcurrentModficationException
+            val cell = deadCellsSet.iterator().next() // No ConcurrentModficationException
             // if (deadCellsCache.get(cell).getState() != 0) return;
 
             // Destroy the cell object (remove all references to it so it is garbage collected)
-            drawingPane.getChildren().remove(cellList.get(cell).getRectangle());
-            removeCellObject(cell.getX(), cell.getY());
-            deadCellsSet.remove(cell);
+            drawingPane.children.remove(cellList[cell]!!.rectangle)
+            removeCellObject(cell.x, cell.y)
+            deadCellsSet.remove(cell)
         }
     }
 
     @FXML // Opens a dialog to adjust the colours
-    public void adjustColours() {
-        ColourPickerDialog dialog = new ColourPickerDialog(simulator.getRule(), colours.get(simulator.getRule()));
-        dialog.showAndWait();
+    fun adjustColours() {
+        val dialog = ColourPickerDialog(simulator.rule, colours[simulator.rule])
+        dialog.showAndWait()
 
-        if (dialog.getResult() == Boolean.TRUE) {
-            colours.put(simulator.getRule(), dialog.getColours());
-            scrollPane.setStyle("-fx-background: rgb(" + (int) (dialog.getColours()[0].getRed() * 255) + "," +
-                    (int) (dialog.getColours()[0].getGreen() * 255) + "," +
-                    (int) (dialog.getColours()[0].getBlue() * 255) + ")");
-            drawingPane.setStyle("-fx-background: rgb(" + (int) (dialog.getColours()[0].getRed() * 255) + "," +
-                    (int) (dialog.getColours()[0].getGreen() * 255) + "," +
-                    (int) (dialog.getColours()[0].getBlue() * 255) + ")");
-            renderCells();
+        if (dialog.result === java.lang.Boolean.TRUE) {
+            colours[simulator.rule] = dialog.colours
+            scrollPane.style = "-fx-background: rgb(${(dialog.colours[0].red * 255).toInt()}," +
+                    "${(dialog.colours[0].green * 255).toInt()}," +
+                    "${(dialog.colours[0].blue * 255).toInt()})"
+            drawingPane.style = "-fx-background: rgb(${(dialog.colours[0].red * 255).toInt()}," +
+                    "${(dialog.colours[0].green * 255).toInt()}," +
+                    "${(dialog.colours[0].blue * 255).toInt()})"
+            renderCells()
         }
     }
 
     @FXML // Views the population graph
-    public void viewPopulationGraph() {
-        PopulationGraphDialog dialog = new PopulationGraphDialog(populationList);
-        dialog.show();
+    fun viewPopulationGraph() {
+        PopulationGraphDialog(populationList as ArrayList).show()
     }
 
     @FXML // Changing the random soup settings
-    public void changeRandomSoupSettings() {
-        randomSoupDialog = new RandomSoupDialog(simulator.getRule().getNumStates(), density, symmetry,
-                statesToInclude);
-        randomSoupDialog.showAndWait();
+    fun changeRandomSoupSettings() {
+        randomSoupDialog = RandomSoupDialog(
+            simulator.rule.numStates, density, symmetry,
+            statesToInclude
+        )
+        randomSoupDialog!!.showAndWait()
 
-        if (randomSoupDialog.getResult() == Boolean.TRUE) {
-            density = randomSoupDialog.getDensity();
-            symmetry = randomSoupDialog.getSymmetry();
-            statesToInclude = randomSoupDialog.getStates();
+        if (randomSoupDialog!!.result === java.lang.Boolean.TRUE) {
+            density = randomSoupDialog!!.density
+            symmetry = randomSoupDialog!!.symmetry
+            statesToInclude = randomSoupDialog!!.states
         }
     }
 
-    @FXML  // Displays information about the current rule
-    public void getRuleInformation() {
-        StringBuilder contentText = new StringBuilder();
-        Map<String, String> information = ((RuleFamily) simulator.getRule()).getRuleInfo();
-        for (String key: information.keySet()) {
-            contentText.append(key).append(": ").append(information.get(key)).append("\n");
+    // Displays information about the current rule
+    @get:FXML
+    val ruleInformation: Unit
+        get() {
+            val contentText = StringBuilder()
+            val information = (simulator.rule as RuleFamily).ruleInfo
+            for (key in information.keys) {
+                contentText.append(key).append(": ").append(information[key]).append("\n")
+            }
+            val alert = Alert(Alert.AlertType.INFORMATION)
+            alert.title = "Rule Information"
+            alert.headerText = "Information"
+            alert.contentText = contentText.toString()
+            alert.dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+            alert.showAndWait()
         }
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Rule Information");
-        alert.setHeaderText("Information");
-        alert.setContentText(contentText.toString());
-        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-        alert.showAndWait();
+    @FXML // Sets the rule directory
+    fun setRuleDirectory() {
+        val directoryChooser = DirectoryChooser()
+        directoryChooser.title = "Set Rule Directory"
+
+        val file = directoryChooser.showDialog(null)
+        RuleLoader.RULE_DIRECTORY = file.path
+        settings.put("rule_directory", file.path)
+
+        Alert(Alert.AlertType.INFORMATION).apply {
+            title = "Operation Successful"
+            headerText = "Operation Successful."
+            contentText = "Please restart the application for the changes to take effect."
+        }.showAndWait()
     }
 
-    @FXML  // Sets the rule directory
-    public void setRuleDirectory() {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Set Rule Directory");
-
-        File file = directoryChooser.showDialog(null);
-
-        RuleLoader.RULE_DIRECTORY = file.getPath();
-        settings.put("rule_directory", file.getPath());
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Operation Successful");
-        alert.setHeaderText("Operation Successful.");
-        alert.setContentText("Please restart the application for the changes to take effect.");
-        alert.showAndWait();
+    @FXML // Increases the step size
+    fun increaseStepSize() {
+        stepSize++
     }
 
-    @FXML  // Increases the step size
-    public void increaseStepSize() {
-        stepSize++;
-    }
-
-    @FXML  // Decreases the step size
-    public void decreaseStepSize() {
-        if (stepSize > 1) stepSize--;
+    @FXML // Decreases the step size
+    fun decreaseStepSize() {
+        if (stepSize > 1) stepSize--
     }
 
     // Function to set cell at (x, y) to a certain state
-    public void setCell(int x, int y, int state) {
-        setCell(x, y, state, true);
-    }
-
-    public void setCell(int x, int y, int state, boolean updateSimulator) {
-        setCell(x, y, state, updateSimulator, false);
-    }
-
-    public void setCell(int x, int y, int state, boolean updateSimulator, boolean updateColours) {
-        if (simulator.getRule().getBoundedGrid() != null &&  // Skip cells outside the bounded grid
-                simulator.getRule().getBoundedGrid().atEdge(new Coordinate(x, y))) return;
+    fun setCell(x: Int, y: Int, state: Int, updateSimulator: Boolean = true, updateColours: Boolean = false) {
+        if (simulator.rule.boundedGrid != null &&  // Skip cells outside the bounded grid
+            simulator.rule.boundedGrid.atEdge(Coordinate(x, y))
+        ) return
 
         // Get the cell object at the specified coordinate
-        Cell prevCell = getCellObject(x, y);
+        val prevCell = getCellObject(x, y)
         if (prevCell == null && state != 0) {  // Insert a new cell if one doesn't already exist
             // Create cell
-            Rectangle cell = new Rectangle();
-            cell.setX(x);
-            cell.setY(y);
-            cell.setWidth(CELL_SIZE);
-            cell.setHeight(CELL_SIZE);
+            val cell = Rectangle().apply {
+                this.x = x.toDouble()
+                this.y = y.toDouble()
+                width = CELL_SIZE.toDouble()
+                height = CELL_SIZE.toDouble()
+            }
 
-            if (colours.get(simulator.getRule()) == null)
-                cell.setFill(simulator.getRule().getColour(state));
-            else
-                cell.setFill(colours.get(simulator.getRule())[state]);
-
-            cell.toBack();
+            if (colours[simulator.rule] == null) cell.fill = simulator.rule.getColour(state) else cell.fill =
+                colours[simulator.rule]!![state]
+            cell.toBack()
 
             // Add cell to pane and cell list
-            drawingPane.getChildren().add(cell);
-            addCellObject(x, y, new Cell(x, y, state, cell));
-        }
-        // Don't bother if the cell didn't change
-        else if (prevCell != null && (prevCell.getState() != state || updateColours)) {
-            if (prevCell.getState() == 0 && state != 0) deadCellsSet.remove(prevCell.getCoordinate());
-
-            if (colours.get(simulator.getRule()) == null)
-                prevCell.getRectangle().setFill(simulator.getRule().getColour(state));
-            else
-                prevCell.getRectangle().setFill(colours.get(simulator.getRule())[state]);
-
-            prevCell.setState(state);
-
-            if (state == 0) deadCellsSet.add(new Coordinate(x, y));
+            drawingPane.children.add(cell)
+            addCellObject(x, y, Cell(x, y, state, cell))
+        } else if (prevCell != null && (prevCell.state != state || updateColours)) {
+            if (prevCell.state == 0 && state != 0) deadCellsSet.remove(prevCell.coordinate)
+            if (colours[simulator.rule] == null) prevCell.rectangle.fill =
+                simulator.rule.getColour(state) else prevCell.rectangle.fill = colours[simulator.rule]!![state]
+            prevCell.state = state
+            if (state == 0) deadCellsSet.add(Coordinate(x, y))
         }
 
         // Add cell to simulator
-        if (updateSimulator)
-            simulator.setCell(convertToGrid(x), convertToGrid(y), state);
+        if (updateSimulator) simulator.setCell(convertToGrid(x), convertToGrid(y), state)
     }
 
-    public void insertCells(Grid cellsToInsert, int x, int y) {
-        cellsToInsert.iterateCells(coord -> {
-            Coordinate newCell = coord.add(new Coordinate(x, y));
-            setCell(convertToScreen(newCell.getX()), convertToScreen(newCell.getY()),
-                    cellsToInsert.getCell(coord));
-        });
+    fun insertCells(cellsToInsert: Grid?, x: Int, y: Int) {
+        cellsToInsert!!.iterateCells { coord: Coordinate ->
+            val newCell = coord.add(Coordinate(x, y))
+            setCell(
+                convertToScreen(newCell.x), convertToScreen(newCell.y),
+                cellsToInsert.getCell(coord)
+            )
+        }
     }
 
     // Renders all cells
-    public void renderCells() {
-        selectionRectangle.toFront();
-        gridLines.toFront();
-        for (Coordinate coordinate: cellList.keySet()) {
-            setCell(convertToGrid(coordinate.getX()),
-                    convertToGrid(coordinate.getY()),
-                    simulator.getCell(coordinate),false, true);
+    fun renderCells() {
+        selectionRectangle!!.toFront()
+        gridLines.toFront()
+        for (coordinate in cellList.keys) {
+            setCell(
+                convertToGrid(coordinate.x),
+                convertToGrid(coordinate.y),
+                simulator.getCell(coordinate), updateSimulator = false, updateColours = true
+            )
         }
 
-        simulator.iterateCells(coordinate -> setCell(convertToGrid(coordinate.getX()),
-                convertToGrid(coordinate.getY()),
-                simulator.getCell(coordinate),false, true));
+        simulator.iterateCells { coordinate: Coordinate ->
+            setCell(
+                convertToGrid(coordinate.x),
+                convertToGrid(coordinate.y),
+                simulator.getCell(coordinate), updateSimulator = false, updateColours = true
+            )
+        }
     }
 
     // Renders cells between the start and end coordinate
-    public void renderCells(Coordinate startSelection, Coordinate endSelection) {
-        for (int i = startSelection.getX(); i < endSelection.getX() + 1; i++) {
-            for (int j = startSelection.getY(); j < endSelection.getY() + 1; j++) {
-                setCell(convertToScreen(i), convertToScreen(j), simulator.getCell(i, j));  // Render the new cells
+    fun renderCells(startSelection: Coordinate, endSelection: Coordinate) {
+        for (i in startSelection.x until endSelection.x + 1) {
+            for (j in startSelection.y until endSelection.y + 1) {
+                setCell(convertToScreen(i), convertToScreen(j), simulator.getCell(i, j)) // Render the new cells
             }
         }
     }
 
-    public void addCellObject(int x, int y, Cell cell) {
-        cellList.put(new Coordinate(x, y), cell);
+    fun addCellObject(x: Int, y: Int, cell: Cell) {
+        cellList[Coordinate(x, y)] = cell
     }
 
-    public void removeCellObject(int x, int y) {
-        cellList.remove(new Coordinate(x, y));
+    fun removeCellObject(x: Int, y: Int) {
+        cellList.remove(Coordinate(x, y))
     }
 
-    public Cell getCellObject(int x, int y) {
-        return cellList.get(new Coordinate(x, y));
+    fun getCellObject(x: Int, y: Int): Cell? {
+        return cellList[Coordinate(x, y)]
     }
 
-    public void updateStatusText() {
-        String simulationString = String.format("Simulation Speed: %.2f step/s",
-                1000.0 / (visualisationTime + simulationTime));
+    fun updateStatusText() {
+        val simulationString = String.format(
+            "Simulation Speed: %.2f step/s",
+            1000.0 / (visualisationTime + simulationTime)
+        )
 
-        statusLabel.setText("Generation: " + simulator.getGeneration() + ", " +
-                simulationString + ", Population: " + simulator.getPopulation());
+        statusLabel.text = "Generation: ${simulator.generation}, " +
+                "$simulationString, Population: ${simulator.population}"
     }
 
     // Draws bounded grid for the current rule if necessary
-    public void drawBoundedGrid() {
-        drawingPane.getChildren().remove(boundedGridLines);
-        if (simulator.getRule().getBoundedGrid() == null) return;
+    fun drawBoundedGrid() {
+        drawingPane.children.remove(boundedGridLines)
+        if (simulator.rule.boundedGrid == null) return
 
         // Creating grid lines
-        boundedGridLines = new Group();
+        boundedGridLines = Group()
+        val horizontalLine1 = Line().apply {
+            stroke = Color.GREY
+            strokeWidth = CELL_SIZE.toDouble()
 
-        Line horizontalLine1 = new Line();
-        horizontalLine1.setStroke(Color.GREY);
-        horizontalLine1.setStrokeWidth(CELL_SIZE);
+            if (simulator.rule.boundedGrid.height != 0 &&
+                simulator.rule.boundedGrid.width != 0
+            ) {
+                startX = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+                endX = 1800 / CELL_SIZE + simulator.rule.boundedGrid.width + CELL_SIZE / 2.0
+            } else if (simulator.rule.boundedGrid.width == 0) {
+                startX = 0.0
+                endX = WIDTH.toDouble()
+            }
 
-        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
-                simulator.getRule().getBoundedGrid().getWidth() != 0) {
-            horizontalLine1.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-            horizontalLine1.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
-        } else if (simulator.getRule().getBoundedGrid().getWidth() == 0) {
-            horizontalLine1.setStartX(0);
-            horizontalLine1.setEndX(WIDTH);
+            startY = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+            endY = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+            toFront()
         }
 
-        horizontalLine1.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-        horizontalLine1.setEndY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-        horizontalLine1.toFront();
-        boundedGridLines.getChildren().add(horizontalLine1);
+        boundedGridLines!!.children.add(horizontalLine1)
 
-        Line horizontalLine2 = new Line();
-        horizontalLine2.setStroke(Color.GREY);
-        horizontalLine2.setStrokeWidth(CELL_SIZE);
+        val horizontalLine2 = Line().apply {
+            stroke = Color.GREY
+            strokeWidth = CELL_SIZE.toDouble()
 
-        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
-                simulator.getRule().getBoundedGrid().getWidth() != 0) {
-            horizontalLine2.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-            horizontalLine2.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
-        } else if (simulator.getRule().getBoundedGrid().getWidth() == 0) {
-            horizontalLine2.setStartX(0);
-            horizontalLine2.setEndX(WIDTH);
+            if (simulator.rule.boundedGrid.height != 0 &&
+                simulator.rule.boundedGrid.width != 0
+            ) {
+                startX = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+                endX = 1800 / CELL_SIZE + simulator.rule.boundedGrid.width + CELL_SIZE / 2.0
+            } else if (simulator.rule.boundedGrid.width == 0) {
+                startX = 0.0
+                endX = WIDTH.toDouble()
+            }
+
+            startY = 1800 / CELL_SIZE + simulator.rule.boundedGrid.height + CELL_SIZE / 2.0
+            endY = 1800 / CELL_SIZE + simulator.rule.boundedGrid.height + CELL_SIZE / 2.0
+            toFront()
         }
 
-        horizontalLine2.setStartY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
-        horizontalLine2.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
-        horizontalLine2.toFront();
-        boundedGridLines.getChildren().add(horizontalLine2);
+        boundedGridLines!!.children.add(horizontalLine2)
 
-        Line verticalLine1 = new Line();
-        verticalLine1.setStroke(Color.GREY);
-        verticalLine1.setStrokeWidth(CELL_SIZE);
-        verticalLine1.setStartX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-        verticalLine1.setEndX(1800 / CELL_SIZE - CELL_SIZE / 2.0);
+        val verticalLine1 = Line().apply {
+            stroke = Color.GREY
+            strokeWidth = CELL_SIZE.toDouble()
+            startX = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+            endX = 1800 / CELL_SIZE - CELL_SIZE / 2.0
 
-        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
-                simulator.getRule().getBoundedGrid().getWidth() != 0) {
-            verticalLine1.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-            verticalLine1.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
-        } else if (simulator.getRule().getBoundedGrid().getHeight() == 0) {
-            verticalLine1.setStartY(0);
-            verticalLine1.setEndY(HEIGHT);
+            if (simulator.rule.boundedGrid.height != 0 &&
+                simulator.rule.boundedGrid.width != 0
+            ) {
+                startY = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+                endY = 1800 / CELL_SIZE + simulator.rule.boundedGrid.height + CELL_SIZE / 2.0
+            } else if (simulator.rule.boundedGrid.height == 0) {
+                startY = 0.0
+                endY = HEIGHT.toDouble()
+            }
+
+            toFront()
         }
 
-        verticalLine1.toFront();
-        boundedGridLines.getChildren().add(verticalLine1);
+        boundedGridLines!!.children.add(verticalLine1)
 
-        Line verticalLine2 = new Line();
-        verticalLine2.setStroke(Color.GREY);
-        verticalLine2.setStrokeWidth(CELL_SIZE);
-        verticalLine2.setStartX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
-        verticalLine2.setEndX(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getWidth() + CELL_SIZE / 2.0);
+        val verticalLine2 = Line().apply {
+            stroke = Color.GREY
+            strokeWidth = CELL_SIZE.toDouble()
+            startX = 1800 / CELL_SIZE + simulator.rule.boundedGrid.width + CELL_SIZE / 2.0
+            endX = 1800 / CELL_SIZE + simulator.rule.boundedGrid.width + CELL_SIZE / 2.0
 
-        if (simulator.getRule().getBoundedGrid().getHeight() != 0 &&
-                simulator.getRule().getBoundedGrid().getWidth() != 0) {
-            verticalLine2.setStartY(1800 / CELL_SIZE - CELL_SIZE / 2.0);
-            verticalLine2.setEndY(1800 / CELL_SIZE + simulator.getRule().getBoundedGrid().getHeight() + CELL_SIZE / 2.0);
-        } else if (simulator.getRule().getBoundedGrid().getHeight() == 0) {
-            verticalLine2.setStartY(0);
-            verticalLine2.setEndY(HEIGHT);
+            if (simulator.rule.boundedGrid.height != 0 &&
+                simulator.rule.boundedGrid.width != 0
+            ) {
+                startY = 1800 / CELL_SIZE - CELL_SIZE / 2.0
+                endY = 1800 / CELL_SIZE + simulator.rule.boundedGrid.height + CELL_SIZE / 2.0
+            } else if (simulator.rule.boundedGrid.height == 0) {
+                startY = 0.0
+                endY = HEIGHT.toDouble()
+            }
+
+            toFront()
         }
 
-        verticalLine2.toFront();
-        boundedGridLines.getChildren().add(verticalLine2);
-
-        drawingPane.getChildren().add(boundedGridLines);
+        boundedGridLines!!.children.add(verticalLine2)
+        drawingPane.children.add(boundedGridLines)
     }
 
     @FXML // Zooming in and out of the canvas
-    public void changeZoomHandler(ScrollEvent event) {
-        final double SCALE_DELTA = 1.2;
-        event.consume();
-        if (event.getDeltaY() == 0) {
-            return;
+    fun changeZoomHandler(event: ScrollEvent) {
+        val SCALE_DELTA = 1.2
+        event.consume()
+        if (event.deltaY == 0.0) {
+            return
         }
-
-        double scaleFactor = (event.getDeltaY() > 0) ? SCALE_DELTA : 1 / SCALE_DELTA;
-
-        AnimatedZoomOperator zoomOperator = new AnimatedZoomOperator();
-        zoomOperator.zoom(drawingPane, scaleFactor, event.getX(), event.getY());
+        val scaleFactor = if (event.deltaY > 0) SCALE_DELTA else 1 / SCALE_DELTA
+        val zoomOperator = AnimatedZoomOperator()
+        zoomOperator.zoom(drawingPane, scaleFactor, event.x, event.y)
     }
 
     @FXML // Updates cells
-    public void updateCells() {
-        synchronized (this) {
-            visualisationDone = false;
-
-            Set<Coordinate> cellsChanged = new HashSet<>();
-
-            long startTime = System.currentTimeMillis();
+    fun updateCells() {
+        synchronized(this) {
+            visualisationDone = false
+            var cellsChanged: MutableSet<Coordinate> = HashSet()
+            val startTime = System.currentTimeMillis()
             try {
-                for (int i = 0; i < stepSize; i++) {
+                for (i in 0 until stepSize) {
                     if (simulationMode == SimulationMode.IN_SELECTION)
-                        simulator.step(coordinate -> coordinate.getX() >= selectionRectangle.getStart().getX() &&
-                                coordinate.getY() >= selectionRectangle.getStart().getY() &&
-                                coordinate.getX() <= selectionRectangle.getEnd().getX() &&
-                                coordinate.getY() <= selectionRectangle.getEnd().getY());
+                        simulator.step {
+                                coordinate: Coordinate -> coordinate.x >= selectionRectangle!!.start.x &&
+                                coordinate.y >= selectionRectangle!!.start.y &&
+                                coordinate.x <= selectionRectangle!!.end.x && coordinate.y <= selectionRectangle!!.end.y
+                        }
                     else if (simulationMode == SimulationMode.OUTSIDE_SELECTION)
-                        simulator.step(coordinate -> coordinate.getX() < selectionRectangle.getStart().getX() ||
-                                coordinate.getY() < selectionRectangle.getStart().getY() ||
-                                coordinate.getX() > selectionRectangle.getEnd().getX() ||
-                                coordinate.getY() > selectionRectangle.getEnd().getY());
-                    else simulator.step();
+                        simulator.step {
+                                coordinate: Coordinate -> coordinate.x < selectionRectangle!!.start.x ||
+                                coordinate.y < selectionRectangle!!.start.y ||
+                                coordinate.x > selectionRectangle!!.end.x ||
+                                coordinate.y > selectionRectangle!!.end.y
+                        }
+                    else simulator.step()
 
-                    if (stepSize > 1) cellsChanged.addAll(simulator.getCellsChanged());
-                    else cellsChanged = simulator.getCellsChanged();
-
-                    populationList.add(simulator.getPopulation());
+                    if (stepSize > 1) cellsChanged.addAll(simulator.cellsChanged) else cellsChanged =
+                        simulator.cellsChanged
+                    populationList.add(simulator.population)
                 }
-            }
-            catch (ConcurrentModificationException exception) {
-                logger.log(Level.WARNING, exception.getMessage());
+            } catch (exception: ConcurrentModificationException) {
+                logger.log(Level.WARNING, exception.message)
             }
 
-            simulationTime = (int) (System.currentTimeMillis() - startTime);
-
-            Set<Coordinate> finalCellsChanged = cellsChanged;
-            Platform.runLater(() -> {
+            simulationTime = (System.currentTimeMillis() - startTime).toInt()
+            val finalCellsChanged: Set<Coordinate> = cellsChanged
+            Platform.runLater {
                 try {
-                    long startTime2 = System.currentTimeMillis();
+                    val startTime2 = System.currentTimeMillis()
 
                     // Only update cells that changed (for speed)
-                    for (Coordinate cell: finalCellsChanged) {
-                        setCell(convertToScreen(cell.getX()), convertToScreen(cell.getY()), simulator.getCell(cell));
+                    for (cell in finalCellsChanged) {
+                        setCell(convertToScreen(cell.x), convertToScreen(cell.y), simulator.getCell(cell))
                     }
 
                     // Move the grid lines and selection to the front
-                    if (selectionRectangle.isVisible()) selectionRectangle.toFront();
-                    if (gridLines.isVisible()) gridLines.toFront();
+                    if (selectionRectangle!!.isVisible) selectionRectangle!!.toFront()
+                    if (gridLines.isVisible) gridLines.toFront()
+                    visualisationTime = (System.currentTimeMillis() - startTime2).toInt()
+                } catch (exception: ConcurrentModificationException) { // Catch an exception that will hopefully not happen
+                    logger.log(Level.WARNING, exception.message)
+                    exception.printStackTrace()
+                    simulationMode = SimulationMode.PAUSED
 
-                    visualisationTime = (int) (System.currentTimeMillis() - startTime2);
-                }
-                catch (ConcurrentModificationException exception) { // Catch an exception that will hopefully not happen
-                    logger.log(Level.WARNING, exception.getMessage());
-                    exception.printStackTrace();
-
-                    simulationMode = SimulationMode.PAUSED;
-
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error!");
-                    alert.setHeaderText("ConcurrentModificationException cause in updateCells.");
-                    alert.setContentText("Please report this as a bug.");
-                    alert.showAndWait();
+                    Alert(Alert.AlertType.ERROR).apply {
+                        title = "Error!"
+                        headerText = "ConcurrentModificationException cause in updateCells."
+                        contentText = "Please report this as a bug."
+                    }.showAndWait()
                 }
 
                 // Ensure that the minimum simulation time is not "surpassed"
-                int waitTime = minSimTime - (simulationTime + visualisationTime);
+                val waitTime = minSimTime - (simulationTime + visualisationTime)
                 if (waitTime > 0) {
-                    wait(waitTime);
-                    visualisationTime += waitTime;
+                    wait(waitTime)
+                    visualisationTime += waitTime
                 }
 
                 // Update the variable to say that the visualisation is done
-                visualisationDone = true;
+                visualisationDone = true
 
                 // Update the status label
-                updateStatusText();
-            });
+                updateStatusText()
+            }
 
             // Add to the gif if the recording is on
             if (recording) {
-                giffer.addGrid(selectionRectangle.getStart(), selectionRectangle.getEnd(),
-                        simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
-                        simulator.getRule());
+                giffer.addGrid(
+                    selectionRectangle!!.start, selectionRectangle!!.end,
+                    simulator.getCells(selectionRectangle!!.start, selectionRectangle!!.end),
+                    simulator.rule
+                )
             }
         }
     }
 
     // Runs simulation
-    public void runSimulation() {
-        int num = 1;
-
+    fun runSimulation() {
+        var num = 1
         while (true) {
             if (simulationMode != SimulationMode.PAUSED) {
                 // Wait for the visualisation to be done
                 // To avoid ConcurrentModificationException
                 // TODO (Using locks would be more elegant)
-                while (!visualisationDone) {
-                    wait(1);
-                }
+                while (!visualisationDone) wait(1)
 
-                updateCells();
-            }
-            else {
-                int finalNum = num;
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                                "/icon/GliderPlayBtn" + (finalNum + 1) + ".png")));
+                updateCells()
+            } else {
+                val finalNum = num
+                Platform.runLater(object : Runnable {
+                    override fun run() {
+                        playButtonImage.image = Image(
+                            javaClass.getResourceAsStream(
+                                "/icon/GliderPlayBtn" + (finalNum + 1) + ".png"
+                            )
+                        )
                     }
-                });
-
-                num++;
-                num %= 4;  // Cycle from 1 - 4
-                wait(75);
+                })
+                num++
+                num %= 4 // Cycle from 1 - 4
+                wait(75)
             }
-
-            Platform.runLater(() -> {
+            Platform.runLater {
                 try {
-                    updateStatusText();
-                } catch (ConcurrentModificationException ignored) {}
-            });
+                    updateStatusText()
+                } catch (ignored: ConcurrentModificationException) { }
+            }
         }
     }
 
-    @FXML  // Toggles simulation on and off
-    public void toggleSimulation() {
-        Action.addAction();
-
+    @FXML // Toggles simulation on and off
+    fun toggleSimulation() {
+        Action.addAction()
         if (simulationMode == SimulationMode.PAUSED) {
-            simulationMode = SimulationMode.RUNNING;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/StopButtonEater.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimOutSelection.png")));
+            simulationMode = SimulationMode.RUNNING
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/StopButtonEater.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimOutSelection.png"
+                )
+            )
         } else {
-            simulationMode = SimulationMode.PAUSED;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimOutSelection.png")));
+            simulationMode = SimulationMode.PAUSED
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimOutSelection.png"
+                )
+            )
         }
     }
 
-    @FXML  // Toggles simulation on and off
-    public void toggleSimulation1() {
-        Action.addAction();
-
+    @FXML // Toggles simulation on and off
+    fun toggleSimulation1() {
+        Action.addAction()
         if (simulationMode == SimulationMode.PAUSED) {
-            simulationMode = SimulationMode.IN_SELECTION;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/StopInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimOutSelection.png")));
+            simulationMode = SimulationMode.IN_SELECTION
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/StopInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimOutSelection.png"
+                )
+            )
         } else {
-            simulationMode = SimulationMode.PAUSED;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimOutSelection.png")));
+            simulationMode = SimulationMode.PAUSED
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimOutSelection.png"
+                )
+            )
         }
     }
 
-    @FXML  // Toggles simulation on and off
-    public void toggleSimulation2() {
-        Action.addAction();
-
+    @FXML // Toggles simulation on and off
+    fun toggleSimulation2() {
+        Action.addAction()
         if (simulationMode == SimulationMode.PAUSED) {
-            simulationMode = SimulationMode.OUTSIDE_SELECTION;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/StopOutSelection.png")));
+            simulationMode = SimulationMode.OUTSIDE_SELECTION
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/StopOutSelection.png"
+                )
+            )
         } else {
-            simulationMode = SimulationMode.PAUSED;
-            playButtonImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/GliderPlayBtn1.png")));
-            playButtonImage1.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/SimInSelection.png")));
-            playButtonImage2.setImage(new Image(getClass().getResourceAsStream(
-                        "/icon/SimOutSelection.png")));
+            simulationMode = SimulationMode.PAUSED
+            playButtonImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/GliderPlayBtn1.png"
+                )
+            )
+            playButtonImage1.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimInSelection.png"
+                )
+            )
+            playButtonImage2.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/SimOutSelection.png"
+                )
+            )
         }
     }
 
-    @FXML  // Change mode to drawing
-    public void drawingMode() {
-        scrollPane.setPannable(false);
-        mode = Mode.DRAWING;
+    @FXML // Change mode to drawing
+    fun drawingMode() {
+        scrollPane.isPannable = false
+        mode = Mode.DRAWING
     }
 
-    @FXML  // Change mode to panning
-    public void panMode() {
-        scrollPane.setPannable(true);
-        mode = Mode.PANNING;
+    @FXML // Change mode to panning
+    fun panMode() {
+        scrollPane.isPannable = true
+        mode = Mode.PANNING
     }
 
-    @FXML  // Change mode to selecting
-    public void selectionMode() {
-        scrollPane.setPannable(false);
-        mode = Mode.SELECTING;
+    @FXML // Change mode to selecting
+    fun selectionMode() {
+        scrollPane.isPannable = false
+        mode = Mode.SELECTING
     }
 
     @FXML // Toggle grid lines
-    public void toggleGridLines() {
-        showGridLines = !showGridLines;
-        gridLines.setVisible(showGridLines);
+    fun toggleGridLines() {
+        showGridLines = !showGridLines
+        gridLines.isVisible = showGridLines
     }
 
     @FXML // Starts the rule dialog
-    public void startRuleDialog() {
-        dialog.showAndWait();
+    fun startRuleDialog() {
+        dialog.showAndWait()
 
         // Check if the user actually hit `Confirm Rule`
-        if (dialog.getRule() != null) {
-            Action.addAction();
+        if (dialog.rule != null) {
+            Action.addAction()
 
             // Set the rule
-            simulator.setRule(dialog.getRule());
+            simulator.rule = dialog.rule
 
             // Reload the number of state buttons
-            reloadStateButtons();
+            reloadStateButtons()
 
             // Re-render all the cells
-            if (colours.get(dialog.getRule()) != null) {
-                scrollPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
-                        (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
-                        (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
-                drawingPane.setStyle("-fx-background: rgb(" + (colours.get(dialog.getRule())[0].getRed() * 255) + "," +
-                        (colours.get(dialog.getRule())[0].getGreen() * 255) + "," +
-                        (colours.get(dialog.getRule())[0].getBlue() * 255) + ")");
+            if (colours[dialog.rule] != null) {
+                scrollPane.style = "-fx-background: rgb(${colours[dialog.rule]!![0].red * 255}," +
+                        "${colours[dialog.rule]!![0].green * 255}," +
+                        "${colours[dialog.rule]!![0].blue * 255})"
+                drawingPane.style = "-fx-background: rgb(${colours[dialog.rule]!![0].red * 255}," +
+                        "${colours[dialog.rule]!![0].green * 255}," +
+                        "${colours[dialog.rule]!![0].blue * 255})"
             } else {
-                scrollPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
-                        (dialog.getRule().getColour(0).getGreen() * 255) + "," +
-                        (dialog.getRule().getColour(0).getBlue() * 255) + ")");
-                drawingPane.setStyle("-fx-background: rgb(" + (dialog.getRule().getColour(0).getRed() * 255) + "," +
-                        (dialog.getRule().getColour(0).getGreen() * 255) + "," +
-                        (dialog.getRule().getColour(0).getBlue() * 255) + ")");
+                scrollPane.style = "-fx-background: rgb(${dialog.rule.getColour(0).red * 255}," +
+                        "${dialog.rule.getColour(0).green * 255}," +
+                        "${dialog.rule.getColour(0).blue * 255})"
+                drawingPane.style = "-fx-background: rgb(${dialog.rule.getColour(0).red * 255},${
+                        dialog.rule.getColour(0).green * 255},${
+                        dialog.rule.getColour(0).blue * 255})"
             }
-
-            renderCells();
+            renderCells()
 
             // Drawing the bounded grid
-            drawBoundedGrid();
+            drawBoundedGrid()
         }
     }
 
     @FXML // Starts the rule search dialog
-    public void startRuleSearchDialog() {
+    fun startRuleSearchDialog() {
         // Dialog to get the search parameters
-        RuleSearchParametersDialog parametersDialog = new RuleSearchParametersDialog(
-                simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
-                simulator.getRule());
-        parametersDialog.showAndWait();
+        val parametersDialog = RuleSearchParametersDialog(
+            simulator.getCells(selectionRectangle!!.start, selectionRectangle!!.end),
+            simulator.rule
+        )
+        parametersDialog.showAndWait()
 
-        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
-            RuleSearch ruleSearch = new RuleSearch(parametersDialog.getSearchParameters());
-            ruleSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+        if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
+            val ruleSearch = RuleSearch(parametersDialog.searchParameters)
+            ruleSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
-            RuleSearchResultsDialog resultsDialog = new RuleSearchResultsDialog(this, ruleSearch);
-            resultsDialog.show();
+            val resultsDialog = RuleSearchResultsDialog(this, ruleSearch)
+            resultsDialog.show()
         }
     }
 
     @FXML // Starts the catalyst search dialog
-    public void startCatalystSearchDialog() {
+    fun startCatalystSearchDialog() {
         // Dialog to get the search parameters
-        List<Coordinate> cellCoordinates = new ArrayList<>();
-        for (int i = selectionRectangle.getStart().getX(); i < selectionRectangle.getEnd().getX() + 1; i++) {
-            for (int j = selectionRectangle.getStart().getY(); j < selectionRectangle.getEnd().getY() + 1; j++) {
-                cellCoordinates.add(new Coordinate(i, j));
+        val cellCoordinates: MutableList<Coordinate> = ArrayList()
+        for (i in selectionRectangle!!.start.x until selectionRectangle!!.end.x + 1) {
+            for (j in selectionRectangle!!.start.y until selectionRectangle!!.end.y + 1) {
+                cellCoordinates.add(Coordinate(i, j))
             }
         }
 
-        CatalystSearchParametersDialog parametersDialog =
-                new CatalystSearchParametersDialog(simulator.getRule(), simulator.deepCopy(), cellCoordinates);
-        parametersDialog.showAndWait();
+        val parametersDialog = CatalystSearchParametersDialog(simulator.rule, simulator.deepCopy(), cellCoordinates)
+        parametersDialog.showAndWait()
 
-        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
-            CatalystSearch catalystSearch = new CatalystSearch(parametersDialog.getSearchParameters());
-            catalystSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+        if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
+            val catalystSearch = CatalystSearch(parametersDialog.searchParameters)
+            catalystSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
-            CatalystSearchResultsDialog resultsDialog = new CatalystSearchResultsDialog(this, catalystSearch);
-            resultsDialog.show();
+            val resultsDialog = CatalystSearchResultsDialog(this, catalystSearch)
+            resultsDialog.show()
         }
     }
 
     @FXML // Starts the brute force search dialog
-    public void startBruteForceSearchDialog() {
+    fun startBruteForceSearchDialog() {
         // Dialog to get the search parameters
-        BruteForceSearchParametersDialog parametersDialog =
-                new BruteForceSearchParametersDialog(simulator.getRule());
-        parametersDialog.showAndWait();
+        val parametersDialog = BruteForceSearchParametersDialog(simulator.rule)
+        parametersDialog.showAndWait()
 
-        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
-            BruteForceSearch bruteForceSearch = new BruteForceSearch(parametersDialog.getSearchParameters());
-            bruteForceSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+        if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
+            val bruteForceSearch = BruteForceSearch(parametersDialog.searchParameters)
+            bruteForceSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
-            BruteForceSearchResultsDialog resultsDialog = new BruteForceSearchResultsDialog(this, bruteForceSearch);
-            resultsDialog.show();
+            val resultsDialog = BruteForceSearchResultsDialog(this, bruteForceSearch)
+            resultsDialog.show()
         }
     }
 
     @FXML // Starts the agar search dialog
-    public void startAgarSearchDialog() {
+    fun startAgarSearchDialog() {
         // Dialog to get the search parameters
-        AgarSearchParametersDialog parametersDialog =
-                new AgarSearchParametersDialog(simulator.getRule());
-        parametersDialog.showAndWait();
+        val parametersDialog = AgarSearchParametersDialog(simulator.rule)
+        parametersDialog.showAndWait()
 
-        if (parametersDialog.getResult() == Boolean.TRUE) {  // If the operation wasn't cancelled
-            AgarSearch agarSearch = new AgarSearch(parametersDialog.getSearchParameters());
-            agarSearch.searchThreaded(Integer.MAX_VALUE, parametersDialog.getNumThreads());
+        if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
+            val agarSearch = AgarSearch(parametersDialog.searchParameters)
+            agarSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
-            AgarSearchResultsDialog resultsDialog = new AgarSearchResultsDialog(this, agarSearch);
-            resultsDialog.show();
+            val resultsDialog = AgarSearchResultsDialog(this, agarSearch)
+            resultsDialog.show()
         }
     }
 
     @FXML // Provides information about CAViewer
-    public void startAboutDialog() {
-        About about = new About();
-        about.showAndWait();
+    fun startAboutDialog() {
+        val about = About()
+        about.showAndWait()
     }
 
     @FXML // Generates an APGTable
-    public void generateAPGTable() {
-        if (simulator.getRule() instanceof RuleFamily) {
+    fun generateAPGTable() {
+        if (simulator.rule is RuleFamily) {
             try {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Save APGTable");
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                        "Ruletable Files (*.rule)", "*.rule"));
-                File file = fileChooser.showSaveDialog(null);
+                val fileChooser = FileChooser()
+                fileChooser.title = "Save APGTable"
+                fileChooser.extensionFilters.add(
+                    FileChooser.ExtensionFilter(
+                        "Ruletable Files (*.rule)", "*.rule"
+                    )
+                )
+                val file = fileChooser.showSaveDialog(null)
 
                 // If operation is cancelled
                 if (file != null) {
-                    if (!(simulator.getRule() instanceof ApgtableGeneratable)) {
-                        throw new UnsupportedOperationException("This rulespace does not support apgtable generation!");
+                    if (simulator.rule !is ApgtableGeneratable)
+                        throw UnsupportedOperationException("This rulespace does not support apgtable generation!")
+
+                    val ruleDirectives = (simulator.rule as ApgtableGeneratable).generateApgtable()
+                    val ruleLoader = RuleLoader()
+                    ruleLoader.addDirective(
+                        RuleNameDirective(
+                            "@RULE ${file.name.replace(".rule", "")}"
+                        )
+                    )
+
+                    val colourDirective = StringBuilder("@COLORS\n")
+                    for (i in 0 until simulator.rule.numStates) {
+                        colourDirective.append(i).append(" ").append((simulator.rule.getColour(i).red * 255).toInt())
+                            .append(" ").append(
+                            (simulator.rule.getColour(i).green * 255).toInt()
+                        ).append(" ").append((simulator.rule.getColour(i).blue * 255).toInt()).append("\n")
                     }
+                    ruleLoader.addDirective(ColourDirective(colourDirective.toString()))
 
-                    RuleDirective[] ruleDirectives = ((ApgtableGeneratable) simulator.getRule()).generateApgtable();
+                    ruleDirectives.forEach { ruleLoader.addRuleDirective(it) }
 
-                    RuleLoader ruleLoader = new RuleLoader();
-                    ruleLoader.addDirective(new RuleNameDirective("@RULE " +
-                            file.getName().replace(".rule", "")));
+                    val fileWriter = FileWriter(file)
+                    fileWriter.write(ruleLoader.export())
+                    fileWriter.close()
 
-                    StringBuilder colourDirective = new StringBuilder("@COLORS\n");
-                    for (int i = 0; i < simulator.getRule().getNumStates(); i++) {
-                        colourDirective.append(i).
-                                append(" ").append((int) (simulator.getRule().getColour(i).getRed() * 255)).
-                                append(" ").append((int) (simulator.getRule().getColour(i).getGreen() * 255)).
-                                append(" ").append((int) (simulator.getRule().getColour(i).getBlue() * 255)).
-                                append("\n");
-                    }
-                    ruleLoader.addDirective(new ColourDirective(colourDirective.toString()));
-
-                    for (RuleDirective directive: ruleDirectives) ruleLoader.addRuleDirective(directive);
-
-                    FileWriter fileWriter = new FileWriter(file);
-                    fileWriter.write(ruleLoader.export());
-                    fileWriter.close();
-
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Operation successful!");
-                    alert.setHeaderText("The operation was successful.");
-                    alert.setContentText("The operation was successful. " +
-                            "The apgtable has been saved to " + file.getAbsolutePath() + ".");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                    alert.showAndWait();
+                    Alert(Alert.AlertType.INFORMATION).apply {
+                        title = "Operation successful!"
+                        headerText = "The operation was successful."
+                        contentText = "The operation was successful. " +
+                                "The apgtable has been saved to ${file.absolutePath}."
+                        dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+                    }.showAndWait()
                 }
-            } catch (UnsupportedOperationException exception) {
-                logger.log(Level.WARNING, exception.getMessage());
+            } catch (exception: UnsupportedOperationException) {
+                logger.log(Level.WARNING, exception.message)
 
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error in generating APGTable");
-                alert.setHeaderText("APGTable generation is not supported by this rule / rulespace!");
-                alert.setContentText(exception.getMessage());
-                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                alert.showAndWait();
-            } catch (IOException exception) {
-                logger.log(Level.WARNING, exception.getMessage());
+                val alert = Alert(Alert.AlertType.ERROR)
+                alert.title = "Error in generating APGTable"
+                alert.headerText = "APGTable generation is not supported by this rule / rulespace!"
+                alert.contentText = exception.message
+                alert.dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+                alert.showAndWait()
+            } catch (exception: IOException) {
+                logger.log(Level.WARNING, exception.message)
 
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error in generating APGTable");
-                alert.setHeaderText("The operation was unsuccessful.");
-                alert.setContentText(exception.getMessage());
-                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                alert.showAndWait();
+                val alert = Alert(Alert.AlertType.ERROR)
+                alert.title = "Error in generating APGTable"
+                alert.headerText = "The operation was unsuccessful."
+                alert.contentText = exception.message
+                alert.dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+                alert.showAndWait()
             }
-        }
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error in generating APGTable");
-            alert.setHeaderText("APGTable generation is not supported by this rule / rulespace!");
-            alert.setContentText("The rule / rulespace selected does not support APGTable generation." +
-                    "If you require this feature, please request it or write it yourself");
-            alert.showAndWait();
+        } else {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error in generating APGTable"
+            alert.headerText = "APGTable generation is not supported by this rule / rulespace!"
+            alert.contentText = "The rule / rulespace selected does not support APGTable generation." +
+                    "If you require this feature, please request it or write it yourself"
+            alert.showAndWait()
         }
     }
 
     @FXML // Identifies selected object
-    public void identifySelection() {
-        Simulator simulator = new Simulator(this.simulator.getRule());
-        simulator.insertCells(this.simulator.getCells(selectionRectangle.getStart(), selectionRectangle.getEnd()),
-                new Coordinate());
-        simulator.setGeneration(this.simulator.getGeneration());  // Ensure the generation is the same
+    fun identifySelection() {
+        val simulator = Simulator(this.simulator.rule)
+        simulator.insertCells(
+            this.simulator.getCells(selectionRectangle!!.start, selectionRectangle!!.end),
+            Coordinate() // Ensure location is the same
+        )
+        simulator.generation = this.simulator.generation // Ensure the generation is the same
 
         // Results of the identification
-        application.model.patterns.Pattern results = simulator.identify();
+        val results = simulator.identify()
+        Alert(Alert.AlertType.INFORMATION).apply {
+            title = "Identification Results"
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Identification Results");
+            if (results != null) {
+                headerText = results.toString()
 
-        if (results != null) {
-            alert.setHeaderText(results.toString());
+                // Additional Information
+                val contentString = StringBuilder()
+                val additionalInfo = results.additionalInfo()
+                additionalInfo.keys.forEach {
+                    contentString.append(it).append(": ").append(additionalInfo[it]).append("\n")
+                }
 
-            // Additional Information
-            StringBuilder contentString = new StringBuilder();
-            Map<String, String> additionalInfo = results.additionalInfo();
-            for (String string: additionalInfo.keySet()) {
-                contentString.append(string).append(": ").append(additionalInfo.get(string)).append("\n");
+                contentText = contentString.toString()
+                dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+            } else {
+                headerText = "Identification Failed :("
             }
-
-            alert.setContentText(contentString.toString());
-            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-        }
-        else {
-            alert.setHeaderText("Identification Failed :(");
-        }
-
-        alert.showAndWait();
+        }.showAndWait()
     }
 
     @FXML // Toggles the recording
-    public void toggleRecording() {
+    fun toggleRecording() {
         if (recording) {
             // Change icon for recording
-            recordingImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/RecordLogo.png")));
+            recordingImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/RecordLogo.png"
+                )
+            )
 
-            FileChooser fileChooser = new FileChooser();  // Find out where to save the *.gif
-            fileChooser.setTitle("Save *.gif");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                    "GIF Files (*.gif)", "*.gif"));
+            val fileChooser = FileChooser() // Find out where to save the *.gif
+            fileChooser.title = "Save *.gif"
+            fileChooser.extensionFilters.add(
+                FileChooser.ExtensionFilter(
+                    "GIF Files (*.gif)", "*.gif"
+                )
+            )
 
-            File file = fileChooser.showSaveDialog(null);
+            val file = fileChooser.showSaveDialog(null)
             if (file == null) {  // Quit if the operation is cancelled
-                recording = !recording;
-                return;
+                recording = !recording
+                return
             }
-            Thread thread = new Thread(() -> {
+
+            val thread = Thread {
                 if (!giffer.toGIF(file)) {
-                    Platform.runLater(() -> {Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error in generating *.gif");
-                        alert.setHeaderText("The operation was unsuccessful.");
-                        alert.setContentText("The operation was unsuccessful. " +
-                                "If you suspect a bug, please report it.");
-                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                        alert.showAndWait();
-                    });
+                    Platform.runLater {
+                        Alert(Alert.AlertType.ERROR).apply {
+                            title = "Error in generating *.gif"
+                            headerText = "The operation was unsuccessful."
+                            contentText = "The operation was unsuccessful. " +
+                                    "If you suspect a bug, please report it."
+                            dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+                        }.showAndWait()
+                    }
+                } else {
+                    Platform.runLater {
+                        Alert(Alert.AlertType.INFORMATION).apply {
+                            title = "Operation successful!"
+                            headerText = "The operation was successful."
+                            contentText = "The operation was successful. " +
+                                    "The *.gif has been saved to ${file.absolutePath}."
+                            dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+                        }.showAndWait()
+                    }
                 }
-                else {
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Operation successful!");
-                        alert.setHeaderText("The operation was successful.");
-                        alert.setContentText("The operation was successful. " +
-                                "The *.gif has been saved to " + file.getAbsolutePath() + ".");
-                        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-                        alert.showAndWait();
-                    });
-                }
-            });
-            thread.setName("Giffer Thread");
-            thread.start();
-        }
-        else {
+            }
+            thread.name = "Giffer Thread"
+            thread.start()
+        } else {
             // Change icon for recording
-            recordingImage.setImage(new Image(getClass().getResourceAsStream(
-                    "/icon/RecordIcon2.png")));
+            recordingImage.image = Image(
+                javaClass.getResourceAsStream(
+                    "/icon/RecordIcon2.png"
+                )
+            )
 
             // Get giffer from the dialog
-            gifferDialog.showAndWait();
+            gifferDialog.showAndWait()
 
             // Check if the operation was cancelled
-            if (gifferDialog.getResult() == Boolean.FALSE) {
-                return;
-            }
-
-            giffer = gifferDialog.getGiffer();
+            if (gifferDialog.result === java.lang.Boolean.FALSE) return
+            giffer = gifferDialog.giffer
         }
 
-        recording = !recording;
+        recording = !recording
     }
 
     @FXML // Closes the application
-    public void closeApplication() {
-        onApplicationClosed();
-        Platform.exit();
+    fun closeApplication() {
+        onApplicationClosed()
+        Platform.exit()
     }
 
     // Saving settings when the application is closed
-    public void onApplicationClosed() {
+    fun onApplicationClosed() {
         try {
-            ObjectMapper m = new ObjectMapper();
+            val m = ObjectMapper()
 
             // Configuring settings
-            settings.put("grid_lines", showGridLines);
-            settings.put("rule", new JSONObject(m.writeValueAsString(simulator.getRule())));
+            settings.put("grid_lines", showGridLines)
+            settings.put("rule", JSONObject(m.writeValueAsString(simulator.rule)))
 
             // Writing colours
-            ArrayList<Rule> rules = new ArrayList<>();
-            ArrayList<String[]> colours = new ArrayList<>();
-            for (Rule rule: this.colours.keySet()) {
-                rules.add(rule);
+            val rules = ArrayList<Rule>()
+            val colours = ArrayList<Array<String>>()
+            for (rule in this.colours.keys) {
+                rules.add(rule)
 
-                Color[] colourArr = this.colours.get(rule);
-                String[] strings = new String[colourArr.length];
-                for (int i = 0; i < colourArr.length; i++) {
-                    strings[i] = colourArr[i].getRed() + " " + colourArr[i].getGreen() +
-                            " " + colourArr[i].getBlue();
-                }
-
-                colours.add(strings);
+                this.colours[rule]?.map {
+                    "${it.red} ${it.green} ${it.blue}"
+                }?.toTypedArray()
             }
 
-            settings.put("rules", new JSONArray(m.writeValueAsString(rules)));
-            settings.put("colours", new JSONArray(m.writeValueAsString(colours)));
+            settings.put("rules", JSONArray(m.writeValueAsString(rules)))
+            settings.put("colours", JSONArray(m.writeValueAsString(colours)))
 
             // Writing to file
-            FileWriter writer = new FileWriter(SETTINGS_FILE);
-            writer.write(settings.toString(4));
-            writer.close();
-        } catch (IOException exception) {
-            logger.log(Level.WARNING, exception.getMessage());
+            val writer = FileWriter(SETTINGS_FILE)
+            writer.write(settings.toString(4))
+            writer.close()
+        } catch (exception: IOException) {
+            logger.log(Level.WARNING, exception.message)
         }
     }
 
     // Loads the pattern based on an RLE
-    public void loadPattern(String RLE) {
-        String[] tokens = RLE.split("\n");  // Split by new line
-        loadPattern(tokens);
+    fun loadPattern(RLE: String) {
+        loadPattern(RLE.split("\n").toTypedArray()) // Split by new line
     }
 
-    public void loadPattern(String[] tokens) {
-        String rulestring = "";
-        Pattern rulestringRegex = Pattern.compile("rule = [ \\S]+");
-        ArrayList<String> comments = new ArrayList<>();  // Comments to feed into RuleFamily.loadComments()
+    fun loadPattern(tokens: Array<String>) {
+        var rulestring = ""
+        val rulestringRegex = Regex("rule = ([ \\S]+)")
+        val comments = ArrayList<String>() // Comments to feed into RuleFamily.loadComments()
 
         // Parsing code - Removes headers, comments
-        StringBuilder rleFinal = new StringBuilder();
-        for (String token: tokens) {
-            if (token.startsWith("#R")) {  // Check for comment
-                comments.add(token);
-            }
-            else if (token.charAt(0) == 'x') {  // Check for header
-                Matcher rulestringMatcher = rulestringRegex.matcher(token);
-                if (rulestringMatcher.find()) {
-                    rulestring = rulestringMatcher.group().substring(7);
-                }
-            }
-            else if (token.charAt(0) != '#') {  // Not a comment
-                rleFinal.append(token);
+        val rleFinal = StringBuilder()
+        tokens.forEach { token ->
+            when {
+                // Check for comment
+                token.startsWith("#R") -> comments.add(token)
+
+                // Check for header
+                token[0] == 'x' -> rulestring = rulestringRegex.find(token)!!.groupValues[0].substring(7)
+
+                // Not a comment
+                token[0] != '#' -> rleFinal.append(token)
             }
         }
 
         // Identify the rule family based on regex
-        RuleFamily rule = Utils.fromRulestring(rulestring);
-
+        val rule = Utils.fromRulestring(rulestring)
         if (rule != null) {
             // Generate the additional information from comments
-            String[] commentsArray = new String[comments.size()];
-            for (int i = 0; i < commentsArray.length; i++) {
-                commentsArray[i] = comments.get(i);
-            }
-
-            rule.loadComments(commentsArray);
+            rule.loadComments(comments.toTypedArray())
 
             // Set the rulestring
-            simulator.setRule(rule);
+            simulator.rule = rule
         }
 
-        newPattern();  // Clear all cells
-        simulator.fromRLE(rleFinal.toString(), // Insert the new cells
-                new Coordinate(1800 / CELL_SIZE, 1800 / CELL_SIZE));
+        newPattern() // Clear all cells
+        simulator.fromRLE(
+            rleFinal.toString(),  // Insert the new cells
+            Coordinate(1800 / CELL_SIZE, 1800 / CELL_SIZE)
+        )
 
         // Re-render all the cells
-        if (colours.get(simulator.getRule()) != null) {
-            scrollPane.setStyle("-fx-background: rgb(" + (colours.get(simulator.getRule())[0].getRed() * 255) + "," +
-                    (colours.get(simulator.getRule())[0].getGreen() * 255) + "," +
-                    (colours.get(simulator.getRule())[0].getBlue() * 255) + ")");
-            drawingPane.setStyle("-fx-background: rgb(" + (colours.get(simulator.getRule())[0].getRed() * 255) + "," +
-                    (colours.get(simulator.getRule())[0].getGreen() * 255) + "," +
-                    (colours.get(simulator.getRule())[0].getBlue() * 255) + ")");
+        if (colours[simulator.rule] != null) {
+            scrollPane.style = "-fx-background: rgb(${colours[simulator.rule]!![0].red * 255}," +
+                    "${colours[simulator.rule]!![0].green * 255}," +
+                    "${colours[simulator.rule]!![0].blue * 255})"
+            drawingPane.style = "-fx-background: rgb(" + colours[simulator.rule]!![0].red * 255 + "," +
+                    colours[simulator.rule]!![0].green * 255 + "," +
+                    colours[simulator.rule]!![0].blue * 255 + ")"
         } else {
-            scrollPane.setStyle("-fx-background: rgb(" + (simulator.getRule().getColour(0).getRed() * 255) + "," +
-                    (simulator.getRule().getColour(0).getGreen() * 255) + "," +
-                    (simulator.getRule().getColour(0).getBlue() * 255) + ")");
-            drawingPane.setStyle("-fx-background: rgb(" + (simulator.getRule().getColour(0).getRed() * 255) + "," +
-                    (simulator.getRule().getColour(0).getGreen() * 255) + "," +
-                    (simulator.getRule().getColour(0).getBlue() * 255) + ")");
+            scrollPane.style = "-fx-background: rgb(" + simulator.rule.getColour(0).red * 255 + "," +
+                    simulator.rule.getColour(0).green * 255 + "," +
+                    simulator.rule.getColour(0).blue * 255 + ")"
+            drawingPane.style = "-fx-background: rgb(" + simulator.rule.getColour(0).red * 255 + "," +
+                    simulator.rule.getColour(0).green * 255 + "," +
+                    simulator.rule.getColour(0).blue * 255 + ")"
         }
+        renderCells()
 
-        renderCells();
-        
         // Centering the viewport
         // scrollPane.setHvalue(0.2);
         // scrollPane.setVvalue(0.2);
@@ -1459,374 +1478,304 @@ public class MainController {
         // drawingPane.setTranslateY(0);
 
         // Setting the rule of the rule dialog
-        dialog.setRule((RuleFamily) simulator.getRule());
+        dialog.rule = simulator.rule as RuleFamily
 
         // Reloading the state buttons to state the number of states
-        reloadStateButtons();
+        reloadStateButtons()
 
         // Drawing the bounded grid
-        drawBoundedGrid();
+        drawBoundedGrid()
 
         // Setting the generation count back to 0
-        simulator.setGeneration(0);
+        simulator.generation = 0
 
         // Clear the population list
-        populationList.clear();
+        populationList.clear()
 
         // Update the status text
-        updateStatusText();
+        updateStatusText()
     }
 
-    public void loadPattern(ArrayList<String> tokens) {
-        String[] tokensArray = new String[tokens.size()];
-        for (int i = 0; i < tokens.size(); i++) {
-            tokensArray[i] = tokens.get(i);
-        }
-
-        loadPattern(tokensArray);
+    fun loadPattern(tokens: ArrayList<String>) {
+        loadPattern(tokens.toTypedArray())
     }
 
     // Returns the RLE of the pattern
-    public String saveRLE() {
+    fun saveRLE(): String {
         // Add header & comments
-        String rle = simulator.toRLE(selectionRectangle.getStart(), selectionRectangle.getEnd());
-        StringBuilder rleFinal = new StringBuilder();
+        val rle = simulator.toRLE(selectionRectangle!!.start, selectionRectangle!!.end)
+        val rleFinal = StringBuilder()
 
         // Adding comments
-        String[] comments = ((RuleFamily) simulator.getRule()).generateComments();
-        if (comments != null) {
-            for (String comment: comments) {
-                rleFinal.append(comment).append("\n");
-            }
+        (simulator.rule as RuleFamily).generateComments()?.forEach { comment ->
+            rleFinal.append(comment).append("\n")
         }
 
         // Adding header
-        rleFinal.append("x = ").append(selectionRectangle.getEnd().getX() - selectionRectangle.getStart().getX() + 1).
-                append(", y = ").append(selectionRectangle.getEnd().getY() - selectionRectangle.getStart().getY() + 1).
-                append(", rule = ").append(((RuleFamily) simulator.getRule()).getRulestring()).append("\n");
-        rleFinal.append(rle);
-
-        return rleFinal.toString();
+        rleFinal.append("x = ").append(selectionRectangle!!.end.x - selectionRectangle!!.start.x + 1).append(", y = ")
+            .append(
+                selectionRectangle!!.end.y - selectionRectangle!!.start.y + 1
+            ).append(", rule = ").append((simulator.rule as RuleFamily).rulestring).append("\n")
+        rleFinal.append(rle)
+        return rleFinal.toString()
     }
 
     @FXML // Saves the pattern
-    public void savePattern() {
+    fun savePattern() {
         // Get the file to save the pattern in
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save *.rle file");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                "RLE Files (*.rle)", "*.rle"));
-        File file = fileChooser.showSaveDialog(null);
+        val fileChooser = FileChooser()
+        fileChooser.title = "Save *.rle file"
+        fileChooser.extensionFilters.add(
+            FileChooser.ExtensionFilter(
+                "RLE Files (*.rle)", "*.rle"
+            )
+        )
 
+        val file = fileChooser.showSaveDialog(null)
         try {
             // Writing to the file
-            FileWriter writer = new FileWriter(file);
-            writer.write(saveRLE());
-            writer.close();
+            val writer = FileWriter(file)
+            writer.write(saveRLE())
+            writer.close()
 
             // Tell the user the operation was successful
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Operation successful!");
-            alert.setHeaderText("The operation was successful!");
-            alert.setContentText("The operation was successful. " +
-                    "The pattern has been saved to " + file.getAbsolutePath() + ".");
-            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);  // Makes it scale to the text
-            alert.showAndWait();
+            Alert(Alert.AlertType.INFORMATION).apply {
+                title = "Operation successful!"
+                headerText = "The operation was successful!"
+                contentText = "The operation was successful. " +
+                        "The pattern has been saved to " + file.absolutePath + "."
+                dialogPane.minHeight = Region.USE_PREF_SIZE // Makes it scale to the text
+            }.showAndWait()
+        } catch (exception: IOException) {
+            logger.log(Level.WARNING, exception.message)
 
-        }
-        catch (IOException exception) {
-            logger.log(Level.WARNING, exception.getMessage());
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Writing to pattern file");
-            alert.setHeaderText("An error occuring when writing to the pattern file!");
-            alert.setContentText(exception.getMessage());
-            alert.showAndWait();
+            Alert(Alert.AlertType.ERROR).apply {
+                title = "Writing to pattern file"
+                headerText = "An error occuring when writing to the pattern file!"
+                contentText = exception.message
+            }.showAndWait()
         }
     }
 
     @FXML // Creates a new pattern
-    public void newPattern() {
+    fun newPattern() {
         // Add all the cells to a list to avoid ConcurrentModificationException
-        ArrayList<Coordinate> coordinates = new ArrayList<>();
-        simulator.iterateCells(coordinates::add);
+        val coordinates = ArrayList<Coordinate>()
+        simulator.iterateCells { e: Coordinate -> coordinates.add(e) }
 
         // Avoiding ConcurrentModificationException
-        for (Coordinate coordinate: coordinates) {
-            setCell(convertToScreen(coordinate.getX()), convertToScreen(coordinate.getY()), 0);
+        for (coordinate in coordinates) {
+            setCell(convertToScreen(coordinate.x), convertToScreen(coordinate.y), 0)
         }
 
         // Setting the generation count back to 0
-        simulator.setGeneration(0);
+        simulator.generation = 0
 
         // Clear the population list
-        populationList.clear();
+        populationList.clear()
     }
 
     @FXML // Loads the pattern from the RLE file
-    public void openPattern() {
+    fun openPattern() {
         try {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open pattern file");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                    "RLE Files (*.rle)", "*.rle"));
-            File file = fileChooser.showOpenDialog(null);
+            val fileChooser = FileChooser()
+            fileChooser.title = "Open pattern file"
+            fileChooser.extensionFilters.add(
+                FileChooser.ExtensionFilter(
+                    "RLE Files (*.rle)", "*.rle"
+                )
+            )
 
-            Scanner scanner = new Scanner(file);
-            ArrayList<String> tokens = new ArrayList<>();
+            val file = fileChooser.showOpenDialog(null)
 
+            val scanner = Scanner(file)
+            val tokens = ArrayList<String>()
             while (scanner.hasNextLine()) {  // Getting all text from scanner
-                tokens.add(scanner.nextLine());
+                tokens.add(scanner.nextLine())
             }
+            scanner.close() // Close the scanner object
 
-            scanner.close();  // Close the scanner object
-
-            loadPattern(tokens);  // Loads the pattern
-        }
-        catch (IOException exception) {
-            logger.log(Level.WARNING, exception.getMessage());
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error reading pattern file");
-            alert.setHeaderText("There was an error reading the pattern file!");
-            alert.setContentText(exception.getMessage());
-            alert.showAndWait();
+            loadPattern(tokens) // Loads the pattern
+        } catch (exception: IOException) {
+            logger.log(Level.WARNING, exception.message)
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error reading pattern file"
+            alert.headerText = "There was an error reading the pattern file!"
+            alert.contentText = exception.message
+            alert.showAndWait()
         }
     }
 
     @FXML // Pastes the RLE from the clipboard
-    public void pasteRLE() {
+    fun pasteRLE() {
         // Get text from clipboard
-        final Clipboard clipboard = Clipboard.getSystemClipboard();
-        String RLE = clipboard.getString();
+        val clipboard = Clipboard.getSystemClipboard()
+        val RLE = clipboard.string
 
         // Parsing code - Removes headers, comments
-        StringBuilder rleFinal = new StringBuilder();
-        String[] tokens = RLE.split("\n");
-
-        for (String token: tokens) {
-            if (!(token.charAt(0) == '#') && !(token.charAt(0) == 'x')) {  // Check for comment & header
-                rleFinal.append(token);
+        val rleFinal = StringBuilder()
+        val tokens = RLE.split("\n").toTypedArray()
+        for (token in tokens) {
+            if (token[0] != '#' && token[0] != 'x') {  // Check for comment & header
+                rleFinal.append(token)
             }
         }
 
-        mode = Mode.PASTING;
-
-        pasteStuff = new Grid();
-        pasteStuff.fromRLE(rleFinal.toString(), new Coordinate(0, 0));
-        pasteStuff.updateBounds();
-
-        pasteSelection.getChildren().clear();
-        pasteStuff.iterateCells(coordinate -> {
-            Rectangle cell = new Rectangle();
-            cell.setX(convertToScreen(coordinate.getX()));
-            cell.setY(convertToScreen(coordinate.getY()));
-            cell.setWidth(CELL_SIZE);
-            cell.setHeight(CELL_SIZE);
-            cell.setFill(simulator.getRule().getColour(pasteStuff.getCell(coordinate)));
+        mode = Mode.PASTING
+        pasteStuff = Grid()
+        pasteStuff!!.fromRLE(rleFinal.toString(), Coordinate(0, 0))
+        pasteStuff!!.updateBounds()
+        pasteSelection.children.clear()
+        pasteStuff!!.iterateCells { coordinate: Coordinate ->
+            val cell = Rectangle()
+            cell.x = convertToScreen(coordinate.x).toDouble()
+            cell.y = convertToScreen(coordinate.y).toDouble()
+            cell.width = CELL_SIZE.toDouble()
+            cell.height = CELL_SIZE.toDouble()
+            cell.fill = simulator.rule.getColour(pasteStuff!!.getCell(coordinate))
 
             // Add cell to pane and cell list
-            pasteSelection.getChildren().add(cell);
-        });
+            pasteSelection.children.add(cell)
+        }
 
-        SelectionRectangle rectangle = new SelectionRectangle(CELL_SIZE);
-        rectangle.setFill(Color.rgb(255, 0, 0));
-        rectangle.select(convertToScreen(pasteStuff.getBounds().getValue0()), convertToScreen(pasteStuff.getBounds().getValue1()));
-        pasteSelection.getChildren().add(rectangle);
-
-        rectangle.toFront();
-
-        pasteSelection.setVisible(true);
-        pasteSelection.toFront();
-        gridLines.toFront();
+        val rectangle = SelectionRectangle(CELL_SIZE)
+        rectangle.fill = Color.rgb(255, 0, 0)
+        rectangle.select(convertToScreen(pasteStuff!!.bounds.value0), convertToScreen(pasteStuff!!.bounds.value1))
+        pasteSelection.children.add(rectangle)
+        rectangle.toFront()
+        pasteSelection.isVisible = true
+        pasteSelection.toFront()
+        gridLines.toFront()
 
         //simulator.fromRLE(rleFinal.toString(), startSelection);  // Insert the cells
         //renderCells(startSelection, endSelection);  // Render the cells
     }
 
     @FXML // Copies the currently selected cells to the clipboard
-    public void copyCells() {
-        if (selectionRectangle.isSelecting()) {
-            final Clipboard clipboard = Clipboard.getSystemClipboard();
-            final ClipboardContent content = new ClipboardContent();
-
-            content.putString(saveRLE());
-            clipboard.setContent(content);
-        }
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("No area selected!");
-            alert.setContentText("No area has been selected!");
-            alert.showAndWait();
+    fun copyCells() {
+        if (selectionRectangle!!.isSelecting) {
+            val clipboard = Clipboard.getSystemClipboard()
+            val content = ClipboardContent()
+            content.putString(saveRLE())
+            clipboard.setContent(content)
+        } else {
+            Alert(Alert.AlertType.ERROR).apply {
+                title = "No area selected!"
+                contentText = "No area has been selected!"
+            }.showAndWait()
         }
     }
 
     @FXML // Deletes the cells in the selection
-    public void deleteCells() {
-        if (selectionRectangle.isSelecting()) {
-            Action.addAction();
-
-            simulator.clearCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
-            renderCells(selectionRectangle.getStart(), selectionRectangle.getEnd());
+    fun deleteCells() {
+        if (selectionRectangle!!.isSelecting) {
+            Action.addAction()
+            simulator.clearCells(selectionRectangle!!.start, selectionRectangle!!.end)
+            renderCells(selectionRectangle!!.start, selectionRectangle!!.end)
 
             // Move the grid lines and selection to the front
-            selectionRectangle.toFront();
-            gridLines.toFront();
-        }
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("No area selected!");
-            alert.setContentText("No area has been selected!");
-            alert.showAndWait();
+            selectionRectangle!!.toFront()
+            gridLines.toFront()
+        } else {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "No area selected!"
+            alert.contentText = "No area has been selected!"
+            alert.showAndWait()
         }
     }
 
     // Handles the keyboard shortcuts
-    public void keyPressedHandler(KeyEvent event) {
-        event.consume();  // No one touches this but me
+    fun keyPressedHandler(event: KeyEvent) {
+        event.consume() // No one touches this but me
 
         // Shift + Enter to simulate in selection
-        if (event.getCode().equals(KeyCode.ENTER) && event.isShiftDown()) {
-            simInsideSelectionButton.fire();
-        }
-        // Ctrl + Enter to siulation outside selection
-        else if (event.getCode().equals(KeyCode.ENTER) && event.isControlDown()) {
-            simOutsideSelectionButton.fire();
-        }
-        // Enter to toggle simulation
-        else if (event.getCode().equals(KeyCode.ENTER)) {
-            startSimulationButton.fire();
-        }
-        // Space to step simulation
-        else if (event.getCode().equals(KeyCode.SPACE)) {
-            if (visualisationDone) {
-                Action.addAction();
-                updateCells();
+        when {
+            event.code == KeyCode.ENTER && event.isShiftDown -> simInsideSelectionButton.fire()
+            event.code == KeyCode.ENTER && event.isControlDown -> simOutsideSelectionButton.fire()
+            event.code == KeyCode.ENTER -> startSimulationButton.fire()
+            event.code == KeyCode.SPACE -> {
+                if (visualisationDone) {
+                    Action.addAction()
+                    updateCells()
+                }
             }
-        }
-        // Delete cells
-        else if (event.getCode().equals(KeyCode.DELETE)) {
-            deleteCells();
-        }
-        // Ctrl + C to copy
-        else if (event.getCode().equals(KeyCode.C) && event.isControlDown()) {
-            copyCells();
-        }
-        // Ctrl + V to paste
-        else if (event.getCode().equals(KeyCode.V) && event.isControlDown()) {
-            pasteRLE();
-        }
-        // Ctrl + X to cut
-        else if (event.getCode().equals(KeyCode.X) && event.isControlDown()) {
-            copyCells();
-            deleteCells();
-        }
-        // Ctrl + A to select all
-        else if (event.getCode().equals(KeyCode.A) && event.isControlDown()) {
-            simulator.updateBounds();
-            Coordinate start = convertToScreen(simulator.getBounds().getValue0());
-            Coordinate end = convertToScreen(simulator.getBounds().getValue1());
+            event.code == KeyCode.DELETE -> deleteCells()
+            event.code == KeyCode.C && event.isControlDown -> copyCells()
+            event.code == KeyCode.V && event.isControlDown -> pasteRLE()
+            event.code == KeyCode.X && event.isControlDown -> {
+                copyCells()
+                deleteCells()
+            }
+            event.code == KeyCode.A && event.isControlDown -> {
+                simulator.updateBounds()
+                val start = convertToScreen(simulator.bounds.value0)
+                val end = convertToScreen(simulator.bounds.value1)
+                selectionRectangle!!.select(start, end)
+                selectionRectangle!!.isVisible = true
+                mode = Mode.SELECTING
 
-            selectionRectangle.select(start, end);
-
-            selectionRectangle.setVisible(true);
-            mode = Mode.SELECTING;
-            
-            // Move the grid lines and selection to the front
-            selectionRectangle.toFront();
-            gridLines.toFront();
-        }
-        // Ctrl + Z to undo
-        else if (event.getCode().equals(KeyCode.Z) && event.isControlDown()) {
-            Action.undo();
-        }
-        // Ctrl + Y to redo
-        else if (event.getCode().equals(KeyCode.Y) && event.isControlDown()) {
-            Action.redo();
-        }
-        // Ctrl + Shift + O to load pattern from clipboard
-        else if (event.getCode().equals(KeyCode.O) && event.isShiftDown() && event.isControlDown()) {
-            final Clipboard clipboard = Clipboard.getSystemClipboard();
-            String RLE = clipboard.getString();
-
-            loadPattern(RLE);
-        }
-        // Ctrl + O to open pattern
-        else if (event.getCode().equals(KeyCode.O) && event.isControlDown()) {
-            openPattern();
-        }
-        // Ctrl + S to save pattern
-        else if (event.getCode().equals(KeyCode.S) && event.isControlDown()) {
-            savePattern();
-        }
-        // Ctrl + N for new pattern
-        else if (event.getCode().equals(KeyCode.N) && event.isControlDown()) {
-            newPattern();
-        }
-        // Ctrl + R to start rule dialog
-        else if (event.getCode().equals(KeyCode.R) && event.isControlDown()) {
-            startRuleDialog();
-        }
-        // Ctrl + 5 for random soup
-        else if (event.getCode().equals(KeyCode.DIGIT5) && event.isControlDown()) {
-            generateRandomSoup();
-        }
-        // X to flip horizontally
-        else if (event.getCode().equals(KeyCode.X)) {
-            flipHorizontalHandler();
-        }
-        // Y to flip vertically
-        else if (event.getCode().equals(KeyCode.Y)) {
-            flipVerticalHandler();
-        }
-        // > to rotate clockwise
-        else if (event.getCode().equals(KeyCode.PERIOD) && event.isShiftDown()) {
-            rotateCWHandler();
-        }
-        // < to rotate counter-clockwise
-        else if (event.getCode().equals(KeyCode.COMMA) && event.isShiftDown()) {
-            rotateCCWHandler();
+                // Move the grid lines and selection to the front
+                selectionRectangle!!.toFront()
+                gridLines.toFront()
+            }
+            event.code == KeyCode.Z && event.isControlDown -> Action.undo()
+            event.code == KeyCode.Y && event.isControlDown -> Action.redo()
+            event.code == KeyCode.O && event.isShiftDown && event.isControlDown -> {
+                val clipboard = Clipboard.getSystemClipboard()
+                loadPattern(clipboard.string)
+            }
+            event.code == KeyCode.O && event.isControlDown -> openPattern()
+            event.code == KeyCode.S && event.isControlDown -> savePattern()
+            event.code == KeyCode.N && event.isControlDown -> newPattern()
+            event.code == KeyCode.R && event.isControlDown -> startRuleDialog()
+            event.code == KeyCode.DIGIT5 && event.isControlDown -> generateRandomSoup()
+            event.code == KeyCode.X -> flipHorizontalHandler()
+            event.code == KeyCode.Y -> flipVerticalHandler()
+            event.code == KeyCode.PERIOD && event.isShiftDown -> rotateCWHandler()
+            event.code == KeyCode.COMMA && event.isShiftDown -> rotateCCWHandler()
         }
     }
 
     // Wait for the specified number of milliseconds
-    public void wait(int milliseconds) {
+    fun wait(milliseconds: Int) {
         try {
-            Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.sleep(milliseconds.toLong())
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
         }
     }
 
     // Converts grid coordinates to screen coordinate
-    public int convertToScreen(int x) {
-        return x * CELL_SIZE;
+    fun convertToScreen(x: Int): Int {
+        return x * CELL_SIZE
     }
 
-    public Coordinate convertToScreen(Coordinate coordinate) {
-        return new Coordinate(coordinate.getX() * CELL_SIZE, coordinate.getY() * CELL_SIZE);
+    fun convertToScreen(coordinate: Coordinate): Coordinate {
+        return Coordinate(coordinate.x * CELL_SIZE, coordinate.y * CELL_SIZE)
     }
 
     // Converts screen coordinates to grid coordinates
-    public int convertToGrid(int x) {
-        return x / CELL_SIZE;
+    fun convertToGrid(x: Int): Int {
+        return x / CELL_SIZE
     }
 
-    public Coordinate convertToGrid(Coordinate coordinate) {
-        return new Coordinate(coordinate.getX() / CELL_SIZE, coordinate.getY() / CELL_SIZE);
+    fun convertToGrid(coordinate: Coordinate): Coordinate {
+        return Coordinate(coordinate.x / CELL_SIZE, coordinate.y / CELL_SIZE)
     }
 
     // Snaps the screen X or Y coordinates to the grid
-    public int snapToGrid(int x) {
-        return x / CELL_SIZE * CELL_SIZE;
+    fun snapToGrid(x: Int): Int {
+        return x / CELL_SIZE * CELL_SIZE
     }
 
-    public Coordinate snapToGrid(Coordinate coordinate) {
-        return convertToGrid(convertToScreen(coordinate));
+    fun snapToGrid(coordinate: Coordinate): Coordinate {
+        return convertToGrid(convertToScreen(coordinate))
     }
 
-    // Gets the simulator
-    public Simulator getSimulator() {
-        return simulator;
+    companion object {
+        const val WIDTH = 4096
+        const val HEIGHT = 4096
+        const val CELL_SIZE = 1 // Cell size
+        const val SETTINGS_FILE = "settings.json"
     }
 }

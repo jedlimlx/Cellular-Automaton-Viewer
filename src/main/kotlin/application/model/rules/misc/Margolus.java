@@ -12,7 +12,7 @@ import java.util.function.Function;
  */
 public class Margolus extends RuleFamily {
     // TODO (Add B0 Margolus)
-    // TODO (Fix Margolus Pattern Identification)
+
     private static String regex = "M([0-9]+,){15}[0-9]+";
     private ArrayList<Integer> neighbourhoods;
 
@@ -31,6 +31,7 @@ public class Margolus extends RuleFamily {
         // Initialise variables
         numStates = 2;
         name = "Margolus";
+        locationPeriod = 2;
 
         // Load rulestring
         setRulestring(rulestring);
@@ -143,28 +144,25 @@ public class Margolus extends RuleFamily {
             String binaryString = Integer.toBinaryString(neighbourhoods.get(blockInt));
             binaryString = "0".repeat(4 - binaryString.length()) + binaryString;
 
-            grid.setCell(cellToCheck, Character.getNumericValue(binaryString.charAt(3)));
-            grid.setCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY()),
+            addToCellChanged(grid, gridCopy, cellsChanged, cellToCheck,
+                    Character.getNumericValue(binaryString.charAt(3)));
+            addToCellChanged(grid, gridCopy, cellsChanged,
+                    new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY()),
                     Character.getNumericValue(binaryString.charAt(2)));
-            grid.setCell(new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1),
+            addToCellChanged(grid, gridCopy, cellsChanged,
+                    new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1),
                     Character.getNumericValue(binaryString.charAt(1)));
-            grid.setCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1),
+            addToCellChanged(grid, gridCopy, cellsChanged,
+                    new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1),
                     Character.getNumericValue(binaryString.charAt(0)));
-
-            addToCellChanged(grid, gridCopy, cellsChanged, cellToCheck);
-            addToCellChanged(grid, gridCopy, cellsChanged,
-                    new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY()));
-            addToCellChanged(grid, gridCopy, cellsChanged,
-                    new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1));
-            addToCellChanged(grid, gridCopy, cellsChanged,
-                    new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1));
         }
     }
 
     private void addToCellChanged(Grid grid, Grid gridCopy, ArrayList<Set<Coordinate>> cellsChanged,
-                                  Coordinate cellToCheck) {
-        if (gridCopy.getCell(cellToCheck) != grid.getCell(cellToCheck)){
+                                  Coordinate cellToCheck, int state) {
+        if (gridCopy.getCell(cellToCheck) != state){
             cellsChanged.get(0).add(cellToCheck);
+            grid.setCell(cellToCheck, state);
         } else {
             if (cellsChanged.get(0).contains(cellToCheck)) {
                 cellsChanged.get(0).remove(cellToCheck);

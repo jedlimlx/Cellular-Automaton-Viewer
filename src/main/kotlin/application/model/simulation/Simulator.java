@@ -135,8 +135,12 @@ public class Simulator extends Grid {
         // Hash map to store hashes among other things
         updateBounds();
 
+        int hash = this.hashCode() + 31 * generation % rule.getAlternatingPeriod() +
+                63 * Math.floorMod(getBounds().getValue0().getX(), rule.getLocationPeriod()) +
+                127 * Math.floorMod(getBounds().getValue0().getY(), rule.getLocationPeriod());  // Compute the hash
+
         HashMap<Integer, Object[]> hashMap = new HashMap<>();
-        hashMap.put(this.hashCode(), new Object[]{generation, getPopulation(), getBounds(), this.deepCopy()});
+        hashMap.put(hash, new Object[]{generation, getPopulation(), getBounds(), this.deepCopy()});
 
         // Population list for linear growth identification
         int[] popList = new int[maxPeriod + 1];
@@ -162,7 +166,10 @@ public class Simulator extends Grid {
         for (int i = 0; i < maxPeriod; i++) {
             step();
 
-            int hash = this.hashCode() + 31 * generation % rule.getAlternatingPeriod();  // Compute the hash
+            hash = this.hashCode() + 31 * generation % rule.getAlternatingPeriod() +
+                    63 * Math.floorMod(getBounds().getValue0().getX(), rule.getLocationPeriod()) +
+                    127 * Math.floorMod(getBounds().getValue0().getY(), rule.getLocationPeriod());  // Compute the hash
+
             if (hashMap.containsKey(hash)) {
                 // Calculates the displacement between the first 2 bounds
                 int displacementX = ((Coordinate) ((Pair) hashMap.get(hash)[2]).getValue0()).getX() -
@@ -283,7 +290,7 @@ public class Simulator extends Grid {
     @Override
     public void setCell(Coordinate coordinate, int state) {
         super.setCell(coordinate, state);
-        if (state != getCell(coordinate)) cellsChangedArray.get(0).add(coordinate);
+        cellsChangedArray.get(0).add(coordinate);
     }
 
     /**

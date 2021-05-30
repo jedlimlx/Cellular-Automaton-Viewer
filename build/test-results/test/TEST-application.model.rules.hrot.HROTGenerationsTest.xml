@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="application.model.rules.hrot.HROTGenerationsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-05-28T13:30:38" hostname="LAPTOP-6TGQS808" time="1.319">
+<testsuite name="application.model.rules.hrot.HROTGenerationsTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-05-29T14:11:30" hostname="LAPTOP-6TGQS808" time="1.686">
   <properties/>
-  <testcase name="testSimulation()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.628"/>
-  <testcase name="testRuleRange()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.11"/>
-  <testcase name="testClone()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.003"/>
-  <testcase name="testGenerateComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.015"/>
-  <testcase name="testCanonise()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.007"/>
-  <testcase name="testFromRulestring()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.004"/>
-  <testcase name="testGenerateApgtable()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.539"/>
-  <testcase name="testLoadComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.004"/>
-  <system-out><![CDATA[]]></system-out>
+  <testcase name="testSimulation()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.811"/>
+  <testcase name="testRuleRange()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.16"/>
+  <testcase name="testClone()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.006"/>
+  <testcase name="testGenerateComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.009"/>
+  <testcase name="testCanonise()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.004"/>
+  <testcase name="testFromRulestring()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.007"/>
+  <testcase name="testGenerateApgtable()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.662"/>
+  <testcase name="testLoadComments()" classname="application.model.rules.hrot.HROTGenerationsTest" time="0.018"/>
+  <system-out><![CDATA[7.2A3.$4.2A2.A3.$4.2A2.A.A.$3.A2.2A.2BA$.2A.AB2.3B.$.2A.B.2A.B2.$3.A.A2.AB2.$A2.A.A2.3A.$3A.B.2A2.A.$3.4BA2.B.$2.A2B2.2AB2.$3.A! -1458599254
+7.2A3.$4.3A.A3.$3.A2B2.2AB.$2.2A2.2A3.B$.AB.B7.$.AB2.3A4.$.A.A.A2.A3.$A2.A.A2.ABA.$3A3.2A2.A.$2.A4.B4.$2.B4.2A3.$3.B! 748509582
+5.4A2.$4.3A.B2.$2.2A4.2A.$2.2A2.B2A2.$.A3.A5.$2A2.4A3.$2A.B.A2.2A.$A2.A.A2.A.B$AB2A2.2A.AB$2.A3.A.A2.$7.2B! 225274275
+7.2A2.$5.A2BAB.$4.2A2B2.A$3.AB.2A.2A$2.AB2A2.3A$.2A.A.A2.A.$.2BA.A2B2A.$A2BA2.B2.2A$2A2.A.A2.B.$.B.5AB.A$2.3A2.A.A! -1777143810
+4.A.A21.A.A4.$4.A2BA19.A2BA4.$4.AB.B9.A9.B.BA4.$2.2A.B9.2A.2A9.B.2A2.$2.2B2.A.A3.ABA.ABA.ABA3.A.A2.2B2.$5.B2AB4.A7.A4.B2AB5.$3.BA4.4A.2A3.2A.4A4.AB3.$3.3AB.B2A2B3.BAB3.2B2AB.B3A3.$4.A3.B3ABA.2AB2A.AB3AB3.A4.$5.2ABAB3AB.2B.2B.B3ABAB2A5.$5.3B.B2.2AB.BAB.B2A2.B.3B5.$7.B.2A3.3B.3B3.2A.B7.$5.2A.BA2.3A.ABA.3A2.AB.2A5.$8.BA.B.2A.A.A.2A.B.AB8.$.AB4AB3.B.A.A3.A.A.B3.B4ABA.$2A2.AB4.15B4.BA2.2A$B.AB5A.2A.B3.B3.B.2A.5ABA.B$2.4B.A2.A13.A2.A.4B2.$.B5.A.B2.2A7.2A2.B.A5.B.$5.B3A3.2B7.2B3.3AB5.$5.ABA.2A13.2A.ABA5.$7.A.A2.B9.B2.A.A7.$8.BA.B.A7.A.B.AB8.$11.A.BA5.AB.A11.$12.B2.5A2.B12.$14.A.B.B.A14.$10.A3.BA3BAB3.A10.$9.3A.3B3.3B.3A9.$10.A3.B5.B3.A! 1261069862
+5.A23.A5.$3.AB.BA19.AB.BA3.$4.A2.B19.B2.A4.$2.3A10.A.A.A10.3A2.$2.B2A2.A5.2A2B.2B2A5.A2.2AB2.$5.3AB3.B.3A.3A.B3.B3A5.$6.AB3.2AB7AB2A3.BA6.$4.BA.A.3BA.ABA.ABA.A3B.A.AB4.$3.3B3.AB3.2A.A.2A3.BA3.3B3.$4.B2.A.3A.BABA.ABAB.3A.A2.B4.$4.2AB.B.B2A9.2AB.B.B2A4.$8.A.A.BA3.A3.AB.A.A8.$5.2A.3A.A9.A.3A.2A5.$5.2B2.B3A2BAB.BA2B3AB2.2B5.$2.3A.2A.BA.3A.3A.3A.AB.2A.3A2.$.A.A3B5.11A5.3BA.A.$ABA.A2.3A15.3A2.A.ABA$2.B.A3BA.2A11.2A.A3BA.B2.$7.BA.2A.A7.A.2A.AB7.$6.ABA2.A2B7.2BA2.ABA6.$6.3B.2A11.2A.3B6.$5.B.BABA13.ABAB.B5.$7.B.BA13.AB.B7.$9.B2.ABA5.ABA2.B9.$10.3A.A5.A.3A10.$13.A.B3AB.A13.$14.2A3.2A14.$10.B4.B3.B4.B10.$9.3B11.3B9.$10.B13.B! 614051824
+4.3A21.3A4.$3.B.A.A19.A.A.B3.$4.BA10.A.A10.AB4.$2.2AB8.A.B3AB.A8.B2A2.$3.2B4A4.AB5.BA4.4A2B3.$3.A.3B3.A2.2AB.B2A2.A3.3B.A3.$4.3A.A2.2A.2B3A2B.2A2.A.3A4.$5.B.BA3.A.B.3A.B.A3.AB.B5.$7.3A2.2AB2AB2AB2A2.3A7.$5.3A.A2B2.A.A.A.A2.2BA.3A5.$4.2B.A.A.2B.3A.3A.2B.A.A.2B4.$5.A2.A.B2.A3.A3.A2.B.A2.A5.$5.2B.2ABAB.A.A.A.A.BAB2A.2B5.$2.A4.A2.BAB2.A3.A2.BAB2.A4.A2.$.A2B2A2B2.15A2.2B2A2BA.$AB.A3.2A.A.BA3BA3BAB.A.2A3.A.BA$B.4A.A2B15.2BA.4A.B$.A2.B3.BA2B11.2BAB3.B2.A.$5.A2.A.2B2A7.2A2B.A2.A5.$6.A.BA.B11.B.AB.A6.$9.A2BA9.A2BA9.$8.A.BA11.AB.A8.$10.B2.A7.A2.B10.$12.A.BA3.AB.A12.$10.3B.A.A.A.A.3B10.$10.A2.BA.3A.AB2.A10.$13.3A3.3A13.$14.A5.A! -737833532
+4.A.A21.A.A4.$4.A2BA19.A2BA4.$4.AB.B9.A9.B.BA4.$2.2A.B9.2A.2A9.B.2A2.$2.2B2.A.A3.ABA.ABA.ABA3.A.A2.2B2.$5.B2AB4.A7.A4.B2AB5.$3.BA4.4A.2A3.2A.4A4.AB3.$3.3AB.B2A2B3.BAB3.2B2AB.B3A3.$4.A3.B3ABA.2AB2A.AB3AB3.A4.$5.2ABAB3AB.2B.2B.B3ABAB2A5.$5.3B.B2.2AB.BAB.B2A2.B.3B5.$7.B.2A3.3B.3B3.2A.B7.$5.2A.BA2.3A.ABA.3A2.AB.2A5.$8.BA.B.2A.A.A.2A.B.AB8.$.AB4AB3.B.A.A3.A.A.B3.B4ABA.$2A2.AB4.15B4.BA2.2A$B.AB5A.2A.B3.B3.B.2A.5ABA.B$2.4B.A2.A13.A2.A.4B2.$.B5.A.B2.2A7.2A2.B.A5.B.$5.B3A3.2B7.2B3.3AB5.$5.ABA.2A13.2A.ABA5.$7.A.A2.B9.B2.A.A7.$8.BA.B.A7.A.B.AB8.$11.A.BA5.AB.A11.$12.B2.5A2.B12.$14.A.B.B.A14.$10.A3.BA3BAB3.A10.$13.3B3.3B13.$14.B5.B! 860659248
+5.A23.A5.$3.AB.BA19.AB.BA3.$4.A2.B19.B2.A4.$2.3A10.A.A.A10.3A2.$2.B2A2.A5.2A2B.2B2A5.A2.2AB2.$5.3AB3.B.3A.3A.B3.B3A5.$6.AB3.2AB7AB2A3.BA6.$4.BA.A.3BA.ABA.ABA.A3B.A.AB4.$3.3B3.AB3.2A.A.2A3.BA3.3B3.$4.B2.A.3A.BABA.ABAB.3A.A2.B4.$4.2AB.B.B2A9.2AB.B.B2A4.$8.A.A.BA3.A3.AB.A.A8.$5.2A.3A.A9.A.3A.2A5.$5.2B2.B3A2BAB.BA2B3AB2.2B5.$2.3A.2A.BA.3A.3A.3A.AB.2A.3A2.$.A.A3B5.11A5.3BA.A.$ABA.A2.3A15.3A2.A.ABA$2.B.A3BA.2A11.2A.A3BA.B2.$7.BA.2A.A7.A.2A.AB7.$6.ABA2.A2B7.2BA2.ABA6.$6.3B.2A11.2A.3B6.$5.B.BABA13.ABAB.B5.$7.B.BA13.AB.B7.$9.B2.ABA5.ABA2.B9.$10.3A.A5.A.3A10.$13.A.B3AB.A13.$14.2A3.2A14.$10.A4.B3.B4.A! -1735122988
+4.3A21.3A4.$3.B.A.A19.A.A.B3.$4.BA10.A.A10.AB4.$2.2AB8.A.B3AB.A8.B2A2.$3.2B4A4.AB5.BA4.4A2B3.$3.A.3B3.A2.2AB.B2A2.A3.3B.A3.$4.3A.A2.2A.2B3A2B.2A2.A.3A4.$5.B.BA3.A.B.3A.B.A3.AB.B5.$7.3A2.2AB2AB2AB2A2.3A7.$5.3A.A2B2.A.A.A.A2.2BA.3A5.$4.2B.A.A.2B.3A.3A.2B.A.A.2B4.$5.A2.A.B2.A3.A3.A2.B.A2.A5.$5.2B.2ABAB.A.A.A.A.BAB2A.2B5.$2.A4.A2.BAB2.A3.A2.BAB2.A4.A2.$.A2B2A2B2.15A2.2B2A2BA.$AB.A3.2A.A.BA3BA3BAB.A.2A3.A.BA$B.4A.A2B15.2BA.4A.B$.A2.B3.BA2B11.2BAB3.B2.A.$5.A2.A.2B2A7.2A2B.A2.A5.$6.A.BA.B11.B.AB.A6.$9.A2BA9.A2BA9.$8.A.BA11.AB.A8.$10.B2.A7.A2.B10.$12.A.BA3.AB.A12.$10.3B.A.A.A.A.3B10.$10.A2.BA.3A.AB2.A10.$13.3A3.3A13.$10.A3.A5.A3.A! -1877284134
+2A8.2A$.B8.B.$2.B6.B2.$ABA6.ABA$2.B6.B2.$.B8.B.$2.B2A2.2AB2.$2.A.B2.B.A2.$2.B.A2BA.B2.$4.B2.B4.$12.$12.$4.A2.A! 1887025860
+2A8.2A$2BA6.A2B$.B8.B.$2.BA4.AB2.$3B6.3B$2.BA4.AB2.$.B3A2.3AB.$2.BAB2ABAB2.$2.BAB2.BAB2.$.AB.4B.BA.$4.B2AB4.$12.$12.$4.B2.B! -716274727
+2A8.2A$.2A6.2A.$.A8.A.$2.2A4.2A2.$2A8.2A$2.AB4.BA2.$.AB2A2.2ABA.$2.2A.2A.2A2.$2.3A2.3A2.$.A8.A.$4.4A4.$12.$12.$4.A2.A! -1090637219
+]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

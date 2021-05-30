@@ -34,7 +34,14 @@ public abstract class Rule {
     /**
      * Alternating period of the rule
      */
-    protected int alternatingPeriod;
+    protected int alternatingPeriod = 1;
+
+    /**
+     * The number of cells that the pattern needs to be translated by in any direction such
+     * that it will evolve into an identical next state. For most rules, it is 1.
+     * For rules such as Margolus / Block CA, it can be larger than that.
+     */
+    protected int locationPeriod = 1;
 
     /**
      * The tiling of the rule
@@ -94,6 +101,14 @@ public abstract class Rule {
      */
     public int getAlternatingPeriod() {
         return alternatingPeriod;
+    }
+
+    /**
+     * Gets the location period of the rule
+     * @return Returns the location period of the rule
+     */
+    public int getLocationPeriod() {
+        return locationPeriod;
     }
 
     /**
