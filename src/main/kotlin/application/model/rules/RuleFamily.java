@@ -62,7 +62,7 @@ public abstract class RuleFamily extends Rule implements Cloneable {
         while (!bgStates.contains(new Pair<>(currentState, generations % alternatingPeriod))) {
             bgStates.add(new Pair<>(currentState, generations % alternatingPeriod));
 
-            int[] neighbours = new int[getNeighbourhood().length];
+            int[] neighbours = new int[getNeighbourhood(generations).length];
             Arrays.fill(neighbours, currentState);
             currentState = transitionFunc(neighbours, currentState, generations, new Coordinate());
 

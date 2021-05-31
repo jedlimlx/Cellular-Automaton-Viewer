@@ -11,8 +11,6 @@ import java.util.function.Function;
  * Represents a 2-state Margolus rule
  */
 public class Margolus extends RuleFamily {
-    // TODO (Add B0 Margolus)
-
     private static String regex = "M([0-9]+,){15}[0-9]+";
     private ArrayList<Integer> neighbourhoods;
 
@@ -58,6 +56,9 @@ public class Margolus extends RuleFamily {
 
             neighbourhoods.add(neighbourhoodInt);
         }
+
+        // Update background
+        updateBackground();
     }
 
     @Override
@@ -66,7 +67,19 @@ public class Margolus extends RuleFamily {
     }
 
     @Override
-    public void updateBackground() { }
+    public void updateBackground() {
+        if (neighbourhoods.get(0) == 15) {
+            if (neighbourhoods.get(15) == 15) {
+                background = new int[]{1, 1};
+            } else {
+                background = new int[]{0, 1};
+            }
+        } else if (neighbourhoods.get(0) == 0){
+            background = new int[]{0, 0};
+        } else {
+            throw new IllegalArgumentException("Strobing margolus rules (without 0 or 15) are not supported!");
+        }
+    }
 
     @Override
     public String[] getRegex() {
@@ -106,7 +119,14 @@ public class Margolus extends RuleFamily {
 
     @Override
     public int transitionFunc(int[] neighbours, int cellState, int generations, Coordinate coordinate) {
-        return 0;
+        // Trick the updateBackground algorithm in Rule.java to do the right thing when doing alternating rules
+        if (cellState == 0) {
+            return background[1];
+        } else if (cellState == 1) {
+            return background[0];
+        } else {
+            return 0;
+        }
     }
 
     @Override
@@ -135,32 +155,32 @@ public class Margolus extends RuleFamily {
         Grid gridCopy = grid.deepCopy();
         for (Coordinate cellToCheck: cellsToCheck) {
             // Convert 2x2 block to integer
-            int blockInt = gridCopy.getCell(cellToCheck)
-                    + 2 * gridCopy.getCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY()))
-                    + 4 * gridCopy.getCell(new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1))
-                    + 8 * gridCopy.getCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1));
+            int blockInt = convertState(gridCopy.getCell(cellToCheck), generation)
+                    + 2 * convertState(gridCopy.getCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY())), generation)
+                    + 4 * convertState(gridCopy.getCell(new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1)), generation)
+                    + 8 * convertState(gridCopy.getCell(new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1)), generation);
 
             // Update 2x2 block to new configuration
             String binaryString = Integer.toBinaryString(neighbourhoods.get(blockInt));
             binaryString = "0".repeat(4 - binaryString.length()) + binaryString;
 
             addToCellChanged(grid, gridCopy, cellsChanged, cellToCheck,
-                    Character.getNumericValue(binaryString.charAt(3)));
+                    convertState(Character.getNumericValue(binaryString.charAt(3)), generation + 1));
             addToCellChanged(grid, gridCopy, cellsChanged,
                     new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY()),
-                    Character.getNumericValue(binaryString.charAt(2)));
+                    convertState(Character.getNumericValue(binaryString.charAt(2)), generation + 1));
             addToCellChanged(grid, gridCopy, cellsChanged,
                     new Coordinate(cellToCheck.getX(), cellToCheck.getY() + 1),
-                    Character.getNumericValue(binaryString.charAt(1)));
+                    convertState(Character.getNumericValue(binaryString.charAt(1)), generation + 1));
             addToCellChanged(grid, gridCopy, cellsChanged,
                     new Coordinate(cellToCheck.getX() + 1, cellToCheck.getY() + 1),
-                    Character.getNumericValue(binaryString.charAt(0)));
+                    convertState(Character.getNumericValue(binaryString.charAt(0)), generation + 1));
         }
     }
 
     private void addToCellChanged(Grid grid, Grid gridCopy, ArrayList<Set<Coordinate>> cellsChanged,
                                   Coordinate cellToCheck, int state) {
-        if (gridCopy.getCell(cellToCheck) != state){
+        if (gridCopy.getCell(cellToCheck) != state) {
             cellsChanged.get(0).add(cellToCheck);
             grid.setCell(cellToCheck, state);
         } else {

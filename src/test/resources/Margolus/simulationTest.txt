@@ -1,0 +1,24 @@
+#R M0,3,10,2,5,1,6,7,12,9,8,11,4,13,14,15
+#G 100
+#I $bobobobo$bo3b2o$o2b2ob2o$2b2obo$o5bo$2ob2ob2o$3obobo$3o2bobo!
+#O $16bobo8bo2b2o$16b2o10bobo$15bobo7bobobobo$15bobo5bo3b3ob2o$12bo2bo3bo4b2o2b2ob2o$9b6obo2bo2bo3b2ob4o$9bo2b4o2b2o3bobo5bobobo$10bobobo3bo4bob8ob2o$14b2o2b7ob2obobo$14bob2o3b6o3b2obo$15bobo2b5o3bobo2bob2o$18b6ob4o4b2o$18bobob2ob2ob2obo4bo$15b7o2bo2b4obobobo$15bobo3b2ob3ob4obob2o$15bob3ob4o2bobo4bo$16bobo4bobobo4bo$15b3o2b2obob3o3bo$15bo5b3o2b2o$15b4ob2o2b3o$15bo2bo2bo2bobo2b3o$16bo5b2obobobobo$14b3o7b2obobo$14bo12bobo$24bo2b2ob2o$24bo4bobo$2b2o$b2o$b2o!
+
+#R M0,2,8,3,1,5,6,7,4,9,10,11,12,13,14,15
+#G 200
+#I $35b5o$35bo3bo$35bo4bo$30b8o2bo$31b7o3bo$36b2o3bo$46o$46o$46o!
+#O $41bo2$43bo2$42b2o4$31bo$30bo2$37bo$7bo33bo$5bo25b6o$29bob7o$36b2o$46o$46o$b44o$4bo21bo4bo$5bo8bo!
+
+#R M0,3,4,8,2,5,9,7,1,6,11,10,12,13,14,15
+#G 15
+#I 5o$5o$5o$5o$5o!
+#O o2$o2$8bo24bo2$2bobobo20bo2$4bobobobo18bo2$8bobo14bobobo2$12bo12bo13$6bo2$6bo2$4bo2$o3bo!
+
+#R M15,13,7,12,14,10,9,1,11,6,5,2,3,4,8,0
+#G 100
+#I 3bobobo2bobob2o$2ob2o3bobo2b2o$2b2ob3o3b2o$2b2obo3bo2b3o$2o4bo3b2o$2b3o2bobo4b2o$ob3o3bobo3bo$2o4b2o3bobo$o2bobo3bo2b4o$3o5b2ob2obo$3b2o5bo2bo$ob5obobob4o$b2o3b2o3b2o$ob2obo4b2o3bo$b3ob2o3bo3bo$o3b2o5b2o2bo!
+#O 17bo$8bo10bo11bo$14bo7bo$9bo12bo$9bo12bob2obo$4bo8b2o8bo$16bo$4bo5bo5b2o6bob2o$bo9bo$13bo6bobo13bo$9bo2bo17bo$12bo5bo5bobobo$6bo5bo12bob2o$3b2o2bo7bo2bo4bo3bo7bo$6b4obo11bo$9bo12bo$2bo5bo11bo2b2o5bo$5bo6bo5bo2bo$8bo5bo5bo$3b2o6bo2bo3bo$2bo9bo5bo2bo$13bobo3b2o11bo$7bo7bo7bo$14bo$6bo6bo4bobo3bobobo$5bo3bo5bo2bo6bo$6bo6bo2bo5bobo$11bo$9bo6bo$18bo!
+
+#R M15,14,13,3,11,5,6,1,7,9,10,2,12,4,8,0
+#G 275
+#I 2bobo3b4obo$5b3o2bob2o$b5ob3o2bo$2b4o$bo9b2o$2bo3b2o2b2o$b3ob2o2b3o$bo2bo2b2o4bo$5b2o2b5o$2b2obob4o2bo$bo2bo7bo$5b4obobo$4b2o4bo2bo$3bo2bob5o$b2o4b7o!
+#O $27bo$26bo$24bo9bo$23bo$19bo12bo$24b3o3bo2b2o$23bobobo5bo$22bobo2bo5b2o$24bo7bo4b2o$18bo5bo3bo3bo3bo$18bobob3obobo$22b3o$30bo5bo$23bobo2b2o3bo$19bo6b2o7bo$15bobo6bo5b4obo$21bo3bo7b2o2bo$18bo11b2o4bo$30bobo2$bo17bo4b3o5bo$2bo18b4obo$2bo23b2o$bo23bo4bo2$23bo2bo!

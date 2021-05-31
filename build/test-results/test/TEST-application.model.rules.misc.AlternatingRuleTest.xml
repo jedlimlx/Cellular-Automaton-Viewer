@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="application.model.rules.misc.AlternatingRuleTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-05-29T14:11:32" hostname="LAPTOP-6TGQS808" time="0.232">
+<testsuite name="application.model.rules.misc.AlternatingRuleTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-05-31T01:45:10" hostname="LAPTOP-6TGQS808" time="0.057">
   <properties/>
-  <testcase name="testSimulation()" classname="application.model.rules.misc.AlternatingRuleTest" time="0.22"/>
-  <testcase name="testCanonise()" classname="application.model.rules.misc.AlternatingRuleTest" time="0.008"/>
+  <testcase name="testSimulation()" classname="application.model.rules.misc.AlternatingRuleTest" time="0.051"/>
+  <testcase name="testCanonise()" classname="application.model.rules.misc.AlternatingRuleTest" time="0.005"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

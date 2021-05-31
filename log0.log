@@ -67,3 +67,40 @@ INFO: GUI Initialising... in application.controller.MainController initialize
 INFO: GUI Initialising... in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: Integer must be between 0 and 15! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: Integer must be between 0 and 15! in application.controller.dialogs.rule.RuleDialog confirmRule 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: For input string: "0\\" in application.controller.dialogs.rule.RuleDialog confirmRule 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.MainController updateCells 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: The rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: The rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: The rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: Index 2 out of bounds for length 2 in application.controller.dialogs.rule.RuleDialog confirmRule 
