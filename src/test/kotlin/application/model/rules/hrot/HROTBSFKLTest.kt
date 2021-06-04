@@ -1,99 +1,89 @@
-package application.model.rules.hrot;
+package application.model.rules.hrot
 
-import org.junit.jupiter.api.Test;
-import application.model.Coordinate;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
+import application.model.rules.hrot.HROTBSFKL
+import application.model.simulation.Simulator
+import application.model.Coordinate
+import application.model.simulation.Grid
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import java.io.InputStream
+import java.util.*
 
-import java.io.InputStream;
-import java.util.Scanner;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-public class HROTBSFKLTest {
-    public InputStream getStream(String resourcePath) {
-        return getClass().getResourceAsStream(resourcePath);
+class HROTBSFKLTest {
+    fun getStream(resourcePath: String): InputStream {
+        return javaClass.getResourceAsStream(resourcePath)!!
     }
 
     @Test
-    public void testCanonise() {
+    fun testCanonise() {
         // Loading the testcases
-        Scanner scanner = new Scanner(getStream("/HROT BSFKL/parsingTest.txt"));
+        val scanner = Scanner(getStream("/HROT BSFKL/parsingTest.txt"))
 
         // Run through them
-        String rulestring = "", canonisedRulestring = "";
-
+        var rulestring = ""
+        var canonisedRulestring = ""
         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
+            val line = scanner.nextLine()
             if (line.startsWith("#R")) {
                 // Loading rulestring
-                rulestring = line.substring(3);
-            }
-            else if (line.startsWith("#C")) {
+                rulestring = line.substring(3)
+            } else if (line.startsWith("#C")) {
                 // Loading canonised rulestring
-                canonisedRulestring = line.substring(3);
-            }
-            else if (!line.startsWith("#")){
+                canonisedRulestring = line.substring(3)
+            } else if (!line.startsWith("#")) {
                 // Running the testcase
-                HROTBSFKL hrot = new HROTBSFKL(rulestring);
-                assertEquals(canonisedRulestring, hrot.getRulestring());
+                val hrot = HROTBSFKL(rulestring)
+                Assertions.assertEquals(canonisedRulestring, hrot.rulestring)
             }
         }
     }
 
     @Test
-    public void testClone() {
-        HROTBSFKL hrot = new HROTBSFKL("R1,B1,S2,F3,K4,L5,NM");
-        HROTBSFKL hrotClone = (HROTBSFKL) hrot.clone();
-
-        hrot.setRulestring("R2,B2,S3,F4,K5,L6,N@891891");
+    fun testClone() {
+        val hrot = HROTBSFKL("R1,B1,S2,F3,K4,L5,NM")
+        val hrotClone = hrot.clone() as HROTBSFKL
+        hrot.rulestring = "R2,B2,S3,F4,K5,L6,N@891891"
 
         // Ensure they are different
-        assertNotEquals(hrotClone.getBirth(), hrot.getBirth());
-        assertNotEquals(hrotClone.getSurvival(), hrot.getSurvival());
-        assertNotEquals(hrotClone.getForcing(), hrot.getForcing());
-        assertNotEquals(hrotClone.getKilling(), hrot.getKilling());
-        assertNotEquals(hrotClone.getLiving(), hrot.getLiving());
-        assertNotEquals(hrotClone.getNeighbourhood(), hrot.getNeighbourhood());
+        Assertions.assertNotEquals(hrotClone.birth, hrot.birth)
+        Assertions.assertNotEquals(hrotClone.survival, hrot.survival)
+        Assertions.assertNotEquals(hrotClone.forcing, hrot.forcing)
+        Assertions.assertNotEquals(hrotClone.killing, hrot.killing)
+        Assertions.assertNotEquals(hrotClone.living, hrot.living)
+        Assertions.assertNotEquals(hrotClone.getNeighbourhood(), hrot.getNeighbourhood())
     }
 
     @Test
-    public void testSimulation() {
+    fun testSimulation() {
         // Loading the testcases
-        Scanner scanner = new Scanner(getStream("/HROT BSFKL/simulationTest.txt"));
-
-        int generations = 0;
-        HROTBSFKL hrot = new HROTBSFKL();
-        Simulator inputPattern = null;
-        Grid targetPattern = null;
-
+        val scanner = Scanner(getStream("/HROT BSFKL/simulationTest.txt"))
+        var generations = 0
+        var hrot = HROTBSFKL()
+        var inputPattern: Simulator? = null
+        var targetPattern: Grid? = null
         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.startsWith("#R")) {
-                hrot = new HROTBSFKL(line.substring(3));
-            }
-            else if (line.startsWith("#G")) {
-                generations = Integer.parseInt(line.substring(3));
-            }
-            else if (line.startsWith("#I")) {
-                inputPattern = new Simulator(hrot);
-                inputPattern.fromRLE(line.substring(3), new Coordinate(0, 0));
-            }
-            else if (line.startsWith("#O")) {
-                targetPattern = new Grid();
-                targetPattern.fromRLE(line.substring(3), new Coordinate(0, 0));
-            }
-            else {
-                // Run N generations
-                assert inputPattern != null;
-                for (int i = 0; i < generations; i++) {
-                    inputPattern.step();
+            val line = scanner.nextLine()
+            when {
+                line.startsWith("#R") -> hrot = HROTBSFKL(line.substring(3))
+                line.startsWith("#G") -> generations = line.substring(3).toInt()
+                line.startsWith("#I") -> {
+                    inputPattern = Simulator(hrot)
+                    inputPattern.fromRLE(line.substring(3), Coordinate(0, 0))
                 }
+                line.startsWith("#O") -> {
+                    targetPattern = Grid()
+                    targetPattern.fromRLE(line.substring(3), Coordinate(0, 0))
+                }
+                else -> {
+                    // Run N generations
+                    for (i in 0 until generations)
+                        inputPattern!!.step()
 
-                assert targetPattern != null;
-                assertEquals(targetPattern.toRLE(), inputPattern.toRLE().
-                        replace("o", "A").replace("b", "."));
+                    Assertions.assertEquals(
+                        targetPattern!!.toRLE(),
+                        inputPattern!!.toRLE().replace("o", "A").replace("b", ".")
+                    )
+                }
             }
         }
     }

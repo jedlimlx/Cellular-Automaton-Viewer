@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 14
+    - name: Set up JDK 16
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: 16
         java-package: jdk+fx 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -42,10 +42,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 14
+    - name: Set up JDK 16
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: 16
         java-package: jdk+fx
     - name: Build Gradle
       run: ./gradlew build -x test
@@ -63,10 +63,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 14
+    - name: Set up JDK 16
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: 16
         java-package: jdk+fx 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -89,10 +89,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 14
+      - name: Set up JDK 16
         uses: actions/setup-java@v1
         with:
-          java-version: 14
+          java-version: 16
           java-package: jdk+fx
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -104,5 +104,5 @@ jobs:
       - name: Upload the Fat Cross-Platform Jar Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: CAViewer.jar
-          path: ./build/libs/Cellular-Automaton-Viewer.jar
+          name: CAViewer-JAR
+          path: ./build/libs/CAViewer-2.0.jar

@@ -101,7 +101,7 @@ class MainController {
     private var showGridLines = false // Are the grid lines being shown?
     private var simulationMode = SimulationMode.PAUSED
 
-    private var settings = JSONObject(JSONTokener(FileInputStream(SETTINGS_FILE))) // Store the settings
+    private lateinit var settings: JSONObject // Store the settings
 
     private lateinit var giffer: Giffer // For writing to a *.gif
     private lateinit var logger: Logger
@@ -206,6 +206,8 @@ class MainController {
 
         // Loading settings
         try {  // Reading settings from settings file
+            settings = JSONObject(JSONTokener(FileInputStream(SETTINGS_FILE)))
+
             // Grid lines
             if (settings.getBoolean("grid_lines")) {
                 showGridLines = true

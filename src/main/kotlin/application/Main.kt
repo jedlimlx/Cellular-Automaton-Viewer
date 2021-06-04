@@ -35,8 +35,7 @@ class Main : Runnable {
                 LogManager.getLogManager().readConfiguration(
                     Main::class.java.getResourceAsStream("/logging.properties")
                 )
-            } catch (ignored: IOException) {
-            }
+            } catch (ignored: IOException) { }
 
             if (args.isEmpty() || args[0] == "GUI") {
                 GUICommand().run()

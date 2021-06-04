@@ -4,15 +4,16 @@ plugins {
     java
     application
     id("org.openjfx.javafxplugin") version "0.0.10"
-    id("org.beryx.jlink") version "2.21.1"
+    id("org.beryx.jlink") version "2.24.0"
     kotlin("jvm") version "1.5.0"
 }
 
-group = "me.jedli"
+group = "org.caviewer"
 version = "2.0"
 
 application {
     mainClass.set("application.Main")
+    mainModule.set("CAViewer")
 }
 
 repositories {
@@ -33,6 +34,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
+
     testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
     testImplementation("org.testfx:openjfx-monocle:jdk-11+26") // For Java 11
 }
@@ -64,13 +66,17 @@ sourceSets {
 
 jlink {
     val os = org.gradle.internal.os.OperatingSystem.current()
+
     options.addAll("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages")
-    
+    forceMerge("kotlin")
+
     launcher {
         name = "application.Main"
     }
 
     jpackage {
+        jpackageHome = "C://Users//jedli//Downloads//jdk-14.0.2"
+
         outputDir = "jpackage"
         imageName = "CAViewer"
         skipInstaller = true
@@ -84,6 +90,25 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.compileKotlin {
+    val compileJava: JavaCompile by tasks
+    destinationDir = compileJava.destinationDir
+
     kotlinOptions.jvmTarget = "11"
+}
+
+tasks.withType<JavaCompile> {
+    dependsOn(":compileKotlin")
+    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+        //inputs.property("moduleName", ext["moduleName"])
+        doFirst {
+            val compileJava: JavaCompile by tasks
+            compileJava.options.compilerArgs = listOf(
+                // include Gradle dependencies as modules
+                "--module-path", sourceSets.main.get().compileClasspath.asPath
+            )
+
+            sourceSets.main.get().compileClasspath = files()
+        }
+    }
 }

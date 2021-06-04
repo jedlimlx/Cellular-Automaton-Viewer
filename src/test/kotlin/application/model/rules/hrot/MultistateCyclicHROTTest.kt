@@ -1,57 +1,46 @@
-package application.model.rules.hrot;
+package application.model.rules.hrot
 
-import org.junit.jupiter.api.Test;
-import application.model.Coordinate;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
+import application.model.Coordinate
+import application.model.simulation.Grid
+import application.model.simulation.Simulator
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import java.io.InputStream
+import java.util.*
 
-import java.io.InputStream;
-import java.util.Scanner;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class MultistateCyclicHROTTest {
-    public InputStream getStream(String resourcePath) {
-        return getClass().getResourceAsStream(resourcePath);
+class MultistateCyclicHROTTest {
+    fun getStream(resourcePath: String): InputStream {
+        return javaClass.getResourceAsStream(resourcePath)!!
     }
 
     @Test
-    public void testSimulation() {
+    fun testSimulation() {
         // Loading the testcases
-        Scanner scanner = new Scanner(getStream("/Cyclic HROT/simulationTest.txt"));
+        val scanner = Scanner(getStream("/Cyclic HROT/simulationTest.txt"))
 
-        int generations = 0;
-        MultistateCyclicHROT hrot = new MultistateCyclicHROT();
-        Simulator inputPattern = null;
-        Grid targetPattern = null;
-
+        var generations = 0
+        var hrot = MultistateCyclicHROT()
+        var inputPattern: Simulator? = null
+        var targetPattern: Grid? = null
         while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.startsWith("#R")) {
-                hrot = new MultistateCyclicHROT(line.substring(3));
-            }
-            else if (line.startsWith("#G")) {
-                generations = Integer.parseInt(line.substring(3));
-            }
-            else if (line.startsWith("#I")) {
-                inputPattern = new Simulator(hrot);
-                inputPattern.fromRLE(line.substring(3), new Coordinate(0, 0));
-            }
-            else if (line.startsWith("#O")) {
-                targetPattern = new Grid();
-                targetPattern.fromRLE(line.substring(3), new Coordinate(0, 0));
-            }
-            else {
-                System.out.println(hrot.getRulestring());
-
-                // Run N generations
-                assert inputPattern != null;
-                for (int i = 0; i < generations; i++) {
-                    inputPattern.step();
+            val line = scanner.nextLine()
+            when {
+                line.startsWith("#R") -> hrot = MultistateCyclicHROT(line.substring(3))
+                line.startsWith("#G") -> generations = line.substring(3).toInt()
+                line.startsWith("#I") -> {
+                    inputPattern = Simulator(hrot)
+                    inputPattern.fromRLE(line.substring(3), Coordinate(0, 0))
                 }
+                line.startsWith("#O") -> {
+                    targetPattern = Grid()
+                    targetPattern.fromRLE(line.substring(3), Coordinate(0, 0))
+                }
+                else -> {
+                    for (i in 0 until generations)
+                        inputPattern!!.step()
 
-                assert targetPattern != null;
-                assertEquals(targetPattern.toRLE(), inputPattern.toRLE());
+                    Assertions.assertEquals(targetPattern!!.toRLE(), inputPattern!!.toRLE())
+                }
             }
         }
     }
