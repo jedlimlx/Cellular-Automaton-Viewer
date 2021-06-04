@@ -75,8 +75,6 @@ jlink {
     }
 
     jpackage {
-        jpackageHome = "C://Users//jedli//Downloads//jdk-14.0.2"
-
         outputDir = "jpackage"
         imageName = "CAViewer"
         skipInstaller = true
