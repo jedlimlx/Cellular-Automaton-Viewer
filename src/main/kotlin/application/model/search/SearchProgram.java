@@ -94,7 +94,7 @@ public abstract class SearchProgram {
      * Gets the search parameters
      * @return Returns the search parameters
      */
-    public SearchParameters getSearchParameters() {
+    public application.model.search.SearchParameters getSearchParameters() {
         return searchParameters;
     }
 

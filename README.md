@@ -322,8 +322,8 @@ Search Programs
     - [ ] Fine tune RNG function via genetic algorithms?
     - [ ] Object separation?
 - [ ] Agar Search Program
-  - [ ] Better repetition detection
-  - [ ] Better wave detection
+    - [ ] Better repetition detection
+    - [ ] Better wave detection
 - [ ] Catalyst Search Program
     - [x] Mutiple catalysts
     - [ ] Brute force option
@@ -333,8 +333,37 @@ Search Programs
     - [ ] Object separation
     - [ ] Symmetries
     - [ ] Finish Documentation
-- [ ] Methuselah Search Program
 - [ ] Ship / Oscillator Search Program
+    - [ ] Rules
+        - [x] 2-state rules
+        - [x] Multi-state rules
+        - [x] Higher-range rules
+        - [ ] Strobing / Alternating Rules
+        - [ ] Naive rules
+        - [ ] Margolus rules
+    - [ ] Symmetries
+        - [x] Asymmetric
+        - [x] Odd-symmetric
+        - [x] Even-symmetric
+        - [ ] Glide-symmetric
+    - [ ] Speeds
+        - [ ] gcd(k, p) != 1
+        - [x] kc/p > c/2
+        - [ ] Superluminal
+        - [ ] Oscillators
+        - [ ] Puffers
+        - [ ] Diagonal ships
+        - [ ] Oblique ships
+    - [ ] Optimisations
+        - [x] Lookahead
+        - [ ] Double-lookahead
+        - [x] Repeating-component detection
+    - [ ] Writing to dump files
+    - [ ] Multi-threading
+    - [ ] Inputting partials
+    - [ ] Sideways searching
+    - [ ] Adaptive widening
+- [ ] Methuselah Search Program
 
 Long-term TODO List
 ===================

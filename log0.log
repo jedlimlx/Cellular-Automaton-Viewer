@@ -192,3 +192,5 @@ WARNING: settings.json (The system cannot find the file specified) in applicatio
 WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
 INFO: GUI Initialising... in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 

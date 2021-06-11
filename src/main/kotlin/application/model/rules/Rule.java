@@ -162,22 +162,29 @@ public abstract class Rule {
         return boundedGrid;
     }
 
-//
-//    /**
-//     * Given D, E, F, G, H, I, E' (Of course extended to larger neighbourhoods)
-//     * find A, B, C <br>
-//     * ABC <br>
-//     * DEF -> E' <br>
-//     * GHI <br>
-//     * @param rows
-//     * @param adjState
-//     * @param cellState
-//     * @param nextState
-//     * @return Returns a list of possible successor states
-//     */
-//    public ArrayList<int[]> getSuccessor(int[][] rows, int[] adjState, int cellState, int nextState) {
-//
-//    }
+    /**
+     * Find I such that <br>
+     * ABC <br>
+     * DEF -> E' <br>
+     * GHI <br>
+     * @param neighbours The neighbours of the central cell
+     * @param indexOfUnknown The index of the unknown cell
+     * @param cellState The current state of the central cell
+     * @param nextState The next state of the central cell
+     * @param generation The generation that the function is invoked
+     * @return Returns a boolean array where each index represents whether the unknown cell could be that state
+     */
+    public boolean[] getSuccessor(int[] neighbours, int indexOfUnknown, int cellState,
+                                           int nextState, int generation) {
+        boolean[] possible = new boolean[numStates];
+        for (int i = 0; i < numStates; i++) {
+            neighbours[indexOfUnknown] = i;
+            possible[i] = dependsOnNeighbours(cellState, generation, new Coordinate()) == nextState ||
+                    nextState == transitionFunc(neighbours, cellState, generation, new Coordinate());
+        }
+
+        return possible;
+    }
 
     /**
      * Steps the grid provided forward one generation
