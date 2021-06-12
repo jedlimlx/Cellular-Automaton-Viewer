@@ -12,6 +12,7 @@ import javafx.application.Application
 import picocli.CommandLine
 import java.io.File
 import java.io.FileNotFoundException
+import kotlin.math.pow
 
 @CommandLine.Command(name = "cfind", description = ["Uses a gfind-like algorithm to find spaceships"])
 class ShipSearchCommand : Runnable {
@@ -58,6 +59,18 @@ class ShipSearchCommand : Runnable {
     private var num = 0
 
     @CommandLine.Option(
+        names = ["-m", "--min"],
+        description = ["The minimum deepening increment"]
+    )
+    private var minDeepeningIncrement = 0
+
+    @CommandLine.Option(
+        names = ["-q", "--queue"],
+        description = ["The maximum size of the BFS queue (2^Q)"]
+    )
+    private var maxQueueSize = 0
+
+    @CommandLine.Option(
         names = ["-stdin", "--stdin"],
         description = ["Outputs all partials"]
     )
@@ -74,7 +87,7 @@ class ShipSearchCommand : Runnable {
         }
 
         val shipSearchParameters = ShipSearchParameters(Utils.fromRulestring(rulestring), width, dy, period,
-            symmetry = symmetry, stdin = stdin)
+            symmetry, 2.0.pow(maxQueueSize).toLong(), minDeepeningIncrement, stdin)
         val shipSearch = ShipSearch(shipSearchParameters)
         shipSearch.search(num)
     }
