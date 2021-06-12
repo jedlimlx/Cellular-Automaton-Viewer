@@ -60,15 +60,23 @@ class ShipSearchCommand : Runnable {
 
     @CommandLine.Option(
         names = ["-m", "--min"],
-        description = ["The minimum deepening increment"]
+        description = ["The minimum deepening increment"],
+        defaultValue = "0"
     )
     private var minDeepeningIncrement = 0
 
     @CommandLine.Option(
         names = ["-q", "--queue"],
-        description = ["The maximum size of the BFS queue (2^Q)"]
+        description = ["The maximum size of the BFS queue (2^Q)"],
+        defaultValue = "20"
     )
     private var maxQueueSize = 0
+
+    @CommandLine.Option(
+        names = ["-dfs", "--dfs"],
+        description = ["Use only DFS instead of a hybrid BFS-DFS approach"]
+    )
+    private var dfs = false
 
     @CommandLine.Option(
         names = ["-stdin", "--stdin"],
@@ -87,7 +95,9 @@ class ShipSearchCommand : Runnable {
         }
 
         val shipSearchParameters = ShipSearchParameters(Utils.fromRulestring(rulestring), width, dy, period,
-            symmetry, 2.0.pow(maxQueueSize).toLong(), minDeepeningIncrement, stdin)
+            symmetry, 2.0.pow(maxQueueSize).toLong(),
+            if (minDeepeningIncrement == 0) period else minDeepeningIncrement, true, stdin, dfs)
+
         val shipSearch = ShipSearch(shipSearchParameters)
         shipSearch.search(num)
     }

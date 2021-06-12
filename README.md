@@ -347,7 +347,7 @@ Search Programs
         - [x] Even-symmetric
         - [ ] Glide-symmetric
     - [ ] Speeds
-        - [ ] gcd(k, p) != 1
+        - [ ] gcd(k, p) > 1
         - [x] kc/p > c/2
         - [ ] Superluminal
         - [ ] Oscillators

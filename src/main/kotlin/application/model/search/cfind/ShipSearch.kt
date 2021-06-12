@@ -72,7 +72,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         var state: State
         var statesToCheck: List<State>
         while (true) {
-            if (!parameters.stdin) println("Beginning breath-first search round...")
+            if (!parameters.stdin && !parameters.dfs) println("Beginning breath-first search round...")
+            else if (!parameters.stdin) println("Beginning depth-first search round...")
 
             // BFS
             while (bfsQueue.size < parameters.maxQueueSize) {
@@ -82,7 +83,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     return
                 }
 
-                state = bfsQueue.removeFirst()
+                state = if (parameters.dfs) bfsQueue.removeLast()
+                else bfsQueue.removeFirst()
 
                 if (++count2 % 15000 == 0 || parameters.stdin) {
                     println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
@@ -183,8 +185,11 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
     private fun findSuccessors(state: State): List<State> {
         val key = Key(Array(2 * range + 1) {  // Checking lookup table
-            if (it == 2 * range) state.getPredecessor(-centralCoordinate.y * parameters.period -
-                    parameters.dy - 1)!!.cells
+            if (it == 2 * range) {
+                if (-centralCoordinate.y * parameters.period - parameters.dy - 1 == -1)
+                    IntArray(parameters.width) { -1 }
+                else state.getPredecessor(-centralCoordinate.y * parameters.period - parameters.dy - 1)!!.cells
+            }
             else state.getPredecessor((it + 1) * parameters.period - 1)!!.cells
         })
 
@@ -212,7 +217,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 // Check boundary conditions
                 var valid = true
                 for (i in parameters.width..parameters.width+range) {
-                    neighbours = getNeighbours(key, node, i, parameters.symmetry)
+                    neighbours = getNeighbours(key, node, i, parameters.symmetry, fillUnknown = true)
 
                     val index = when {
                         i + centralCoordinate.x < parameters.width -> i + centralCoordinate.x
@@ -233,6 +238,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     } else {
                         cellState = key.key[-centralCoordinate.y - 1][index]
                         nextState = key.key[2 * range][index]
+
+                        if (nextState == -1)
+                            nextState = getNeighbour(Coordinate(centralCoordinate.x, 0), key, node,
+                                i, parameters.symmetry)
                     }
 
                     if (nextState != parameters.rule.transitionFunc(neighbours, cellState,
@@ -260,10 +269,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             } else {
                 // Compute possible next nodes
                 val cellState: Int
-                val nextState: Int
+                var nextState: Int
                 if (node.depth + centralCoordinate.x >= 0) {
                     cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
                     nextState = key.key[2 * range][node.depth + centralCoordinate.x]
+                    if (nextState == -1)
+                        nextState = getNeighbour(Coordinate(centralCoordinate.x, 0), key, node,
+                            node.depth, parameters.symmetry)
                 } else {
                     cellState = 0
                     nextState = 0
@@ -313,7 +325,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 // Check boundary conditions
                 var valid = true
                 for (i in parameters.width..parameters.width+range) {
-                    neighbours = getNeighbours(key, node, i, parameters.symmetry)
+                    neighbours = getNeighbours(key, node, i, parameters.symmetry, fillUnknown = true)
 
                     val index = when {
                         i + centralCoordinate.x < parameters.width -> i + centralCoordinate.x
@@ -379,31 +391,35 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         return false
     }
 
-    private fun getNeighbours(key: Key, node: Node, depth: Int, symmetry: Symmetry): IntArray {
+    private fun getNeighbours(key: Key, node: Node, depth: Int,
+                              symmetry: Symmetry, fillUnknown: Boolean = false): IntArray {
         return IntArray(effectiveNeighbourhood.size) {
-            val coordinate = effectiveNeighbourhood[it]
-
-            when {
-                depth + coordinate.x < 0 -> 0
-                depth + coordinate.x > parameters.width - 1 -> {
-                    if (symmetry == Symmetry.ODD_SYMMETRIC) {
-                        if (2 * (parameters.width - 1) < depth + coordinate.x) 0
-                        else if (coordinate.y == 0) node.getPredecessor(
-                            abs(depth - node.depth + -coordinate.x - 1))!!.cellState
-                        else key.key[-coordinate.y - 1][2 * (parameters.width - 1) - (depth + coordinate.x)]
-                    } else if (symmetry == Symmetry.EVEN_SYMMETRIC) {
-                        if (2 * parameters.width - 1 < depth + coordinate.x) 0
-                        else if (coordinate.y == 0) node.getPredecessor(
-                            depth + coordinate.x - (2 * parameters.width - node.depth))!!.cellState
-                        else key.key[-coordinate.y - 1][2 * parameters.width - 1 - (depth + coordinate.x)]
-                    } else 0
-                }
-                coordinate.x == 0 && coordinate.y == 0 -> -1
-                coordinate.y == 0 -> node.getPredecessor(-coordinate.x - 1 - (depth - node.depth))!!.cellState
-                else -> key.key[-coordinate.y - 1][depth + coordinate.x]
-            }
+            getNeighbour(effectiveNeighbourhood[it], key, node, depth, symmetry, fillUnknown)
         }
     }
+
+    private fun getNeighbour(coordinate: Coordinate, key: Key, node: Node, depth: Int,
+                             symmetry: Symmetry, fillUnknown: Boolean = false): Int {
+         return when {
+             depth + coordinate.x < 0 -> 0
+             depth + coordinate.x > parameters.width - 1 -> {
+                 if (symmetry == Symmetry.ODD_SYMMETRIC) {
+                     if (2 * (parameters.width - 1) < depth + coordinate.x) 0
+                     else if (coordinate.y == 0) node.getPredecessor(
+                         abs(depth - node.depth + -coordinate.x - 1))!!.cellState
+                     else key.key[-coordinate.y - 1][2 * (parameters.width - 1) - (depth + coordinate.x)]
+                 } else if (symmetry == Symmetry.EVEN_SYMMETRIC) {
+                     if (2 * parameters.width - 1 < depth + coordinate.x) 0
+                     else if (coordinate.y == 0) node.getPredecessor(
+                         depth + coordinate.x - (2 * parameters.width - node.depth))!!.cellState
+                     else key.key[-coordinate.y - 1][2 * parameters.width - 1 - (depth + coordinate.x)]
+                 } else 0
+             }
+             coordinate.x == 0 && coordinate.y == 0 && !fillUnknown -> -1
+             coordinate.y == 0 -> node.getPredecessor(-coordinate.x - 1 - (depth - node.depth))!!.cellState
+             else -> key.key[-coordinate.y - 1][depth + coordinate.x]
+         }
+     }
 }
 
 class Node(val predecessor: Node?, val cellState: Int) {

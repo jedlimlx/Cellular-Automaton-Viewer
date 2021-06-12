@@ -179,6 +179,8 @@ public abstract class Rule {
         boolean[] possible = new boolean[numStates];
         for (int i = 0; i < numStates; i++) {
             neighbours[indexOfUnknown] = i;
+            if (nextState == -1) nextState = i;
+
             possible[i] = dependsOnNeighbours(cellState, generation, new Coordinate()) == nextState ||
                     nextState == transitionFunc(neighbours, cellState, generation, new Coordinate());
         }
