@@ -400,7 +400,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                  if (symmetry == Symmetry.ODD_SYMMETRIC) {
                      if (2 * (parameters.width - 1) < depth + coordinate.x) 0
                      else if (coordinate.y == 0) node.getPredecessor(
-                         abs(depth - node.depth + -coordinate.x - 1))!!.cellState
+                         depth + coordinate.x - (2 * parameters.width - node.depth - 1))!!.cellState
                      else key.key[-coordinate.y - 1][2 * (parameters.width - 1) - (depth + coordinate.x)]
                  } else if (symmetry == Symmetry.EVEN_SYMMETRIC) {
                      if (2 * parameters.width - 1 < depth + coordinate.x) 0
