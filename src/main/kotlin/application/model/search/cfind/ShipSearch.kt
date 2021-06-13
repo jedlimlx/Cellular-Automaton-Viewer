@@ -15,8 +15,6 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
     private lateinit var centralCoordinate: Coordinate
     private lateinit var effectiveNeighbourhood: List<Coordinate>
 
-    private val lookupTable: HashMap<Key, Pair<Key, List<IntArray>>> = hashMapOf()
-
     override fun search(num: Int) {
         // Print out parameters
         println("Beginning search for ${parameters.symmetry} width ${parameters.width} " +
@@ -53,7 +51,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         centralCoordinate = Coordinate().subtract(coordinateOfUnknown)
 
         // Creating transposition table to detect equivalent states
-        val transpositionTable: HashMap<Int, List<State>> = hashMapOf()
+        val transpositionTable: HashSet<Key> = hashSetOf()
 
         // Creating initial 2 * range * period rows
         var prevState = State(null, IntArray(parameters.width) { 0 }, parameters.rule.numStates)
@@ -70,7 +68,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
         var hash: Int
         var state: State
-        var statesToCheck: List<State>
+        var statesToCheck: Key
         while (true) {
             if (!parameters.stdin && !parameters.dfs) println("Beginning breath-first search round...")
             else if (!parameters.stdin) println("Beginning depth-first search round...")
@@ -111,12 +109,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 } else if (output == 2 && state.depth > 2 * range * parameters.period + 2) continue
 
                 // Check for equivalent states (last 2Rp rows are the same)
-                statesToCheck = state.getAllPredecessors(2 * range * parameters.period)
-                hash = statesToCheck.hashCode()
-
-                if (hash !in transpositionTable || statesToCheck != transpositionTable[hash]) {
-                    transpositionTable[hash] = statesToCheck
-                    findSuccessors(state).forEach { bfsQueue.addLast(it) }
+                statesToCheck = Key(state.getAllPredecessors(2 * range * parameters.period))
+                if (statesToCheck !in transpositionTable) {
+                    transpositionTable.add(statesToCheck)
+                    bfsQueue.addAll(findSuccessors(state))
                 }
             }
 
@@ -132,9 +128,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 dfsStack.add(bfsQueue[index - deleted])
 
                 do {
-                    if (dfsStack.isEmpty()) {  // The state leads to a dead end
+                    // The state leads to a dead end
+                    if (dfsStack.isEmpty())
                         break
-                    }
 
                     state = dfsStack.removeLast()
 
@@ -162,7 +158,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         }
                     }
 
-                    dfsStack.addAll(findSuccessors(state))
+
+                    // Check for equivalent states (last 2Rp rows are the same)
+                    statesToCheck = Key(state.getAllPredecessors(2 * range * parameters.period))
+                    if (statesToCheck !in transpositionTable) {
+                        transpositionTable.add(statesToCheck)
+                        dfsStack.addAll(findSuccessors(state))
+                    }
                 } while (state.depth < maxDepth)
 
                 bfsQueue.removeAt(index - deleted++)
@@ -193,19 +195,17 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             else state.getPredecessor((it + 1) * parameters.period - 1)!!.cells
         })
 
-        val successors: ArrayList<State> = ArrayList()
-        if (lookupTable[key] != null) {  // Lookup table
-            var newState: State
-            lookupTable[key]!!.second.forEach {
-                newState = State(state, it, parameters.rule.numStates)
-                if (!parameters.lookahead || lookahead(newState)) successors.add(newState)
+        val key2 = Key(Array(2 * range + 1) {
+            if (it == 2 * range) {
+                if (centralCoordinate.y != -1)
+                    state.getPredecessor(-(centralCoordinate.y + 1) * parameters.period - 1)!!.cells
+                else
+                    IntArray(parameters.width) { -1 }
             }
+            else state.getPredecessor(it * parameters.period + parameters.dy - 1)!!.cells
+        })
 
-            return successors
-        }
-
-        val successors2: ArrayList<State> = ArrayList()
-
+        val successors: ArrayList<State> = ArrayList()
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
@@ -264,8 +264,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 val newState = State(state, cells, parameters.rule.numStates)
 
                 // Check if the state can be extended
-                successors2.add(newState)
-                if (!parameters.lookahead || lookahead(newState)) successors.add(newState)
+                if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             } else {
                 // Compute possible next nodes
                 val cellState: Int
@@ -285,7 +284,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 if (possibleNextState != -1) {
                     if (possibleNextState == nextState) {
                         // Creating new node & adding to stack
-                        for (i in 0..parameters.rule.numStates)
+                        for (i in 0 until parameters.rule.numStates)
                             dfsStack.add(Node(node, i))
                     }
                 } else {
@@ -300,20 +299,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             }
         }
 
-        lookupTable[key] = Pair(key, successors2.map { it.cells })
         return successors
     }
 
-    private fun lookahead(state: State): Boolean {
-        val key = Key(Array(2 * range + 1) {  // Checking lookup table
-            if (it == 2 * range) state.getPredecessor(-(centralCoordinate.y + 1) * parameters.period)!!.cells
-            else state.getPredecessor(it * parameters.period + parameters.dy)!!.cells
-        })
-
-        if (lookupTable[key] != null) {  // Lookup table
-            return lookupTable[key]!!.second.isNotEmpty()
-        }
-
+    private fun lookahead(key: Key, state: State): Boolean {
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
@@ -345,7 +334,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         nextState = 0
                     } else {
                         cellState = key.key[-centralCoordinate.y - 1][index]
-                        nextState = key.key[2 * range][index]
+
+                        nextState = if (key.key[2 * range][index] == -1) state.cells[index]
+                        else key.key[2 * range][index]
                     }
 
                     if (nextState != parameters.rule.transitionFunc(neighbours, cellState,
@@ -363,7 +354,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 val nextState: Int
                 if (node.depth + centralCoordinate.x >= 0) {
                     cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
-                    nextState = key.key[2 * range][node.depth + centralCoordinate.x]
+
+                    nextState = if (key.key[2 * range][node.depth + centralCoordinate.x] == -1)
+                        state.cells[node.depth + centralCoordinate.x]
+                    else key.key[2 * range][node.depth + centralCoordinate.x]
                 } else {
                     cellState = 0
                     nextState = 0
@@ -373,7 +367,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 if (possibleNextState != -1) {
                     if (possibleNextState == nextState) {
                         // Creating new node & adding to stack
-                        for (i in 0..parameters.rule.numStates)
+                        for (i in 0 until parameters.rule.numStates)
                             dfsStack.add(Node(node, i))
                     }
                 } else {

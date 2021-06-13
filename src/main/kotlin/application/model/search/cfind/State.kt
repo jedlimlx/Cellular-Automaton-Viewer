@@ -17,18 +17,19 @@ class State(val predecessor: State?, val cells: IntArray, val numStates: Int) {
         return predecessor?.getPredecessor(n - 1)
     }
 
-    fun getAllPredecessors(n: Int): List<State> {
-        val list = mutableListOf(this)
+    fun getAllPredecessors(n: Int): Array<IntArray> {
+        val array = Array(depth) { intArrayOf() }
         var predecessor: State? = this.predecessor
 
+        var i = 0
         while (predecessor != null) {
             if (depth - n == predecessor.depth) break
 
-            list.add(predecessor)
+            array[i++] = predecessor.cells
             predecessor = predecessor.predecessor
         }
 
-        return list
+        return array
     }
 
     fun completeShip(n: Int): Int {
@@ -40,7 +41,7 @@ class State(val predecessor: State?, val cells: IntArray, val numStates: Int) {
         }
 
         getAllPredecessors(-1).forEach {
-            if (!it.isEmpty()) return 1
+            it.forEach { if (it != 0) return 1 }
         }
 
         return 2
