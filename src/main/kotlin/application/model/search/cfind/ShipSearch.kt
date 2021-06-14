@@ -34,7 +34,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }*/
 
         // Print out parameters
-        println(
+        if (!parameters.stdin) println(
             "Beginning search for ${parameters.symmetry} width ${parameters.width} " +
                     "${parameters.dy}c/${parameters.period}o ship in ${parameters.rule}...\n"
         )
@@ -70,12 +70,11 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         centralCoordinate = Coordinate().subtract(coordinateOfUnknown)
 
         // What extra boundary conditions are necessary?
-        extraBoundaryConditions = IntArray(range) { -100 }
+        extraBoundaryConditions = IntArray(range + centralCoordinate.x) { -100 }
         effectiveNeighbourhood.forEach {
             if (it.x > 0 && it.y < 0)
                 extraBoundaryConditions[it.x - 1] = max(extraBoundaryConditions[it.x - 1], it.y)
         }
-        println(extraBoundaryConditions.joinToString(" "))
 
         // Creating lookup table for successor states
         lookupTable2 = LRUCache(2.0.pow(15).toInt())
@@ -117,25 +116,19 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 else bfsQueue.removeFirst()
 
                 if (++count2 % 15000 == 0 || parameters.stdin) {
-                    println(
-                        "\nx = 0, y = 0, rule = ${parameters.rule}\n" +
-                                state.toRLE(parameters.period, parameters.symmetry)
-                    )
+                    println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
+                            state.toRLE(parameters.period, parameters.symmetry))
                 }
 
                 // Ship is complete if last 2Rp rows are empty
                 val output = state.completeShip(2 * range * parameters.period)
                 if (output == 1 && !parameters.stdin) {
                     println("\nShip found!")
-                    println(
-                        "x = 0, y = 0, rule = ${parameters.rule}\n" +
-                                state.toRLE(parameters.period, parameters.symmetry)
-                    )
+                    println("x = 0, y = 0, rule = ${parameters.rule}\n" +
+                            state.toRLE(parameters.period, parameters.symmetry))
                     if (++count >= num) {
-                        println(
-                            "\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
-                                    "found $count ships."
-                        )
+                        println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
+                                    "found $count ships.")
                         return
                     }
                 } else if (output == 2 && state.depth > 2 * range * parameters.period + 2) continue
