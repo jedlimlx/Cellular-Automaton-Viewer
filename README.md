@@ -349,7 +349,7 @@ Search Programs
     - [ ] Speeds
         - [ ] gcd(k, p) > 1
         - [x] kc/p > c/2
-        - [ ] Superluminal
+        - [x] Superluminal
         - [ ] Oscillators
         - [ ] Puffers
         - [ ] Diagonal ships

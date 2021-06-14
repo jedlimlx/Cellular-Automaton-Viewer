@@ -105,12 +105,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             // BFS
             while (bfsQueue.size < parameters.maxQueueSize) {
                 if (bfsQueue.isEmpty() && !parameters.stdin) {
-                    println(
-                        "\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
-                                "found $count ships."
-                    )
+                    println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
+                            "found $count ships.")
                     return
-                }
+                } else if (bfsQueue.isEmpty()) return
 
                 state = if (parameters.dfs) bfsQueue.removeLast()
                 else bfsQueue.removeFirst()
