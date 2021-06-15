@@ -67,10 +67,18 @@ class ShipSearchCommand : Runnable {
 
     @CommandLine.Option(
         names = ["-q", "--queue"],
-        description = ["The maximum size of the BFS queue (2^Q)"],
+        description = ["The maximum size of the BFS queue (2^Q, default: 2^20)"],
         defaultValue = "20"
     )
     private var maxQueueSize = 0
+
+    @CommandLine.Option(
+        names = ["-l", "--lookup"],
+        description = ["The maximum size of the lookup table (default: 1000, " +
+                "larger value results in faster search but more memory-consumption)"],
+        defaultValue = "1000"
+    )
+    private var lookupTableSize = 0
 
     @CommandLine.Option(
         names = ["-dfs", "--dfs"],
@@ -84,6 +92,12 @@ class ShipSearchCommand : Runnable {
     )
     private var stdin = false
 
+    @CommandLine.Option(
+        names = ["-no_partial", "--no_partial"],
+        description = ["Suppress output of partials"]
+    )
+    private var partial = false
+
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
     private var help = false
 
@@ -96,7 +110,8 @@ class ShipSearchCommand : Runnable {
 
         val shipSearchParameters = ShipSearchParameters(Utils.fromRulestring(rulestring), width, dy, period,
             symmetry, 2.0.pow(maxQueueSize).toLong(),
-            if (minDeepeningIncrement == 0) period else minDeepeningIncrement, true, stdin, dfs)
+            if (minDeepeningIncrement == 0) period else minDeepeningIncrement, lookupTableSize,
+            true, stdin, partial, dfs)
 
         val shipSearch = ShipSearch(shipSearchParameters)
         shipSearch.search(num)

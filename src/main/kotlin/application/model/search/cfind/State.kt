@@ -24,7 +24,7 @@ class State(val predecessor: State?, val cells: IntArray, val numStates: Int) {
         while (predecessor != null) {
             if (depth - n == predecessor.depth) break
 
-            list.add(predecessor)
+            list.add(State(null, predecessor.cells, numStates))
             predecessor = predecessor.predecessor
         }
 

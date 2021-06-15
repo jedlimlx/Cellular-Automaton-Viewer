@@ -77,7 +77,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }
 
         // Creating lookup table for successor states
-        lookupTable2 = LRUCache(2.0.pow(15).toInt())
+        lookupTable2 = LRUCache(parameters.lookupTableSize)
 
         // Creating transposition table to detect equivalent states
         val transpositionTable: HashMap<Int, List<State>> = hashMapOf()
@@ -113,7 +113,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 state = if (parameters.dfs) bfsQueue.removeLast()
                 else bfsQueue.removeFirst()
 
-                if (++count2 % 15000 == 0 || parameters.stdin) {
+                if (!parameters.noPartials && (++count2 % 15000 == 0 || parameters.stdin)) {
                     println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
                             state.toRLE(parameters.period, parameters.symmetry))
                 }
