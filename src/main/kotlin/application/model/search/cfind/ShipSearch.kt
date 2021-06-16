@@ -5,7 +5,6 @@ import application.model.LRUCache
 import application.model.search.SearchProgram
 import java.io.File
 import kotlin.math.max
-import kotlin.math.pow
 
 class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(searchParameters) {
     val parameters = (searchParameters as ShipSearchParameters)
@@ -16,30 +15,15 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
     private lateinit var extraBoundaryConditions: IntArray
     private lateinit var effectiveNeighbourhood: List<Coordinate>
 
-    // private lateinit var lookupTable: IntArray
-    private lateinit var lookupTable2: LRUCache<Key, ArrayList<IntArray>>
+    private lateinit var lookupTable: IntArray
+    private lateinit var lookupTable2: HashMap<Key, ArrayList<IntArray>>
 
     override fun search(num: Int) {
-        // Construct the lookup table
-        /*
-        lookupTable = IntArray(pow(parameters.rule.numStates, parameters.rule.neighbourhood.size + 1)) {
-            val string = it.toString(parameters.rule.numStates).padStart(
-                parameters.rule.neighbourhood.size + 1, '0')
-            val neighbours = IntArray(parameters.rule.neighbourhood.size) { i ->
-                string[string.length - 1 - i].code - '0'.code
-            }
-
-            parameters.rule.transitionFunc(neighbours, string[0].code - '0'.code,
-                0, Coordinate())
-        }*/
-
         // Print out parameters
         if (!parameters.stdin) println(
             "Beginning search for ${parameters.symmetry} width ${parameters.width} " +
                     "${parameters.dy}c/${parameters.period}o ship in ${parameters.rule}...\n"
         )
-
-        val startTime = System.currentTimeMillis()
 
         // Obtain range of rule
         range = 0
@@ -77,10 +61,30 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }
 
         // Creating lookup table for successor states
-        lookupTable2 = LRUCache(parameters.lookupTableSize)
+        lookupTable2 = HashMap(parameters.lookupTableSize)
 
         // Creating transposition table to detect equivalent states
         val transpositionTable: HashMap<Int, List<State>> = hashMapOf()
+
+        // Construct the lookup table for single-cell successor states
+        lookupTable = IntArray(pow(parameters.rule.numStates, parameters.rule.neighbourhood.size + 1)) {
+                val string = it.toString(parameters.rule.numStates).padStart(
+                    parameters.rule.neighbourhood.size + 1, '0')
+                val neighbours = IntArray(parameters.rule.neighbourhood.size) { i ->
+                    if (i != indexOfUnknown) string[string.length - 1 - (i -
+                            if (i > indexOfUnknown) 1 else 0)].code - '0'.code
+                    else -1
+                }
+
+                var count = 0
+
+                parameters.rule.getSuccessor(
+                    neighbours, indexOfUnknown, string[0].code - '0'.code,
+                    string[1].code - '0'.code, 0
+                ).forEachIndexed { index, i -> count += if (i) pow(2, index) else 0 }
+
+                count
+        }
 
         // Creating initial 2 * range * period rows
         var prevState = State(null, IntArray(parameters.width) { 0 }, parameters.rule.numStates)
@@ -90,6 +94,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }
 
         bfsQueue.add(prevState)
+
+        // Note down the time when the search started
+        val startTime = System.currentTimeMillis()
 
         // Main loop
         var count = 0
@@ -126,7 +133,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                             state.toRLE(parameters.period, parameters.symmetry))
                     if (++count >= num) {
                         println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
-                                    "found $count ships.")
+                                "found $count ships.")
                         return
                     }
                 } else if (output == 2 && state.depth > 2 * range * parameters.period + 2) continue
@@ -229,10 +236,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     if (it == 2 * range) IntArray(parameters.width) { -1 }
                     else state.getPredecessor(it * parameters.period + parameters.dy - 1)!!.cells
                 } else {
-                    if (it == 2 * range) state.getPredecessor(
-                        -(centralCoordinate.y + 1) * parameters.period -
-                                parameters.dy - 1
-                    )!!.cells
+                    if (it == 2 * range)
+                        state.getPredecessor(-(centralCoordinate.y + 1) * parameters.period -
+                                parameters.dy - 1)!!.cells
                     else if (it == 0) IntArray(parameters.width) { -1 }
                     else state.getPredecessor(it * parameters.period - 1)!!.cells
                 }
@@ -246,8 +252,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 // Check if the state can be extended
                 if (centralCoordinate.y < -1) key2.key[0] = newState.cells
-                if (parameters.period == 1 || !parameters.lookahead || lookahead(key2, newState))
-                    successors.add(newState)
+                if (true || !parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             }
 
             return successors
@@ -257,6 +262,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
+        var hash: Int
         var node: Node
         var neighbours: IntArray
         while (dfsStack.isNotEmpty()) {
@@ -313,8 +319,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 // Check if the state can be extended
                 successors2.add(newState.cells)
                 if (centralCoordinate.y < -1) key2.key[0] = newState.cells
-                if (parameters.period == 1 || !parameters.lookahead || lookahead(key2, newState))
-                    successors.add(newState)
+                if (true || !parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             } else {
                 // Compute possible next nodes
                 val cellState: Int
@@ -323,10 +328,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
                     nextState = key.key[2 * range][node.depth + centralCoordinate.x]
                     if (nextState == -1)
-                        nextState = getNeighbour(
-                            Coordinate(centralCoordinate.x, 0), key, node,
-                            node.depth, parameters.symmetry
-                        )
+                        nextState = getNeighbour(Coordinate(centralCoordinate.x, 0), key, node,
+                            node.depth, parameters.symmetry)
                 } else {
                     cellState = 0
                     nextState = 0
@@ -355,13 +358,16 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         }
                     }
                 } else {
-                    neighbours = getNeighbours(key, node, node.depth, parameters.symmetry)
-
-                    val arr = parameters.rule.getSuccessor(neighbours, indexOfUnknown, cellState, nextState, 0)
+                    hash = getHash(key, node, node.depth, parameters.symmetry)
+                    hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                    if (nextState != -1)
+                        hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
 
                     // Creating new node & adding to stack
-                    for (i in arr.indices) {
-                        if (arr[i]) {
+                    val output = lookupTable[hash]
+                    for (i in 0 until parameters.rule.numStates) {
+                        // Getting i th bit from the output
+                        if (output shr i and 1 == 1) {
                             if (node.depth == 0) {
                                 var valid = true
 
@@ -383,7 +389,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             }
         }
 
-        lookupTable2.put(key, successors2)
+        if (lookupTable2.size < parameters.lookupTableSize) lookupTable2[key] = successors2
         return successors
     }
 
@@ -391,6 +397,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
+        var hash: Int
         var node: Node
         var neighbours: IntArray
         while (dfsStack.isNotEmpty()) {
@@ -437,7 +444,6 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 val nextState: Int
                 if (node.depth + centralCoordinate.x >= 0) {
                     cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
-
                     nextState = if (key.key[2 * range][node.depth + centralCoordinate.x] == -1)
                         state.cells[node.depth + centralCoordinate.x]
                     else key.key[2 * range][node.depth + centralCoordinate.x]
@@ -469,17 +475,20 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         }
                     }
                 } else {
-                    neighbours = getNeighbours(key, node, node.depth, parameters.symmetry)
-
-                    val arr = parameters.rule.getSuccessor(neighbours, indexOfUnknown, cellState, nextState, 0)
+                    hash = getHash(key, node, node.depth, parameters.symmetry)
+                    hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                    if (nextState != -1)
+                        hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
 
                     // Creating new node & adding to stack
-                    for (i in arr.indices) {
-                        if (arr[i]) {
+                    val output = lookupTable[hash]
+                    for (i in 0 until parameters.rule.numStates) {
+                        // Getting i th bit from the output
+                        if (output shr i and 1 == 1) {
                             if (node.depth == 0) {
                                 var valid = true
 
-                                /// Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
                                 for (j in extraBoundaryConditions.indices) {
                                     if (extraBoundaryConditions[j] == 0) continue
                                     if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
@@ -520,6 +529,18 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         return false
     }
 
+    private fun getHash(key: Key, node: Node, depth: Int, symmetry: Symmetry): Int {
+        var hash = 0
+        var state: Int
+        effectiveNeighbourhood.forEachIndexed { index, coordinate ->
+            state = getNeighbour(coordinate, key, node, depth, symmetry, false)
+            if (state != -1)
+                hash += state * pow(parameters.rule.numStates, index - if (index > indexOfUnknown) 1 else 0)
+        }
+
+        return hash
+    }
+
     private fun getNeighbours(key: Key, node: Node, depth: Int, symmetry: Symmetry,
                               fillUnknown: Boolean = false): IntArray {
         return IntArray(effectiveNeighbourhood.size) {
@@ -527,10 +548,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }
     }
 
-    private fun getNeighbour(
-        coordinate: Coordinate, key: Key, node: Node, depth: Int,
-        symmetry: Symmetry, fillUnknown: Boolean = false
-    ): Int {
+    private fun getNeighbour(coordinate: Coordinate, key: Key, node: Node, depth: Int,
+                             symmetry: Symmetry, fillUnknown: Boolean = false): Int {
         return when {
             depth + coordinate.x < 0 -> 0
             depth + coordinate.x > parameters.width - 1 -> {
