@@ -25,6 +25,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     "${parameters.dy}c/${parameters.period}o ship in ${parameters.rule}...\n"
         )
 
+        // Disable lookahead for p1 searches
+        if (parameters.period == 1) parameters.lookahead = false
+
         // Obtain range of rule
         range = 0
         parameters.rule.neighbourhood.forEach {
@@ -143,7 +146,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 hash = statesToCheck.hashCode()
 
                 if (hash !in transpositionTable || statesToCheck != transpositionTable[hash]) {
-                    transpositionTable[hash] = statesToCheck
+                    if (transpositionTable.size < 10000) transpositionTable[hash] = statesToCheck
                     findSuccessors(state).forEach { bfsQueue.addLast(it) }
                 }
             }
@@ -161,8 +164,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 do {
                     // The state leads to a dead end
-                    if (dfsStack.isEmpty())
+                    if (dfsStack.isEmpty()) {
                         break
+                    }
 
                     state = dfsStack.removeLast()
 
@@ -185,10 +189,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         println("\nShip found!")
                         println("x = 0, y = 0, rule = ${parameters.rule}\n${rle}")
                         if (++count >= num) {
-                            println(
-                                "\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
-                                        "found $count ships."
-                            )
+                            println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} " +
+                                        "seconds, found $count ships.")
                             return
                         }
                     }
@@ -198,8 +200,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     hash = statesToCheck.hashCode()
 
                     if (hash !in transpositionTable || statesToCheck != transpositionTable[hash]) {
-                        transpositionTable[hash] = statesToCheck
-                        findSuccessors(state).forEach { bfsQueue.addLast(it) }
+                        if (transpositionTable.size < 10000) transpositionTable[hash] = statesToCheck
+                        findSuccessors(state).forEach { dfsStack.add(it) }
                     }
                 } while (state.depth < maxDepth)
 
@@ -236,23 +238,33 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     if (it == 2 * range) IntArray(parameters.width) { -1 }
                     else state.getPredecessor(it * parameters.period + parameters.dy - 1)!!.cells
                 } else {
-                    if (it == 2 * range)
-                        state.getPredecessor(-(centralCoordinate.y + 1) * parameters.period -
+                    if (-(centralCoordinate.y + 1) * parameters.period - parameters.dy >= 0) {
+                        if (it == 2 * range) {
+                            if (-(centralCoordinate.y + 1) * parameters.period - parameters.dy == 0)
+                                IntArray(parameters.width) { -1 }
+                            else state.getPredecessor(-(centralCoordinate.y + 1) *
+                                    parameters.period - parameters.dy - 1)!!.cells
+                        }
+                        else if (it == 0) IntArray(parameters.width) { -1 }
+                        else state.getPredecessor(it * parameters.period - 1)!!.cells
+                    } else {
+                        if (it == 2 * range) IntArray(parameters.width) { -1 }
+                        else state.getPredecessor(-(-centralCoordinate.y - it - 1) * parameters.period +
                                 parameters.dy - 1)!!.cells
-                    else if (it == 0) IntArray(parameters.width) { -1 }
-                    else state.getPredecessor(it * parameters.period - 1)!!.cells
+                    }
                 }
             })
         } else key
 
+        val subluminal = key2.key[0][0] == -1
         val successors: ArrayList<State> = ArrayList()
         if (lookupTable2.containsKey(key)) {
             lookupTable2[key]!!.forEach {
                 val newState = State(state, it, parameters.rule.numStates)
 
                 // Check if the state can be extended
-                if (centralCoordinate.y < -1) key2.key[0] = newState.cells
-                if (true || !parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
+                if (subluminal) key2.key[0] = newState.cells
+                if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             }
 
             return successors
@@ -318,8 +330,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 // Check if the state can be extended
                 successors2.add(newState.cells)
-                if (centralCoordinate.y < -1) key2.key[0] = newState.cells
-                if (true || !parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
+
+                if (subluminal) key2.key[0] = newState.cells
+                if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             } else {
                 // Compute possible next nodes
                 val cellState: Int
