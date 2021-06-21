@@ -79,7 +79,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         val transpositionTable: LRUCache<Int, List<State>> = LRUCache(2000000)
 
         // Construct the lookup table for single-cell successor states
-        lookupTable = Array(parameters.rule.alternatingPeriod) {
+        lookupTable = Array(parameters.rule.alternatingPeriod) { generation ->
             IntArray(pow(parameters.rule.numStates, parameters.rule.neighbourhood.size + 1)) {
                 val string = it.toString(parameters.rule.numStates).padStart(
                     parameters.rule.neighbourhood.size + 1, '0'
@@ -94,7 +94,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 parameters.rule.getSuccessor(
                     neighbours, indexOfUnknown, string[0].code - '0'.code,
-                    string[1].code - '0'.code, 0
+                    string[1].code - '0'.code, generation
                 ).forEachIndexed { index, i -> count += if (i) pow(2, index) else 0 }
 
                 count
@@ -276,7 +276,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         val generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
 
         val successors: ArrayList<State> = ArrayList()
-        if (lookupTable2.containsKey(key)) {
+        if (lookupTable2.containsKey(key) && parameters.rule.alternatingPeriod == 1) {
             lookupTable2[key]!!.forEach {
                 val newState = State(state, it, parameters.rule.numStates)
 
@@ -294,7 +294,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         dfsStack.add(Node(null, 0))
 
         // Special optimisation for von neumann rules as each cell is independent of the others
-        val arr = IntArray(parameters.width) { -1 }
+        val arr = Array(parameters.rule.alternatingPeriod) { IntArray(parameters.width) { -1 } }
 
         var hash: Int
         var node: Node
@@ -362,8 +362,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
             } else {
                 // Checking for the special optimsation
-                if (singleBaseCell && arr[node.depth] != -1) {
-                    val output = arr[node.depth]
+                if (singleBaseCell && arr[generation][node.depth] != -1) {
+                    val output = arr[generation][node.depth]
                     for (i in 0 until parameters.rule.numStates) {
                         // Getting i th bit from the output
                         if (output shr i and 1 == 1) {
@@ -424,7 +424,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     // Adding to special optimisation cache
                     val output = lookupTable[generation][hash]
                     if (singleBaseCell) {
-                        arr[node.depth] = output
+                        arr[generation][node.depth] = output
                         if (output == 0) return listOf()
                     }
 
