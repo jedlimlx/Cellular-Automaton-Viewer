@@ -16,12 +16,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
     private var singleBaseCell = false
     private var baseCellCount = 0
 
+    private var additionalCells = 0
+
     private lateinit var centralCoordinate: Coordinate
     private lateinit var extraBoundaryConditions: IntArray
     private lateinit var effectiveNeighbourhood: List<Coordinate>
 
     private lateinit var lookupTable: Array<IntArray>
-    private lateinit var lookupTable2: HashMap<Key, ArrayList<IntArray>>
 
     override fun search(num: Int) {
         // Print out parameters
@@ -72,8 +73,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         baseCellCount = effectiveNeighbourhood.count { it.x == 0 }
         singleBaseCell = baseCellCount == 1
 
-        // Creating lookup table for successor states
-        lookupTable2 = HashMap(parameters.lookupTableSize)
+        additionalCells = effectiveNeighbourhood.count { it.y == -1 && it.x > -1 }
 
         // Creating transposition table to detect equivalent states
         val transpositionTable: LRUCache<Int, List<State>> = LRUCache(2000000)
@@ -174,12 +174,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             if (!parameters.stdin) print("\nBeginning depth-first search round, queue size ${bfsQueue.size} ")
 
             var deleted = 0  // DFS on all nodes in the BFS queue
+            val dfsStack: ArrayList<State> = ArrayList()
             for (index in 0 until bfsQueue.size) {
                 // Limit depth of DFS
                 val maxDepth = bfsQueue[index - deleted].depth + parameters.minDeepingIncrement
 
                 // DFS is basically BFS but with a stack
-                val dfsStack: ArrayList<State> = ArrayList()
+                dfsStack.clear()
                 dfsStack.add(bfsQueue[index - deleted])
 
                 do {
@@ -272,35 +273,26 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             })
         } else key
 
-        val subluminal = key2.key[0][0] == -1
+        val fill0 = key2.key[0][0] == -1
+        val fillSuccessor = key2.key[2 * range][0] == -1
         val generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
 
         val successors: ArrayList<State> = ArrayList()
-        if (lookupTable2.containsKey(key) && parameters.rule.alternatingPeriod == 1) {
-            lookupTable2[key]!!.forEach {
-                val newState = State(state, it, parameters.rule.numStates)
-
-                // Check if the state can be extended
-                if (subluminal) key2.key[0] = newState.cells
-                if (centralCoordinate.y == -1) key2.key[2 * range] = newState.cells
-                if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
-            }
-
-            return successors
-        }
-
-        val successors2: ArrayList<IntArray> = ArrayList()
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
         // Special optimisation for von neumann rules as each cell is independent of the others
         val arr = Array(parameters.rule.alternatingPeriod) { IntArray(parameters.width) { -1 } }
 
+        // Latest cell that must change for lookahead to give a different output
+        var latestCell = -1
+
         var hash: Int
         var node: Node
         var neighbours: IntArray
         while (dfsStack.isNotEmpty()) {
             node = dfsStack.removeLast()
+            if (latestCell != -1 && node.depth > latestCell) continue
             if (node.depth == parameters.width) {
                 // Check boundary conditions
                 var valid = true
@@ -355,12 +347,16 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 val newState = State(state, cells, parameters.rule.numStates)
 
                 // Check if the state can be extended
-                successors2.add(newState.cells)
+                if (fill0) key2.key[0] = newState.cells
+                if (fillSuccessor) key2.key[2 * range] = newState.cells
 
-                if (subluminal) key2.key[0] = newState.cells
-                if (centralCoordinate.y == -1) key2.key[2 * range] = newState.cells
-                if (!parameters.lookahead || lookahead(key2, newState)) successors.add(newState)
+                if (parameters.lookahead) {
+                    latestCell = lookahead(key2, newState, fillSuccessor)
+                    if (latestCell == -1) successors.add(newState)
+                }
             } else {
+                latestCell = -1
+
                 // Checking for the special optimsation
                 if (singleBaseCell && arr[generation][node.depth] != -1) {
                     val output = arr[generation][node.depth]
@@ -453,19 +449,25 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             }
         }
 
-        // Cache results
-        if (lookupTable2.size < parameters.lookupTableSize) lookupTable2[key] = successors2
         return successors
     }
 
-    private fun lookahead(key: Key, state: State): Boolean {
+    private fun lookahead(key: Key, state: State, isSuccessor: Boolean): Int {
+        val generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
+
+        // Initialise the DFS stack
         val dfsStack: ArrayList<Node> = ArrayList(30)
         dfsStack.add(Node(null, 0))
 
-        val generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
-
         // Special optimisation for von neumann rules as each cell is independent of the others
         val arr = IntArray(parameters.width) { -1 }
+
+        // Take note of the latest cell that must change for the outcome to be different
+        var latestCell = -1
+        val fromDepth = { x: Int ->
+            if (isSuccessor) x
+            else x + additionalCells
+        }
 
         var hash: Int
         var node: Node
@@ -507,13 +509,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     if (nextState != parameters.rule.transitionFunc(neighbours, cellState, generation,
                             Coordinate())) {
                         valid = false
+                        latestCell = latestCell.coerceAtLeast(fromDepth(i))
                         break  // State is invalid
                     }
                 }
 
                 if (!valid) continue // State is invalid
-
-                return true
+                return -1
             } else {
                 // Compute possible next nodes
                 var cellState: Int
@@ -554,7 +556,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 if (valid) dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
                             } else dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
                         }
-                    }
+                    } else latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
                 } else {
                     hash = getHash(key, node, node.depth, generation, parameters.symmetry)
                     hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
@@ -563,12 +565,15 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                     // Adding to special optimisation cache
                     val output = lookupTable[generation][hash]
+                    if (output == 0) latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
+
                     if (singleBaseCell) {
                         arr[node.depth] = output
-                        if (output == 0) return false
+                        if (output == 0) return latestCell
                     }
 
                     // Creating new node & adding to stack
+                    var deadEnd = true
                     for (i in 0 until parameters.rule.numStates) {
                         // Getting i th bit from the output
                         if (output shr i and 1 == 1) {
@@ -585,15 +590,24 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                     }
                                 }
 
-                                if (valid) dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
-                            } else dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
+                                if (valid) {
+                                    dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
+                                    deadEnd = false
+                                }
+                            } else {
+                                dfsStack.add(Node(node, parameters.rule.convertState(i, generation)))
+                                deadEnd = false
+                            }
                         }
+
+                        // Check for a dead end
+                        if (deadEnd) latestCell.coerceAtLeast(fromDepth(node.depth))
                     }
                 }
             }
         }
 
-        return false
+        return latestCell
     }
 
     private fun extraBoundaryCondition(dx: Int, dy: Int, key: Key, node: Node, generation: Int,

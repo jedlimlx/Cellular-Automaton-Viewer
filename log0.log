@@ -194,3 +194,22 @@ INFO: GUI Initialising... in application.controller.MainController initialize
 INFO: GUI Initialising... in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: This rulestring is invalid! in application.controller.dialogs.rule.RuleDialog confirmRule 
+WARNING: null in application.controller.MainController updateCells 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: null in application.controller.MainController updateCells 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
