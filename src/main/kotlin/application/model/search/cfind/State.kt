@@ -4,10 +4,12 @@ import application.model.simulation.Grid
 
 class State(val predecessor: State?, val cells: IntArray, val numStates: Int) {
     var depth = 0
+    var prunedDepth = 0
 
     init {
         if (predecessor != null) {
             depth = predecessor.depth + 1
+            prunedDepth = maxOf(depth, predecessor.prunedDepth)
         }
     }
 

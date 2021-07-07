@@ -103,7 +103,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
         // Creating initial 2 * range * period rows
         var prevState = State(null, IntArray(parameters.width) { 0 }, parameters.rule.numStates)
-        val bfsQueue: ArrayDeque<State> = ArrayDeque(2 * range * parameters.period)
+        var bfsQueue: ArrayDeque<State> = ArrayDeque(2 * range * parameters.period)
         for (i in 0..2 * range * parameters.period) {  // Initialise 2Rp empty rows
             prevState = State(prevState, IntArray(parameters.width) { 0 }, parameters.rule.numStates)
         }
@@ -173,19 +173,23 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
             if (!parameters.stdin) print("\nBeginning depth-first search round, queue size ${bfsQueue.size} ")
 
-            var deleted = 0  // DFS on all nodes in the BFS queue
-            val dfsStack: ArrayList<State> = ArrayList()
+            var pruned = false
+            val newQueue = ArrayDeque<State>(bfsQueue.size / 50)
+            val dfsStack = ArrayList<State>()
             for (index in 0 until bfsQueue.size) {
                 // Limit depth of DFS
-                val maxDepth = bfsQueue[index - deleted].depth + parameters.minDeepingIncrement
+                val maxDepth = bfsQueue[index].prunedDepth + parameters.minDeepingIncrement
 
                 // DFS is basically BFS but with a stack
                 dfsStack.clear()
-                dfsStack.add(bfsQueue[index - deleted])
+                dfsStack.add(bfsQueue[index])
 
                 do {
                     // The state leads to a dead end
-                    if (dfsStack.isEmpty()) break
+                    if (dfsStack.isEmpty()) {
+                        pruned = true
+                        break
+                    }
 
                     state = dfsStack.removeLast()
 
@@ -212,22 +216,16 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         }
                     }
 
-                    // Check for equivalent states (last 2Rp rows are the same)
-                    statesToCheck = state.getAllPredecessors(2 * range * parameters.period)
-                    hash = statesToCheck.hashCode()
-
-                    if (!transpositionTable.containsKey(hash) || statesToCheck != transpositionTable.get(hash)) {
-                        transpositionTable.put(hash, statesToCheck)
-                        dfsStack.addAll(findSuccessors(state))
-                    }
+                    dfsStack.addAll(findSuccessors(state))
                 } while (state.depth < maxDepth)
 
-                bfsQueue.removeAt(index - deleted++)
-
-                bfsQueue.addAll(dfsStack)
-                deleted -= dfsStack.size
+                if (!pruned) {
+                    bfsQueue[index].prunedDepth = maxDepth
+                    newQueue.addAll(dfsStack)
+                } else pruned = false
             }
 
+            bfsQueue = newQueue
             if (!parameters.stdin) println("-> ${bfsQueue.size}")
         }
     }
