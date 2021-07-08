@@ -4,7 +4,10 @@ import application.model.Coordinate
 import application.model.LRUCache
 import application.model.search.SearchProgram
 import java.io.File
+import java.io.PrintWriter
 import kotlin.math.max
+
+private val outputWriter = PrintWriter(System.out, true)
 
 class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(searchParameters) {
     val parameters = (searchParameters as ShipSearchParameters)
@@ -26,7 +29,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
     override fun search(num: Int) {
         // Print out parameters
-        if (!parameters.stdin) println(
+        if (!parameters.stdin) outputWriter.println(
             "Beginning search for ${parameters.symmetry} width ${parameters.width} " +
                     "${parameters.dy}c/${parameters.period}o ship in ${parameters.rule}...\n"
         )
@@ -123,13 +126,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         var state: State
         var statesToCheck: List<State>
         while (true) {
-            if (!parameters.stdin && !parameters.dfs) println("Beginning breath-first search round...")
-            else if (!parameters.stdin) println("Beginning depth-first search round...")
+            if (!parameters.stdin && !parameters.dfs) outputWriter.println("Beginning breath-first search round...")
+            else if (!parameters.stdin) outputWriter.println("Beginning depth-first search round...")
 
             // BFS
             while (bfsQueue.size < parameters.maxQueueSize) {
                 if (bfsQueue.isEmpty() && !parameters.stdin) {
-                    println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
+                    outputWriter.println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000} seconds, " +
                             "found $count ships.")
                     return
                 } else if (bfsQueue.isEmpty()) return
@@ -142,20 +145,19 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 // Printing out the partial
                 if (!parameters.noPartials && generation == 0 && (++count2 % 15000 == 0 || parameters.stdin)) {
-                    println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
+                    outputWriter.println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
                             state.toRLE(parameters.period, parameters.symmetry))
                 }
 
                 // Ship is complete if last 2Rp rows are empty
                 val output = state.completeShip(2 * range * parameters.period)
                 if (output == 1 && !parameters.stdin) {
-                    println("\nShip found!")
-                    println("x = 0, y = 0, rule = ${parameters.rule}\n" +
+                    outputWriter.println("\nShip found!\nx = 0, y = 0, rule = ${parameters.rule}\n" +
                             state.getPredecessor(generation + 1)!!.
                             toRLE(parameters.period, parameters.symmetry))
 
                     if (++count >= num) {
-                        println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000}" +
+                        outputWriter.println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000}" +
                                 " seconds, found $count ships.")
                         return
                     }
@@ -171,7 +173,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 }
             }
 
-            if (!parameters.stdin) print("\nBeginning depth-first search round, queue size ${bfsQueue.size} ")
+            if (!parameters.stdin) outputWriter.print("\nBeginning depth-first search round, queue size ${bfsQueue.size} ")
 
             var pruned = false
             val newQueue = ArrayDeque<State>(bfsQueue.size / 50)
@@ -197,15 +199,14 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                     generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
 
                     if (parameters.stdin && generation == 0) {
-                        println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
+                        outputWriter.println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
                                 state.toRLE(parameters.period, parameters.symmetry))
                     }
 
                     // Ship is complete if last 2Rp rows are empty
                     val output = state.completeShip(2 * range * parameters.period)
                     if (output == 1 && !parameters.stdin) {
-                        println("\nShip found!")
-                        println("x = 0, y = 0, rule = ${parameters.rule}\n" +
+                        outputWriter.println("\nShip found!\nx = 0, y = 0, rule = ${parameters.rule}\n" +
                                 state.getPredecessor(generation + 1)!!.
                                 toRLE(parameters.period, parameters.symmetry))
 
@@ -226,7 +227,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
             }
 
             bfsQueue = newQueue
-            if (!parameters.stdin) println("-> ${bfsQueue.size}")
+            if (!parameters.stdin) outputWriter.println("-> ${bfsQueue.size}")
         }
     }
 
