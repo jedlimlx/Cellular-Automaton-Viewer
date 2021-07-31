@@ -20,12 +20,18 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
     private var baseCellCount = 0
 
     private var additionalCells = 0
+    private var numBeyondCentralCell = 0
+
+    private lateinit var possibleSuccessor:Array<IntArray>
 
     private lateinit var centralCoordinate: Coordinate
+    private lateinit var beyondCentralCell: IntArray
     private lateinit var extraBoundaryConditions: IntArray
     private lateinit var effectiveNeighbourhood: List<Coordinate>
 
     private lateinit var lookupTable: Array<IntArray>
+    private lateinit var lookupTable2: Array<Array<Node>>
+    private lateinit var lookupTable3: Array<Array<Node>>
 
     override fun search(num: Int) {
         // Print out parameters
@@ -36,6 +42,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
         // Disable lookahead for p1 searches
         if (parameters.period == 1) parameters.lookahead = false
+
+        // Optimisation for generations rules
+        possibleSuccessor = arrayOf(IntArray(parameters.rule.numStates) { it },
+            IntArray(parameters.rule.numStates) { it })
 
         // Obtain range of rule
         range = 0
@@ -72,6 +82,19 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 extraBoundaryConditions[it.x - 1] = max(extraBoundaryConditions[it.x - 1], it.y)
         }
 
+        // How many cells extend beyond the central cell?
+        beyondCentralCell = IntArray(2 * range + 1) { 0 }
+        effectiveNeighbourhood.forEach {
+            if (it.x > 0) {
+                beyondCentralCell[2 * range + it.y]++
+                numBeyondCentralCell++
+            }
+        }
+
+        // Temporarily disable optimisation in cases where it does not work
+        if (numBeyondCentralCell != 0) parameters.lookupTableWidth = 0
+        else if (parameters.rule.alternatingPeriod != 1) parameters.lookupTableWidth = 0
+
         // Check if the neighbourhood has a single base cell (e.g. von neumann)
         baseCellCount = effectiveNeighbourhood.count { it.x == 0 }
         singleBaseCell = baseCellCount == 1
@@ -103,6 +126,319 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 count
             }
         }
+
+        // Constructing another lookup table
+        outputWriter.println("Generating lookup table...")
+        lookupTable2 = Array(pow(parameters.rule.numStates, (2 * range + 1) * parameters.lookupTableWidth -
+                centralCoordinate.x + numBeyondCentralCell)) { h ->
+            val generation = 0
+
+            val finalNodes = ArrayList<Node>()
+            val dfsStack = ArrayList<Node>()
+            dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
+
+            var index = 0
+            val string = h.toString(parameters.rule.numStates).padStart(
+                (2 * range + 1) * parameters.lookupTableWidth - centralCoordinate.x
+                        + numBeyondCentralCell, '0'
+            )
+            val key = Key(Array(2 * range + 1) { i ->
+                IntArray(parameters.lookupTableWidth + beyondCentralCell.maxOrNull()!!) { j ->
+                    if (i < 2 * range && j < parameters.lookupTableWidth + beyondCentralCell[2 * range - i - 1])
+                        string[string.length - 1 - index++].code - '0'.code
+                    else if (i == 2 * range && j < parameters.lookupTableWidth + centralCoordinate.x)
+                        string[string.length - 1 - index++].code - '0'.code
+                    else 100
+                }
+            }, parameters, centralCoordinate, beyondCentralCell)
+
+            val cache = Array(parameters.width + 1) {
+                IntArray(pow(parameters.rule.numStates, baseCellCount - 1)) { -1 }
+            }
+
+            var node: Node
+            var hash: Int
+            while (dfsStack.isNotEmpty()) {
+                node = dfsStack.removeLast()
+                if (node.depth == parameters.lookupTableWidth) finalNodes.add(node)
+                else {
+                    // Checking for the special optimisation
+                    if (cache[node.depth][node.actualHash] != -1) {
+                        val output = cache[node.depth][node.actualHash]
+                        for (i in 0 until parameters.rule.numStates) {
+                            // Getting i th bit from the output
+                            if (output shr i and 1 == 1) {
+                                dfsStack.add(Node(
+                                    node,
+                                    parameters.rule.convertState(i, generation),
+                                    parameters.rule.numStates,
+                                    baseCellCount
+                                ))
+                            }
+                        }
+
+                        continue
+                    }
+
+                    // Compute possible next nodes
+                    var cellState: Int
+                    var nextState: Int
+                    if (node.depth + centralCoordinate.x >= 0) {
+                        cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
+                        nextState = key.key[2 * range][node.depth + centralCoordinate.x]
+                        if (nextState == -1)
+                            nextState = getNeighbour(Coordinate(centralCoordinate.x, 0), key, node,
+                                node.depth, generation, parameters.symmetry)
+                    } else {
+                        cellState = 0
+                        nextState = 0
+                    }
+
+                    // Convert based on the background
+                    cellState = parameters.rule.convertState(cellState, generation)
+                    nextState = parameters.rule.convertState(nextState, generation + 1)
+
+                    // Obtain the next node
+                    val possibleNextState = parameters.rule.dependsOnNeighbours(cellState, generation, Coordinate())
+                    if (possibleNextState != -1) {
+                        if (possibleNextState == nextState) {
+                            // Creating new node & adding to stack
+                            for (i in 0 until parameters.rule.numStates) {
+                                if (node.depth == 0) {
+                                    var valid = true
+
+                                    // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                    for (j in extraBoundaryConditions.indices) {
+                                        if (extraBoundaryConditions[j] == 0) continue
+                                        if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
+                                                Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                                parameters.symmetry)) {
+                                            valid = false  // Boundary condition not satisfied
+                                            break
+                                        }
+                                    }
+
+                                    if (valid) dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                } else dfsStack.add(Node(
+                                    node,
+                                    parameters.rule.convertState(i, generation),
+                                    parameters.rule.numStates,
+                                    baseCellCount
+                                ))
+                            }
+                        }
+                    } else {
+                        hash = getHash(key, node, node.depth, generation, parameters.symmetry)
+                        hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                        if (nextState != -1)
+                            hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
+
+                        // Adding to special optimisation cache
+                        val output = lookupTable[generation][hash]
+                        cache[node.depth][node.actualHash] = output
+
+                        // Creating new node & adding to stack
+                        for (i in 0 until parameters.rule.numStates) {
+                            // Getting i th bit from the output
+                            if (output shr i and 1 == 1) {
+                                if (node.depth == 0) {
+                                    var valid = true
+
+                                    // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                    for (j in extraBoundaryConditions.indices) {
+                                        if (extraBoundaryConditions[j] == 0) continue
+                                        if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
+                                                Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                                parameters.symmetry)) {
+                                            valid = false  // Boundary condition not satisfied
+                                            cache[node.depth][node.actualHash] -= pow(2, i)
+                                            break
+                                        }
+                                    }
+
+                                    if (valid) dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                } else dfsStack.add(Node(
+                                    node,
+                                    parameters.rule.convertState(i, generation),
+                                    parameters.rule.numStates,
+                                    baseCellCount
+                                ))
+                            }
+                        }
+                    }
+                }
+            }
+
+            //if (h % 100000 == 0) println(h)
+            finalNodes.toTypedArray()
+        }
+        outputWriter.println("Completed successor lookup table!")
+
+        lookupTable3 = Array(pow(parameters.rule.numStates, (2 * range + 1) * parameters.lookupTableWidth
+                - centralCoordinate.x + numBeyondCentralCell)) { h ->
+            val generation = 0
+            var latestCell = 0
+
+            val finalNodes = ArrayList<Node>()
+            val dfsStack = ArrayList<Node>()
+            dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
+
+            var index = 0
+            val string = h.toString(parameters.rule.numStates).padStart(
+                (2 * range + 1) * parameters.lookupTableWidth - centralCoordinate.x
+                        + numBeyondCentralCell, '0'
+            )
+            val key = Key(Array(2 * range + 1) { i ->
+                IntArray(parameters.lookupTableWidth + beyondCentralCell.maxOrNull()!!) { j ->
+                    if (i < 2 * range && j < parameters.lookupTableWidth + beyondCentralCell[2 * range - i - 1])
+                        string[string.length - 1 - index++].code - '0'.code
+                    else if (i == 2 * range && j < parameters.lookupTableWidth + centralCoordinate.x)
+                        string[string.length - 1 - index++].code - '0'.code
+                    else 100
+                }
+            }, parameters, centralCoordinate, beyondCentralCell)
+
+            val cache = Array(parameters.width + 1) {
+                BooleanArray(pow(parameters.rule.numStates, baseCellCount - 1)) { false }
+            }
+
+            var node: Node
+            var hash: Int
+            while (dfsStack.isNotEmpty()) {
+                node = dfsStack.removeLast()
+                if (cache[node.depth][node.actualHash]) continue
+                else cache[node.depth][node.actualHash] = true
+
+                if (node.depth == parameters.lookupTableWidth) finalNodes.add(node)
+                else {
+                    // Compute possible next nodes
+                    var cellState: Int
+                    var nextState: Int
+                    if (node.depth + centralCoordinate.x >= 0) {
+                        cellState = key.key[-centralCoordinate.y - 1][node.depth + centralCoordinate.x]
+                        nextState = key.key[2 * range][node.depth + centralCoordinate.x]
+                        if (nextState == -1)
+                            nextState = getNeighbour(Coordinate(centralCoordinate.x, 0), key, node,
+                                node.depth, generation, parameters.symmetry)
+                    } else {
+                        cellState = 0
+                        nextState = 0
+                    }
+
+                    // Convert based on the background
+                    cellState = parameters.rule.convertState(cellState, generation)
+                    nextState = parameters.rule.convertState(nextState, generation + 1)
+
+                    // Obtain the next node
+                    val possibleNextState = parameters.rule.dependsOnNeighbours(cellState, generation, Coordinate())
+                    if (possibleNextState != -1) {
+                        if (possibleNextState == nextState) {
+                            // Creating new node & adding to stack
+                            var deadEnd = true
+                            for (i in 0 until parameters.rule.numStates) {
+                                if (node.depth == 0) {
+                                    var valid = true
+
+                                    // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                    for (j in extraBoundaryConditions.indices) {
+                                        if (extraBoundaryConditions[j] == 0) continue
+                                        if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
+                                                Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                                parameters.symmetry)) {
+                                            valid = false  // Boundary condition not satisfied
+                                            break
+                                        }
+                                    }
+
+                                    if (valid) {
+                                        dfsStack.add(Node(
+                                            node,
+                                            parameters.rule.convertState(i, generation),
+                                            parameters.rule.numStates,
+                                            baseCellCount
+                                        ))
+                                        deadEnd = false
+                                    }
+                                } else  {
+                                    dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                    deadEnd = false
+                                }
+                            }
+
+                            if (deadEnd) latestCell = latestCell.coerceAtLeast(node.depth)
+                        } else latestCell = latestCell.coerceAtLeast(node.depth)
+                    } else {
+                        hash = getHash(key, node, node.depth, generation, parameters.symmetry)
+                        hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                        if (nextState != -1)
+                            hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
+
+                        val output = lookupTable[generation][hash]
+
+                        // Creating new node & adding to stack
+                        var deadEnd = true
+                        for (i in 0 until parameters.rule.numStates) {
+                            // Getting i th bit from the output
+                            if (output shr i and 1 == 1) {
+                                if (node.depth == 0) {
+                                    var valid = true
+
+                                    // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                    for (j in extraBoundaryConditions.indices) {
+                                        if (extraBoundaryConditions[j] == 0) continue
+                                        if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
+                                                Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                                parameters.symmetry)) {
+                                            valid = false  // Boundary condition not satisfied
+                                            break
+                                        }
+                                    }
+
+                                    if (valid) {
+                                        dfsStack.add(Node(
+                                            node,
+                                            parameters.rule.convertState(i, generation),
+                                            parameters.rule.numStates,
+                                            baseCellCount
+                                        ))
+                                        deadEnd = false
+                                    }
+                                } else {
+                                    dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                    deadEnd = false
+                                }
+                            }
+                        }
+
+                        if (deadEnd) latestCell = latestCell.coerceAtLeast(node.depth)
+                    }
+                }
+            }
+
+            finalNodes.add(Node(null, latestCell + 1, parameters.rule.numStates, baseCellCount))
+            finalNodes.toTypedArray()
+        }
+        outputWriter.println("Completed lookahead lookup table!\n")
 
         // Creating initial 2 * range * period rows
         var prevState = State(null, IntArray(parameters.width) { 0 }, parameters.rule.numStates)
@@ -240,14 +576,14 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
     }
 
     private fun findSuccessors(state: State): List<State> {
-        // Checking lookup cache
+        // Previous states that need to be checked
         val key = Key(Array(2 * range + 1) {  // Checking lookup table
             if (it == 2 * range) {
                 if (-centralCoordinate.y * parameters.period - parameters.dy - 1 == -1)
                     IntArray(parameters.width) { -1 }
                 else state.getPredecessor(-centralCoordinate.y * parameters.period - parameters.dy - 1)!!.cells
             } else state.getPredecessor((it + 1) * parameters.period - 1)!!.cells
-        })
+        }, parameters, centralCoordinate, beyondCentralCell)
         val key2 = if (parameters.period != 1) {
             Key(Array(2 * range + 1) {
                 if (centralCoordinate.y == -1) {
@@ -269,8 +605,9 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 parameters.dy - 1)!!.cells
                     }
                 }
-            })
+            }, parameters, centralCoordinate, beyondCentralCell)
         } else key
+        val prevState = state.getPredecessor(parameters.dy - 1)
 
         val fill0 = key2.key[0][0] == -1
         val fillSuccessor = key2.key[2 * range][0] == -1
@@ -278,25 +615,29 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
         val successors: ArrayList<State> = ArrayList()
         val dfsStack: ArrayList<Node> = ArrayList(30)
-        dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
+        dfsStack.addAll(lookupTable2[key.lookupHash()])
+        //dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
 
         // Cache optimisation
         val cache = Array(parameters.width + 1) {
             IntArray(pow(parameters.rule.numStates, baseCellCount - 1)) { -1 }
         }
 
-        // Special optimisation for von neumann rules as each cell is independent of the others
-        val arr = Array(parameters.rule.alternatingPeriod) { IntArray(parameters.width) { -1 } }
-
         // Latest cell that must change for lookahead to give a different output
         var latestCell = -1
+        var latestNode = Node(null, 0, 2, 1)
 
         var hash: Int
         var node: Node
         var neighbours: IntArray
         while (dfsStack.isNotEmpty()) {
             node = dfsStack.removeLast()
-            if (latestCell != -1 && node.depth > latestCell) continue
+            if (latestCell != -1 && node.depth > latestCell) {
+                if (node.depth > parameters.lookupTableWidth) continue
+                else if (node.depth - latestCell < 0) continue
+                else if (node.getPredecessor(node.depth - latestCell) == latestNode) continue
+            }
+
             if (node.depth == parameters.width) {
                 // Check boundary conditions
                 var valid = true
@@ -356,15 +697,21 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 if (parameters.lookahead) {
                     latestCell = lookahead(key2, newState, fillSuccessor)
+
                     if (latestCell == -1) successors.add(newState)
+                    else {
+                        latestNode = if (node.depth - latestCell < 0)
+                            Node(null, 0, parameters.rule.numStates, baseCellCount)
+                        else node.getPredecessor(node.depth - latestCell)!!
+                    }
                 }
             } else {
                 latestCell = -1
 
-                // Checking for the special optimsation
-                if (singleBaseCell && arr[generation][node.depth] != -1) {
-                    val output = arr[generation][node.depth]
-                    for (i in 0 until parameters.rule.numStates) {
+                // Checking for the special optimisation
+                if (cache[node.depth][node.actualHash] != -1) {
+                    val output = cache[node.depth][node.actualHash]
+                    for (i in possibleSuccessor[prevState!!.cells[node.depth]]) {
                         // Getting i th bit from the output
                         if (output shr i and 1 == 1) {
                             dfsStack.add(Node(
@@ -402,7 +749,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 if (possibleNextState != -1) {
                     if (possibleNextState == nextState) {
                         // Creating new node & adding to stack
-                        for (i in 0 until parameters.rule.numStates) {
+                        for (i in possibleSuccessor[prevState!!.cells[node.depth]]) {
                             if (node.depth == 0) {
                                 var valid = true
 
@@ -410,7 +757,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 for (j in extraBoundaryConditions.indices) {
                                     if (extraBoundaryConditions[j] == 0) continue
                                     if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
-                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation, parameters.symmetry)) {
+                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                            parameters.symmetry)) {
                                         valid = false  // Boundary condition not satisfied
                                         break
                                     }
@@ -429,25 +777,21 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 baseCellCount
                             ))
                         }
-                    }
+                    } else if (node.predecessor != null)
+                        cache[node.depth - 1][node.predecessor!!.actualHash] -= pow(2, node.cellState)
                 } else {
-                    val output: Int
-                    //println("${node.depth} ${node.actualHash}")
+                    hash = getHash(key, node, node.depth, generation, parameters.symmetry)
+                    hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                    if (nextState != -1)
+                        hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
 
-                    if (cache[node.depth][node.actualHash] != -1) output = cache[node.depth][node.actualHash]
-                    else {
-                        hash = getHash(key, node, node.depth, generation, parameters.symmetry)
-                        hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
-                        if (nextState != -1)
-                            hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
-
-                        // Adding to special optimisation cache
-                        output = lookupTable[generation][hash]
-                        cache[node.depth][node.actualHash] = output
-                    }
+                    // Adding to special optimisation cache
+                    val output = lookupTable[generation][hash]
+                    cache[node.depth][node.actualHash] = output
 
                     // Creating new node & adding to stack
-                    for (i in 0 until parameters.rule.numStates) {
+                    var deadEnd = true
+                    for (i in possibleSuccessor[prevState!!.cells[node.depth]]) {
                         // Getting i th bit from the output
                         if (output shr i and 1 == 1) {
                             if (node.depth == 0) {
@@ -457,26 +801,36 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 for (j in extraBoundaryConditions.indices) {
                                     if (extraBoundaryConditions[j] == 0) continue
                                     if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
-                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation, parameters.symmetry)) {
+                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                            parameters.symmetry)) {
                                         valid = false  // Boundary condition not satisfied
+                                        cache[node.depth][node.actualHash] -= pow(2, i)  // Remove from cache
                                         break
                                     }
                                 }
 
-                                if (valid) dfsStack.add(Node(
+                                if (valid) {
+                                    dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                    deadEnd = false
+                                }
+                            } else {
+                                dfsStack.add(Node(
                                     node,
                                     parameters.rule.convertState(i, generation),
                                     parameters.rule.numStates,
                                     baseCellCount
                                 ))
-                            } else dfsStack.add(Node(
-                                node,
-                                parameters.rule.convertState(i, generation),
-                                parameters.rule.numStates,
-                                baseCellCount
-                            ))
+                                deadEnd = false
+                            }
                         }
                     }
+
+                    if (deadEnd) cache[node.depth - 1][node.predecessor!!.actualHash] -= pow(2, node.cellState)
                 }
             }
         }
@@ -489,7 +843,10 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
         // Initialise the DFS stack
         val dfsStack: ArrayList<Node> = ArrayList(30)
-        dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
+        dfsStack.addAll(lookupTable3[key.lookupHash()])
+        //dfsStack.add(Node(null, 0, parameters.rule.numStates, baseCellCount))
+
+        var node: Node
 
         // Cache optimisation
         val cache = Array(parameters.width + 1) {
@@ -497,14 +854,13 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         }
 
         // Take note of the latest cell that must change for the outcome to be different
-        var latestCell = -1
+        var latestCell = dfsStack.removeLast().cellState
         val fromDepth = { x: Int ->
             if (isSuccessor) x
             else x + additionalCells
         }
 
         var hash: Int
-        var node: Node
         var neighbours: IntArray
         while (dfsStack.isNotEmpty()) {
             node = dfsStack.removeLast()
@@ -576,6 +932,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 if (possibleNextState != -1) {
                     if (possibleNextState == nextState) {
                         // Creating new node & adding to stack
+                        var deadEnd = true
                         for (i in 0 until parameters.rule.numStates) {
                             if (node.depth == 0) {
                                 var valid = true
@@ -584,49 +941,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                                 for (j in extraBoundaryConditions.indices) {
                                     if (extraBoundaryConditions[j] == 0) continue
                                     if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
-                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation, parameters.symmetry)) {
-                                        valid = false  // Boundary condition not satisfied
-                                        break
-                                    }
-                                }
-
-                                if (valid) dfsStack.add(Node(
-                                    node,
-                                    parameters.rule.convertState(i, generation),
-                                    parameters.rule.numStates,
-                                    baseCellCount
-                                ))
-                            } else dfsStack.add(Node(
-                                node,
-                                parameters.rule.convertState(i, generation),
-                                parameters.rule.numStates,
-                                baseCellCount
-                            ))
-                        }
-                    } else latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
-                } else {
-                    hash = getHash(key, node, node.depth, generation, parameters.symmetry)
-                    hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
-                    if (nextState != -1)
-                        hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
-
-                    // Getting successor states
-                    val output = lookupTable[generation][hash]
-                    if (output == 0) latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
-
-                    // Creating new node & adding to stack
-                    var deadEnd = true
-                    for (i in 0 until parameters.rule.numStates) {
-                        // Getting i th bit from the output
-                        if (output shr i and 1 == 1) {
-                            if (node.depth == 0) {
-                                var valid = true
-
-                                // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
-                                for (j in extraBoundaryConditions.indices) {
-                                    if (extraBoundaryConditions[j] == 0) continue
-                                    if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
-                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation, parameters.symmetry)) {
+                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                            parameters.symmetry)) {
                                         valid = false  // Boundary condition not satisfied
                                         break
                                     }
@@ -652,9 +968,60 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                             }
                         }
 
-                        // Check for a dead end
-                        if (deadEnd) latestCell.coerceAtLeast(fromDepth(node.depth))
+                        if (deadEnd) latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
+                    } else latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
+                } else {
+                    hash = getHash(key, node, node.depth, generation, parameters.symmetry)
+                    hash += cellState * pow(parameters.rule.numStates, effectiveNeighbourhood.size)
+                    if (nextState != -1)
+                        hash += nextState * pow(parameters.rule.numStates, effectiveNeighbourhood.size - 1)
+
+                    // Getting successor states
+                    val output = lookupTable[generation][hash]
+                    if (output == 0) latestCell = latestCell.coerceAtLeast(fromDepth(node.depth))
+
+                    // Creating new node & adding to stack
+                    var deadEnd = true
+                    for (i in 0 until parameters.rule.numStates) {
+                        // Getting i th bit from the output
+                        if (output shr i and 1 == 1) {
+                            if (node.depth == 0) {
+                                var valid = true
+
+                                // Enforcing some extra boundary conditions for neighbourhoods such as von neumann
+                                for (j in extraBoundaryConditions.indices) {
+                                    if (extraBoundaryConditions[j] == 0) continue
+                                    if (!extraBoundaryCondition(-j - 2, -extraBoundaryConditions[j], key,
+                                            Node(node, i, parameters.rule.numStates, baseCellCount), generation,
+                                            parameters.symmetry)) {
+                                        valid = false  // Boundary condition not satisfied
+                                        break
+                                    }
+                                }
+
+                                if (valid) {
+                                    dfsStack.add(Node(
+                                        node,
+                                        parameters.rule.convertState(i, generation),
+                                        parameters.rule.numStates,
+                                        baseCellCount
+                                    ))
+                                    deadEnd = false
+                                }
+                            } else {
+                                dfsStack.add(Node(
+                                    node,
+                                    parameters.rule.convertState(i, generation),
+                                    parameters.rule.numStates,
+                                    baseCellCount
+                                ))
+                                deadEnd = false
+                            }
+                        }
                     }
+
+                    // Check for a dead end
+                    if (deadEnd) latestCell.coerceAtLeast(fromDepth(node.depth))
                 }
             }
         }
@@ -690,6 +1057,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         var hash = 0
         var state: Int
         effectiveNeighbourhood.forEachIndexed { index, coordinate ->
+            //println("$coordinate $depth")
             state = getNeighbour(coordinate, key, node, depth, generation, symmetry, false)
             if (state != -1)
                 hash += state * pow(parameters.rule.numStates, index - if (index > indexOfUnknown) 1 else 0)
@@ -733,7 +1101,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
 class Node(val predecessor: Node?, val cellState: Int, val numStates: Int, baseCellCount: Int) {
     var depth = 0
-        private set
+    val hash: Int
     var actualHash = 0
         private set
 
@@ -741,6 +1109,7 @@ class Node(val predecessor: Node?, val cellState: Int, val numStates: Int, baseC
         if (predecessor != null) {
             depth = predecessor.depth + 1
 
+            hash = predecessor.hash + cellState * pow(numStates, depth)
             var predecessor: Node = this
             for (i in 0 until baseCellCount - 1) {
                 actualHash += predecessor.cellState * pow(numStates, i)
@@ -749,6 +1118,7 @@ class Node(val predecessor: Node?, val cellState: Int, val numStates: Int, baseC
                 } else break
             }
         } else {
+            hash = 0
             actualHash = 0
         }
     }
@@ -758,9 +1128,43 @@ class Node(val predecessor: Node?, val cellState: Int, val numStates: Int, baseC
         if (n == 1) return predecessor
         return predecessor?.getPredecessor(n - 1)
     }
+
+    override fun hashCode(): Int {
+        return hash
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Node
+
+        if (depth != other.depth) return false
+        if (hash != other.hash) return false
+
+        return true
+    }
 }
 
-class Key(val key: Array<IntArray>) {
+class Key(val key: Array<IntArray>, val parameters: ShipSearchParameters,
+          val centralCoordinate: Coordinate, val beyondCentralCell: IntArray) {
+    fun lookupHash(): Int {
+        var hash = 0
+        var index = 0
+        for (i in key.indices) {
+            for (j in 0 until parameters.lookupTableWidth + beyondCentralCell.maxOrNull()!!) {
+                if (i < key.size - 1 && j < parameters.lookupTableWidth +
+                    beyondCentralCell[beyondCentralCell.size - i - 2])
+                    hash += key[i][j] * pow(parameters.rule.numStates, index++)
+                else if (i == key.size - 1 && j < parameters.lookupTableWidth + centralCoordinate.x)
+                    hash += key[i][j] * pow(parameters.rule.numStates, index++)
+                else break
+            }
+        }
+
+        return hash
+    }
+
     override fun hashCode(): Int {
         return key.contentHashCode()
     }

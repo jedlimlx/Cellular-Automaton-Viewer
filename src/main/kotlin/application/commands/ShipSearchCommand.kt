@@ -74,9 +74,9 @@ class ShipSearchCommand : Runnable {
 
     @CommandLine.Option(
         names = ["-l", "--lookup"],
-        description = ["The maximum size of the lookup table (default: 1000000, " +
-                "larger values results in faster search but more memory-consumption)"],
-        defaultValue = "10000"
+        description = ["The width of the lookup table (default: 5, " +
+                "larger values results in faster search but consume more memory)"],
+        defaultValue = "4"
     )
     private var lookupTableSize = 0
 
