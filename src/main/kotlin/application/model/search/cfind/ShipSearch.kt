@@ -44,8 +44,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         if (parameters.period == 1) parameters.lookahead = false
 
         // Optimisation for generations rules
-        possibleSuccessor = arrayOf(IntArray(parameters.rule.numStates) { it },
-            IntArray(parameters.rule.numStates) { it })
+        possibleSuccessor = Array(parameters.rule.numStates) { IntArray(parameters.rule.numStates) { it } }
 
         // Obtain range of rule
         range = 0
