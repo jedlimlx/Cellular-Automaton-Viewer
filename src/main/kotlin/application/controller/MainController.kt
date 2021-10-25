@@ -1100,20 +1100,20 @@ class MainController {
             reloadStateButtons()
 
             // Re-render all the cells
-            if (colours[dialog.rule] != null) {
-                scrollPane.style = "-fx-background: rgb(${colours[dialog.rule]!![0].red * 255}," +
-                        "${colours[dialog.rule]!![0].green * 255}," +
-                        "${colours[dialog.rule]!![0].blue * 255})"
-                drawingPane.style = "-fx-background: rgb(${colours[dialog.rule]!![0].red * 255}," +
-                        "${colours[dialog.rule]!![0].green * 255}," +
-                        "${colours[dialog.rule]!![0].blue * 255})"
+            if (colours[dialog.rule!!] != null) {
+                scrollPane.style = "-fx-background: rgb(${colours[dialog.rule!!]!![0].red * 255}," +
+                        "${colours[dialog.rule!!]!![0].green * 255}," +
+                        "${colours[dialog.rule!!]!![0].blue * 255})"
+                drawingPane.style = "-fx-background: rgb(${colours[dialog.rule!!]!![0].red * 255}," +
+                        "${colours[dialog.rule!!]!![0].green * 255}," +
+                        "${colours[dialog.rule!!]!![0].blue * 255})"
             } else {
-                scrollPane.style = "-fx-background: rgb(${dialog.rule.getColour(0).red * 255}," +
-                        "${dialog.rule.getColour(0).green * 255}," +
-                        "${dialog.rule.getColour(0).blue * 255})"
-                drawingPane.style = "-fx-background: rgb(${dialog.rule.getColour(0).red * 255},${
-                        dialog.rule.getColour(0).green * 255},${
-                        dialog.rule.getColour(0).blue * 255})"
+                scrollPane.style = "-fx-background: rgb(${dialog.rule!!.getColour(0).red * 255}," +
+                        "${dialog.rule!!.getColour(0).green * 255}," +
+                        "${dialog.rule!!.getColour(0).blue * 255})"
+                drawingPane.style = "-fx-background: rgb(${dialog.rule!!.getColour(0).red * 255},${
+                        dialog.rule!!.getColour(0).green * 255},${
+                        dialog.rule!!.getColour(0).blue * 255})"
             }
             renderCells()
 
@@ -1370,7 +1370,7 @@ class MainController {
 
             // Check if the operation was cancelled
             if (gifferDialog.result === java.lang.Boolean.FALSE) return
-            giffer = gifferDialog.giffer
+            giffer = gifferDialog.giffer!!
         }
 
         recording = !recording
