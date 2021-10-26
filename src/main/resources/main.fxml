@@ -82,7 +82,7 @@
                 <Tooltip text="Run Simulation" />
             </tooltip>
         </Button>
-      <Button fx:id="simInsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation1">
+        <Button fx:id="simInsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation1">
          <graphic>
             <ImageView fx:id="playButtonImage1" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -94,7 +94,7 @@
             <Tooltip text="Simulate within selection" />
          </tooltip>
       </Button>
-      <Button fx:id="simOutsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation2">
+        <Button fx:id="simOutsideSelectionButton" mnemonicParsing="false" onAction="#toggleSimulation2">
          <graphic>
             <ImageView fx:id="playButtonImage2" fitHeight="17.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -106,7 +106,7 @@
             <Tooltip text="Simulate outside selection" />
          </tooltip>
       </Button>
-        <Button mnemonicParsing="false" onAction="#drawingMode">
+        <Button fx:id="drawButton" mnemonicParsing="false" onAction="#drawingMode">
             <graphic>
                 <ImageView fx:id="drawingMode" fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/PaintBrush.png" />
@@ -116,7 +116,7 @@
                 <Tooltip text="Draw Cells" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#panMode">
+        <Button fx:id="panButton" mnemonicParsing="false" onAction="#panMode">
             <font>
                 <Font size="12.0" />
             </font>
@@ -129,7 +129,7 @@
                 <Tooltip text="Pan" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#selectionMode">
+        <Button fx:id="selectionButton" mnemonicParsing="false" onAction="#selectionMode">
             <graphic>
                 <ImageView fitHeight="17.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/SelectionIcon.png" />
@@ -141,7 +141,7 @@
         </Button>
     </ToolBar>
     <ToolBar fx:id="secondaryToolbar">
-        <Button mnemonicParsing="false" onAction="#generateRandomSoup">
+        <Button fx:id="randomSoupButton" mnemonicParsing="false" onAction="#generateRandomSoup">
             <graphic>
                 <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/RandomSoupIcon.png" />
@@ -151,7 +151,7 @@
                 <Tooltip text="Generate Random Soup" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#flipHorizontalHandler">
+        <Button fx:id="flipHorizontalButton" mnemonicParsing="false" onAction="#flipHorizontalHandler">
             <graphic>
                 <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipHorizontalHandler" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/FlipHorizontal.png" />
@@ -161,7 +161,7 @@
                 <Tooltip text="Flip Horizontally" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#flipVerticalHandler">
+        <Button fx:id="flipVerticalButton" mnemonicParsing="false" onAction="#flipVerticalHandler">
             <graphic>
                 <ImageView fitHeight="15.0" fitWidth="200.0" onDragDetected="#flipVerticalHandler" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/FlipVertical.png" />
@@ -171,7 +171,7 @@
                 <Tooltip text="Flip Vertically" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#rotateCWHandler">
+        <Button fx:id="rotateCWButton" mnemonicParsing="false" onAction="#rotateCWHandler">
             <graphic>
                 <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/RotateCW.png" />
@@ -181,7 +181,7 @@
                 <Tooltip text="Rotate Clockwise" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#rotateCCWHandler">
+        <Button fx:id="rotateCCWButton" mnemonicParsing="false" onAction="#rotateCCWHandler">
             <graphic>
                 <ImageView fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/RotateCCW.png" />
@@ -191,7 +191,7 @@
                 <Tooltip text="Rotate Counter-Clockwise" />
             </tooltip>
         </Button>
-      <Button mnemonicParsing="false" onAction="#decreaseStepSize">
+        <Button fx:id="decreaseStepSizeButton" mnemonicParsing="false" onAction="#decreaseStepSize">
          <graphic>
             <ImageView fx:id="playButtonImage211" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -203,7 +203,7 @@
             <Tooltip text="Decrease Step Size" />
          </tooltip>
       </Button>
-      <Button mnemonicParsing="false" onAction="#increaseStepSize">
+        <Button fx:id="increaseStepSizeButton" mnemonicParsing="false" onAction="#increaseStepSize">
          <graphic>
             <ImageView fx:id="playButtonImage21" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -215,7 +215,7 @@
             <Tooltip text="Increase Step Size" />
          </tooltip>
       </Button>
-        <Button mnemonicParsing="false" onAction="#toggleRecording">
+        <Button fx:id="toggleRecordingButton" mnemonicParsing="false" onAction="#toggleRecording">
             <graphic>
                 <ImageView fx:id="recordingImage" fitHeight="15.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@icon/RecordLogo.png" />
@@ -225,7 +225,7 @@
                 <Tooltip text="Record Pattern to *.gif" />
             </tooltip>
         </Button>
-        <Button mnemonicParsing="false" onAction="#identifySelection" text="?">
+        <Button fx:id="identifyButton" mnemonicParsing="false" onAction="#identifySelection" text="?">
             <font>
                 <Font size="12.0" />
             </font>

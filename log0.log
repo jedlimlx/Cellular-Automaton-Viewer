@@ -3,3 +3,16 @@ WARNING: Unexpected token (END_OBJECT), expected FIELD_NAME: missing property '@
  at [Source: java.io.StringReader@594345d4; line: 1, column: 412] in application.controller.MainController initialize 
 INFO: GUI Initialising... in application.controller.MainController initialize 
 WARNING: settings.json (The system cannot find the file specified) in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+WARNING: null in application.controller.MainController updateCells 
+INFO: GUI Initialising... in application.controller.MainController initialize 
+INFO: GUI Initialising... in application.controller.MainController initialize 
