@@ -75,10 +75,21 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         centralCoordinate = Coordinate().subtract(coordinateOfUnknown)
 
         // What extra boundary conditions are necessary?
-        extraBoundaryConditions = IntArray(range + centralCoordinate.x) { -100 }
+        val rightmost = IntArray(2 * range + 1)
         effectiveNeighbourhood.forEach {
-            if (it.x > 0 && it.y < 0)
-                extraBoundaryConditions[it.x - 1] = max(extraBoundaryConditions[it.x - 1], it.y)
+            rightmost[-it.y] = max(rightmost[-it.y], it.x)
+        }
+
+        extraBoundaryConditions = IntArray(2 * range) { 0 }
+
+        var maxSoFar = rightmost[0]
+        rightmost.forEachIndexed { index: Int, it: Int ->
+            if (index > 0) {
+                if (it > maxSoFar) {
+                    extraBoundaryConditions[index - 1] = -index
+                    maxSoFar = it
+                } else extraBoundaryConditions[index - 1] = 0
+            }
         }
 
         // How many cells extend beyond the central cell?

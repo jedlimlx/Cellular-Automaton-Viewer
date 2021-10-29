@@ -43,32 +43,32 @@ import kotlin.system.exitProcess
 @CommandLine.Command(name = "db", aliases = ["database"], description = ["Queries the GliderDB database"])
 class DBCommand : Runnable {
     @CommandLine.Option(names = ["-db", "--database"], description = ["The database file"], required = true)
-    private val file: File? = null
+    private var file: File? = null
 
     @CommandLine.Option(names = ["-p", "--period"], description = ["The period of the ship"], defaultValue = "-1")
-    private val period = 0
+    private var period = 0
 
     @CommandLine.Option(names = ["-dx"], description = ["The x displacement of the ship"], defaultValue = "-1")
-    private val dx = 0
+    private var dx = 0
 
     @CommandLine.Option(names = ["-dy"], description = ["The y displacement of the ship"], defaultValue = "-1")
-    private val dy = 0
+    private var dy = 0
 
     @CommandLine.Option(names = ["-min", "--min_rule"], description = ["The minimum rule"], defaultValue = "")
-    private val minRule: String? = null
+    private var minRule: String? = null
 
     @CommandLine.Option(names = ["-max", "--max_rule"], description = ["The maximum rule"], defaultValue = "")
-    private val maxRule: String? = null
+    private var maxRule: String? = null
 
     @CommandLine.Option(
         names = ["-sort", "--sort"],
         description = ["Sort by [period, slope, population]"],
         defaultValue = ""
     )
-    private val sort: String? = null
+    private var sort: String? = null
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         var minRule: RuleFamily?

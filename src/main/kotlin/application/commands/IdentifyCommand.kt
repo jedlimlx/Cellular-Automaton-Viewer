@@ -48,17 +48,17 @@ class IdentifyCommand : Runnable {
         description = ["Input file containing pattern to be identified"],
         required = true
     )
-    private val inputFile: File? = null
+    private var inputFile: File? = null
 
     @CommandLine.Option(
         names = ["-m", "-g", "--max_period"],
         defaultValue = "50",
         description = ["Number of generations to run the pattern"]
     )
-    private val maxPeriod = 0
+    private var maxPeriod = 0
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
     override fun run() {
         try {
             // Initialise the Simulator

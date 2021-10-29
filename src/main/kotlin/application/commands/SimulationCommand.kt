@@ -48,17 +48,17 @@ class SimulationCommand : Runnable {
         description = ["Input file containing pattern to be simulated"],
         required = true
     )
-    private val inputFile: File? = null
+    private var inputFile: File? = null
 
     @CommandLine.Option(names = ["-o", "--out"], description = ["Output file for the pattern."], required = true)
-    private val outputFile: File? = null
+    private var outputFile: File? = null
 
     @CommandLine.Option(
         names = ["-m", "-g", "--generation"],
         description = ["Number of generations to run the pattern"],
         required = true
     )
-    private val generations = 0
+    private var generations = 0
 
     @CommandLine.Option(
         names = ["-s", "--step"],
@@ -66,10 +66,10 @@ class SimulationCommand : Runnable {
         description = ["Patterns will be printed to the console every step size generations " +
                 "(default: 1)"]
     )
-    private val stepSize = 0
+    private var stepSize = 0
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     private var startingCoordinate: Coordinate? = null
     private val rleFinal = StringBuilder()

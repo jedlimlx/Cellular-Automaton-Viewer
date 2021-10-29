@@ -52,7 +52,7 @@ class DBEntryCommand : Runnable {
         description = ["Input file containing pattern to be simulated"],
         required = true
     )
-    private val inputFile: File? = null
+    private var inputFile: File? = null
 
     override fun run() {
         try {

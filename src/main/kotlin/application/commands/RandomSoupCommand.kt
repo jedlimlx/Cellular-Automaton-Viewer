@@ -43,44 +43,44 @@ class RandomSoupCommand : Runnable {
         names = ["-n", "--num"], description = ["The number of soups to generate " +
                 "(default: -1, generate soups forever)"], defaultValue = "-1"
     )
-    private val num = 0
+    private var num = 0
 
     @CommandLine.Option(
         names = ["-d", "--density"],
         description = ["The density of the random soup (default: 50)"],
         defaultValue = "50"
     )
-    private val density = 0
+    private var density = 0
 
     @CommandLine.Option(
         names = ["-x", "--width"],
         description = ["The width of the random soup (default: 16)"],
         defaultValue = "16"
     )
-    private val x = 0
+    private var x = 0
 
     @CommandLine.Option(
         names = ["-y", "--height"],
         description = ["The height of the random soup (default: 16)"],
         defaultValue = "16"
     )
-    private val y = 0
+    private var y = 0
 
     @CommandLine.Option(
         names = ["-s", "--symmetry"], description = ["The symmetry of the random soup. " +
                 "[C1, D2-, D4+] (default: C1)"], defaultValue = "C1"
     )
-    private val symmetry: String? = null
+    private var symmetry: String? = null
 
     @CommandLine.Option(
         names = ["-S", "--states"],
         description = ["The states to include in the random soup (default: 1)"],
         defaultValue = "1"
     )
-    private val states: IntArray = intArrayOf(0)
+    private var states: IntArray = intArrayOf(0)
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
     override fun run() {
         if (num == -1) {
             while (true) {

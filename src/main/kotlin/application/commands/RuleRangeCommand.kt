@@ -48,17 +48,17 @@ class RuleRangeCommand : Runnable {
         names = ["-i", "--input"], description = ["Input file containing pattern whose " +
                 "rule range is to be computed"], required = true
     )
-    private val inputFile: File? = null
+    private var inputFile: File? = null
 
     @CommandLine.Option(
         names = ["-m", "-g", "--generations"],
         defaultValue = "0",
         description = ["Number of generations to run the pattern (default: 0)"]
     )
-    private val generations = 0
+    private var generations = 0
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         try {

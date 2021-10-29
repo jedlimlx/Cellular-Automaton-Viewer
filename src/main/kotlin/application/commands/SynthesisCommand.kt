@@ -48,31 +48,31 @@ class SynthesisCommand : Runnable {
         names = ["-n", "--num"], description = ["The number of ships to generate " +
                 "(default: 25)"], defaultValue = "20"
     )
-    private val num = 0
+    private var num = 0
 
     @CommandLine.Option(
         names = ["-x", "--width"],
         description = ["The width of the area where ships are generated (default: 50)"],
         defaultValue = "50"
     )
-    private val x = 0
+    private var x = 0
 
     @CommandLine.Option(
         names = ["-y", "--height"],
         description = ["The height of the area where ships are generated (default: 50)"],
         defaultValue = "50"
     )
-    private val y = 0
+    private var y = 0
 
     @CommandLine.Option(
         names = ["-s", "--ships"],
         description = ["The ships to include in the random configuration"],
         required = true
     )
-    private val ships: Array<File> = arrayOf()
+    private var ships: Array<File> = arrayOf()
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         try {

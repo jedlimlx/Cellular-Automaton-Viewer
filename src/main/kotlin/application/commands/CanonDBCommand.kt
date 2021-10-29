@@ -41,13 +41,13 @@ import kotlin.system.exitProcess
 @CommandLine.Command(name = "canon", aliases = ["canonise"], description = ["Canonises a GliderDB database"])
 class CanonDBCommand : Runnable {
     @CommandLine.Option(names = ["-db", "--database"], description = ["The database file"], required = true)
-    private val databaseFile: File? = null
+    private var databaseFile: File? = null
 
     @CommandLine.Option(names = ["-out", "--output"], description = ["The output file"], required = true)
-    private val outputFile: File? = null
+    private var outputFile: File? = null
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         try {

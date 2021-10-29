@@ -42,27 +42,27 @@ import kotlin.system.exitProcess
 @CommandLine.Command(name = "5s", aliases = ["sssss"], description = ["Queries the 5S / SOSSP database"])
 class SSSCommand : Runnable {
     @CommandLine.Option(names = ["-v", "--velocity"], description = ["Velocity of the ship"])
-    private val velocity: String? = null
+    private var velocity: String = ""
 
     @CommandLine.Option(names = ["-p", "--period"], description = ["Period of the oscillator"], defaultValue = "0")
-    private val period = 0
+    private var period = 0
 
     @CommandLine.Option(names = ["-db", "--database"], description = ["The database file"], required = true)
-    private val databaseFile: File? = null
+    private var databaseFile: File? = null
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         try {
-            if (period == 0 && velocity == null) {
+            if (period == 0 && velocity == "") {
                 System.err.println("Either period or velocity must be specified")
             } else if (period == 0) {
                 val reader = SSSSSReader(databaseFile)
                 val period: Int
                 val dx: Int
                 var dy = 0
-                if (velocity!!.endsWith("o")) {
+                if (velocity.endsWith("o")) {
                     val regex = "(\\d+)?c/(\\d+)o"
                     dx = try {
                         Utils.matchRegex("(\\d+)c/\\d+o", velocity, 0, 1).toInt()

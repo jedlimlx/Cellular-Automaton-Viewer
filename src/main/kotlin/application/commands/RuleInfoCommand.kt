@@ -45,10 +45,10 @@ import kotlin.system.exitProcess
 )
 class RuleInfoCommand : Runnable {
     @CommandLine.Option(names = ["-r", "--rulestring"], description = ["Rulestring of the rule"], required = true)
-    private val ruleString: String? = null
+    private var ruleString: String? = null
 
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
-    private val help = false
+    private var help = false
 
     override fun run() {
         val info = Utils.fromRulestring(ruleString).ruleInfo
