@@ -515,7 +515,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
 
                 if (!transpositionTable.containsKey(hash) || statesToCheck != transpositionTable.get(hash)) {
                     transpositionTable.put(hash, statesToCheck)
-                    bfsQueue.addAll(findSuccessors(state))
+                    bfsQueue.addAll(if (parameters.randomSearchOrder) findSuccessors(state).shuffled() else
+                        findSuccessors(state))
                 }
             }
 
@@ -563,7 +564,8 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                         }
                     }
 
-                    dfsStack.addAll(findSuccessors(state))
+                    dfsStack.addAll(if (parameters.randomSearchOrder) findSuccessors(state).shuffled() else
+                        findSuccessors(state))
                 } while (state.depth < maxDepth)
 
                 if (!pruned) {
@@ -572,6 +574,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
                 } else pruned = false
             }
 
+            // Add the extensions found in the DFS phase back into the BFS queue
             bfsQueue = newQueue
             if (!parameters.stdin) outputWriter.println("-> ${bfsQueue.size}")
         }

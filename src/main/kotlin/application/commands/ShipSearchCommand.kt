@@ -98,6 +98,12 @@ class ShipSearchCommand : Runnable {
     )
     private var partial = false
 
+    @CommandLine.Option(
+        names = ["-rng", "--random"],
+        description = ["Applies a randomised search order. Are you feeling lucky?"]
+    )
+    private var rng = false
+
     @CommandLine.Option(names = ["-h", "--help"], usageHelp = true)
     private var help = false
 
@@ -111,7 +117,7 @@ class ShipSearchCommand : Runnable {
         val shipSearchParameters = ShipSearchParameters(Utils.fromRulestring(rulestring), width, dy, period,
             symmetry, 2.0.pow(maxQueueSize).toLong(),
             if (minDeepeningIncrement == 0) period else minDeepeningIncrement, lookupTableSize,
-            true, stdin, partial, dfs)
+            true, stdin, partial, dfs, rng)
 
         val shipSearch = ShipSearch(shipSearchParameters)
         shipSearch.search(num)

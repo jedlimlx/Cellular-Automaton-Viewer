@@ -10,4 +10,5 @@ data class ShipSearchParameters(val rule: Rule, val width: Int, val dy: Int, val
                                 val minDeepingIncrement: Int = period,
                                 var lookupTableWidth: Int = 4,
                                 var lookahead: Boolean = true, val stdin: Boolean = false,
-                                val noPartials: Boolean = false, val dfs: Boolean = false): SearchParameters()
+                                val noPartials: Boolean = false, val dfs: Boolean = false,
+                                val randomSearchOrder: Boolean = false): SearchParameters()
