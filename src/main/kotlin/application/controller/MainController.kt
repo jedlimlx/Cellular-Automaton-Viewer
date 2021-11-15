@@ -477,15 +477,17 @@ class MainController {
         }
         inputDialog.showAndWait()
 
-        try {
-            simulator.generation = inputDialog.result.toInt()
-            updateStatusText()
-        } catch (exception: NumberFormatException) {
-            // Ensure it's an integer
-            Alert(Alert.AlertType.ERROR).apply {
-                title = "Error!"
-                headerText = inputDialog.result.toString() + " is not a valid integer!"
-            }.showAndWait()
+        if (inputDialog.result != null) {
+            try {
+                simulator.generation = inputDialog.result.toInt()
+                updateStatusText()
+            } catch (exception: NumberFormatException) {
+                // Ensure it's an integer
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Error!"
+                    headerText = inputDialog.result.toString() + " is not a valid integer!"
+                }.showAndWait()
+            }
         }
     }
 
@@ -496,15 +498,18 @@ class MainController {
         inputDialog.title = "Set Step Size:"
         inputDialog.headerText = "Enter the step size:"
         inputDialog.showAndWait()
-        try {
-            stepSize = inputDialog.result.toInt()
-            updateStatusText()
-        } catch (exception: NumberFormatException) {
-            // Ensure it's an integer
-            val alert = Alert(Alert.AlertType.ERROR)
-            alert.title = "Error!"
-            alert.headerText = inputDialog.result.toString() + " is not a valid integer!"
-            alert.showAndWait()
+
+        if (inputDialog.result != null) {
+            try {
+                stepSize = inputDialog.result.toInt()
+                updateStatusText()
+            } catch (exception: NumberFormatException) {
+                // Ensure it's an integer
+                val alert = Alert(Alert.AlertType.ERROR)
+                alert.title = "Error!"
+                alert.headerText = inputDialog.result.toString() + " is not a valid integer!"
+                alert.showAndWait()
+            }
         }
     }
 
@@ -517,14 +522,17 @@ class MainController {
         }
         inputDialog.showAndWait()
 
-        try {
-            minSimTime = 1000 / inputDialog.result.toInt()
-        } catch (exception: NumberFormatException) {
-            // Ensure it's an integer
-            Alert(Alert.AlertType.ERROR).apply {
-                title = "Error!"
-                headerText = inputDialog.result.toString() + " is not a valid integer!"
-            }.showAndWait()
+        // Check if user clicked "Cancel"
+        if (inputDialog.result != null) {
+            try {
+                minSimTime = 1000 / inputDialog.result.toInt()
+            } catch (exception: NumberFormatException) {
+                // Ensure it's an integer
+                Alert(Alert.AlertType.ERROR).apply {
+                    title = "Error!"
+                    headerText = inputDialog.result.toString() + " is not a valid integer!"
+                }.showAndWait()
+            }
         }
     }
 

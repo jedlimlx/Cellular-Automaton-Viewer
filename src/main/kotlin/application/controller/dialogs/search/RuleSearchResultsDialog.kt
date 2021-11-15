@@ -1,64 +1,62 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import javafx.scene.control.MenuItem;
-import application.controller.MainController;
-import application.model.patterns.Pattern;
-import application.model.rules.RuleFamily;
-import application.model.search.SearchProgram;
-import application.model.search.rulesrc.RuleSearchParameters;
-import application.model.simulation.Grid;
+import application.controller.MainController
+import application.model.patterns.Pattern
+import application.model.rules.RuleFamily
+import application.model.search.SearchProgram
+import application.model.search.rulesrc.RuleSearchParameters
+import javafx.event.EventHandler
+import javafx.scene.control.MenuItem
 
-import java.util.Map;
+class RuleSearchResultsDialog(mainController: MainController, searchProgram: SearchProgram):
+    SearchResultsDialog(mainController, searchProgram) {
 
-public class RuleSearchResultsDialog extends SearchResultsDialog {
-    public RuleSearchResultsDialog(MainController mainController, SearchProgram searchProgram) {
-        super(mainController, searchProgram);
-        super.setTitle("Rule Search Results");
+    init {
+        super.setTitle("Rule Search Results")
 
         // Displays the min rule of the pattern in the application
-        MenuItem showMinRule = new MenuItem("Show Min Rule in Application");
-        showMinRule.setOnAction(event -> loadMinRule());
-        menu.getItems().add(1, showMinRule);
+        val showMinRule = MenuItem("Show Min Rule in Application")
+        showMinRule.onAction = EventHandler { loadMinRule() }
+        menu.items.add(1, showMinRule)
 
         // Displays the max rule of the pattern in the application
-        MenuItem showMaxRule = new MenuItem("Show Max Rule in Application");
-        showMaxRule.setOnAction(event -> loadMaxRule());
-        menu.getItems().add(2, showMaxRule);
+        val showMaxRule = MenuItem("Show Max Rule in Application")
+        showMaxRule.onAction = EventHandler { loadMaxRule() }
+        menu.items.add(2, showMaxRule)
     }
 
-    public void loadMinRule() {
-        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
-        mainController.loadPattern(getSelectedRLE(pattern.getMinRule()));
+    override val selectedRLE: String
+        get() {
+            val pattern = PatternsDialog.selected!!.pattern as Pattern
+            return getSelectedRLE(pattern.rule as RuleFamily)
+        }
+
+    fun loadMinRule() {
+        val pattern = PatternsDialog.selected!!.pattern as Pattern
+        mainController.loadPattern(getSelectedRLE(pattern.minRule))
     }
 
-    public void loadMaxRule() {
-        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
-        mainController.loadPattern(getSelectedRLE(pattern.getMaxRule()));
+    fun loadMaxRule() {
+        val pattern = PatternsDialog.selected!!.pattern as Pattern
+        mainController.loadPattern(getSelectedRLE(pattern.maxRule))
     }
 
-    @Override
-    public String getSelectedRLE() {
-        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
-        return getSelectedRLE((RuleFamily) pattern.getRule());
+    fun getSelectedRLE(rule: RuleFamily): String {
+        val targetPattern = (searchProgram.searchParameters as RuleSearchParameters).targetPattern
+        targetPattern.updateBounds()
+
+        val width = targetPattern.bounds.value1.subtract(targetPattern.bounds.value0).x + 2
+        val height = targetPattern.bounds.value1.subtract(targetPattern.bounds.value0).y + 2
+
+        var rle = "x = $width, y = $height, rule = ${rule.rulestring}\n" // Header
+        rle += targetPattern.toRLE(
+            targetPattern.bounds.value0,
+            targetPattern.bounds.value1
+        ) // Body
+        return rle
     }
 
-    public String getSelectedRLE(RuleFamily rule) {
-        Grid targetPattern = ((RuleSearchParameters) searchProgram.getSearchParameters()).getTargetPattern();
-        targetPattern.updateBounds();
-
-        int width = targetPattern.getBounds().getValue1().subtract(targetPattern.getBounds().getValue0()).getX() + 2;
-        int height = targetPattern.getBounds().getValue1().subtract(targetPattern.getBounds().getValue0()).getY() + 2;
-
-        String rle = "x = " + width + ", y = " + height + ", rule = " + rule.getRulestring() + "\n";  // Header
-
-        rle += targetPattern.toRLE(targetPattern.getBounds().getValue0(),
-                targetPattern.getBounds().getValue1());  // Body
-
-        return rle;
-    }
-
-    @Override
-    public Map<String, String> getAdditionalInfo(Pattern pattern) {
-        return pattern.additionalInfo();
+    override fun getAdditionalInfo(pattern: Pattern): Map<String, String> {
+        return pattern.additionalInfo()
     }
 }

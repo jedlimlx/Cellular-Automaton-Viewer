@@ -1,93 +1,86 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import javafx.scene.control.*;
-import application.controller.dialogs.RandomSoupDialog;
-import application.model.rules.Rule;
-import application.model.search.csearch.BruteForceSearchParameters;
+import application.controller.dialogs.RandomSoupDialog
+import application.model.rules.Rule
+import application.model.search.SearchParameters
+import application.model.search.csearch.BruteForceSearchParameters
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.scene.control.*
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 
-import java.util.Collections;
+class BruteForceSearchParametersDialog(rule: Rule) : SearchParametersDialog() {
+    private val rule: Rule
+    private val randomSoupDialog: RandomSoupDialog
 
-public class BruteForceSearchParametersDialog extends SearchParametersDialog {
-    private final RandomSoupDialog randomSoupDialog;
+    private val bruteForce: CheckBox
+    private val spinnerMaxPeriod: Spinner<Int>
 
-    private final Rule rule;
-    private final CheckBox bruteForce;
-    private final Spinner<Integer> spinnerMaxPeriod, spinnerBoundX, spinnerBoundY;
+    private val spinnerBoundX: Spinner<Int>
+    private val spinnerBoundY: Spinner<Int>
 
-    public BruteForceSearchParametersDialog(Rule rule) {
-        super();
+    override var searchParameters: BruteForceSearchParameters? = null
+        private set
 
+    init {
         // Label for the maximum period
-        grid.add(new Label("Max Period:"), 0, 2);
+        grid.add(Label("Max Period:"), 0, 2)
 
         // The maximum period for period detection
-        SpinnerValueFactory<Integer> maxPeriodFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 20000, 70);
-        spinnerMaxPeriod = new Spinner<>();
-        spinnerMaxPeriod.setEditable(true);
-        spinnerMaxPeriod.setValueFactory(maxPeriodFactory);
-        grid.add(spinnerMaxPeriod, 0, 3);
+        val maxPeriodFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(10, 20000, 70)
+        spinnerMaxPeriod = Spinner()
+        spinnerMaxPeriod.isEditable = true
+        spinnerMaxPeriod.valueFactory = maxPeriodFactory
+        grid.add(spinnerMaxPeriod, 0, 3)
 
         // Bounding box for enumeration
-        SpinnerValueFactory<Integer> boundingBoxFactory3 =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 5);
+        val boundingBoxFactory3: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 5)
+        grid.add(Label("Soup Width:"), 0, 4)
+        spinnerBoundX = Spinner()
+        spinnerBoundX.isEditable = true
+        spinnerBoundX.valueFactory = boundingBoxFactory3
+        grid.add(spinnerBoundX, 0, 5)
+        grid.add(Label("Soup Height:"), 0, 6)
 
-        grid.add(new Label("Soup Width:"), 0, 4);
-
-        spinnerBoundX = new Spinner<>();
-        spinnerBoundX.setEditable(true);
-        spinnerBoundX.setValueFactory(boundingBoxFactory3);
-        grid.add(spinnerBoundX, 0, 5);
-
-        grid.add(new Label("Soup Height:"), 0, 6);
-
-        SpinnerValueFactory<Integer> boundingBoxFactory4 =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 5);
-
-        spinnerBoundY = new Spinner<>();
-        spinnerBoundY.setEditable(true);
-        spinnerBoundY.setValueFactory(boundingBoxFactory4);
-        grid.add(spinnerBoundY, 0, 7);
+        val boundingBoxFactory4: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 5)
+        spinnerBoundY = Spinner()
+        spinnerBoundY.isEditable = true
+        spinnerBoundY.valueFactory = boundingBoxFactory4
+        grid.add(spinnerBoundY, 0, 7)
 
         // Brute-force enumeration or random soup search
-        bruteForce = new CheckBox("Brute Force?");
-        grid.add(bruteForce, 0, 8);
+        bruteForce = CheckBox("Brute Force?")
+        grid.add(bruteForce, 0, 8)
 
         // Random Soup Parameters
-        randomSoupDialog = new RandomSoupDialog(rule.getNumStates(), 50, "C1",
-                Collections.singletonList(1));
-        Button randomSoupParametersButton = new Button("Set Random Soup Parameters");
-        randomSoupParametersButton.setOnAction(event -> randomSoupDialog.showAndWait());
+        randomSoupDialog = RandomSoupDialog(rule.numStates, 50, "C1", listOf(1))
 
-        grid.add(randomSoupParametersButton, 0, 9);
+        val randomSoupParametersButton = Button("Set Random Soup Parameters")
+        randomSoupParametersButton.onAction = EventHandler { event: ActionEvent? -> randomSoupDialog.showAndWait() }
+        grid.add(randomSoupParametersButton, 0, 9)
 
         // Setting the rule to search
-        this.rule = rule;
+        this.rule = rule
     }
 
-    @Override
-    public boolean confirmParameters() {
-        super.confirmParameters();
-
+    override fun confirmParameters(): Boolean {
+        super.confirmParameters()
         try {
-            searchParameters = new BruteForceSearchParameters(rule, spinnerMaxPeriod.getValue(),
-                    spinnerBoundX.getValue(), spinnerBoundY.getValue(), !bruteForce.isSelected(),
-                    randomSoupDialog.getSymmetry(), randomSoupDialog.getStates(), randomSoupDialog.getDensity());
-            return true;
-        }
-        catch (IllegalArgumentException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText(exception.getMessage());
-            alert.setContentText(exception.getMessage());
-            alert.showAndWait();
+            searchParameters = BruteForceSearchParameters(
+                rule, spinnerMaxPeriod.value,
+                spinnerBoundX.value, spinnerBoundY.value, !bruteForce.isSelected,
+                randomSoupDialog.symmetry, randomSoupDialog.states, randomSoupDialog.density
+            )
+
+            return true
+        } catch (exception: IllegalArgumentException) {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error!"
+            alert.headerText = exception.message
+            alert.contentText = exception.message
+            alert.showAndWait()
         }
 
-        return false;
-    }
-
-    @Override
-    public BruteForceSearchParameters getSearchParameters() {
-        return (BruteForceSearchParameters) super.getSearchParameters();
+        return false
     }
 }

@@ -1,41 +1,39 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import javafx.scene.control.*;
-import application.model.rules.Rule;
-import application.model.search.ocgar2.AgarSearchParameters;
+import application.model.rules.Rule
+import application.model.search.SearchParameters
+import application.model.search.csearch.BruteForceSearchParameters
+import application.model.search.ocgar2.AgarSearchParameters
+import javafx.scene.control.Label
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 
-public class AgarSearchParametersDialog extends SearchParametersDialog {
-    private final Rule rule;
-    private final Spinner<Integer> spinnerMaxPeriod;
+class AgarSearchParametersDialog(rule: Rule) : SearchParametersDialog() {
+    private val rule: Rule
+    private val spinnerMaxPeriod: Spinner<Int>
 
-    public AgarSearchParametersDialog(Rule rule) {
-        super();
+    override var searchParameters: AgarSearchParameters? = null
+        private set
 
+    init {
         // Label for the maximum period
-        grid.add(new Label("Max Period:"), 0, 2);
+        grid.add(Label("Max Period:"), 0, 2)
 
         // The maximum period for period detection
-        SpinnerValueFactory<Integer> maxPeriodFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 20000, 70);
-        spinnerMaxPeriod = new Spinner<>();
-        spinnerMaxPeriod.setEditable(true);
-        spinnerMaxPeriod.setValueFactory(maxPeriodFactory);
-        grid.add(spinnerMaxPeriod, 0, 3);
+        val maxPeriodFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(10, 20000, 70)
+        spinnerMaxPeriod = Spinner()
+        spinnerMaxPeriod.isEditable = true
+        spinnerMaxPeriod.valueFactory = maxPeriodFactory
+        grid.add(spinnerMaxPeriod, 0, 3)
 
         // Setting the rule to search
-        this.rule = rule;
+        this.rule = rule
     }
 
-    @Override
-    public boolean confirmParameters() {
-        super.confirmParameters();
-
-        searchParameters = new AgarSearchParameters(rule, spinnerMaxPeriod.getValue());
-        return true;
-    }
-
-    @Override
-    public AgarSearchParameters getSearchParameters() {
-        return (AgarSearchParameters) super.getSearchParameters();
+    override fun confirmParameters(): Boolean {
+        super.confirmParameters()
+        searchParameters = AgarSearchParameters(rule, spinnerMaxPeriod.value)
+        return true
     }
 }

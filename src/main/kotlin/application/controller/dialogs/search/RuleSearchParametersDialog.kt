@@ -1,216 +1,194 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import javafx.scene.control.*;
-import org.controlsfx.control.SegmentedButton;
-import org.javatuples.Pair;
-import application.controller.dialogs.rule.RuleDialog;
-import application.model.Coordinate;
-import application.model.rules.MinMaxRuleable;
-import application.model.rules.Rule;
-import application.model.rules.RuleFamily;
-import application.model.search.rulesrc.RuleSearchParameters;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
+import application.controller.dialogs.rule.RuleDialog
+import application.model.Coordinate
+import application.model.rules.MinMaxRuleable
+import application.model.rules.Rule
+import application.model.search.SearchParameters
+import application.model.search.ocgar2.AgarSearchParameters
+import application.model.search.rulesrc.RuleSearchParameters
+import application.model.simulation.Grid
+import application.model.simulation.Simulator
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.scene.control.*
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
+import org.controlsfx.control.SegmentedButton
 
-public class RuleSearchParametersDialog extends SearchParametersDialog {
-    private final Grid targetPattern;
-    private final Spinner<Integer> spinnerMaxPeriod, spinnerMinPop, spinnerMaxPop, spinnerMaxX, spinnerMaxY,
-            spinnerMatchGenerations;
+class RuleSearchParametersDialog(targetPattern: Grid, rule: Rule) : SearchParametersDialog() {
+    private val targetPattern: Grid
 
-    private final Rule rule;
-    private final RuleDialog minRuleDialog;
-    private final RuleDialog maxRuleDialog;
+    private val spinnerMaxPeriod: Spinner<Int>
+    private val spinnerMinPop: Spinner<Int>
+    private val spinnerMaxPop: Spinner<Int>
+    private val spinnerMaxX: Spinner<Int>
+    private val spinnerMaxY: Spinner<Int>
+    private val spinnerMatchGenerations: Spinner<Int>
 
-    private boolean manualControl;
+    private val rule: Rule
+    private val minRuleDialog: RuleDialog = RuleDialog("Enter Min Rule")
+    private val maxRuleDialog: RuleDialog = RuleDialog("Enter Max Rule")
 
-    public RuleSearchParametersDialog(Grid targetPattern, Rule rule) {
-        super();
+    private var manualControl = false
 
+    override var searchParameters: RuleSearchParameters? = null
+        private set
+
+    init {
         // Initialise the rule dialogs
-        minRuleDialog = new RuleDialog("Enter Min Rule");
-        maxRuleDialog = new RuleDialog("Enter Max Rule");
 
         // Label for the maximum period
-        grid.add(new Label("Max Period:"), 0, 2);
+        grid.add(Label("Max Period:"), 0, 2)
 
         // The maximum period for period detection
-        SpinnerValueFactory<Integer> maxPeriodFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 20000, 70);
-        spinnerMaxPeriod = new Spinner<>();
-        spinnerMaxPeriod.setEditable(true);
-        spinnerMaxPeriod.setValueFactory(maxPeriodFactory);
-        grid.add(spinnerMaxPeriod, 0, 3);
+        val maxPeriodFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(10, 20000, 70)
+        spinnerMaxPeriod = Spinner()
+        spinnerMaxPeriod.isEditable = true
+        spinnerMaxPeriod.valueFactory = maxPeriodFactory
+        grid.add(spinnerMaxPeriod, 0, 3)
 
         // The minimum and maximum population for period detection
-        SpinnerValueFactory<Integer> populationFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 0);
+        val populationFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 0)
+        grid.add(Label("Min Population:"), 0, 4)
+        spinnerMinPop = Spinner()
+        spinnerMinPop.isEditable = true
+        spinnerMinPop.valueFactory = populationFactory
+        grid.add(spinnerMinPop, 0, 5)
 
-        grid.add(new Label("Min Population:"), 0, 4);
-
-        spinnerMinPop = new Spinner<>();
-        spinnerMinPop.setEditable(true);
-        spinnerMinPop.setValueFactory(populationFactory);
-        grid.add(spinnerMinPop, 0, 5);
-
-        SpinnerValueFactory<Integer> populationFactory2 =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 100);
-
-        grid.add(new Label("Max Population:"), 0, 6);
-
-        spinnerMaxPop = new Spinner<>();
-        spinnerMaxPop.setEditable(true);
-        spinnerMaxPop.setValueFactory(populationFactory2);
-        grid.add(spinnerMaxPop, 0, 7);
+        val populationFactory2: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 100)
+        grid.add(Label("Max Population:"), 0, 6)
+        spinnerMaxPop = Spinner()
+        spinnerMaxPop.isEditable = true
+        spinnerMaxPop.valueFactory = populationFactory2
+        grid.add(spinnerMaxPop, 0, 7)
 
         // Maximum bounding box for period detection
-        SpinnerValueFactory<Integer> boundingBoxFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 40);
+        val boundingBoxFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 40)
+        grid.add(Label("Max Width:"), 0, 8)
+        spinnerMaxX = Spinner()
+        spinnerMaxX.isEditable = true
+        spinnerMaxX.valueFactory = boundingBoxFactory
+        grid.add(spinnerMaxX, 0, 9)
+        grid.add(Label("Max Height:"), 0, 10)
 
-        grid.add(new Label("Max Width:"), 0, 8);
-
-        spinnerMaxX = new Spinner<>();
-        spinnerMaxX.setEditable(true);
-        spinnerMaxX.setValueFactory(boundingBoxFactory);
-        grid.add(spinnerMaxX, 0, 9);
-
-        grid.add(new Label("Max Height:"), 0, 10);
-
-        SpinnerValueFactory<Integer> boundingBoxFactory2 =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20000, 40);
-
-        spinnerMaxY = new Spinner<>();
-        spinnerMaxY.setEditable(true);
-        spinnerMaxY.setValueFactory(boundingBoxFactory2);
-        grid.add(spinnerMaxY, 0, 11);
-
-        grid.add(new Separator(), 0, 12);
+        val boundingBoxFactory2: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 20000, 40)
+        spinnerMaxY = Spinner()
+        spinnerMaxY.isEditable = true
+        spinnerMaxY.valueFactory = boundingBoxFactory2
+        grid.add(spinnerMaxY, 0, 11)
+        grid.add(Separator(), 0, 12)
 
         // Either manual control or match x generations
-        ToggleButton manualControlButton = new ToggleButton("Manual Control");
-        ToggleButton matchGenerationsButton = new ToggleButton("Match X Generations");
-
-        SegmentedButton segmentedButton = new SegmentedButton();
-        segmentedButton.getButtons().addAll(manualControlButton, matchGenerationsButton);
-        grid.add(segmentedButton, 0, 13);
+        val manualControlButton = ToggleButton("Manual Control")
+        val matchGenerationsButton = ToggleButton("Match X Generations")
+        val segmentedButton = SegmentedButton()
+        segmentedButton.buttons.addAll(manualControlButton, matchGenerationsButton)
+        grid.add(segmentedButton, 0, 13)
 
         // Button to select min rule
-        Button buttonMinRule = new Button("Set Minimum Rule");
-        buttonMinRule.setOnAction(event -> minRuleDialog.showAndWait());
-        grid.add(buttonMinRule, 0, 14);
+        val buttonMinRule = Button("Set Minimum Rule")
+        buttonMinRule.onAction = EventHandler { event: ActionEvent? -> minRuleDialog.showAndWait() }
+        grid.add(buttonMinRule, 0, 14)
 
         // Button to select max rule
-        Button buttonMaxRule = new Button("Set Maximum Rule");
-        buttonMaxRule.setOnAction(event -> maxRuleDialog.showAndWait());
-        grid.add(buttonMaxRule, 0, 15);
+        val buttonMaxRule = Button("Set Maximum Rule")
+        buttonMaxRule.onAction = EventHandler { event: ActionEvent? -> maxRuleDialog.showAndWait() }
+        grid.add(buttonMaxRule, 0, 15)
 
         // Match X generations
-        Label matchGenerationsLabel = new Label("Match X Generations:");
-        grid.add(matchGenerationsLabel, 0, 16);
+        val matchGenerationsLabel = Label("Match X Generations:")
+        grid.add(matchGenerationsLabel, 0, 16)
 
-        SpinnerValueFactory<Integer> matchGenerationsFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200, 10);
+        val matchGenerationsFactory: SpinnerValueFactory<Int> = IntegerSpinnerValueFactory(0, 200, 10)
+        spinnerMatchGenerations = Spinner()
+        spinnerMatchGenerations.isEditable = true
+        spinnerMatchGenerations.valueFactory = matchGenerationsFactory
+        grid.add(spinnerMatchGenerations, 0, 17)
 
-        spinnerMatchGenerations = new Spinner<>();
-        spinnerMatchGenerations.setEditable(true);
-        spinnerMatchGenerations.setValueFactory(matchGenerationsFactory);
-        grid.add(spinnerMatchGenerations, 0, 17);
+        matchGenerationsButton.onAction = EventHandler {
+            buttonMinRule.isDisable = true
+            buttonMaxRule.isDisable = true
+            matchGenerationsLabel.isDisable = false
+            spinnerMatchGenerations.isDisable = false
+            manualControl = false
+        }
 
-        matchGenerationsButton.setOnAction(event -> {
-            buttonMinRule.setDisable(true);
-            buttonMaxRule.setDisable(true);
-            matchGenerationsLabel.setDisable(false);
-            spinnerMatchGenerations.setDisable(false);
-            manualControl = false;
-        });
-        manualControlButton.setOnAction(event -> {
-            buttonMinRule.setDisable(false);
-            buttonMaxRule.setDisable(false);
-            matchGenerationsLabel.setDisable(true);
-            spinnerMatchGenerations.setDisable(true);
-            manualControl = true;
-        });
+        manualControlButton.onAction = EventHandler {
+            buttonMinRule.isDisable = false
+            buttonMaxRule.isDisable = false
+            matchGenerationsLabel.isDisable = true
+            spinnerMatchGenerations.isDisable = true
+            manualControl = true
+        }
 
         // Setting the target pattern
-        this.rule = rule;
-        this.targetPattern = targetPattern;
+        this.rule = rule
+        this.targetPattern = targetPattern
     }
 
-    @Override
-    public boolean confirmParameters() {
-        super.confirmParameters();
+    override fun confirmParameters(): Boolean {
+        super.confirmParameters()
 
         try {
             if (manualControl) {
                 // Checking if the rulespace supports min / max rules
-                if (!(minRuleDialog.getRule() instanceof MinMaxRuleable)) {
-                    throw new IllegalArgumentException();
-                }
+                require(minRuleDialog.rule is MinMaxRuleable)
 
                 // Checking if the min and max rules are valid
-                if (!((MinMaxRuleable) minRuleDialog.getRule()).
-                        validMinMax(minRuleDialog.getRule(), maxRuleDialog.getRule())) {
-                    throw new IllegalArgumentException();
-                }
-
-                searchParameters = new RuleSearchParameters(targetPattern,
-                        minRuleDialog.getRule(), maxRuleDialog.getRule(), spinnerMaxPeriod.getValue(),
-                        spinnerMinPop.getValue(), spinnerMaxPop.getValue(), spinnerMaxX.getValue(),
-                        spinnerMaxY.getValue());
+                require((minRuleDialog.rule as MinMaxRuleable?)!!.validMinMax(minRuleDialog.rule, maxRuleDialog.rule))
+                searchParameters = RuleSearchParameters(
+                    targetPattern,
+                    minRuleDialog.rule, maxRuleDialog.rule, spinnerMaxPeriod.value,
+                    spinnerMinPop.value, spinnerMaxPop.value, spinnerMaxX.value,
+                    spinnerMaxY.value
+                )
             } else {
                 // Checking if the rulespace supports min / max rules
-                if (!(rule instanceof MinMaxRuleable)) {
-                    throw new IllegalArgumentException();
-                }
+                require(rule is MinMaxRuleable)
 
                 // Evolve target pattern for x generations
-                Simulator simulator = new Simulator(rule);
-                simulator.insertCells(targetPattern, new Coordinate());
+                val simulator = Simulator(rule)
+                simulator.insertCells(targetPattern, Coordinate())
 
-                Grid[] grids = new Grid[spinnerMatchGenerations.getValue()];
-                for (int i = 0; i < spinnerMatchGenerations.getValue(); i++) {
-                    grids[i] = simulator.deepCopy();
-                    grids[i].setBackground(rule.convertState(0, simulator.getGeneration()));
-                    simulator.step();
+                val grids = arrayOfNulls<Grid>(spinnerMatchGenerations.value)
+                for (i in 0 until spinnerMatchGenerations.value) {
+                    grids[i] = simulator.deepCopy()
+                    grids[i]!!.setBackground(rule.convertState(0, simulator.generation))
+                    simulator.step()
                 }
 
-                Pair<RuleFamily, RuleFamily> minMaxRule = ((MinMaxRuleable) rule).getMinMaxRule(grids);
-                searchParameters = new RuleSearchParameters(targetPattern,
-                        minMaxRule.getValue0(), minMaxRule.getValue1(), spinnerMaxPeriod.getValue(),
-                        spinnerMinPop.getValue(), spinnerMaxPop.getValue(), spinnerMaxX.getValue(),
-                        spinnerMaxY.getValue());
+                val minMaxRule = (rule as MinMaxRuleable).getMinMaxRule(grids)
+                searchParameters = RuleSearchParameters(
+                    targetPattern,
+                    minMaxRule.value0, minMaxRule.value1, spinnerMaxPeriod.value,
+                    spinnerMinPop.value, spinnerMaxPop.value, spinnerMaxX.value,
+                    spinnerMaxY.value
+                )
             }
 
-            return true;
-        }
-        catch (NullPointerException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("The min / max rule is not specified!");
-            alert.setContentText("The min / max rule is not specified!");
-            alert.showAndWait();
-        }
-        catch (UnsupportedOperationException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("Minimum and maximum rules are not supported by this rule family.");
-            alert.setContentText("The minimum and maximum rules are not supported by this rule family. " +
+            return true
+        } catch (exception: NullPointerException) {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error!"
+            alert.headerText = "The min / max rule is not specified!"
+            alert.contentText = "The min / max rule is not specified!"
+            alert.showAndWait()
+        } catch (exception: UnsupportedOperationException) {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error!"
+            alert.headerText = "Minimum and maximum rules are not supported by this rule family."
+            alert.contentText = "The minimum and maximum rules are not supported by this rule family. " +
                     "As a result, you cannot run rule search on rules in this rule family. " +
-                    "If you need this feature, please request for it.");
-            alert.showAndWait();
-        }
-        catch (IllegalArgumentException exception) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("The min / max rule is invalid!");
-            alert.setContentText("The min / max rule is invalid!");
-            alert.showAndWait();
+                    "If you need this feature, please request for it."
+            alert.showAndWait()
+        } catch (exception: IllegalArgumentException) {
+            val alert = Alert(Alert.AlertType.ERROR)
+            alert.title = "Error!"
+            alert.headerText = "The min / max rule is invalid!"
+            alert.contentText = "The min / max rule is invalid!"
+            alert.showAndWait()
         }
 
-        return false;
-    }
-
-    @Override
-    public RuleSearchParameters getSearchParameters() {
-        return (RuleSearchParameters) super.getSearchParameters();
+        return false
     }
 }

@@ -1,41 +1,46 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import application.model.simulation.Grid;
+import application.controller.dialogs.search.PatternTile
+import javafx.stage.Modality
+import javafx.scene.layout.TilePane
+import javafx.scene.input.ContextMenuEvent
+import application.controller.dialogs.search.PatternsDialog
+import javafx.scene.layout.VBox
+import javafx.scene.canvas.GraphicsContext
+import application.model.Coordinate
+import application.model.simulation.Grid
+import javafx.scene.canvas.Canvas
+import javafx.scene.control.Label
+import javafx.scene.text.Font
 
-import java.util.Map;
+class PatternTile(pattern: Grid, title: String?, additionalInfo: Map<String, String>) : VBox() {
+    val pattern: Grid
 
-public class PatternTile extends VBox {
-    private Grid pattern;
+    init {
+        pattern.updateBounds()
 
-    public PatternTile(Grid pattern, String title, Map<String, String> additionalInfo) {
-        pattern.updateBounds();
+        val titleLabel = Label(title)
+        titleLabel.font = Font(20.0)
+        super.getChildren().add(titleLabel)
 
-        Label titleLabel = new Label(title);
-        titleLabel.setFont(new Font(20));
-        super.getChildren().add(titleLabel);
+        val canvas = Canvas(
+            (pattern.bounds.value1.x - pattern.bounds.value0.x).toDouble(),
+            (pattern.bounds.value1.y - pattern.bounds.value0.y).toDouble()
+        )
+        val gc = canvas.graphicsContext2D
 
-        Canvas canvas = new Canvas(pattern.getBounds().getValue1().getX() - pattern.getBounds().getValue0().getX(),
-                pattern.getBounds().getValue1().getY() - pattern.getBounds().getValue0().getY());
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        pattern.iterateCells(cell -> gc.rect(cell.getX() - pattern.getBounds().getValue0().getX(),
-                cell.getY() - pattern.getBounds().getValue0().getY(), 1, 1));
-
-        super.getChildren().add(canvas);
-
-        for (Map.Entry<String, String> entry: additionalInfo.entrySet()) {
-            super.getChildren().add(new Label(entry.getKey() + ": " + entry.getValue()));
+        pattern.iterateCells { cell: Coordinate ->
+            gc.rect(
+                (cell.x - pattern.bounds.value0.x).toDouble(),
+                (cell.y - pattern.bounds.value0.y).toDouble(), 1.0, 1.0
+            )
         }
 
-        this.pattern = pattern;
-    }
+        super.getChildren().add(canvas)
 
-    public Grid getPattern() {
-        return pattern;
+        for ((key, value) in additionalInfo) {
+            super.getChildren().add(Label("$key: $value"))
+        }
+        this.pattern = pattern
     }
 }

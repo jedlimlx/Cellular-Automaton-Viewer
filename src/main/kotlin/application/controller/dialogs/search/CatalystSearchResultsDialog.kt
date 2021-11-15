@@ -1,26 +1,23 @@
-package application.controller.dialogs.search;
+package application.controller.dialogs.search
 
-import application.controller.MainController;
-import application.model.Utils;
-import application.model.patterns.Pattern;
-import application.model.search.SearchProgram;
+import application.controller.MainController
+import application.model.Utils
+import application.model.patterns.Pattern
+import application.model.search.SearchProgram
 
-import java.util.Map;
+class CatalystSearchResultsDialog(mainController: MainController, searchProgram: SearchProgram) :
+    SearchResultsDialog(mainController, searchProgram) {
+    override val selectedRLE: String
+        get() {
+            val pattern = PatternsDialog.selected!!.pattern as Pattern
+            return Utils.fullRLE(pattern)
+        }
 
-public class CatalystSearchResultsDialog extends SearchResultsDialog {
-    public CatalystSearchResultsDialog(MainController mainController, SearchProgram searchProgram) {
-        super(mainController, searchProgram);
-        super.setTitle("Catalyst Search Results");
+    override fun getAdditionalInfo(pattern: Pattern): Map<String, String> {
+        return pattern.additionalInfo()
     }
 
-    @Override
-    public String getSelectedRLE() {
-        Pattern pattern = (Pattern) PatternsDialog.selected.getPattern();
-        return Utils.fullRLE(pattern);
-    }
-
-    @Override
-    public Map<String, String> getAdditionalInfo(Pattern pattern) {
-        return pattern.additionalInfo();
+    init {
+        super.setTitle("Catalyst Search Results")
     }
 }
