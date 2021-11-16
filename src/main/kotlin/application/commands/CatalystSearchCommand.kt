@@ -145,6 +145,7 @@ class CatalystSearchCommand : Runnable {
                     maxState.get().coerceAtLeast(simulator.getCell(cell))
                 )
             }
+
             val target = Grid()
             val searchArea = ArrayList<Coordinate>()
             simulator.iterateCells { cell: Coordinate ->
@@ -152,6 +153,7 @@ class CatalystSearchCommand : Runnable {
                     cell
                 ) else if (simulator.getCell(cell) != 0) target.setCell(cell, simulator.getCell(cell))
             }
+
             val searchParameters = CatalystSearchParameters(
                 maxRepeatTime,
                 numCatalysts, false, rotateCatalysts,
@@ -162,10 +164,8 @@ class CatalystSearchCommand : Runnable {
             catalystSearch.searchThreaded(numSearch, threads)
 
             while (catalystSearch.numSearched < numSearch) {
-                if (catalystSearch.searchResults != null) {
-                    if (!catalystSearch.writeToFile(outputFile)) {
-                        System.err.println("Something went wrong while writing to the output file!")
-                    }
+                if (!catalystSearch.writeToFile(outputFile!!)) {
+                    System.err.println("Something went wrong while writing to the output file!")
                 }
 
                 Thread.sleep((time * 1000).toLong())

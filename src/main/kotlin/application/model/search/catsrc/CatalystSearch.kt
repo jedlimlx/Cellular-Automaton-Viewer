@@ -1,253 +1,196 @@
-package application.model.search.catsrc;
+package application.model.search.catsrc
 
-import application.model.Coordinate;
-import application.model.patterns.Catalyst;
-import application.model.search.SearchProgram;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
+import application.model.Coordinate
+import application.model.patterns.Catalyst
+import application.model.search.SearchProgram
+import application.model.simulation.Grid
+import application.model.simulation.Simulator
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import java.util.*
+import java.util.logging.Level
+import java.util.logging.LogManager
+import java.util.logging.Logger
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
-class PlacedCatalyst {
-    private boolean interacted = false;
-    private boolean regenerated = false;
-    private final int hash;
-    private final Coordinate startCoordinate, startCoordinate2;
-    private final List<Coordinate> coordinateList;
-    private final Grid catalyst;
-
-    public PlacedCatalyst(Grid catalyst, int hash, Coordinate startCoordinate, Coordinate startCoordinate2,
-                          List<Coordinate> coordinateList) {
-        this.catalyst = catalyst;
-        this.hash = hash;
-        this.startCoordinate = startCoordinate;
-        this.startCoordinate2 = startCoordinate2;
-        this.coordinateList = coordinateList;
+internal class PlacedCatalyst(
+    val catalyst: Grid, val hash: Int, val startCoordinate: Coordinate?, val startCoordinate2: Coordinate?,
+    val coordinateList: List<Coordinate>
+) {
+    private var interacted = false
+    private var regenerated = false
+    fun hasInteracted(): Boolean {
+        return interacted
     }
 
-    public Grid getCatalyst() {
-        return catalyst;
+    fun hasRegenerated(): Boolean {
+        return regenerated
     }
 
-    public int getHash() {
-        return hash;
+    fun setInteracted(interacted: Boolean) {
+        this.interacted = interacted
     }
 
-    public Coordinate getStartCoordinate() {
-        return startCoordinate;
-    }
-
-    public Coordinate getStartCoordinate2() {
-        return startCoordinate2;
-    }
-
-    public List<Coordinate> getCoordinateList() {
-        return coordinateList;
-    }
-
-    public boolean hasInteracted() {
-        return interacted;
-    }
-
-    public boolean hasRegenerated() {
-        return regenerated;
-    }
-
-    public void setInteracted(boolean interacted) {
-        this.interacted = interacted;
-    }
-
-    public void setRegenerated(boolean regenerated) {
-        this.regenerated = regenerated;
+    fun setRegenerated(regenerated: Boolean) {
+        this.regenerated = regenerated
     }
 }
 
-public class CatalystSearch extends SearchProgram {
-    private Set<Catalyst> known;
-    private final Random random = new Random();
+class CatalystSearch(parameters: CatalystSearchParameters) : SearchProgram(parameters) {
+    private var known: HashSet<Catalyst> = hashSetOf()
+    private val random = Random()
 
-    public CatalystSearch(CatalystSearchParameters parameters) {
-        super(parameters);
-    }
-
-    @Override
-    public void search(int num) {
-        Simulator simulator;
-        CatalystSearchParameters searchParameters = (CatalystSearchParameters) this.searchParameters;
-
-        if (searchParameters.getBruteForce()) {
-            // TODO (Brute force)
+    override fun search(num: Int) {
+        var simulator: Simulator
+        val searchParameters = searchParameters as CatalystSearchParameters
+        if (searchParameters.bruteForce) {
+            TODO("Brute force")
         } else {
-            known = new HashSet<>();
-            searchResults = new ArrayList<>(); // Initialise search results
+            known = HashSet()
+            searchResults = ArrayList() // Initialise search results
 
-            long startTime = System.currentTimeMillis();
-            int initialGeneration, repeatTime = -1;
-            int hash, numRegen, numInteracted;
-            List<PlacedCatalyst> usedCatalysts, placedCatalysts;
-            for (int i = 0; i < num; i++) {
+            var startTime = System.currentTimeMillis()
+            var initialGeneration: Int
+            var repeatTime = -1
+            var hash: Int
+            var numRegen: Int
+            var numInteracted: Int
+            var usedCatalysts: MutableList<PlacedCatalyst>
+            var placedCatalysts: List<PlacedCatalyst>?
+            for (i in 0 until num) {
                 // Check if the search should stop
-                if (stop) break;
+                if (stop) break
+                simulator = Simulator(searchParameters.rule)
+                initialGeneration = -1
+                usedCatalysts = ArrayList()
 
-                simulator = new Simulator(searchParameters.getRule());
-
-                initialGeneration = -1;
-                usedCatalysts = new ArrayList<>();
-                placedCatalysts = randomAddCatalyst(simulator, searchParameters);
-                if (placedCatalysts == null) continue;  // The catalysts overlap and are not still lives
+                placedCatalysts = randomAddCatalyst(simulator, searchParameters)
+                if (placedCatalysts == null) continue  // The catalysts overlap and are not still lives
 
                 // Inserting the target
-                simulator.insertCells(searchParameters.getTarget(), new Coordinate());
-
-                for (int j = 0; j < searchParameters.getMaxRepeatTime(); j++) {
-                    simulator.step();
-
-                    numRegen = 0;
-                    numInteracted = 0;
-                    for (PlacedCatalyst catalyst: placedCatalysts) {
-                        hash = simulator.hashCode(catalyst.getCoordinateList(), catalyst.getStartCoordinate());
-
-                        if (hash != catalyst.getHash() && !catalyst.hasInteracted()) {
-                            catalyst.setInteracted(true);
-                            if (initialGeneration == -1) initialGeneration = simulator.getGeneration();
-                        } else if (hash == catalyst.getHash() && catalyst.hasInteracted() &&
-                                !catalyst.hasRegenerated()) {
-                            usedCatalysts.add(catalyst);
-                            catalyst.setRegenerated(true);
-                            repeatTime = simulator.getGeneration() - initialGeneration;
+                simulator.insertCells(searchParameters.target, Coordinate())
+                for (j in 0 until searchParameters.maxRepeatTime) {
+                    simulator.step()
+                    numRegen = 0
+                    numInteracted = 0
+                    for (catalyst in placedCatalysts) {
+                        hash = simulator.hashCode(catalyst.coordinateList, catalyst.startCoordinate)
+                        if (hash != catalyst.hash && !catalyst.hasInteracted()) {
+                            catalyst.setInteracted(true)
+                            if (initialGeneration == -1) initialGeneration = simulator.generation
+                        } else if (hash == catalyst.hash && catalyst.hasInteracted() && !catalyst.hasRegenerated()) {
+                            usedCatalysts.add(catalyst)
+                            catalyst.setRegenerated(true)
+                            repeatTime = simulator.generation - initialGeneration
                         }
 
                         // To consider a catalyst valid,
                         // 1. At least one of the sub-catalysts must have been interacted with
                         // 2. All interacted catalysts must have been regenerated
-                        if (catalyst.hasInteracted()) numInteracted++;
-                        if (catalyst.hasInteracted() && catalyst.hasRegenerated()) numRegen++;
+                        if (catalyst.hasInteracted()) numInteracted++
+                        if (catalyst.hasInteracted() && catalyst.hasRegenerated()) numRegen++
                     }
 
                     // Every single catalyst regenerated
                     if (numRegen == numInteracted && numInteracted >= 1) {
-                        Grid original = new Grid();
-                        original.insertCells(searchParameters.getTarget(), new Coordinate());
-                        for (PlacedCatalyst catalyst: usedCatalysts)
-                            original.insertCells(catalyst.getCatalyst(), catalyst.getStartCoordinate2());
+                        val original = Grid()
+                        original.insertCells(searchParameters.target, Coordinate())
+                        for (catalyst in usedCatalysts) original.insertCells(
+                            catalyst.catalyst,
+                            catalyst.startCoordinate2
+                        )
 
-                        Catalyst catalyst = new Catalyst(simulator.getRule(), original, repeatTime);
-
+                        val catalyst = Catalyst(simulator.rule, original, repeatTime)
                         if (!known.contains(catalyst)) {
-                            add(searchResults, catalyst);
-                            add(known, catalyst);
+                            add(searchResults, catalyst)
+                            add(known, catalyst)
                         }
-
-                        break;
+                        break
                     }
                 }
 
-                synchronized (this) {  // To avoid race conditions
+                synchronized(this) {
+                    // To avoid race conditions
                     if (numSearched % 5000 == 0 && numSearched != 0) {
-                        System.out.println(numSearched + " potential catalysts searched (" +
-                                5000000 / (System.currentTimeMillis() - startTime) +
-                                " potential catalysts/s), " + searchResults.size() + " catalysts found!");
-                        startTime = System.currentTimeMillis();
+                        println(
+                            "$numSearched potential catalysts searched (" + 5000000 / (System.currentTimeMillis() - startTime) +
+                                    " potential catalysts/s), " + searchResults.size + " catalysts found!"
+                        )
+                        startTime = System.currentTimeMillis()
                     }
-
-                    numSearched++;
+                    numSearched++
                 }
             }
         }
     }
 
-    @Override
-    public boolean writeToFile(File file) {
-        try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write("# Running search in " + ((CatalystSearchParameters) searchParameters).getRule() +
-                    "\n");
-            fileWriter.write("Catalyst,RLE\n");
-            for (int i = 0; i < searchResults.size(); i++) {
-                fileWriter.write(searchResults.get(i) + "," + searchResults.get(i).toRLE() + "\n");
-            }
-
-            fileWriter.close();
-            return true;
-        } catch (IOException exception) {
-            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).
-                    log(Level.WARNING, exception.getMessage());
-            return false;
+    override fun writeToFile(file: File): Boolean {
+        return try {
+            val fileWriter = FileWriter(file)
+            fileWriter.write("# Running search in ${(searchParameters as CatalystSearchParameters).rule}\n")
+            fileWriter.write("Catalyst,RLE\n")
+            for (i in searchResults.indices)
+                fileWriter.write("${searchResults[i]},${searchResults[i].toRLE()}\n")
+            fileWriter.close()
+            true
+        } catch (exception: IOException) {
+            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, exception.message)
+            false
         }
     }
 
-    private List<PlacedCatalyst> randomAddCatalyst(Simulator grid, CatalystSearchParameters searchParameters) {
-        int index;
-        Grid catalyst;
-        Coordinate coordinate;
-        ArrayList<PlacedCatalyst> placedCatalysts = new ArrayList<>();
-        for (int i = 0; i < searchParameters.getNumCatalysts(); i++) {
-            index = random.nextInt(searchParameters.getCoordinateList().size());
-            coordinate = searchParameters.getCoordinateList().get(index);
+    private fun randomAddCatalyst(grid: Simulator, searchParameters: CatalystSearchParameters): List<PlacedCatalyst>? {
+        var index: Int
+        var catalyst: Grid
+        var coordinate: Coordinate?
+        val placedCatalysts = ArrayList<PlacedCatalyst>()
+        for (i in 0 until searchParameters.numCatalysts) {
+            index = random.nextInt(searchParameters.coordinateList.size)
+            coordinate = searchParameters.coordinateList[index]
 
-            index = random.nextInt(searchParameters.getCatalysts().size());
-            catalyst = searchParameters.getCatalysts().get(index).deepCopy();
+            index = random.nextInt(searchParameters.catalysts.size)
+            catalyst = searchParameters.catalysts[index].deepCopy()
 
-            if (searchParameters.getRotateCatalyst()) {
-                catalyst.updateBounds();
-                for (int j = 0; j < random.nextInt(4); j++)
-                    catalyst.rotateCW(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+            if (searchParameters.rotateCatalyst) {
+                catalyst.updateBounds()
+                for (j in 0 until random.nextInt(4)) catalyst.rotateCW(catalyst.bounds.value0, catalyst.bounds.value1)
             }
 
-            if (searchParameters.getFlipCatalyst()) {
-                catalyst.updateBounds();
+            if (searchParameters.flipCatalyst) {
+                catalyst.updateBounds()
 
-                int randomInt = random.nextInt(4);
-                if (randomInt == 0) {
-                    catalyst.reflectCellsX(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
-                } else if (randomInt == 1) {
-                    catalyst.reflectCellsY(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
-                } else if (randomInt == 2) {
-                    catalyst.reflectCellsX(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
-                    catalyst.reflectCellsY(catalyst.getBounds().getValue0(), catalyst.getBounds().getValue1());
+                when (random.nextInt(4)) {
+                    0 -> catalyst.reflectCellsX(catalyst.bounds.value0, catalyst.bounds.value1)
+                    1 -> catalyst.reflectCellsY(catalyst.bounds.value0, catalyst.bounds.value1)
+                    2 -> {
+                        catalyst.reflectCellsX(catalyst.bounds.value0, catalyst.bounds.value1)
+                        catalyst.reflectCellsY(catalyst.bounds.value0, catalyst.bounds.value1)
+                    }
                 }
             }
 
-            grid.insertCells(catalyst, coordinate);
-            Coordinate originalCoordinate = coordinate;
+            grid.insertCells(catalyst, coordinate)
 
-            List<Coordinate> bfsResult = catalyst.bfs(1, searchParameters.getRule().getNeighbourhood());
-
-            Coordinate coordinate3 = new Coordinate();
-            for (Coordinate coordinate2: bfsResult) {
-                if (coordinate3.getX() > coordinate2.getX())
-                    coordinate3 = new Coordinate(coordinate2.getX(), coordinate3.getY());
-                if (coordinate3.getY() > coordinate2.getY())
-                    coordinate3 = new Coordinate(coordinate3.getX(), coordinate2.getY());
+            val originalCoordinate = coordinate
+            val bfsResult = catalyst.bfs(1, searchParameters.rule.neighbourhood)
+            var coordinate3 = Coordinate()
+            for (coordinate2 in bfsResult) {
+                if (coordinate3.x > coordinate2.x) coordinate3 = Coordinate(coordinate2.x, coordinate3.y)
+                if (coordinate3.y > coordinate2.y) coordinate3 = Coordinate(coordinate3.x, coordinate2.y)
             }
 
-            int hash = catalyst.hashCode(bfsResult, coordinate3);
-
-            for (int j = 0; j < bfsResult.size(); j++) bfsResult.set(j, bfsResult.get(j).add(coordinate));
-            for (Coordinate coordinate2: bfsResult) {
-                if (coordinate.getX() > coordinate2.getX())
-                    coordinate = new Coordinate(coordinate2.getX(), coordinate.getY());
-                if (coordinate.getY() > coordinate2.getY())
-                    coordinate = new Coordinate(coordinate.getX(), coordinate2.getY());
+            val hash = catalyst.hashCode(bfsResult, coordinate3)
+            for (j in bfsResult.indices) bfsResult[j] = bfsResult[j].add(coordinate)
+            for (coordinate2 in bfsResult) {
+                if (coordinate!!.x > coordinate2.x) coordinate = Coordinate(coordinate2.x, coordinate.y)
+                if (coordinate.y > coordinate2.y) coordinate = Coordinate(coordinate.x, coordinate2.y)
             }
-
-            placedCatalysts.add(new PlacedCatalyst(catalyst, hash, coordinate, originalCoordinate, bfsResult));
+            placedCatalysts.add(PlacedCatalyst(catalyst, hash, coordinate, originalCoordinate, bfsResult))
         }
 
         // Ensuring the catalysts are stable
-        int hash = grid.hashCode();
-        grid.step();
-
-        if (hash != grid.hashCode()) {
-            return null;
-        }
-
-        return placedCatalysts;
+        val hash = grid.hashCode()
+        grid.step()
+        return if (hash != grid.hashCode()) null else placedCatalysts
     }
 }

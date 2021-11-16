@@ -1,167 +1,148 @@
-package application.model.search.csearch;
+package application.model.search.csearch
 
-import application.model.Coordinate;
-import application.model.SymmetryGenerator;
-import application.model.patterns.Pattern;
-import application.model.search.SearchProgram;
-import application.model.simulation.Grid;
-import application.model.simulation.Simulator;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import application.model.search.SearchProgram
+import java.util.HashSet
+import java.util.concurrent.Executors
+import application.model.simulation.Simulator
+import application.model.SymmetryGenerator
+import application.model.Coordinate
+import application.model.patterns.Pattern
+import java.math.BigInteger
+import java.io.FileWriter
+import java.io.IOException
+import java.util.logging.LogManager
+import java.io.File
+import java.util.ArrayList
+import java.util.logging.Level
+import java.util.logging.Logger
+import kotlin.math.pow
 
 /**
  * CAViewer's brute force search program - csearch.
  *
  * TODO (Object Separation)
  */
-public class BruteForceSearch extends SearchProgram {
-    private HashSet<Pattern> known;
-    private HashSet<Integer> tried;
-
-    /**
-     * Constructs the brute force search program with the provided parameters
-     * @param parameters The parameters of the search program
-     */
-    public BruteForceSearch(BruteForceSearchParameters parameters) {
-        super(parameters);
+class BruteForceSearch(parameters: BruteForceSearchParameters): SearchProgram(parameters) {
+    private var known: HashSet<Pattern> = hashSetOf()
+    private var tried: HashSet<Int> = hashSetOf()
+    override fun search(num: Int) {
+        searchThreaded(num, 1)
     }
 
-    @Override
-    public void search(int num) {
-        searchThreaded(num, 1);
-    }
-
-    @Override
-    public void searchThreaded(int num, int numThreads) {
+    override fun searchThreaded(num: Int, numThreads: Int) {
         // Multi-threading
-        executor = Executors.newFixedThreadPool(numThreads);
+        executor = Executors.newFixedThreadPool(numThreads)
 
         // Split into search space into shards for distributed search
-        for (int t = 0; t < numThreads; t++) {
-            int finalT = t;
-            executor.submit(() -> {
-                Simulator simulator;
-                BruteForceSearchParameters searchParameters = (BruteForceSearchParameters) this.searchParameters;
+        for (t in 0 until numThreads) {
+            executor.submit {
+                var simulator: Simulator
+                val searchParameters = searchParameters as BruteForceSearchParameters
 
-                known = new HashSet<>();  // Hash set to store known things
-                tried = new HashSet<>();  // Hash set to prevent re-attempting rotations and reflections of a soup
-                searchResults = new ArrayList<>(); // Initialise search results
+                known = HashSet() // Hash set to store known things
+                tried = HashSet() // Hash set to prevent re-attempting rotations and reflections of a soup
+                searchResults = ArrayList() // Initialise search results
 
-                long total, startTime = System.currentTimeMillis();
-                if (searchParameters.isRandom())
-                    total = num;  // Random Soups
-                else  // Brute Force
-                    total = (long) Math.pow(2, searchParameters.getxBound() * searchParameters.getyBound());
+                var startTime = System.currentTimeMillis()
+                val total = if (searchParameters.isRandom) num.toLong()
+                else 2.0.pow((searchParameters.xBound * searchParameters.yBound).toDouble()).toLong()
 
                 // There are n ^ (x * y) possible soups to check
-                for (long i = finalT * (total / numThreads); i < (finalT + 1) * (total / numThreads); i++) {
+                for (i in t * (total / numThreads) until (t + 1) * (total / numThreads)) {
                     // Check if the search should stop
-                    if (stop) break;
+                    if (stop) break
 
                     // Create a new simulator object each time
-                    simulator = new Simulator(searchParameters.getRule());
+                    simulator = Simulator(searchParameters.rule)
 
                     // Converting to base n to get the soup
-                    if (searchParameters.isRandom()) {
-                        simulator.insertCells(SymmetryGenerator.generateSymmetry(searchParameters.getSymmetry(),
-                                searchParameters.getDensity(), searchParameters.getStatesToInclude(),
-                                searchParameters.getxBound(), searchParameters.getyBound()), new Coordinate());
+                    if (searchParameters.isRandom) {
+                        simulator.insertCells(
+                            SymmetryGenerator.generateSymmetry(
+                                searchParameters.symmetry,
+                                searchParameters.density, searchParameters.statesToInclude,
+                                searchParameters.xBound, searchParameters.yBound
+                            ), Coordinate()
+                        )
                     } else {
-                        int x = 0, y = 0;
-                        String charString;
-                        String soup = BigInteger.valueOf(i).toString(2);
-                        for (int j = 0; j < soup.length(); j++) {
-                            charString = soup.charAt(j) + "";
-                            if (charString.matches("\\d")) {
-                                simulator.setCell(x, y, Integer.parseInt(charString));
-                            } else {
-                                simulator.setCell(x, y, soup.charAt(j) - 65 + 10);
-                            }
+                        var x = 0
+                        var y = 0
+                        var charString: String
+                        val soup = BigInteger.valueOf(i).toString(2)
+                        for (j in soup.indices) {
+                            charString = soup[j].toString() + ""
+                            if (charString.matches(Regex("\\d"))) simulator.setCell(x, y, charString.toInt())
+                            else simulator.setCell(x, y, soup[j].code - 65 + 10)
 
-                            if (x == searchParameters.getxBound()) {
-                                y++;
-                                x = 0;
+                            if (x == searchParameters.xBound) {
+                                y++
+                                x = 0
                             } else {
-                                x++;
+                                x++
                             }
                         }
 
                         // Quit if soup has already been tried
-                        if (tried.contains(simulator.hashCode())) continue;
+                        if (tried.contains(simulator.hashCode())) continue
 
                         // Adding rotations to tried
-                        simulator.updateBounds();
-                        tried.add(simulator.hashCode());
+                        simulator.updateBounds()
+                        tried.add(simulator.hashCode())
 
-                        simulator.rotateCW(simulator.getBounds().getValue0(), simulator.getBounds().getValue1());
-                        tried.add(simulator.hashCode());
+                        simulator.rotateCW(simulator.bounds.value0, simulator.bounds.value1)
+                        tried.add(simulator.hashCode())
 
-                        simulator.rotateCW(simulator.getBounds().getValue0(), simulator.getBounds().getValue1());
-                        tried.add(simulator.hashCode());
+                        simulator.rotateCW(simulator.bounds.value0, simulator.bounds.value1)
+                        tried.add(simulator.hashCode())
 
-                        simulator.rotateCW(simulator.getBounds().getValue0(), simulator.getBounds().getValue1());
-                        tried.add(simulator.hashCode());
+                        simulator.rotateCW(simulator.bounds.value0, simulator.bounds.value1)
+                        tried.add(simulator.hashCode())
                     }
 
                     // Identify the object
-                    Pattern result = simulator.identify(searchParameters.getMaxPeriod());
-
-                    if (result != null && !result.toString().equals("Still Life") &&
-                            !known.contains(result)) {
-                        add(searchResults, result);
-                        add(known, result);  // To avoid duplicate speeds & whatnot
+                    val result = simulator.identify(searchParameters.maxPeriod)
+                    if (result != null && result.toString() != "Still Life" && !known.contains(result)) {
+                        add(searchResults, result)
+                        add(known, result) // To avoid duplicate speeds & whatnot
                     }
 
                     if (numSearched % 5000 == 0) {
-                        System.out.println(numSearched + " soups searched (" +
-                                5000000 / (System.currentTimeMillis() - startTime) +
-                                " soup/s), " + searchResults.size() + " objects found!");
-                        startTime = System.currentTimeMillis();
+                        println(
+                            "$numSearched soups searched (" + 5000000 / (System.currentTimeMillis() - startTime) +
+                                    " soup/s), " + searchResults.size + " objects found!"
+                        )
+                        startTime = System.currentTimeMillis()
                     }
 
-                    synchronized (this) {  // To avoid race conditions
-                        numSearched++;
+                    synchronized(this) {  // To avoid race conditions
+                        numSearched++
                     }
                 }
 
-                System.out.println("Completed shard " + finalT + " of the search space!");
-            });
+                println("Completed shard $t of the search space!")
+            }
         }
     }
 
-    @Override
-    public boolean writeToFile(File file) {
-        try {
-            FileWriter writer = new FileWriter(file);
+    override fun writeToFile(file: File): Boolean {
+        return try {
+            val writer = FileWriter(file)
 
             // Writing the search parameters
-            BruteForceSearchParameters searchParameters = (BruteForceSearchParameters) this.searchParameters;
-            writer.write("# Rule: " + searchParameters.getRule() + "\n");
-            writer.write("# Max Period: " + searchParameters.getMaxPeriod() + "\n");
-            writer.write("Pattern,RLE\n");
-
-            for (Grid grid: searchResults) {   // Writing each pattern into the file
-                Pattern pattern = (Pattern) grid;
-                writer.write("\"" + pattern + "\"," + pattern.toRLE() + "\n");
+            val searchParameters = searchParameters as BruteForceSearchParameters
+            writer.write("# Rule: ${searchParameters.rule}\n")
+            writer.write("# Max Period: ${searchParameters.maxPeriod}\n")
+            writer.write("Pattern,RLE\n")
+            for (grid in searchResults) {   // Writing each pattern into the file
+                writer.write("\"$grid\",${grid.toRLE()}\n")
             }
 
             // Close the file
-            writer.close();
-            return true;
-        }
-        catch (IOException exception) {
-            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).
-                    log(Level.WARNING, exception.getMessage());
-            return false;
+            writer.close()
+            true
+        } catch (exception: IOException) {
+            LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, exception.message)
+            false
         }
     }
 }

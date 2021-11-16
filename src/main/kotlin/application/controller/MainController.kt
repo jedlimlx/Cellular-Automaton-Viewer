@@ -1140,7 +1140,7 @@ class MainController {
         parametersDialog.showAndWait()
 
         if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
-            val ruleSearch = RuleSearch(parametersDialog.searchParameters)
+            val ruleSearch = RuleSearch(parametersDialog.searchParameters!!)
             ruleSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
             val resultsDialog = RuleSearchResultsDialog(this, ruleSearch)
@@ -1162,7 +1162,7 @@ class MainController {
         parametersDialog.showAndWait()
 
         if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
-            val catalystSearch = CatalystSearch(parametersDialog.searchParameters)
+            val catalystSearch = CatalystSearch(parametersDialog.searchParameters!!)
             catalystSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
             val resultsDialog = CatalystSearchResultsDialog(this, catalystSearch)
@@ -1177,7 +1177,7 @@ class MainController {
         parametersDialog.showAndWait()
 
         if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
-            val bruteForceSearch = BruteForceSearch(parametersDialog.searchParameters)
+            val bruteForceSearch = BruteForceSearch(parametersDialog.searchParameters!!)
             bruteForceSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
             val resultsDialog = BruteForceSearchResultsDialog(this, bruteForceSearch)
@@ -1192,7 +1192,7 @@ class MainController {
         parametersDialog.showAndWait()
 
         if (parametersDialog.result === java.lang.Boolean.TRUE) {  // If the operation wasn't cancelled
-            val agarSearch = AgarSearch(parametersDialog.searchParameters)
+            val agarSearch = AgarSearch(parametersDialog.searchParameters!!)
             agarSearch.searchThreaded(Int.MAX_VALUE, parametersDialog.numThreads)
 
             val resultsDialog = AgarSearchResultsDialog(this, agarSearch)
@@ -1626,7 +1626,7 @@ class MainController {
         val rleFinal = StringBuilder()
         val tokens = RLE.split("\n").toTypedArray()
         for (token in tokens) {
-            if (token[0] != '#' && token[0] != 'x') {  // Check for comment & header
+            if (token.isNotEmpty() &&token[0] != '#' && token[0] != 'x') {  // Check for comment & header
                 rleFinal.append(token)
             }
         }

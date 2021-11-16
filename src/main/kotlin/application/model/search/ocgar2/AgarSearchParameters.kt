@@ -1,22 +1,13 @@
-package application.model.search.ocgar2;
+package application.model.search.ocgar2
 
-import application.model.rules.Rule;
-import application.model.search.SearchParameters;
+import application.model.search.ocgar2.AgarSearchParameters
+import application.model.search.SearchProgram
+import java.util.HashSet
+import application.model.simulation.Simulator
+import application.model.SymmetryGenerator
+import application.model.patterns.Spaceship
+import application.model.patterns.Oscillator
+import application.model.rules.Rule
+import application.model.search.SearchParameters
 
-public class AgarSearchParameters extends SearchParameters {
-    private Rule rule;
-    private int maxPeriod;
-
-    public AgarSearchParameters(Rule rule, int maxPeriod) {
-        this.rule = rule;
-        this.maxPeriod = maxPeriod;
-    }
-
-    public Rule getRule() {
-        return rule;
-    }
-
-    public int getMaxPeriod() {
-        return maxPeriod;
-    }
-}
+class AgarSearchParameters(val rule: Rule, val maxPeriod: Int) : SearchParameters()

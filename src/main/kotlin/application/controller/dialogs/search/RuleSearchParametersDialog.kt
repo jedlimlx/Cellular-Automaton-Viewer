@@ -35,8 +35,6 @@ class RuleSearchParametersDialog(targetPattern: Grid, rule: Rule) : SearchParame
         private set
 
     init {
-        // Initialise the rule dialogs
-
         // Label for the maximum period
         grid.add(Label("Max Period:"), 0, 2)
 
@@ -138,7 +136,7 @@ class RuleSearchParametersDialog(targetPattern: Grid, rule: Rule) : SearchParame
                 require((minRuleDialog.rule as MinMaxRuleable?)!!.validMinMax(minRuleDialog.rule, maxRuleDialog.rule))
                 searchParameters = RuleSearchParameters(
                     targetPattern,
-                    minRuleDialog.rule, maxRuleDialog.rule, spinnerMaxPeriod.value,
+                    minRuleDialog.rule!!, maxRuleDialog.rule!!, spinnerMaxPeriod.value,
                     spinnerMinPop.value, spinnerMaxPop.value, spinnerMaxX.value,
                     spinnerMaxY.value
                 )
@@ -153,7 +151,7 @@ class RuleSearchParametersDialog(targetPattern: Grid, rule: Rule) : SearchParame
                 val grids = arrayOfNulls<Grid>(spinnerMatchGenerations.value)
                 for (i in 0 until spinnerMatchGenerations.value) {
                     grids[i] = simulator.deepCopy()
-                    grids[i]!!.setBackground(rule.convertState(0, simulator.generation))
+                    grids[i]!!.background = rule.convertState(0, simulator.generation)
                     simulator.step()
                 }
 

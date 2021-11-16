@@ -9,8 +9,8 @@ import kotlin.math.max
 
 private val outputWriter = PrintWriter(System.out, true)
 
-class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(searchParameters) {
-    val parameters = (searchParameters as ShipSearchParameters)
+class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchParameters) {
+    val parameters = searchParameters
 
     private var range = 0
     private var indexOfUnknown = 0
@@ -584,7 +584,7 @@ class ShipSearch(val searchParameters: ShipSearchParameters): SearchProgram(sear
         TODO("Implement multi-threading")
     }
 
-    override fun writeToFile(file: File?): Boolean {
+    override fun writeToFile(file: File): Boolean {
         TODO("Write ships to file")
     }
 

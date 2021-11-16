@@ -146,7 +146,7 @@ class RuleSearchCommand : Runnable {
 
             while (ruleSearch.numSearched < numSearch) {
                 if (ruleSearch.searchResults != null) {
-                    if (!ruleSearch.writeToFile(outputFile)) {
+                    if (!ruleSearch.writeToFile(outputFile!!)) {
                         System.err.println("Something went wrong while writing to the output file!")
                     }
                 }
