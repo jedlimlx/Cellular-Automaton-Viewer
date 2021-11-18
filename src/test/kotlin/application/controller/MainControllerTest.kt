@@ -10,6 +10,7 @@ import javafx.scene.input.MouseButton
 import javafx.stage.Stage
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 import org.testfx.api.*
 import org.testfx.api.FxAssert.verifyThat
 import org.testfx.framework.junit5.ApplicationTest
@@ -34,6 +35,7 @@ class MainControllerTest: ApplicationTest() {
     }
 
     @Test
+    @Disabled
     fun testSelectionRectangle() {
         try {
             sleep(2000)
@@ -56,6 +58,7 @@ class MainControllerTest: ApplicationTest() {
     }
 
     @Test
+    @Disabled
     fun testSetRule() {
         try {
             sleep(2000)
