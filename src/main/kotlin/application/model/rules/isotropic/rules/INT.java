@@ -406,4 +406,18 @@ public class INT extends BaseINT implements ApgtableGeneratable, MinMaxRuleable 
 
         return 0;
     }
+
+    @Override
+    public int[][] possibleSuccessors(int generation) {
+        int[][] array = new int[numStates][];
+
+        // Dead cells can only become alive or stay dead
+        array[0] = new int[] {0, 1};
+
+        // Alive cells can only stay alive or die
+        if (survival.getSortedTransitionTable().size() == 0) array[1] = new int[] {0};
+        else array[1] = new int[] {1, 2};
+
+        return array;
+    }
 }

@@ -22,7 +22,10 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
     private var additionalCells = 0
     private var numBeyondCentralCell = 0
 
-    private lateinit var possibleSuccessor:Array<IntArray>
+    private lateinit var possibleSuccessor: Array<IntArray>
+
+    private lateinit var backOff: IntArray
+    private lateinit var fwdOff: IntArray
 
     private lateinit var centralCoordinate: Coordinate
     private lateinit var beyondCentralCell: IntArray
@@ -44,7 +47,7 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
         if (parameters.period == 1) parameters.lookahead = false
 
         // Optimisation for generations rules
-        possibleSuccessor = Array(parameters.rule.numStates) { IntArray(parameters.rule.numStates) { it } }
+        possibleSuccessor = parameters.rule.possibleSuccessors(0)
 
         // Obtain range of rule
         range = 0
@@ -110,6 +113,25 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
         singleBaseCell = baseCellCount == 1
 
         additionalCells = effectiveNeighbourhood.count { it.y == -1 && it.x > -1 }
+
+        // Creating table that will deal with gcd(k, p) > 1
+        backOff = IntArray(parameters.period) { -1 }
+
+        var i = 0
+        while (true) {
+            var j = parameters.dy
+            while (backOff[(i + j) % parameters.period] >= 0 && j < parameters.period) j++
+            if (j == parameters.period) {
+                backOff[i] = parameters.period - i
+                break
+            }
+
+            backOff[i] = j
+            i = (i + j) % parameters.period
+        }
+
+        fwdOff = backOff.clone()
+        fwdOff.reverse()
 
         // Creating transposition table to detect equivalent states
         val transpositionTable: LRUCache<Int, List<State>> = LRUCache(2000000)
@@ -589,38 +611,41 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
     }
 
     private fun findSuccessors(state: State): List<State> {
+        val newDy = backOff[state.depth % parameters.period]
+        val newDy2 = fwdOff[state.depth % parameters.period]
+
         // Previous states that need to be checked
         val key = Key(Array(2 * range + 1) {  // Checking lookup table
             if (it == 2 * range) {
-                if (-centralCoordinate.y * parameters.period - parameters.dy - 1 == -1)
+                if (-centralCoordinate.y * parameters.period - newDy - 1 == -1)
                     IntArray(parameters.width) { -1 }
-                else state.getPredecessor(-centralCoordinate.y * parameters.period - parameters.dy - 1)!!.cells
+                else state.getPredecessor(-centralCoordinate.y * parameters.period - newDy - 1)!!.cells
             } else state.getPredecessor((it + 1) * parameters.period - 1)!!.cells
         }, parameters, centralCoordinate, beyondCentralCell)
         val key2 = if (parameters.period != 1) {
             Key(Array(2 * range + 1) {
                 if (centralCoordinate.y == -1) {
                     if (it == 2 * range) IntArray(parameters.width) { -1 }
-                    else state.getPredecessor(it * parameters.period + parameters.dy - 1)!!.cells
+                    else state.getPredecessor(it * parameters.period + newDy2 - 1)!!.cells
                 } else {
-                    if (-(centralCoordinate.y + 1) * parameters.period - parameters.dy >= 0) {
+                    if (-(centralCoordinate.y + 1) * parameters.period - newDy2 >= 0) {
                         if (it == 2 * range) {
-                            if (-(centralCoordinate.y + 1) * parameters.period - parameters.dy == 0)
+                            if (-(centralCoordinate.y + 1) * parameters.period - newDy2 == 0)
                                 IntArray(parameters.width) { -1 }
                             else state.getPredecessor(-(centralCoordinate.y + 1) *
-                                    parameters.period - parameters.dy - 1)!!.cells
+                                    parameters.period - newDy2 - 1)!!.cells
                         }
                         else if (it == 0) IntArray(parameters.width) { -1 }
                         else state.getPredecessor(it * parameters.period - 1)!!.cells
                     } else {
                         if (it == 2 * range) IntArray(parameters.width) { -1 }
                         else state.getPredecessor(-(-centralCoordinate.y - it - 1) * parameters.period +
-                                parameters.dy - 1)!!.cells
+                                newDy2 - 1)!!.cells
                     }
                 }
             }, parameters, centralCoordinate, beyondCentralCell)
         } else key
-        val prevState = state.getPredecessor(parameters.dy - 1)
+        val prevState = state.getPredecessor(newDy - 1)
 
         val fill0 = key2.key[0][0] == -1
         val fillSuccessor = key2.key[2 * range][0] == -1

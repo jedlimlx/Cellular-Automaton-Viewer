@@ -96,6 +96,23 @@ public abstract class Rule {
     }
 
     /**
+     * Outputs an array representing the possible successor states of a given cell state
+     * @param generation The generation of the rule
+     * @return Returns an array representing the possible successor states of a given cell state
+     */
+    public int[][] possibleSuccessors(int generation) {
+        int[] subArray = new int[numStates];
+        for (int j = 0; j < numStates; j++) subArray[j] = j;
+
+        int[][] array = new int[numStates][];
+        for (int i = 0; i < numStates; i++) {
+            array[i] = subArray;
+        }
+
+        return array;
+    }
+
+    /**
      * Gets the alternating period of the rule
      * @return Returns the rule's alternating period
      */

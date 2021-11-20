@@ -609,7 +609,28 @@ public class HROTGenerations extends BaseHROT implements MinMaxRuleable, Apgtabl
 
     @Override
     public int dependsOnNeighbours(int state, int generation, Coordinate coordinate) {
+        if (state == 1 && survival.size() == 0) return 2;
+
         if (state <= 1) return super.dependsOnNeighbours(state, generation, coordinate);
         else return (state + 1) % numStates;
+    }
+
+    @Override
+    public int[][] possibleSuccessors(int generation) {
+        int[][] array = new int[numStates][];
+
+        // Dead cells can only become alive or stay dead
+        array[0] = new int[] {0, 1};
+
+        // Alive cells can only stay alive or become dying state 1
+        if (survival.size() == 0) array[1] = new int[] {2};
+        else array[1] = new int[] {1, 2};
+
+        // Dying cells can only dying more or become fully dead
+        for (int i = 2; i < numStates; i++) {
+            array[i] = new int[] {(i + 1) % numStates};
+        }
+
+        return array;
     }
 }

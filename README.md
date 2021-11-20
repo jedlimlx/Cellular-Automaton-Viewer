@@ -338,13 +338,14 @@ Search Programs
         - [x] 2-state rules
         - [x] Multi-state rules
         - [x] Higher-range rules
-        - [ ] Strobing / Alternating Rules
+        - [x] Strobing / Alternating Rules
         - [ ] Naive rules
         - [ ] Margolus rules
     - [ ] Symmetries
         - [x] Asymmetric
         - [x] Odd-symmetric
         - [x] Even-symmetric
+        - [ ] Gutter-symmetric
         - [ ] Glide-symmetric
     - [ ] Speeds
         - [ ] gcd(k, p) > 1
