@@ -360,7 +360,7 @@ Search Programs
         - [ ] Double-lookahead
         - [x] Repeating-component detection
     - [ ] Writing to dump files
-    - [ ] Multi-threading
+    - [x] Multi-threading
     - [ ] Inputting partials
     - [ ] Sideways searching
     - [ ] Adaptive widening

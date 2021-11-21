@@ -538,7 +538,7 @@ public class HROT extends BaseHROT implements MinMaxRuleable, ApgtableGeneratabl
 
         // Alive cells can only stay alive or die
         if (survival.size() == 0) array[1] = new int[] {0};
-        else array[1] = new int[] {1, 2};
+        else array[1] = new int[] {1, 0};
 
         return array;
     }

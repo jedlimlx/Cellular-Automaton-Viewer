@@ -59,6 +59,13 @@ class ShipSearchCommand : Runnable {
     private var num = 0
 
     @CommandLine.Option(
+        names = ["-t", "--threads"],
+        description = ["Number of threads to use in the DFS round"],
+        defaultValue = "1"
+    )
+    private var numThreads = 1
+
+    @CommandLine.Option(
         names = ["-m", "--min"],
         description = ["The minimum deepening increment"],
         defaultValue = "0"
@@ -120,6 +127,6 @@ class ShipSearchCommand : Runnable {
             true, stdin, partial, dfs, rng)
 
         val shipSearch = ShipSearch(shipSearchParameters)
-        shipSearch.search(num)
+        shipSearch.searchThreaded(num, numThreads)
     }
 }

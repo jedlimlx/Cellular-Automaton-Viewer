@@ -5,7 +5,10 @@ import application.model.LRUCache
 import application.model.search.SearchProgram
 import java.io.File
 import java.io.PrintWriter
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
+
 
 private val outputWriter = PrintWriter(System.out, true)
 
@@ -37,6 +40,10 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
     private lateinit var lookupTable3: Array<Array<Node>>
 
     override fun search(num: Int) {
+        searchThreaded(num, 1)
+    }
+
+    override fun searchThreaded(num: Int, numThreads: Int) {
         // Print out parameters
         if (!parameters.stdin) outputWriter.println(
             "Beginning search for ${parameters.symmetry} width ${parameters.width} " +
@@ -544,66 +551,74 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
 
             if (!parameters.stdin) outputWriter.print("\nBeginning depth-first search round, queue size ${bfsQueue.size} ")
 
-            var pruned = false
-            val newQueue = ArrayDeque<State>(bfsQueue.size / 50)
-            val dfsStack = ArrayList<State>()
-            for (index in 0 until bfsQueue.size) {
-                // Limit depth of DFS
-                val maxDepth = bfsQueue[index].prunedDepth + parameters.minDeepingIncrement
+            val newQueue = ArrayDeque<State>(bfsQueue.size / 40)
 
-                // DFS is basically BFS but with a stack
-                dfsStack.clear()
-                dfsStack.add(bfsQueue[index])
+            val threadPool = Executors.newFixedThreadPool(numThreads)
+            for (threadIndex in 0 until numThreads) {
+                threadPool.submit {
+                    var pruned = false
+                    val dfsStack = ArrayList<State>()
+                    for (index in bfsQueue.size * threadIndex / numThreads until
+                            bfsQueue.size * (threadIndex + 1) / numThreads) {
+                        // Limit depth of DFS
+                        val maxDepth = bfsQueue[index].prunedDepth + parameters.minDeepingIncrement
 
-                do {
-                    // The state leads to a dead end
-                    if (dfsStack.isEmpty()) {
-                        pruned = true
-                        break
+                        // DFS is basically BFS but with a stack
+                        dfsStack.clear()
+                        dfsStack.add(bfsQueue[index])
+
+                        do {
+                            // The state leads to a dead end
+                            if (dfsStack.isEmpty()) {
+                                pruned = true
+                                break
+                            }
+
+                            state = dfsStack.removeLast()
+
+                            // Get the generation of the partial
+                            generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
+
+                            if (parameters.stdin && generation == 0) {
+                                outputWriter.println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
+                                        state.toRLE(parameters.period, parameters.symmetry))
+                            }
+
+                            // Ship is complete if last 2Rp rows are empty
+                            val output = state.completeShip(2 * range * parameters.period)
+                            if (output == 1 && !parameters.stdin) {
+                                outputWriter.println("\nShip found!\nx = 0, y = 0, rule = ${parameters.rule}\n" +
+                                        state.getPredecessor(generation + 1)!!.
+                                        toRLE(parameters.period, parameters.symmetry))
+
+                                if (++count >= num) {
+                                    println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000}" +
+                                            " seconds, found $count ships.")
+                                    return@submit
+                                }
+                            }
+
+                            dfsStack.addAll(if (parameters.randomSearchOrder) findSuccessors(state).shuffled() else
+                                findSuccessors(state))
+                        } while (state.depth < maxDepth)
+
+                        if (!pruned) {
+                            bfsQueue[index].prunedDepth = maxDepth
+                            synchronized(this) { newQueue.addAll(dfsStack) }
+                        } else pruned = false
                     }
-
-                    state = dfsStack.removeLast()
-
-                    // Get the generation of the partial
-                    generation = (state.depth % parameters.period) % parameters.rule.alternatingPeriod
-
-                    if (parameters.stdin && generation == 0) {
-                        outputWriter.println("\nx = 0, y = 0, rule = ${parameters.rule}\n" +
-                                state.toRLE(parameters.period, parameters.symmetry))
-                    }
-
-                    // Ship is complete if last 2Rp rows are empty
-                    val output = state.completeShip(2 * range * parameters.period)
-                    if (output == 1 && !parameters.stdin) {
-                        outputWriter.println("\nShip found!\nx = 0, y = 0, rule = ${parameters.rule}\n" +
-                                state.getPredecessor(generation + 1)!!.
-                                toRLE(parameters.period, parameters.symmetry))
-
-                        if (++count >= num) {
-                            println("\nSearch complete! Took ${(System.currentTimeMillis() - startTime) / 1000}" +
-                                    " seconds, found $count ships.")
-                            return
-                        }
-                    }
-
-                    dfsStack.addAll(if (parameters.randomSearchOrder) findSuccessors(state).shuffled() else
-                        findSuccessors(state))
-                } while (state.depth < maxDepth)
-
-                if (!pruned) {
-                    bfsQueue[index].prunedDepth = maxDepth
-                    newQueue.addAll(dfsStack)
-                } else pruned = false
+                }
             }
+
+            threadPool.shutdown()
+            threadPool.awaitTermination(100000000, TimeUnit.MINUTES)
+
+            if (count >= num) return
 
             // Add the extensions found in the DFS phase back into the BFS queue
             bfsQueue = newQueue
             if (!parameters.stdin) outputWriter.println("-> ${bfsQueue.size}")
         }
-    }
-
-    override fun searchThreaded(num: Int, numThreads: Int) {
-        TODO("Implement multi-threading")
     }
 
     override fun writeToFile(file: File): Boolean {

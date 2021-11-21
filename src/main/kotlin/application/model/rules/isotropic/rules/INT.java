@@ -416,7 +416,7 @@ public class INT extends BaseINT implements ApgtableGeneratable, MinMaxRuleable 
 
         // Alive cells can only stay alive or die
         if (survival.getSortedTransitionTable().size() == 0) array[1] = new int[] {0};
-        else array[1] = new int[] {1, 2};
+        else array[1] = new int[] {1, 0};
 
         return array;
     }
