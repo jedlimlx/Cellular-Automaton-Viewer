@@ -61,6 +61,8 @@ class State(val predecessor: State?, val cells: IntArray, val numStates: Int) {
                         - index, -counter, state)
                 else if (symmetry == Symmetry.ODD_SYMMETRIC) grid.setCell(2 * predecessor.cells.size - 2
                         - index, -counter, state)
+                else if (symmetry == Symmetry.GUTTER_SYMMETRIC) grid.setCell(2 * predecessor.cells.size
+                        - index, -counter, state)
             }
 
             temp = predecessor.getPredecessor(period)

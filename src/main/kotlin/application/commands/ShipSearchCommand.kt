@@ -46,7 +46,7 @@ class ShipSearchCommand : Runnable {
 
     @CommandLine.Option(
         names = ["-s", "--symmetry"],
-        description = ["Symmetry of the spaceship (0 - asymmetric, 1 - even-symmetric, 2 - odd-symmetric)"],
+        description = ["Symmetry of the spaceship (0 - asymmetric, 1 - even-symmetric, 2 - odd-symmetric, 3 - gutter-symmetric)"],
         required = true
     )
     private var symmetryId = 0
@@ -118,7 +118,8 @@ class ShipSearchCommand : Runnable {
         val symmetry = when (symmetryId) {
             0 -> Symmetry.ASYMMETRIC
             1 -> Symmetry.EVEN_SYMMETRIC
-            else -> Symmetry.ODD_SYMMETRIC
+            2 -> Symmetry.ODD_SYMMETRIC
+            else -> Symmetry.GUTTER_SYMMETRIC
         }
 
         val shipSearchParameters = ShipSearchParameters(Utils.fromRulestring(rulestring), width, dy, period,

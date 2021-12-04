@@ -90,7 +90,6 @@ public abstract class BaseHROT extends RuleFamily {
         }
     }
 
-
     /**
      * Loads the neighbourhood from the N... specifier
      * @param range The range of the neighbourhood

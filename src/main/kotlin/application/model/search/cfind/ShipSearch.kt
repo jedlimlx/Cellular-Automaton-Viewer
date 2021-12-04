@@ -695,6 +695,7 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                 // Check boundary conditions
                 var valid = true
                 for (i in parameters.width until parameters.width + baseCellCount - 1) {
+                    if (i > parameters.width && parameters.symmetry == Symmetry.GUTTER_SYMMETRIC) break
                     neighbours = getNeighbours(key, node, i, generation, parameters.symmetry, fillUnknown = true)
 
                     val index = when {
@@ -703,6 +704,8 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                                 (i + centralCoordinate.x)
                         parameters.symmetry == Symmetry.EVEN_SYMMETRIC -> 2 * parameters.width - 1 -
                                 (i + centralCoordinate.x)
+                        parameters.symmetry == Symmetry.GUTTER_SYMMETRIC -> 2 * parameters.width -
+                                (i + centralCoordinate.x)
                         else -> 0
                     }
 
@@ -710,6 +713,9 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                     var nextState: Int
 
                     if (i + centralCoordinate.x >= parameters.width && parameters.symmetry == Symmetry.ASYMMETRIC) {
+                        cellState = 0
+                        nextState = 0
+                    } else if (i + centralCoordinate.x == parameters.width && parameters.symmetry == Symmetry.GUTTER_SYMMETRIC) {
                         cellState = 0
                         nextState = 0
                     } else {
@@ -924,6 +930,7 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                 // Check boundary conditions
                 var valid = true
                 for (i in parameters.width until parameters.width + baseCellCount - 1) {
+                    if (i > parameters.width && parameters.symmetry == Symmetry.GUTTER_SYMMETRIC) break
                     neighbours = getNeighbours(key, node, i, generation, parameters.symmetry, fillUnknown = true)
 
                     val index = when {
@@ -932,6 +939,8 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                                 (i + centralCoordinate.x)
                         parameters.symmetry == Symmetry.EVEN_SYMMETRIC -> 2 * parameters.width - 1 -
                                 (i + centralCoordinate.x)
+                        parameters.symmetry == Symmetry.GUTTER_SYMMETRIC -> 2 * parameters.width -
+                                (i + centralCoordinate.x)
                         else -> 0
                     }
 
@@ -939,6 +948,9 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                     var nextState: Int
 
                     if (i + centralCoordinate.x >= parameters.width && parameters.symmetry == Symmetry.ASYMMETRIC) {
+                        cellState = 0
+                        nextState = 0
+                    } else if (i + centralCoordinate.x == parameters.width && parameters.symmetry == Symmetry.GUTTER_SYMMETRIC) {
                         cellState = 0
                         nextState = 0
                     } else {
@@ -1143,6 +1155,13 @@ class ShipSearch(searchParameters: ShipSearchParameters): SearchProgram(searchPa
                         depth + coordinate.x - (2 * parameters.width - node.depth)
                     )!!.cellState
                     else key.key[-coordinate.y - 1][2 * parameters.width - 1 - (depth + coordinate.x)]
+                } else if (symmetry == Symmetry.GUTTER_SYMMETRIC) {
+                    if (2 * parameters.width < depth + coordinate.x) 0
+                    else if (parameters.width == depth + coordinate.x) 0
+                    else if (coordinate.y == 0) node.getPredecessor(
+                        depth + coordinate.x - (2 * parameters.width + 1 - node.depth)
+                    )!!.cellState
+                    else key.key[-coordinate.y - 1][2 * parameters.width - (depth + coordinate.x)]
                 } else 0
             }
             coordinate.x == 0 && coordinate.y == 0 && !fillUnknown -> -1
